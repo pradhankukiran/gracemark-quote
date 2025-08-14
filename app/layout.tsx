@@ -11,7 +11,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "Quote Calculator - EOR & IC Services",
+  title: "GraceMark Quote Tool",
   description: "Calculate accurate quotes for Employer of Record and Independent Contractor services",
   generator: "v0.app",
 }
