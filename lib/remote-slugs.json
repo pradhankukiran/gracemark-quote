@@ -1,0 +1,2021 @@
+{
+  "data": [
+    {
+      "code": "ALB",
+      "name": "Albania",
+      "currency": {
+        "code": "ALL",
+        "name": "Albanian Lek",
+        "symbol": "Lek",
+        "slug": "ff7b1039-aad9-48e5-9cb3-dfa1fb18f82c"
+      },
+      "region_slug": "12f0ec18-5dbc-48b5-bf34-7d0fe9ee96f0",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "albania-a8edcd7f-0dcc-435e-9aa1-09f54b6582a6"
+    },
+    {
+      "code": "ARG",
+      "name": "Argentina",
+      "currency": {
+        "code": "ARS",
+        "name": "Argentine Peso",
+        "symbol": "$",
+        "slug": "9ac55538-ea69-4c32-b7f6-3323e809c770"
+      },
+      "region_slug": "ae0c25f7-a030-43a1-b06c-78ce162b9736",
+      "child_regions": [],
+      "has_additional_fields": false,
+      "availability": "active",
+      "original_country_slug": "argentina-6c7569fe-3991-4a3b-9e6b-35fecf3e94ee"
+    },
+    {
+      "code": "ARM",
+      "name": "Armenia",
+      "currency": {
+        "code": "AMD",
+        "name": "Armenian Dram",
+        "symbol": "դր.",
+        "slug": "cf68e6f8-ca64-43b5-82a1-57e80eb01916"
+      },
+      "region_slug": "4b1ee45a-fac5-4623-a01f-432892877e5f",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "armenia-8a76d5eb-4931-4af1-a397-d012b93659ab"
+    },
+    {
+      "code": "AUS",
+      "name": "Australia",
+      "currency": {
+        "code": "AUD",
+        "name": "Australian Dollar",
+        "symbol": "$",
+        "slug": "5207c8b2-a7b8-404a-8a71-62bdc425fc4e"
+      },
+      "region_slug": "c0257c9d-553b-4656-bdc3-8d837a14ce78",
+      "child_regions": [
+        {
+          "code": "NT",
+          "name": "Northern Territory",
+          "status": "active",
+          "slug": "4e1c0bb2-6312-410d-a28c-3ff80787fb0b"
+        },
+        {
+          "code": "VIC",
+          "name": "Victoria",
+          "status": "active",
+          "slug": "5e68bb3a-86c5-4ff0-938e-b4628093f8fa"
+        },
+        {
+          "code": "QLD",
+          "name": "Queensland",
+          "status": "active",
+          "slug": "37f93f9b-5698-4333-8bd7-9326b438295c"
+        },
+        {
+          "code": "TAS",
+          "name": "Tasmania",
+          "status": "active",
+          "slug": "7aea9b4a-04cc-48e5-96c2-8d634171234a"
+        },
+        {
+          "code": "SA",
+          "name": "South Australia",
+          "status": "active",
+          "slug": "679fc17f-8232-4bd5-b9df-ca871af4a3a1"
+        },
+        {
+          "code": "NSW",
+          "name": "New South Wales",
+          "status": "active",
+          "slug": "b497fc7f-360b-4e70-be16-239af0553419"
+        },
+        {
+          "code": "ACT",
+          "name": "Australian Capital Territory",
+          "status": "active",
+          "slug": "d87d3e3c-25b9-4652-b58b-6b3ba1431372"
+        },
+        {
+          "code": "WA",
+          "name": "Western Australia",
+          "status": "active",
+          "slug": "425961b7-8d12-4017-a18f-f8254eb37f6f"
+        }
+      ],
+      "has_additional_fields": false,
+      "availability": "active",
+      "original_country_slug": "australia-bcd40c34-5618-4d36-a2ae-0ff640bfde84"
+    },
+    {
+      "code": "AUT",
+      "name": "Austria",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "7a9b8f08-1743-494f-bdb2-e37be9c99877",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "austria-e549efe3-128e-4d35-8cb7-9a66cd152796"
+    },
+    {
+      "code": "BGD",
+      "name": "Bangladesh",
+      "currency": {
+        "code": "BDT",
+        "name": "Bangladeshi Taka",
+        "symbol": "৳",
+        "slug": "2ecaf182-219b-43e2-9a12-6545fe35fbeb"
+      },
+      "region_slug": "cd920a98-678e-42c3-942f-029bd0d14f34",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "bangladesh-0fd10599-438d-476e-8da1-b8cd1ebd474d"
+    },
+    {
+      "code": "BRB",
+      "name": "Barbados",
+      "currency": {
+        "code": "BBD",
+        "name": "Barbados Dollar",
+        "symbol": "$",
+        "slug": "bee793ba-2d06-4df5-8458-26ab07f3aacf"
+      },
+      "region_slug": "7f17ca34-a956-49e6-976d-9cd896f5bbc6",
+      "child_regions": [],
+      "has_additional_fields": false,
+      "availability": "coming_soon",
+      "original_country_slug": "barbados-5e99ac3f-0b7e-4700-a20c-f8120aaa8e51"
+    },
+    {
+      "code": "BLR",
+      "name": "Belarus",
+      "currency": {
+        "code": "BYN",
+        "name": "Belarusian Ruble",
+        "symbol": "Br",
+        "slug": "byn-9062a769-bf63-4622-acaa-ce2b3393187e"
+      },
+      "region_slug": "b65c845b-19bd-498f-b19d-4ae466bac759",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "coming_soon",
+      "original_country_slug": "belarus-7ecc8a56-6187-44bc-be40-18f0af3ad91a"
+    },
+    {
+      "code": "BEL",
+      "name": "Belgium",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "8777c8ed-8014-4247-a582-947dcdb5f889",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "belgium-b69be1b5-7ab9-4105-b222-0e95abaa0e86"
+    },
+    {
+      "code": "BOL",
+      "name": "Bolivia",
+      "currency": {
+        "code": "BOB",
+        "name": "Bolivian Boliviano",
+        "symbol": "$b",
+        "slug": "f7945c27-c9db-4d3f-a8c7-9c3e6cc647ba"
+      },
+      "region_slug": "e0aa0f69-e6c0-4825-8d4b-1fe2800d4919",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "bolivia-b81b3c30-3264-42b7-80fe-85cdd3738986"
+    },
+    {
+      "code": "BIH",
+      "name": "Bosnia and Herzegovina",
+      "currency": {
+        "code": "BAM",
+        "name": "Bosnia-Herzegovina Convertible Mark",
+        "symbol": "KM",
+        "slug": "e06ab64b-505b-4ce3-9d75-fdb64760096c"
+      },
+      "region_slug": "4efc941d-9671-45ec-9a5f-d78ee619389d",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "bosnia-and-herzegovina-55931706-2dd4-4ee4-a6cf-47982e3561db"
+    },
+    {
+      "code": "BRA",
+      "name": "Brazil",
+      "currency": {
+        "code": "BRL",
+        "name": "Brazilian Real",
+        "symbol": "R$",
+        "slug": "23ad21fb-c3c9-40c8-8cb7-0e7cda1fda55"
+      },
+      "region_slug": "3b8d4aab-0ab4-46c1-95b9-70a39d679d20",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "brazil-60957ee4-1a5a-452a-ab76-48f4e139469b"
+    },
+    {
+      "code": "BGR",
+      "name": "Bulgaria",
+      "currency": {
+        "code": "BGN",
+        "name": "Bulgarian Lev",
+        "symbol": "лв",
+        "slug": "bcc18d01-5481-4488-95db-099fd43f1f58"
+      },
+      "region_slug": "21be02ed-e8b5-4eac-acec-b129c543d12a",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "bulgaria-31a487fc-0303-43eb-ad07-1fa0e56ea697"
+    },
+    {
+      "code": "KHM",
+      "name": "Cambodia",
+      "currency": {
+        "code": "KHR",
+        "name": "Cambodian Riel",
+        "symbol": "៛",
+        "slug": "6b61befb-e829-487e-a466-db02ac06a2cb"
+      },
+      "region_slug": "be0bfb70-7421-4fb1-941c-9df842bc5022",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "coming_soon",
+      "original_country_slug": "cambodia-cba214b0-0f64-4a91-a63d-cb6c22d5767f"
+    },
+    {
+      "code": "CAN",
+      "name": "Canada",
+      "currency": {
+        "code": "CAD",
+        "name": "Canadian Dollar",
+        "symbol": "$",
+        "slug": "1a071e34-9c38-4211-82bf-6423db282a3c"
+      },
+      "region_slug": "2d621f31-5a50-40af-9cd6-2336f67cf84c",
+      "child_regions": [
+        {
+          "code": "QC",
+          "name": "Quebec",
+          "status": "active",
+          "slug": "76009548-d6c8-48a6-bd1b-7c8eb5ac0953"
+        },
+        {
+          "code": "SK",
+          "name": "Saskatchewan",
+          "status": "active",
+          "slug": "1489c7c7-da7a-481c-9461-53210a3f0e38"
+        },
+        {
+          "code": "PE",
+          "name": "Prince Edward Island",
+          "status": "active",
+          "slug": "d7b1fcc2-594d-4fcc-92ee-bb662e5c4df8"
+        },
+        {
+          "code": "MB",
+          "name": "Manitoba",
+          "status": "active",
+          "slug": "8ab33c31-6611-43f3-95f5-48afd540efd3"
+        },
+        {
+          "code": "NS",
+          "name": "Nova Scotia",
+          "status": "active",
+          "slug": "21ef42f9-164c-474a-b3e3-55d809c34569"
+        },
+        {
+          "code": "AB",
+          "name": "Alberta",
+          "status": "active",
+          "slug": "73a343fc-2fe8-42ae-b187-2b0d9bd31c39"
+        },
+        {
+          "code": "NB",
+          "name": "New Brunswick",
+          "status": "active",
+          "slug": "0597b1dc-4f1f-4b6e-ba6c-9847f448cdd7"
+        },
+        {
+          "code": "BC",
+          "name": "British Columbia",
+          "status": "active",
+          "slug": "9d4f6b80-0e67-478f-940e-133855c839a0"
+        },
+        {
+          "code": "NL",
+          "name": "Newfoundland and Labrador",
+          "status": "active",
+          "slug": "5c95739e-5c4b-49b4-a3df-763e50091bb7"
+        },
+        {
+          "code": "NT",
+          "name": "Northwest Territories",
+          "status": "active",
+          "slug": "7a5b5dc7-949b-42df-9053-b7ce71402111"
+        },
+        {
+          "code": "ON",
+          "name": "Ontario",
+          "status": "active",
+          "slug": "3fed4db5-6527-490c-8afd-88e60c14abe2"
+        }
+      ],
+      "has_additional_fields": false,
+      "availability": "active",
+      "original_country_slug": "canada-d4ca2295-574a-48dc-9a43-026b6cb03c63"
+    },
+    {
+      "code": "CHL",
+      "name": "Chile",
+      "currency": {
+        "code": "CLP",
+        "name": "Chilean Peso",
+        "symbol": "$",
+        "slug": "ebb10f30-1e26-49db-92f7-c31bdbeb331b"
+      },
+      "region_slug": "40a9ce40-6c9d-4cd6-ad65-32792cf494a7",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "chile-acd03f35-9ea9-45c6-ab2b-d511818af140"
+    },
+    {
+      "code": "CHN",
+      "name": "China",
+      "currency": {
+        "code": "CNY",
+        "name": "Chinese Yuan Renminbi",
+        "symbol": "¥",
+        "slug": "80070048-9021-428a-b830-ae5bdb81a79c"
+      },
+      "region_slug": "e81c6f6a-94ed-4e70-9089-b31143583581",
+      "child_regions": [
+        {
+          "code": "BJ",
+          "name": "Beijing",
+          "status": "active",
+          "slug": "efa26993-d307-496b-bda3-93073ff17a88"
+        },
+        {
+          "code": "SC",
+          "name": "Sichuan",
+          "status": "active",
+          "slug": "04b6c6e2-4786-4571-b897-e0e0a4ec9233"
+        },
+        {
+          "code": "JS",
+          "name": "Jiangsu",
+          "status": "active",
+          "slug": "0dd4c60e-4974-4275-822a-04de634c7b18"
+        },
+        {
+          "code": "TJ",
+          "name": "Tianjin",
+          "status": "active",
+          "slug": "5540a109-f41b-447b-878c-b6ccc761da27"
+        },
+        {
+          "code": "SH",
+          "name": "Shanghai",
+          "status": "active",
+          "slug": "2e2f7ded-7163-45f4-ab9e-a3a1b0619fd5"
+        },
+        {
+          "code": "ZJ",
+          "name": "Zhejiang",
+          "status": "active",
+          "slug": "adc1d4db-8d04-47b5-88dc-660cab5e81fa"
+        },
+        {
+          "code": "SD",
+          "name": "Shandong",
+          "status": "active",
+          "slug": "e754edf6-3118-4223-8062-696078b5308b"
+        },
+        {
+          "code": "GD",
+          "name": "Guangdong",
+          "status": "active",
+          "slug": "08098db9-09fc-4208-89b3-080ba3f5dce7"
+        }
+      ],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "china-4e8f596e-9469-4e04-843c-b7460af61609"
+    },
+    {
+      "code": "COL",
+      "name": "Colombia",
+      "currency": {
+        "code": "COP",
+        "name": "Colombian Peso",
+        "symbol": "$",
+        "slug": "0cbc70d6-8764-456e-a10b-d443c9a31da3"
+      },
+      "region_slug": "a2a6b70a-1fb4-412b-a183-53a15a1cafe4",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "colombia-03d08d02-0406-4e5b-95e3-52b959ebebb4"
+    },
+    {
+      "code": "CRI",
+      "name": "Costa Rica",
+      "currency": {
+        "code": "CRC",
+        "name": "Costa Rican Colon",
+        "symbol": "₡",
+        "slug": "8b4ce31a-7bd5-4d69-8287-69ae4f0e64ce"
+      },
+      "region_slug": "b4a3d345-cbc9-4324-985f-33060fc69626",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "costa-rica-4ec2a97b-917f-42d1-82c2-ffd9c3c14654"
+    },
+    {
+      "code": "CIV",
+      "name": "Cote d'Ivoire",
+      "currency": {
+        "code": "XOF",
+        "name": "West African CFA",
+        "symbol": "CFA",
+        "slug": "96cebacd-286a-41a8-976a-63f471572653"
+      },
+      "region_slug": "44f62cf5-c9c0-44bc-90ec-c994f3e3438f",
+      "child_regions": [],
+      "has_additional_fields": false,
+      "availability": "coming_soon",
+      "original_country_slug": "cote-d-ivoire-0671054e-ee43-49e1-99db-1523ac906c57"
+    },
+    {
+      "code": "HRV",
+      "name": "Croatia",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "13bf5fcb-392e-44ca-832a-2183cbd08199",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "croatia-3d6feb46-5157-49f4-8476-6a1be05db3fa"
+    },
+    {
+      "code": "CYP",
+      "name": "Cyprus",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "6f13bef4-c8db-44f3-ab1e-f55faef4bd99",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "cyprus-6fc7b2c4-4b46-4458-bb13-c4d58b7ca1b2"
+    },
+    {
+      "code": "CZE",
+      "name": "Czech Republic",
+      "currency": {
+        "code": "CZK",
+        "name": "Czech Koruna",
+        "symbol": "Kč",
+        "slug": "36b73f15-49a0-4c58-b13a-409d46ba26d9"
+      },
+      "region_slug": "57197230-c230-42b7-a9c3-2619dba340b0",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "czech-republic-4b9f19a0-3288-4d60-98e9-4704889ae08f"
+    },
+    {
+      "code": "DNK",
+      "name": "Denmark",
+      "currency": {
+        "code": "DKK",
+        "name": "Danish Krone",
+        "symbol": "kr.",
+        "slug": "b9f9ec9e-6cf2-41a6-9b01-7ece3e221983"
+      },
+      "region_slug": "38247b83-1222-481f-9e29-8cd82448c31e",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "denmark-7eb55321-b114-49c1-a877-caacc0bb81fc"
+    },
+    {
+      "code": "DOM",
+      "name": "Dominican Republic",
+      "currency": {
+        "code": "DOP",
+        "name": "Dominican Peso",
+        "symbol": "RD$",
+        "slug": "6daf7ee5-7ba7-4dca-a3b9-b9a20841b650"
+      },
+      "region_slug": "88d0d181-dc10-4cd8-b91c-fde8456db03e",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "dominican-republic-5fd7747f-8d87-4f48-ae0e-970b44cfe310"
+    },
+    {
+      "code": "ECU",
+      "name": "Ecuador",
+      "currency": {
+        "code": "USD",
+        "name": "United States Dollar",
+        "symbol": "$",
+        "slug": "1b2c181d-24c9-44ff-a8e1-2a7025ca491c"
+      },
+      "region_slug": "d91a8aad-c86d-4e99-a285-0f153c470415",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "ecuador-567b8d05-0be1-45f2-a99f-6812283a76e9"
+    },
+    {
+      "code": "EGY",
+      "name": "Egypt",
+      "currency": {
+        "code": "EGP",
+        "name": "Egyptian Pound",
+        "symbol": "£",
+        "slug": "20d490e7-be72-45f3-80ba-35b34d2634b3"
+      },
+      "region_slug": "04f6f6d1-c41c-416e-98ed-9ed583f90f13",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "egypt-22d370bf-4282-431a-9027-68d6340398da"
+    },
+    {
+      "code": "SLV",
+      "name": "El Salvador",
+      "currency": {
+        "code": "USD",
+        "name": "United States Dollar",
+        "symbol": "$",
+        "slug": "1b2c181d-24c9-44ff-a8e1-2a7025ca491c"
+      },
+      "region_slug": "a2604f91-e133-46be-b694-c61165426c3c",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "el-salvador-d7ba66c8-c93d-4528-8fbf-b82041546dd8"
+    },
+    {
+      "code": "EST",
+      "name": "Estonia",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "246765e3-58b5-4076-b63a-a36f46f80f35",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "estonia-f9fa81cc-0b0a-4934-934f-8ac6ce211a00"
+    },
+    {
+      "code": "FIN",
+      "name": "Finland",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "5c7fd179-d9e0-4eff-9328-3268762f0d3d",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "finland-1533dbf2-c317-43ec-b810-5bfb7cadc0b6"
+    },
+    {
+      "code": "FRA",
+      "name": "France",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "9ca55104-d8f1-4802-956e-15f828e440eb",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "france-a287ca4f-5da6-401e-97cd-079f3d5b7b69"
+    },
+    {
+      "code": "GEO",
+      "name": "Georgia",
+      "currency": {
+        "code": "GEL",
+        "name": "Georgian Lari",
+        "symbol": "ლ",
+        "slug": "f1159753-f66f-4e9a-a568-ca4c28cc1b09"
+      },
+      "region_slug": "b15dbed0-8685-4835-96ce-517860f59663",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "georgia-45f154f4-2e38-4b96-91a0-130e4b8bb576"
+    },
+    {
+      "code": "DEU",
+      "name": "Germany",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "a41f478e-cc33-4de8-a044-998368a44790",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "germany-2539b093-1df7-4063-a656-5bcf30603ba6"
+    },
+    {
+      "code": "GHA",
+      "name": "Ghana",
+      "currency": {
+        "code": "GHS",
+        "name": "Ghanaian Cedi",
+        "symbol": "GH₵",
+        "slug": "ghs-2199c089-adaa-49d0-8162-937967e9ae9f"
+      },
+      "region_slug": "2cfee83d-0022-4b4d-aa1f-d6f90a52cdec",
+      "child_regions": [],
+      "has_additional_fields": false,
+      "availability": "coming_soon",
+      "original_country_slug": "ghana-4297a65f-437f-4b19-8649-afc757b402f9"
+    },
+    {
+      "code": "GRC",
+      "name": "Greece",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "98465191-d46f-4b7c-a4c1-d70619322bf7",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "greece-64adeedf-a3a1-41a2-9069-467c3e95442e"
+    },
+    {
+      "code": "GTM",
+      "name": "Guatemala",
+      "currency": {
+        "code": "GTQ",
+        "name": "Guatemalan Quetzal",
+        "symbol": "Q",
+        "slug": "ebd5e501-e238-498d-a9b6-b239190881ce"
+      },
+      "region_slug": "1808fe56-4760-423c-b6c6-e535e2406892",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "guatemala-a37b462f-5973-47ef-ba9e-56aa34723205"
+    },
+    {
+      "code": "HND",
+      "name": "Honduras",
+      "currency": {
+        "code": "HNL",
+        "name": "Honduran Lempira",
+        "symbol": "L",
+        "slug": "e1b8b1be-3695-40ef-b482-dde178d37cf4"
+      },
+      "region_slug": "63c3d39d-fbe9-4159-ba0f-127954bed0ee",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "honduras-0e517135-398b-4037-85d9-9bd4d078e584"
+    },
+    {
+      "code": "HKG",
+      "name": "Hong Kong",
+      "currency": {
+        "code": "HKD",
+        "name": "Hong Kong Dollar",
+        "symbol": "HK$",
+        "slug": "3597f522-0848-4c9f-88c7-05e53b46f026"
+      },
+      "region_slug": "75432738-0750-4a56-a68b-db8f52491ad5",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "hong-kong--5b574018-b864-4676-b2dc-cad24e7993f2"
+    },
+    {
+      "code": "HUN",
+      "name": "Hungary",
+      "currency": {
+        "code": "HUF",
+        "name": "Hungarian Forint",
+        "symbol": "Ft",
+        "slug": "79432196-0d02-445c-9982-2da50b748867"
+      },
+      "region_slug": "caa8f9dc-c3d3-4ce8-9d52-59b22ddd7e5b",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "hungary-903a94d3-5e0e-4729-bc19-0c925de99de8"
+    },
+    {
+      "code": "ISL",
+      "name": "Iceland",
+      "currency": {
+        "code": "ISK",
+        "name": "Icelandic Krona",
+        "symbol": "kr",
+        "slug": "09ec99b4-0934-4a7b-8e3b-4678d347c7f4"
+      },
+      "region_slug": "fab70482-d555-4a2d-9f45-f8acae0a7797",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "iceland-d0a07d29-54dc-4321-b3ec-dc94ca66b006"
+    },
+    {
+      "code": "IND",
+      "name": "India",
+      "currency": {
+        "code": "INR",
+        "name": "Indian Rupee",
+        "symbol": "₹",
+        "slug": "c11223b0-d8bb-4688-bba7-a9f1600b9b47"
+      },
+      "region_slug": "ea232a10-c20e-4dec-88b8-3ef9cfc7e274",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "india-55751d04-7d97-4b76-9e7d-503190babf39"
+    },
+    {
+      "code": "IDN",
+      "name": "Indonesia",
+      "currency": {
+        "code": "IDR",
+        "name": "Indonesian Rupiah",
+        "symbol": "Rp",
+        "slug": "63712adc-2d80-4e61-84be-e8b60a102163"
+      },
+      "region_slug": "31b30cc1-2399-4976-a89d-a9aef904ff8a",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "indonesia-4912e274-0782-4899-8673-6522bd652d7c"
+    },
+    {
+      "code": "IRL",
+      "name": "Ireland",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "0d725cdf-7420-4966-880f-3363d3890f5b",
+      "child_regions": [],
+      "has_additional_fields": false,
+      "availability": "active",
+      "original_country_slug": "ireland-5d7efedb-21d4-4560-832a-8802ba391446"
+    },
+    {
+      "code": "ISR",
+      "name": "Israel",
+      "currency": {
+        "code": "ILS",
+        "name": "Israeli New Sheqel",
+        "symbol": "₪",
+        "slug": "2b2b9a51-3e1f-4751-a065-2becf02d30fe"
+      },
+      "region_slug": "0852949a-6af9-45be-a0b6-ef777fe64c66",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "israel-2de1775f-b7dc-4f7c-9650-c8eaa050d112"
+    },
+    {
+      "code": "ITA",
+      "name": "Italy",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "ed54d1f3-0c25-42e3-8bdf-ea1e66ff39f3",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "italy-a333115f-f903-42bc-bd1c-18763c29dd62"
+    },
+    {
+      "code": "JAM",
+      "name": "Jamaica",
+      "currency": {
+        "code": "JMD",
+        "name": "Jamaican Dollar",
+        "symbol": "J$",
+        "slug": "98c51618-8427-4a46-9f55-5ec35d144528"
+      },
+      "region_slug": "bba6a9f8-adc6-46b7-9bde-8e5baaffdd82",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "jamaica-52f58335-4625-4bed-a2d1-704944b67ee1"
+    },
+    {
+      "code": "JPN",
+      "name": "Japan",
+      "currency": {
+        "code": "JPY",
+        "name": "Japanese Yen",
+        "symbol": "¥",
+        "slug": "75e5d9a3-78e6-4d73-9330-eb9cafa8482a"
+      },
+      "region_slug": "3e240727-442a-4c4d-a763-eceae5351682",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "japan-34f7da64-c744-43fe-a351-ffa07b733a23"
+    },
+    {
+      "code": "JOR",
+      "name": "Jordan",
+      "currency": {
+        "code": "JOD",
+        "name": "Jordanian Dinar",
+        "symbol": "د.ا",
+        "slug": "8d2ebb78-d001-4d2d-a70d-e5d084896ec2"
+      },
+      "region_slug": "4ec6b1bf-d9ac-4094-9576-e2c6685202c7",
+      "child_regions": [],
+      "has_additional_fields": false,
+      "availability": "coming_soon",
+      "original_country_slug": "jordan-529bf142-ef47-42fc-8b3c-5539f1c0e7c9"
+    },
+    {
+      "code": "KEN",
+      "name": "Kenya",
+      "currency": {
+        "code": "KES",
+        "name": "Kenyan Shilling",
+        "symbol": "KSh",
+        "slug": "f19bf03e-f2dd-4eb8-a03e-9aae3f065151"
+      },
+      "region_slug": "40c2f6bb-0e77-452e-8061-0d190a05f5d7",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "kenya-8ff76269-2c13-42a4-8d27-9d42be7f2a98"
+    },
+    {
+      "code": "XKX",
+      "name": "Kosovo",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "a73ea332-b2cc-44cf-a411-dd8a7f970c99",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "kosovo-afefbcd2-926c-4bdd-b7f6-d980fb872bf5"
+    },
+    {
+      "code": "KGZ",
+      "name": "Kyrgyzstan",
+      "currency": {
+        "code": "KGS",
+        "name": "Kyrgyzstani Som",
+        "symbol": "лв",
+        "slug": "adbf8114-2036-4844-a94f-5bfd2324962d"
+      },
+      "region_slug": "bf4ffdf6-a9aa-41a9-9502-b4df93d8143f",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "coming_soon",
+      "original_country_slug": "kyrgyzstan-5dccf2e1-bf32-45a3-8383-b0c6b2e32e1f"
+    },
+    {
+      "code": "LVA",
+      "name": "Latvia",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "6116143d-3db9-4959-8d41-6ac55a6b2675",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "latvia-c4fabe9c-020f-4b68-95e6-17c9728208db"
+    },
+    {
+      "code": "LBN",
+      "name": "Lebanon",
+      "currency": {
+        "code": "LBP",
+        "name": "Lebanese Pound",
+        "symbol": "£",
+        "slug": "cd4cbe94-b4ee-4c18-a969-3141228fe141"
+      },
+      "region_slug": "ba89fced-d7bb-4839-a99a-2a9d8ed78295",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "lebanon-75d28853-3aab-4202-a64a-d9bf4ee60c24"
+    },
+    {
+      "code": "LTU",
+      "name": "Lithuania",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "f588f8ec-0e33-4f54-b180-8c741d4b9d7d",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "lithuania-9cc4dcf7-8821-4e45-aa9b-6411a7292d91"
+    },
+    {
+      "code": "LUX",
+      "name": "Luxembourg",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "70dc0548-122f-41f4-8895-a9a768546dc6",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "luxembourg-ffc640d1-97dd-4087-a5ea-ec25ee361a12"
+    },
+    {
+      "code": "MYS",
+      "name": "Malaysia",
+      "currency": {
+        "code": "MYR",
+        "name": "Malaysian Ringgit",
+        "symbol": "RM",
+        "slug": "3ded1741-4943-4bfe-b93b-4b1c75ca7c8d"
+      },
+      "region_slug": "b4b398c5-06eb-4be7-b108-67923db03517",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "malaysia-97d345a8-986b-4e65-bf7e-8e980f30f9f1"
+    },
+    {
+      "code": "MLT",
+      "name": "Malta",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "c4fa9965-599c-44e4-8aaa-c3a2dd947551",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "malta-3abe480d-2b29-456d-8a9c-6f0d92325444"
+    },
+    {
+      "code": "MUS",
+      "name": "Mauritius",
+      "currency": {
+        "code": "MUR",
+        "name": "Mauritian Rupee",
+        "symbol": "₨",
+        "slug": "200f7096-56b8-4211-b808-f1f3058d2ecb"
+      },
+      "region_slug": "1d8b7825-c5ab-4b6d-a11a-78ffb4c207e0",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "mauritius-439620be-ebdb-425f-a940-9eb2207848e8"
+    },
+    {
+      "code": "MEX",
+      "name": "Mexico",
+      "currency": {
+        "code": "MXN",
+        "name": "Mexican Peso",
+        "symbol": "$",
+        "slug": "d5034a83-5a35-4628-94ba-916edaf6a9e4"
+      },
+      "region_slug": "d3ba645d-ce26-45a2-a5a0-11fdde80d988",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "mexico-d16ccbe4-eb9d-44a9-bca9-93aa54f0a82c"
+    },
+    {
+      "code": "MDA",
+      "name": "Moldova",
+      "currency": {
+        "code": "MDL",
+        "name": "Moldovan Leu",
+        "symbol": "L",
+        "slug": "ce447a64-555f-46a9-9f25-36f20c3beba9"
+      },
+      "region_slug": "3048c467-49af-4d86-a234-e8d797903dd3",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "moldova-9521d8c6-0df7-4862-85ee-060eb5bc3e52"
+    },
+    {
+      "code": "MNG",
+      "name": "Mongolia",
+      "currency": {
+        "code": "MNT",
+        "name": "Mongolian Tugrik",
+        "symbol": "₮",
+        "slug": "f0c04672-6ed1-494b-9a9c-b162b5d46d74"
+      },
+      "region_slug": "3fb304c5-c7bc-4a64-a8b6-4b5dff07d08e",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "coming_soon",
+      "original_country_slug": "mongolia-f74d1f49-88e7-4cc4-a446-c6c8cee46f63"
+    },
+    {
+      "code": "MAR",
+      "name": "Morocco",
+      "currency": {
+        "code": "MAD",
+        "name": "Moroccan Dirham",
+        "symbol": "DH",
+        "slug": "e5a750d3-caa0-4f26-9036-04be5e229537"
+      },
+      "region_slug": "841b6447-ca27-40b2-8f2b-ada766456cc1",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "morocco-40720607-0b1b-4716-8868-2ae1f33aaf33"
+    },
+    {
+      "code": "NPL",
+      "name": "Nepal",
+      "currency": {
+        "code": "NPR",
+        "name": "Nepalese Rupee",
+        "symbol": "₨",
+        "slug": "fabd47fc-e858-4e41-98c6-2749e39561a9"
+      },
+      "region_slug": "2f8ccfa4-f2cc-4cb2-bd34-d20eee36eb0a",
+      "child_regions": [],
+      "has_additional_fields": false,
+      "availability": "coming_soon",
+      "original_country_slug": "nepal-38ab497d-36f1-4297-9128-205482df5af9"
+    },
+    {
+      "code": "NLD",
+      "name": "Netherlands",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "5851993e-6894-43b1-9c0e-2ca31229a41a",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "netherlands-026e4a42-c0bf-4944-ab10-cb228b5ec30e"
+    },
+    {
+      "code": "NZL",
+      "name": "New Zealand",
+      "currency": {
+        "code": "NZD",
+        "name": "New Zealand Dollar",
+        "symbol": "$",
+        "slug": "3c3ef401-c92d-4dfd-a894-2018c872a7a7"
+      },
+      "region_slug": "de3b0a9c-b543-4da7-bf7b-991699adfaa3",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "new-zealand-109fe5d6-6c07-47e7-ba67-8ae03aa543b3"
+    },
+    {
+      "code": "NIC",
+      "name": "Nicaragua",
+      "currency": {
+        "code": "NIO",
+        "name": "Nicaraguan Córdoba",
+        "symbol": "C$",
+        "slug": "1feaf04b-2107-4f02-9566-dd59638c140a"
+      },
+      "region_slug": "6c39798c-deb3-4207-a876-7ee8856fad17",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "nicaragua-f4386b11-bd2d-49aa-8969-5faed28fd00e"
+    },
+    {
+      "code": "NGA",
+      "name": "Nigeria",
+      "currency": {
+        "code": "NGN",
+        "name": "Nigerian Naira",
+        "symbol": "₦",
+        "slug": "0bdfb189-1566-4c77-89f3-d61a0f230d9f"
+      },
+      "region_slug": "36c8d1fa-20a1-4f5a-b871-ba6de006f7fc",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "nigeria-3ed09baa-b182-4dac-953a-bdd1aab425c2"
+    },
+    {
+      "code": "MKD",
+      "name": "North Macedonia",
+      "currency": {
+        "code": "MKD",
+        "name": "Macedonian Denar",
+        "symbol": "ден",
+        "slug": "f917e61a-d9f2-4a6d-92a4-c33008b8085f"
+      },
+      "region_slug": "733bd26b-a622-408f-aa08-6086070ea0b8",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "macedonia-fyrom--dcb4a450-c56b-4ef5-9940-518428470e0a"
+    },
+    {
+      "code": "NOR",
+      "name": "Norway",
+      "currency": {
+        "code": "NOK",
+        "name": "Norwegian Krone",
+        "symbol": "kr",
+        "slug": "fe4c8f9a-c549-48d8-8525-3db118bbd9a8"
+      },
+      "region_slug": "5edfad3e-b688-4f6e-bc13-628e7b39f343",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "norway-c72e4849-277d-49c1-b9d4-cbc2a36ac2b7"
+    },
+    {
+      "code": "PAK",
+      "name": "Pakistan",
+      "currency": {
+        "code": "PKR",
+        "name": "Pakistan Rupee",
+        "symbol": "₨",
+        "slug": "9c6e9b35-bb3a-4868-a632-5a4b29fe78e1"
+      },
+      "region_slug": "3da67f8b-d771-4ed9-8951-d6dffd0a8795",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "pakistan-f2abd7e5-7a3a-43a0-8d8c-2fd9b9a9d795"
+    },
+    {
+      "code": "PAN",
+      "name": "Panama",
+      "currency": {
+        "code": "PAB",
+        "name": "Panamanian Balboa",
+        "symbol": "B/.",
+        "slug": "89eed0f8-bdc0-4a14-aa88-240a98c83361"
+      },
+      "region_slug": "0541e24c-d675-46f5-b769-edf71570ab38",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "panama-c4bc3986-1afe-44cb-b205-571c3caf91e0"
+    },
+    {
+      "code": "PRY",
+      "name": "Paraguay",
+      "currency": {
+        "code": "PYG",
+        "name": "Paraguay Guarani",
+        "symbol": "Gs",
+        "slug": "a6b38c99-e7f2-414e-be5f-cc7f7449a75c"
+      },
+      "region_slug": "ee0957eb-2273-4c37-b116-59c706e6e428",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "paraguay-4272efd0-30ed-4bef-827d-70225b9a20a3"
+    },
+    {
+      "code": "PER",
+      "name": "Peru",
+      "currency": {
+        "code": "PEN",
+        "name": "Peruvian Sol",
+        "symbol": "S/.",
+        "slug": "68bff3bc-0df6-4726-9413-23ad7a111c8f"
+      },
+      "region_slug": "6b2899e0-34d0-4b14-a65e-b64be7ed7141",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "peru-e60b6894-dc8f-482c-8c0f-90896be3e4db"
+    },
+    {
+      "code": "PHL",
+      "name": "Philippines",
+      "currency": {
+        "code": "PHP",
+        "name": "Philippine Peso",
+        "symbol": "₱",
+        "slug": "e5797d33-5cc6-45df-8404-b6252070cc42"
+      },
+      "region_slug": "1e65be54-78ff-47c1-a2d3-fe7e166b2af0",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "philippines-61ae8bca-1c19-407c-8da5-5bd58d6ea5db"
+    },
+    {
+      "code": "POL",
+      "name": "Poland",
+      "currency": {
+        "code": "PLN",
+        "name": "Polish Zloty",
+        "symbol": "zł",
+        "slug": "e8be0275-df38-4096-b16c-9d889e419598"
+      },
+      "region_slug": "a2c48b8a-565f-473f-a8a1-951d70418bc4",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "poland-7ed8d01f-6203-4820-b5d4-6b1bd9029417"
+    },
+    {
+      "code": "PRT",
+      "name": "Portugal",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "35933445-f07b-404a-9c08-cd9387a65013",
+      "child_regions": [],
+      "has_additional_fields": false,
+      "availability": "active",
+      "original_country_slug": "portugal-50126c86-eec6-4324-a035-bc1719c90377"
+    },
+    {
+      "code": "PRI",
+      "name": "Puerto Rico",
+      "currency": {
+        "code": "USD",
+        "name": "United States Dollar",
+        "symbol": "$",
+        "slug": "1b2c181d-24c9-44ff-a8e1-2a7025ca491c"
+      },
+      "region_slug": "45e4057f-1b51-46a7-97aa-1901a10f9c7c",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "ed18b7ad-18ad-4033-a902-f11f11286776"
+    },
+    {
+      "code": "ROU",
+      "name": "Romania",
+      "currency": {
+        "code": "RON",
+        "name": "Romanian Leu",
+        "symbol": "lei",
+        "slug": "d1200b4c-6071-44d8-8934-724d78d6bbbf"
+      },
+      "region_slug": "7a268e37-afac-45da-b226-d7b5b99cb1f3",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "romania-b6f5df18-42a5-48fc-9f1b-da6368e7c479"
+    },
+    {
+      "code": "SAU",
+      "name": "Saudi Arabia",
+      "currency": {
+        "code": "SAR",
+        "name": "Saudi Arabian Riyal",
+        "symbol": "﷼",
+        "slug": "aa11cca2-beba-45c4-86dd-0eaed7ca83f8"
+      },
+      "region_slug": "203e5c81-8321-44dc-a506-29fb3818789e",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "saudi-arabia-1e1da19e-cf68-4cdf-935d-518cc9d77692"
+    },
+    {
+      "code": "SEN",
+      "name": "Senegal",
+      "currency": {
+        "code": "XOF",
+        "name": "West African CFA",
+        "symbol": "CFA",
+        "slug": "96cebacd-286a-41a8-976a-63f471572653"
+      },
+      "region_slug": "73cea177-3ac1-4f31-9455-b97eac526883",
+      "child_regions": [],
+      "has_additional_fields": false,
+      "availability": "coming_soon",
+      "original_country_slug": "senegal-81f40be5-9ce8-4aff-af7f-4c07dcfe2a24"
+    },
+    {
+      "code": "SRB",
+      "name": "Serbia",
+      "currency": {
+        "code": "RSD",
+        "name": "Serbian Dinar",
+        "symbol": "Дин.",
+        "slug": "4291c57b-560d-49b6-a7d7-9695a8ba6246"
+      },
+      "region_slug": "f113fb0a-1931-46e3-a4b3-3556d40bcc26",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "serbia-39549c9a-4ee5-4b5f-a220-13874f28d215"
+    },
+    {
+      "code": "SGP",
+      "name": "Singapore",
+      "currency": {
+        "code": "SGD",
+        "name": "Singapore Dollar",
+        "symbol": "$",
+        "slug": "0e4dac57-ef13-4340-9869-8315de132360"
+      },
+      "region_slug": "13915cae-9c8f-44e2-a7c5-115bf61dacff",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "singapore-ad8c408e-7aef-4660-bd08-428d107c6ac3"
+    },
+    {
+      "code": "SVK",
+      "name": "Slovakia",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "fd75f749-d534-4100-bf74-39f253f39668",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "slovakia-7dbe4691-0896-417a-94be-673f1f5bb6ee"
+    },
+    {
+      "code": "SVN",
+      "name": "Slovenia",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "4fcc4960-12ee-4caa-82b2-c0a217fe444f",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "slovenia-8dd6d946-1ea9-4058-ab5f-bc9791a4f34e"
+    },
+    {
+      "code": "ZAF",
+      "name": "South Africa",
+      "currency": {
+        "code": "ZAR",
+        "name": "South African Rand",
+        "symbol": "R",
+        "slug": "ae3f0971-77d8-4263-b373-2e96423baa35"
+      },
+      "region_slug": "f6fcee39-3503-480d-bc94-6adeb2a4c175",
+      "child_regions": [],
+      "has_additional_fields": false,
+      "availability": "active",
+      "original_country_slug": "south-africa-334d6bfe-f39c-44f2-9308-07681321f31e"
+    },
+    {
+      "code": "KOR",
+      "name": "South Korea",
+      "currency": {
+        "code": "KRW",
+        "name": "South Korean Won",
+        "symbol": "₩",
+        "slug": "98398995-1290-48a2-a92e-27ba0482fae1"
+      },
+      "region_slug": "0daaeb55-fc02-4474-b64f-f0e0490baaf9",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "south-korea-71c3f677-0606-4899-8ceb-48f1eb833214"
+    },
+    {
+      "code": "ESP",
+      "name": "Spain",
+      "currency": {
+        "code": "EUR",
+        "name": "European Euro",
+        "symbol": "€",
+        "slug": "a9635cae-5c4b-438b-b34f-bfb80946036e"
+      },
+      "region_slug": "bf953194-00ea-4ebd-9655-7c2b9d73432a",
+      "child_regions": [],
+      "has_additional_fields": false,
+      "availability": "active",
+      "original_country_slug": "spain-65764d0d-94d9-49df-8c07-c9da8e757f67"
+    },
+    {
+      "code": "LKA",
+      "name": "Sri Lanka",
+      "currency": {
+        "code": "LKR",
+        "name": "Sri Lankan Rupee",
+        "symbol": "₨",
+        "slug": "423b8871-4bdc-4492-a0e8-5247965967cc"
+      },
+      "region_slug": "8a5d6bdd-9fda-49e6-9137-c339344c541e",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "sri-lanka-6add013c-d19a-48c8-9160-7690a306c156"
+    },
+    {
+      "code": "SWE",
+      "name": "Sweden",
+      "currency": {
+        "code": "SEK",
+        "name": "Swedish Krona",
+        "symbol": "kr",
+        "slug": "d9faada7-d64a-4fa2-bc38-0f9b05bd75ad"
+      },
+      "region_slug": "cfd9276f-4e18-4f15-b2ce-eb9b1702a207",
+      "child_regions": [],
+      "has_additional_fields": false,
+      "availability": "active",
+      "original_country_slug": "sweden-92772245-69e7-4d97-b2e7-32c2bfa6e70f"
+    },
+    {
+      "code": "CHE",
+      "name": "Switzerland",
+      "currency": {
+        "code": "CHF",
+        "name": "Swiss Franc",
+        "symbol": "CHF",
+        "slug": "68799e27-9302-4f1c-a1b3-fc0e41277149"
+      },
+      "region_slug": "2258f1a2-1724-4a26-a72a-06c95f4b14df",
+      "child_regions": [],
+      "has_additional_fields": false,
+      "availability": "active",
+      "original_country_slug": "switzerland-70ad5a68-6043-4a94-b2d8-ead859b4ec4b"
+    },
+    {
+      "code": "TWN",
+      "name": "Taiwan",
+      "currency": {
+        "code": "TWD",
+        "name": "New Taiwan Dollar",
+        "symbol": "NT$",
+        "slug": "0fbb6bab-08f5-401e-af4d-7d0bced68585"
+      },
+      "region_slug": "e94bba46-bce9-4095-8e88-8420bfe58d2f",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "taiwan-a73adea6-0d13-49b2-8d12-051f25c15617"
+    },
+    {
+      "code": "THA",
+      "name": "Thailand",
+      "currency": {
+        "code": "THB",
+        "name": "Thai Baht",
+        "symbol": "฿",
+        "slug": "d574cec5-7853-467a-a8cf-5d1ba99de3e7"
+      },
+      "region_slug": "b537ed3f-6125-4e31-aa42-8641a6286646",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "thailand-5c628b23-81fb-4713-9375-0aee18de6d59"
+    },
+    {
+      "code": "TUN",
+      "name": "Tunisia",
+      "currency": {
+        "code": "TND",
+        "name": "Tunisian Dinar",
+        "symbol": "د.ت",
+        "slug": "06f58eb5-f909-4028-aad4-f9eb5de21311"
+      },
+      "region_slug": "920eb468-2c24-441c-be8f-7f2c3e29abbc",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "tunisia-849541ec-0ad0-4b65-ad45-443e38f2839a"
+    },
+    {
+      "code": "TUR",
+      "name": "Turkey",
+      "currency": {
+        "code": "TRY",
+        "name": "Turkish New Lira",
+        "symbol": "₺",
+        "slug": "8594f157-e980-4d01-9558-6d0cd0078810"
+      },
+      "region_slug": "39339fd9-6c6b-485c-b56f-cd1cd1da2dfc",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "turkey-0f0c0427-485b-4fbb-9142-d3f93789394b"
+    },
+    {
+      "code": "UGA",
+      "name": "Uganda",
+      "currency": {
+        "code": "UGX",
+        "name": "Ugandan Shilling",
+        "symbol": "USh",
+        "slug": "50fbf9bb-e399-4cbd-a150-0330cc97a912"
+      },
+      "region_slug": "4e9052b1-1205-4042-bb26-07d6039bf1e6",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "uganda-4020dc82-f51b-470f-a4c7-eb484850add0"
+    },
+    {
+      "code": "UKR",
+      "name": "Ukraine",
+      "currency": {
+        "code": "UAH",
+        "name": "Ukrainian Hryvnia",
+        "symbol": "₴",
+        "slug": "6219b112-3082-4acf-a737-1cd4bd595cf3"
+      },
+      "region_slug": "b9d98be9-8398-4ddd-a4ce-e42895428d35",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "ukraine-3d45bef7-2489-478b-ab01-4d9287ec9b2c"
+    },
+    {
+      "code": "ARE",
+      "name": "United Arab Emirates (UAE)",
+      "currency": {
+        "code": "AED",
+        "name": "United Arab Emirates Dirham",
+        "symbol": "د.إ",
+        "slug": "89574c50-24db-4c7f-9e85-a66f8d46c077"
+      },
+      "region_slug": "1b2bdd4e-45f4-4a31-8f21-dd8d7f17c995",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "united-arab-emirates-uae--0914c4c2-8efc-4b77-9d29-1b50798c2e94"
+    },
+    {
+      "code": "GBR",
+      "name": "United Kingdom (UK)",
+      "currency": {
+        "code": "GBP",
+        "name": "United Kingdom Pound Sterling",
+        "symbol": "£",
+        "slug": "f10f9977-8c76-4fca-b7d3-196ddc9547b3"
+      },
+      "region_slug": "53ea33cc-c99d-474c-a45b-1eea1da64af2",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "united-kingdom-uk--5160fe7d-295e-4772-923c-970ae28d7171"
+    },
+    {
+      "code": "USA",
+      "name": "United States",
+      "currency": {
+        "code": "USD",
+        "name": "United States Dollar",
+        "symbol": "$",
+        "slug": "1b2c181d-24c9-44ff-a8e1-2a7025ca491c"
+      },
+      "region_slug": "9d612280-9fbf-418c-8fb6-236fe649262c",
+      "child_regions": [
+        {
+          "code": "AZ",
+          "name": "Arizona",
+          "status": "active",
+          "slug": "0aa277e2-5c2b-48b7-8054-13fc17fdac43"
+        },
+        {
+          "code": "AR",
+          "name": "Arkansas",
+          "status": "active",
+          "slug": "623c8677-f050-49ac-bb36-17c53a6aebed"
+        },
+        {
+          "code": "CT",
+          "name": "Connecticut",
+          "status": "active",
+          "slug": "a09fc4be-fb65-4375-9011-125c73d305eb"
+        },
+        {
+          "code": "DE",
+          "name": "Delaware",
+          "status": "active",
+          "slug": "ae891b8e-2c23-48f4-9669-f8ed9b66d9ad"
+        },
+        {
+          "code": "CA",
+          "name": "California",
+          "status": "active",
+          "slug": "883cc153-5b92-44a8-acf1-62c61e5840b2"
+        },
+        {
+          "code": "CO",
+          "name": "Colorado",
+          "status": "active",
+          "slug": "b648b336-8d65-4cc2-8369-d0e45ea1b0c8"
+        },
+        {
+          "code": "KY",
+          "name": "Kentucky",
+          "status": "active",
+          "slug": "15284977-a673-4c33-b935-8a1b02f87519"
+        },
+        {
+          "code": "LA",
+          "name": "Louisiana",
+          "status": "active",
+          "slug": "bbf50a4f-c0ab-4e6c-8b2f-71249290db5b"
+        },
+        {
+          "code": "NJ",
+          "name": "New Jersey",
+          "status": "active",
+          "slug": "8509cf19-80c7-4358-8bca-9aaf07ae9c44"
+        },
+        {
+          "code": "NC",
+          "name": "North Carolina",
+          "status": "active",
+          "slug": "ce2fa8e4-0374-42e3-9795-7747778ea6a2"
+        },
+        {
+          "code": "TN",
+          "name": "Tennessee",
+          "status": "active",
+          "slug": "1a4fe5c5-63f2-472f-9776-6b9aed3f19af"
+        },
+        {
+          "code": "UT",
+          "name": "Utah",
+          "status": "active",
+          "slug": "666e3d7e-800b-4193-8d8c-73e4782e38c2"
+        },
+        {
+          "code": "OR",
+          "name": "Oregon",
+          "status": "active",
+          "slug": "b08138aa-36d3-4df2-a77e-e2503f537b9d"
+        },
+        {
+          "code": "PA",
+          "name": "Pennsylvania",
+          "status": "active",
+          "slug": "eef0829f-4a5b-4de1-931e-be7b46e395e2"
+        },
+        {
+          "code": "RI",
+          "name": "Rhode Island",
+          "status": "active",
+          "slug": "15ae41fb-16d0-4079-94ca-463d367ee440"
+        },
+        {
+          "code": "SC",
+          "name": "South Carolina",
+          "status": "active",
+          "slug": "32ce26b1-c4f7-4096-931e-0e037323e19d"
+        },
+        {
+          "code": "SD",
+          "name": "South Dakota",
+          "status": "active",
+          "slug": "d84a2fc5-0354-48b7-bdd2-506ff130f827"
+        },
+        {
+          "code": "TX",
+          "name": "Texas",
+          "status": "active",
+          "slug": "0c5cc6ac-8d8f-4659-b255-8d7be11894f2"
+        },
+        {
+          "code": "VT",
+          "name": "Vermont",
+          "status": "active",
+          "slug": "918ea781-711d-4328-bd71-8af7e74b95f1"
+        },
+        {
+          "code": "VA",
+          "name": "Virginia",
+          "status": "active",
+          "slug": "9a8adbc2-0c5e-4c1a-a03b-21d008a7fc05"
+        },
+        {
+          "code": "WA",
+          "name": "Washington",
+          "status": "active",
+          "slug": "44120029-2f97-4653-8278-311cbfa6a4c9"
+        },
+        {
+          "code": "WV",
+          "name": "West Virginia",
+          "status": "active",
+          "slug": "2b8e10a5-6c19-41a7-a05f-7dc74b6b95e4"
+        },
+        {
+          "code": "WI",
+          "name": "Wisconsin",
+          "status": "active",
+          "slug": "285ba536-acb4-4787-9711-9985ab1d2cae"
+        },
+        {
+          "code": "DC",
+          "name": "District of Columbia",
+          "status": "active",
+          "slug": "08fc417f-d11e-491f-aa39-e3624149d84c"
+        },
+        {
+          "code": "WY",
+          "name": "Wyoming",
+          "status": "active",
+          "slug": "e3de5ef6-4342-42d1-b00b-b54d2ae309e4"
+        },
+        {
+          "code": "FL",
+          "name": "Florida",
+          "status": "active",
+          "slug": "c2eb2c6d-3cc4-47d5-8c7c-c9cf1e5b139a"
+        },
+        {
+          "code": "GA",
+          "name": "Georgia",
+          "status": "active",
+          "slug": "7c7d6953-1318-4ce7-aad2-1362d5b2922d"
+        },
+        {
+          "code": "HI",
+          "name": "Hawaii",
+          "status": "active",
+          "slug": "dfc45e21-8d3a-4b1e-bec4-b6987772477d"
+        },
+        {
+          "code": "NV",
+          "name": "Nevada",
+          "status": "active",
+          "slug": "acb648ae-4093-4c4e-8a54-cc0740063580"
+        },
+        {
+          "code": "ME",
+          "name": "Maine",
+          "status": "active",
+          "slug": "db48c727-76e6-492f-9c1e-e86584a5c41f"
+        },
+        {
+          "code": "ND",
+          "name": "North Dakota",
+          "status": "active",
+          "slug": "e4d6f6db-d1ea-402d-a6d5-1e5ae3a47301"
+        },
+        {
+          "code": "NM",
+          "name": "New Mexico",
+          "status": "active",
+          "slug": "4b3d90a6-a465-49bb-921a-e03001363d88"
+        },
+        {
+          "code": "ID",
+          "name": "Idaho",
+          "status": "active",
+          "slug": "971c4866-7823-4923-b6a1-92ac53a5ea8e"
+        },
+        {
+          "code": "IL",
+          "name": "Illinois",
+          "status": "active",
+          "slug": "16a0b32d-a74d-4c46-b6bf-f9b0055c9173"
+        },
+        {
+          "code": "IN",
+          "name": "Indiana",
+          "status": "active",
+          "slug": "4d0e9172-e393-48e3-b2e0-b5f4499f8382"
+        },
+        {
+          "code": "IA",
+          "name": "Iowa",
+          "status": "active",
+          "slug": "41137635-3c26-425f-9cf7-186757a3e64c"
+        },
+        {
+          "code": "KS",
+          "name": "Kansas",
+          "status": "active",
+          "slug": "27b81c25-54fd-45d3-931d-8c565fdf60ce"
+        },
+        {
+          "code": "MD",
+          "name": "Maryland",
+          "status": "active",
+          "slug": "fd8ba36c-5219-46f3-bf88-97f1692924bf"
+        },
+        {
+          "code": "MA",
+          "name": "Massachusetts",
+          "status": "active",
+          "slug": "3cb9663c-6bed-44f4-be0e-843a38162173"
+        },
+        {
+          "code": "MI",
+          "name": "Michigan",
+          "status": "active",
+          "slug": "41aa11d2-a7ed-47d2-958c-ad3048082b6b"
+        },
+        {
+          "code": "MN",
+          "name": "Minnesota",
+          "status": "active",
+          "slug": "7007c286-16c6-4ab2-8ba0-08c76fca3bf4"
+        },
+        {
+          "code": "MS",
+          "name": "Mississippi",
+          "status": "active",
+          "slug": "63012334-ce76-41cc-87ce-1a4025c9e6b5"
+        },
+        {
+          "code": "MO",
+          "name": "Missouri",
+          "status": "active",
+          "slug": "e8bc97e9-e655-4566-a8b3-f790292fcc55"
+        },
+        {
+          "code": "MT",
+          "name": "Montana",
+          "status": "active",
+          "slug": "3bf68099-98c4-4814-8502-9cfb3c272923"
+        },
+        {
+          "code": "NE",
+          "name": "Nebraska",
+          "status": "active",
+          "slug": "a0f6ab70-f3f4-42d2-9ae7-c388358482f6"
+        },
+        {
+          "code": "NH",
+          "name": "New Hampshire",
+          "status": "active",
+          "slug": "1c0347cd-0fbb-499f-92ff-6da76b4de69c"
+        },
+        {
+          "code": "NY",
+          "name": "New York",
+          "status": "active",
+          "slug": "a93193a9-e517-44fa-9994-a570fd07bcf0"
+        },
+        {
+          "code": "OH",
+          "name": "Ohio",
+          "status": "active",
+          "slug": "135071e0-27f6-4fa5-8814-7fc1bf01d9f7"
+        },
+        {
+          "code": "OK",
+          "name": "Oklahoma",
+          "status": "active",
+          "slug": "5478e55c-a4c9-4d52-a104-6708f1d00472"
+        },
+        {
+          "code": "AL",
+          "name": "Alabama",
+          "status": "active",
+          "slug": "4a833d0c-c4bf-437c-8a85-ca523bc3c93b"
+        },
+        {
+          "code": "AK",
+          "name": "Alaska",
+          "status": "active",
+          "slug": "c5cb5fed-cb84-4799-a106-88391dc8f301"
+        }
+      ],
+      "has_additional_fields": false,
+      "availability": "active",
+      "original_country_slug": "united-states-6aae61cb-7e6f-4cc4-9bff-81410ba26825"
+    },
+    {
+      "code": "URY",
+      "name": "Uruguay",
+      "currency": {
+        "code": "UYU",
+        "name": "Uruguayan peso",
+        "symbol": "$U",
+        "slug": "5ce1fa9e-9a80-4d16-b619-67d09f20e193"
+      },
+      "region_slug": "c0d07f1a-4814-4ff0-b2e4-2c59d74b254a",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "uruguay-154ea74d-a94c-4233-b471-02c042ce74ab"
+    },
+    {
+      "code": "VNM",
+      "name": "Vietnam",
+      "currency": {
+        "code": "VND",
+        "name": "Viet Nam Dong",
+        "symbol": "₫",
+        "slug": "097af8a0-7905-492f-a441-9b409bda4eb4"
+      },
+      "region_slug": "8a1cc18c-a37d-4d58-8441-1df259afbb65",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "vietnam-eb768915-f745-4203-abfd-4243aac9ee00"
+    },
+    {
+      "code": "ZMB",
+      "name": "Zambia",
+      "currency": {
+        "code": "ZMW",
+        "name": "Zambian Kwacha",
+        "symbol": "ZK",
+        "slug": "91bb3866-1ea8-4dba-94bd-eb67f2e1d915"
+      },
+      "region_slug": "db1b58b7-9695-44e4-98c7-0864cb50853d",
+      "child_regions": [],
+      "has_additional_fields": false,
+      "availability": "coming_soon",
+      "original_country_slug": "zambia-9c783804-8cf4-4ec7-ae0a-0ddbf807a02a"
+    },
+    {
+      "code": "ZWE",
+      "name": "Zimbabwe",
+      "currency": {
+        "code": "USD",
+        "name": "United States Dollar",
+        "symbol": "$",
+        "slug": "1b2c181d-24c9-44ff-a8e1-2a7025ca491c"
+      },
+      "region_slug": "af4d3f2a-b7f6-44d3-bfd8-02173f582412",
+      "child_regions": [],
+      "has_additional_fields": true,
+      "availability": "active",
+      "original_country_slug": "zimbabwe-9dabf193-430d-4313-9e35-3e3d504ec44c"
+    }
+  ]
+}
