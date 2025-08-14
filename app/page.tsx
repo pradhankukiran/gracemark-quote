@@ -19,7 +19,7 @@ export default function HomePage() {
           <Card className="group border-0 shadow-none hover:shadow-lg transition-all duration-300 bg-gray-50 hover:bg-white">
             <CardContent className="p-12 text-center">
               <div className="mb-8">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors">
+                <div className="w-16 h-16 bg-primary/10 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors">
                   <Building2 className="h-8 w-8 text-primary" />
                 </div>
                 <h2 className="font-serif text-3xl font-bold mb-4">Employer of Record</h2>
@@ -42,7 +42,7 @@ export default function HomePage() {
           <Card className="group border-0 shadow-none hover:shadow-lg transition-all duration-300 bg-gray-50 hover:bg-white">
             <CardContent className="p-12 text-center">
               <div className="mb-8">
-                <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-accent/20 transition-colors">
+                <div className="w-16 h-16 bg-accent/10 flex items-center justify-center mx-auto mb-6 group-hover:bg-accent/20 transition-colors">
                   <UserCheck className="h-8 w-8 text-accent" />
                 </div>
                 <h2 className="font-serif text-3xl font-bold mb-4">Independent Contractor</h2>

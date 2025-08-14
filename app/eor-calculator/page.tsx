@@ -314,7 +314,7 @@ export default function EORCalculatorPage() {
               <CardContent className="p-6 space-y-6">
                 <div>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-primary/10 rounded-lg">
+                    <div className="p-2 bg-primary/10">
                       <Calculator className="h-5 w-5 text-primary" />
                     </div>
                     <h3 className="text-lg font-semibold text-slate-900">Provider Selection</h3>
@@ -346,7 +346,7 @@ export default function EORCalculatorPage() {
                 {/* Client Location */}
                 <div>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-primary/10 rounded-lg">
+                    <div className="p-2 bg-primary/10">
                       <MapPin className="h-5 w-5 text-primary" />
                     </div>
                     <h3 className="text-lg font-semibold text-slate-900">Client Location</h3>
@@ -381,7 +381,7 @@ export default function EORCalculatorPage() {
                 {/* Employee Information */}
                 <div>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-primary/10 rounded-lg">
+                    <div className="p-2 bg-primary/10">
                       <User className="h-5 w-5 text-primary" />
                     </div>
                     <h3 className="text-lg font-semibold text-slate-900">Employee Information</h3>
@@ -425,7 +425,7 @@ export default function EORCalculatorPage() {
                 {/* Location & Currency */}
                 <div>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-primary/10 rounded-lg">
+                    <div className="p-2 bg-primary/10">
                       <MapPin className="h-5 w-5 text-primary" />
                     </div>
                     <h3 className="text-lg font-semibold text-slate-900">Employee Location</h3>
@@ -484,7 +484,7 @@ export default function EORCalculatorPage() {
                       >
                         Currency
                       </Label>
-                      <div className="h-11 border-2 border-slate-200 rounded-md px-3 py-2 bg-slate-50 flex items-center">
+                      <div className="h-11 border-2 border-slate-200 px-3 py-2 bg-slate-50 flex items-center">
                         <span className="text-slate-700 font-medium">{formData.currency}</span>
                       </div>
                     </div>
@@ -511,7 +511,7 @@ export default function EORCalculatorPage() {
                     </div>
 
                     {formData.enableComparison && (
-                      <div className="p-4 bg-slate-50 rounded-lg border-2 border-slate-200">
+                      <div className="p-4 bg-slate-50 border-2 border-slate-200">
                         <h4 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">
                           Comparison Country
                         </h4>
@@ -568,7 +568,7 @@ export default function EORCalculatorPage() {
                             <Label htmlFor="compareCurrency" className="text-sm font-medium text-slate-600">
                               Currency
                             </Label>
-                            <div className="h-11 border-2 border-slate-200 rounded-md px-3 py-2 bg-white flex items-center">
+                            <div className="h-11 border-2 border-slate-200 px-3 py-2 bg-white flex items-center">
                               <span className="text-slate-700 font-medium">{formData.compareCurrency}</span>
                             </div>
                           </div>
@@ -583,7 +583,7 @@ export default function EORCalculatorPage() {
                 {/* Salary Information */}
                 <div>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-primary/10 rounded-lg">
+                    <div className="p-2 bg-primary/10">
                       <DollarSign className="h-5 w-5 text-primary" />
                     </div>
                     <h3 className="text-lg font-semibold text-slate-900">Salary Information</h3>
@@ -653,7 +653,7 @@ export default function EORCalculatorPage() {
                 </div>
 
                 {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+                  <div className="bg-red-50 border border-red-200 p-4 flex items-start gap-3">
                     <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
                     <div>
                       <h4 className="text-red-800 font-medium">Error calculating quote</h4>
@@ -677,7 +677,7 @@ export default function EORCalculatorPage() {
                   >
                     {isCalculating ? (
                       <div className="flex items-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <div className="animate-spin h-4 w-4 border-b-2 border-white"></div>
                         Calculating Quote...
                       </div>
                     ) : (
@@ -720,14 +720,14 @@ export default function EORCalculatorPage() {
                       </div>
 
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                           <span className="text-slate-600 font-medium">Base Salary</span>
                           <span className="font-bold text-lg text-slate-900">
                             {deelQuote.currency} {Number.parseFloat(deelQuote.salary).toLocaleString()}
                           </span>
                         </div>
 
-                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                           <span className="text-slate-600 font-medium">Platform Fee</span>
                           <span className="font-bold text-lg text-slate-900">
                             {deelQuote.currency} {Number.parseFloat(deelQuote.deel_fee).toLocaleString()}
@@ -737,7 +737,7 @@ export default function EORCalculatorPage() {
                         {deelQuote.costs.map((cost, index) => (
                           <div
                             key={index}
-                            className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg"
+                            className="flex justify-between items-center py-3 px-4 bg-slate-50"
                           >
                             <span className="text-slate-600 font-medium">{cost.name}</span>
                             <span className="font-bold text-lg text-slate-900">
@@ -748,7 +748,7 @@ export default function EORCalculatorPage() {
 
                         <Separator className="my-4" />
 
-                        <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 rounded-xl border-2 border-primary/20">
+                        <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 border-2 border-primary/20">
                           <div className="text-center">
                             <span className="text-lg font-bold text-slate-900">Total Monthly Cost</span>
                             <div className="text-primary text-2xl font-bold mt-1">
@@ -771,14 +771,14 @@ export default function EORCalculatorPage() {
                       </div>
 
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                           <span className="text-slate-600 font-medium">Base Salary</span>
                           <span className="font-bold text-lg text-slate-900">
                             {remoteQuote.currency} {remoteQuote.salary.monthly.toLocaleString()}
                           </span>
                         </div>
 
-                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                           <span className="text-slate-600 font-medium">Monthly Contributions</span>
                           <span className="font-bold text-lg text-slate-900">
                             {remoteQuote.currency} {remoteQuote.costs.monthly_contributions.toLocaleString()}
@@ -786,7 +786,7 @@ export default function EORCalculatorPage() {
                         </div>
 
                         {remoteQuote.details.has_extra_statutory_payment && (
-                          <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                          <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                             <span className="text-slate-600 font-medium">Extra Statutory Payments</span>
                             <span className="font-bold text-lg text-slate-900">
                               {remoteQuote.currency}{" "}
@@ -801,7 +801,7 @@ export default function EORCalculatorPage() {
                           </h4>
 
                           <div className="space-y-2">
-                            <div className="flex justify-between items-center py-2 px-3 bg-slate-50/50 rounded">
+                            <div className="flex justify-between items-center py-2 px-3 bg-slate-50/50">
                               <span className="text-slate-600 text-sm">Monthly Salary</span>
                               <span className="font-semibold text-slate-900">
                                 {remoteQuote.regional_costs.currency}{" "}
@@ -809,7 +809,7 @@ export default function EORCalculatorPage() {
                               </span>
                             </div>
 
-                            <div className="flex justify-between items-center py-2 px-3 bg-slate-50/50 rounded">
+                            <div className="flex justify-between items-center py-2 px-3 bg-slate-50/50">
                               <span className="text-slate-600 text-sm">Monthly Contributions</span>
                               <span className="font-semibold text-slate-900">
                                 {remoteQuote.regional_costs.currency}{" "}
@@ -818,7 +818,7 @@ export default function EORCalculatorPage() {
                             </div>
 
                             {remoteQuote.details.has_extra_statutory_payment && (
-                              <div className="flex justify-between items-center py-2 px-3 bg-slate-50/50 rounded">
+                              <div className="flex justify-between items-center py-2 px-3 bg-slate-50/50">
                                 <span className="text-slate-600 text-sm">Extra Statutory Payments</span>
                                 <span className="font-semibold text-slate-900">
                                   {remoteQuote.regional_costs.currency}{" "}
@@ -829,7 +829,7 @@ export default function EORCalculatorPage() {
                               </div>
                             )}
 
-                            <div className="flex justify-between items-center py-2 px-3 bg-primary/10 rounded font-semibold">
+                            <div className="flex justify-between items-center py-2 px-3 bg-primary/10 font-semibold">
                               <span className="text-slate-700 text-sm">Total Monthly Cost</span>
                               <span className="text-slate-900">
                                 {remoteQuote.regional_costs.currency}{" "}
@@ -839,7 +839,7 @@ export default function EORCalculatorPage() {
                           </div>
                         </div>
 
-                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                           <span className="text-slate-600 font-medium">Onboarding Time</span>
                           <span className="font-bold text-lg text-slate-900">
                             {remoteQuote.details.minimum_onboarding_time} days
@@ -848,7 +848,7 @@ export default function EORCalculatorPage() {
 
                         <Separator className="my-4" />
 
-                        <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 rounded-xl border-2 border-primary/20">
+                        <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 border-2 border-primary/20">
                           <div className="text-center">
                             <span className="text-lg font-bold text-slate-900">Total Monthly Cost</span>
                             <div className="text-primary text-2xl font-bold mt-1">
@@ -900,14 +900,14 @@ export default function EORCalculatorPage() {
                             <h3 className="text-xl font-bold text-slate-900">Deel Quote - {deelQuote.country}</h3>
                           </div>
 
-                          <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                          <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                             <span className="text-slate-600 font-medium">Base Salary</span>
                             <span className="font-bold text-lg text-slate-900">
                               {deelQuote.currency} {Number.parseFloat(deelQuote.salary).toLocaleString()}
                             </span>
                           </div>
 
-                          <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                          <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                             <span className="text-slate-600 font-medium">Deel Platform Fee</span>
                             <span className="font-bold text-lg text-slate-900">
                               {deelQuote.currency} {Number.parseFloat(deelQuote.deel_fee).toLocaleString()}
@@ -917,7 +917,7 @@ export default function EORCalculatorPage() {
                           {deelQuote.costs.map((cost, index) => (
                             <div
                               key={index}
-                              className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg"
+                              className="flex justify-between items-center py-3 px-4 bg-slate-50"
                             >
                               <span className="text-slate-600 font-medium">{cost.name}</span>
                               <span className="font-bold text-lg text-slate-900">
@@ -928,7 +928,7 @@ export default function EORCalculatorPage() {
 
                           <Separator className="my-6" />
 
-                          <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-6 rounded-xl border-2 border-primary/20">
+                          <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-6 border-2 border-primary/20">
                             <div className="flex justify-between items-center">
                               <span className="text-xl font-bold text-slate-900">Total Monthly Cost</span>
                               <span className="text-primary text-3xl font-bold">
@@ -945,14 +945,14 @@ export default function EORCalculatorPage() {
                             <h3 className="text-xl font-bold text-slate-900">Remote Quote - {remoteQuote.country}</h3>
                           </div>
 
-                          <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                          <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                             <span className="text-slate-600 font-medium">Base Salary</span>
                             <span className="font-bold text-lg text-slate-900">
                               {remoteQuote.currency} {remoteQuote.salary.monthly.toLocaleString()}
                             </span>
                           </div>
 
-                          <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                          <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                             <span className="text-slate-600 font-medium">Monthly Contributions</span>
                             <span className="font-bold text-lg text-slate-900">
                               {remoteQuote.currency} {remoteQuote.costs.monthly_contributions.toLocaleString()}
@@ -960,7 +960,7 @@ export default function EORCalculatorPage() {
                           </div>
 
                           {remoteQuote.details.has_extra_statutory_payment && (
-                            <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                            <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                               <span className="text-slate-600 font-medium">Extra Statutory Payments</span>
                               <span className="font-bold text-lg text-slate-900">
                                 {remoteQuote.currency}{" "}
@@ -969,14 +969,14 @@ export default function EORCalculatorPage() {
                             </div>
                           )}
 
-                          <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                          <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                             <span className="text-slate-600 font-medium">Annual Total Cost</span>
                             <span className="font-bold text-lg text-slate-900">
                               {remoteQuote.currency} {remoteQuote.costs.annual_total.toLocaleString()}
                             </span>
                           </div>
 
-                          <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                          <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                             <span className="text-slate-600 font-medium">Onboarding Time</span>
                             <span className="font-bold text-lg text-slate-900">
                               {remoteQuote.details.minimum_onboarding_time} days
@@ -985,7 +985,7 @@ export default function EORCalculatorPage() {
 
                           <Separator className="my-6" />
 
-                          <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-6 rounded-xl border-2 border-primary/20">
+                          <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-6 border-2 border-primary/20">
                             <div className="flex justify-between items-center">
                               <span className="text-xl font-bold text-slate-900">Total Monthly Cost</span>
                               <span className="text-primary text-3xl font-bold">
@@ -1030,7 +1030,7 @@ export default function EORCalculatorPage() {
                     </div>
                   ) : (
                     <div className="text-center py-16">
-                      <div className="p-4 bg-slate-50 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                      <div className="p-4 bg-slate-50 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                         <Calculator className="h-10 w-10 text-slate-400" />
                       </div>
                       <p className="text-slate-500 text-base font-medium">

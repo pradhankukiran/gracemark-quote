@@ -207,7 +207,7 @@ export default function ICCalculatorPage() {
                 {/* Contractor Information */}
                 <div>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-accent/10 rounded-lg">
+                    <div className="p-2 bg-accent/10">
                       <User className="h-5 w-5 text-accent" />
                     </div>
                     <h3 className="text-lg font-semibold text-slate-900">Contractor Information</h3>
@@ -258,7 +258,7 @@ export default function ICCalculatorPage() {
 
                 <div>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-accent/10 rounded-lg">
+                    <div className="p-2 bg-accent/10">
                       <Calculator className="h-5 w-5 text-accent" />
                     </div>
                     <h3 className="text-lg font-semibold text-slate-900">Rate Configuration</h3>
@@ -310,7 +310,7 @@ export default function ICCalculatorPage() {
                 {/* Location & Currency */}
                 <div>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-accent/10 rounded-lg">
+                    <div className="p-2 bg-accent/10">
                       <MapPin className="h-5 w-5 text-accent" />
                     </div>
                     <h3 className="text-lg font-semibold text-slate-900">Location & Currency</h3>
@@ -369,7 +369,7 @@ export default function ICCalculatorPage() {
                       >
                         Currency
                       </Label>
-                      <div className="h-11 border-2 border-slate-200 rounded-md px-3 py-2 bg-slate-50 flex items-center">
+                      <div className="h-11 border-2 border-slate-200 px-3 py-2 bg-slate-50 flex items-center">
                         <span className="text-slate-700 font-medium">{formData.currency}</span>
                       </div>
                     </div>
@@ -381,7 +381,7 @@ export default function ICCalculatorPage() {
                 {/* Contract Details */}
                 <div>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-accent/10 rounded-lg">
+                    <div className="p-2 bg-accent/10">
                       <DollarSign className="h-5 w-5 text-accent" />
                     </div>
                     <h3 className="text-lg font-semibold text-slate-900">Contract Details</h3>
@@ -462,7 +462,7 @@ export default function ICCalculatorPage() {
                         onChange={(e) =>
                           setFormData((prev) => ({ ...prev, backgroundCheckRequired: e.target.checked }))
                         }
-                        className="h-4 w-4 text-accent focus:ring-accent border-gray-300 rounded"
+                        className="h-4 w-4 text-accent focus:ring-accent border-gray-300"
                       />
                       <Label htmlFor="backgroundCheck" className="text-sm font-medium text-slate-700">
                         Background Check Required ($200 one-time fee)
@@ -480,7 +480,7 @@ export default function ICCalculatorPage() {
                   >
                     {isCalculating ? (
                       <div className="flex items-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <div className="animate-spin h-4 w-4 border-b-2 border-white"></div>
                         Calculating Quote...
                       </div>
                     ) : (
@@ -513,7 +513,7 @@ export default function ICCalculatorPage() {
                 {quote ? (
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-primary/10 p-4 rounded-xl text-center border-2 border-primary/20">
+                      <div className="bg-primary/10 p-4 text-center border-2 border-primary/20">
                         <div className="text-sm text-slate-600 font-semibold mb-2 uppercase tracking-wide">
                           Pay Rate (Contractor)
                         </div>
@@ -524,7 +524,7 @@ export default function ICCalculatorPage() {
                           {formData.currency} {quote.contractorReceives.toLocaleString()}/month
                         </div>
                       </div>
-                      <div className="bg-accent/10 p-4 rounded-xl text-center border-2 border-accent/20">
+                      <div className="bg-accent/10 p-4 text-center border-2 border-accent/20">
                         <div className="text-sm text-slate-600 font-semibold mb-2 uppercase tracking-wide">
                           Bill Rate (Client)
                         </div>
@@ -537,24 +537,24 @@ export default function ICCalculatorPage() {
                       </div>
                     </div>
 
-                    <div className="text-center text-sm text-slate-600 bg-slate-50 p-3 rounded-lg">
+                    <div className="text-center text-sm text-slate-600 bg-slate-50 p-3">
                       Based on {quote.workedHours} hours per month
                     </div>
 
                     <div className="space-y-4">
-                      <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                      <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                         <span className="text-slate-600 font-medium">Platform Fee (4.9%)</span>
                         <span className="font-bold text-lg text-slate-900">
                           {formData.currency} {quote.platformFee.toLocaleString()}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                      <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                         <span className="text-slate-600 font-medium">Payment Processing (2.9%)</span>
                         <span className="font-bold text-lg text-slate-900">
                           {formData.currency} {quote.paymentProcessing.toLocaleString()}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                      <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                         <span className="text-slate-600 font-medium">
                           Compliance Fee ({formData.complianceLevel === "premium" ? "2%" : "1%"})
                         </span>
@@ -562,7 +562,7 @@ export default function ICCalculatorPage() {
                           {formData.currency} {quote.complianceFee.toLocaleString()}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                      <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                         <span className="text-slate-600 font-medium">System Provider Cost</span>
                         <span className="font-bold text-lg text-slate-900">
                           {formData.currency} {quote.systemProviderCost.toLocaleString()}
@@ -570,7 +570,7 @@ export default function ICCalculatorPage() {
                       </div>
 
                       {quote.backgroundCheck > 0 && (
-                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-lg">
+                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                           <span className="text-slate-600 font-medium">Background Check (Amortized)</span>
                           <span className="font-bold text-lg text-slate-900">
                             {formData.currency} {quote.backgroundCheck.toLocaleString()}
@@ -580,7 +580,7 @@ export default function ICCalculatorPage() {
 
                       <Separator className="my-6" />
 
-                      <div className="bg-gradient-to-r from-green-50 to-green-100 p-6 rounded-xl border-2 border-green-200">
+                      <div className="bg-gradient-to-r from-green-50 to-green-100 p-6 border-2 border-green-200">
                         <div className="flex justify-between items-center">
                           <span className="text-xl font-bold text-slate-900">Net Monthly Margin</span>
                           <span className="text-green-600 text-3xl font-bold">
@@ -595,7 +595,7 @@ export default function ICCalculatorPage() {
                   </div>
                 ) : (
                   <div className="text-center py-16">
-                    <div className="p-4 bg-slate-50 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                    <div className="p-4 bg-slate-50 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                       <Calculator className="h-10 w-10 text-slate-400" />
                     </div>
                     <p className="text-slate-500 text-base font-medium">
