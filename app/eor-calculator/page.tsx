@@ -171,6 +171,13 @@ export default function EORCalculatorPage() {
       if (savedQuotesData.remoteQuote) setRemoteQuote(savedQuotesData.remoteQuote)
       if (savedQuotesData.compareQuote) setCompareQuote(savedQuotesData.compareQuote)
     }
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (conversionTimeoutRef.current) {
+        clearTimeout(conversionTimeoutRef.current)
+      }
+    }
   }, [])
 
   const [formData, setFormData] = useState<EORFormData>({
@@ -211,6 +218,11 @@ export default function EORCalculatorPage() {
   // Currency conversion state
   const [isConverting, setIsConverting] = useState(false)
   const [conversionInfo, setConversionInfo] = useState<string | null>(null)
+  const [isComparisonManuallyEdited, setIsComparisonManuallyEdited] = useState(false)
+  
+  // Refs
+  const baseSalaryInputRef = useRef<HTMLInputElement>(null)
+  const conversionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     const quotesData = {
@@ -263,6 +275,8 @@ export default function EORCalculatorPage() {
         
         // Clear conversion info when changing country
         setConversionInfo(null)
+        // Reset manual edit flag when country changes
+        setIsComparisonManuallyEdited(false)
         
         // Auto-convert salary if base salary exists and currencies are different
         if (formData.baseSalary && formData.currency && formData.currency !== newCurrency) {
@@ -299,26 +313,36 @@ export default function EORCalculatorPage() {
     }
   }
 
-  // Convert comparison salary when base salary changes (if comparison is enabled)
+  // Debounced conversion function
+  const debouncedCurrencyConversion = (amount: number, sourceCurrency: string, targetCurrency: string) => {
+    // Clear any existing timeout
+    if (conversionTimeoutRef.current) {
+      clearTimeout(conversionTimeoutRef.current)
+    }
+    
+    // Set new timeout for debounced conversion
+    conversionTimeoutRef.current = setTimeout(() => {
+      if (!isNaN(amount) && amount > 0 && sourceCurrency !== targetCurrency) {
+        handleCurrencyConversion(amount, sourceCurrency, targetCurrency)
+      }
+    }, 800) // 800ms delay after user stops typing
+  }
+
+  // Debounced conversion when base salary changes
   useEffect(() => {
     if (
-      formData.baseSalary && 
-      formData.currency && 
+      formData.baseSalary &&
       formData.enableComparison && 
       formData.compareCountry && 
       formData.compareCurrency &&
+      formData.currency &&
       formData.currency !== formData.compareCurrency &&
-      !isConverting // Avoid triggering conversion while another is in progress
+      !isComparisonManuallyEdited
     ) {
       const amount = parseFloat(formData.baseSalary)
-      if (!isNaN(amount) && amount > 0) {
-        // Only convert if there's no existing comparison salary
-        if (!formData.compareSalary) {
-          handleCurrencyConversion(amount, formData.currency, formData.compareCurrency)
-        }
-      }
+      debouncedCurrencyConversion(amount, formData.currency, formData.compareCurrency)
     }
-  }, [formData.baseSalary, formData.currency, formData.enableComparison, formData.compareCountry, formData.compareCurrency])
+  }, [formData.baseSalary])
 
   useEffect(() => {
     if (formData.clientCountry && clientCountryData) {
@@ -690,6 +714,7 @@ export default function EORCalculatorPage() {
                         Base Salary ({formData.currency})
                       </Label>
                       <Input
+                        ref={baseSalaryInputRef}
                         id="baseSalary"
                         type="number"
                         placeholder={`Enter salary amount in ${formData.currency}`}
@@ -749,6 +774,8 @@ export default function EORCalculatorPage() {
                           }))
                           // Clear conversion info when disabling comparison
                           setConversionInfo(null)
+                          // Reset manual edit flag when disabling comparison
+                          setIsComparisonManuallyEdited(false)
                         }}
                       />
                       <Label htmlFor="enableComparison" className="text-sm font-medium text-slate-700">
@@ -842,8 +869,9 @@ export default function EORCalculatorPage() {
                                 value={formData.compareSalary}
                                 onChange={(e) => {
                                   setFormData((prev) => ({ ...prev, compareSalary: e.target.value }))
-                                  // Clear conversion info when manually editing
-                                  if (conversionInfo) setConversionInfo(null)
+                                  // Mark as manually edited and clear conversion info
+                                  setIsComparisonManuallyEdited(true)
+                                  setConversionInfo(null)
                                 }}
                                 className="h-11 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                                 disabled={isConverting}
@@ -873,6 +901,7 @@ export default function EORCalculatorPage() {
                                 onClick={() => {
                                   const amount = parseFloat(formData.baseSalary)
                                   if (!isNaN(amount) && amount > 0) {
+                                    setIsComparisonManuallyEdited(false) // Reset manual edit flag
                                     handleCurrencyConversion(amount, formData.currency, formData.compareCurrency)
                                   }
                                 }}
@@ -895,6 +924,7 @@ export default function EORCalculatorPage() {
                                 onClick={() => {
                                   const amount = parseFloat(formData.baseSalary)
                                   if (!isNaN(amount) && amount > 0) {
+                                    setIsComparisonManuallyEdited(false) // Reset manual edit flag
                                     handleCurrencyConversion(amount, formData.currency, formData.compareCurrency)
                                   }
                                 }}
