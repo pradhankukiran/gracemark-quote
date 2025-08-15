@@ -30,7 +30,7 @@ export default function HomePage() {
               <Link href="/eor-calculator">
                 <Button
                   size="lg"
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 text-lg"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 text-lg cursor-pointer"
                 >
                   Calculate EOR Quote
                 </Button>
@@ -53,7 +53,7 @@ export default function HomePage() {
               <Link href="/ic-calculator">
                 <Button
                   size="lg"
-                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold py-4 text-lg"
+                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold py-4 text-lg cursor-pointer"
                 >
                   Calculate IC Quote
                 </Button>

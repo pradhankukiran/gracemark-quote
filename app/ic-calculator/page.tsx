@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Calculator, User, MapPin, DollarSign } from "lucide-react"
+import { ArrowLeft, Calculator, User, MapPin, DollarSign, RotateCcw } from "lucide-react"
 import Link from "next/link"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -46,27 +46,90 @@ interface ICQuoteResult {
   workedHours: number
 }
 
+const IC_FORM_STORAGE_KEY = "ic-calculator-form-data"
+const IC_QUOTE_STORAGE_KEY = "ic-calculator-quote-data"
+const STORAGE_EXPIRY_HOURS = 24
+
+const saveToLocalStorage = (key: string, data: any) => {
+  try {
+    const item = {
+      data,
+      timestamp: Date.now(),
+      expiry: Date.now() + STORAGE_EXPIRY_HOURS * 60 * 60 * 1000,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  } catch (error) {
+    console.error("Failed to save to localStorage:", error)
+  }
+}
+
+const loadFromLocalStorage = (key: string) => {
+  try {
+    const item = localStorage.getItem(key)
+    if (!item) return null
+
+    const parsed = JSON.parse(item)
+    if (Date.now() > parsed.expiry) {
+      localStorage.removeItem(key)
+      return null
+    }
+
+    return parsed.data
+  } catch (error) {
+    console.error("Failed to load from localStorage:", error)
+    localStorage.removeItem(key)
+    return null
+  }
+}
+
+const clearLocalStorage = () => {
+  try {
+    localStorage.removeItem(IC_FORM_STORAGE_KEY)
+    localStorage.removeItem(IC_QUOTE_STORAGE_KEY)
+  } catch (error) {
+    console.error("Failed to clear localStorage:", error)
+  }
+}
+
 export default function ICCalculatorPage() {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
 
-  const [formData, setFormData] = useState<ICFormData>({
-    contractorName: "",
-    serviceType: "",
-    country: "",
-    state: "",
-    currency: "USD",
-    rateType: "pay-rate",
-    rateAmount: "",
-    paymentFrequency: "monthly",
-    contractDuration: "12",
-    complianceLevel: "standard",
-    backgroundCheckRequired: false,
+  const [formData, setFormData] = useState<ICFormData>(() => {
+    const savedData = loadFromLocalStorage(IC_FORM_STORAGE_KEY)
+    return (
+      savedData || {
+        contractorName: "",
+        serviceType: "",
+        country: "",
+        state: "",
+        currency: "USD",
+        rateType: "pay-rate",
+        rateAmount: "",
+        paymentFrequency: "monthly",
+        contractDuration: "12",
+        complianceLevel: "standard",
+        backgroundCheckRequired: false,
+      }
+    )
   })
 
-  const [quote, setQuote] = useState<ICQuoteResult | null>(null)
+  const [quote, setQuote] = useState<ICQuoteResult | null>(() => {
+    return loadFromLocalStorage(IC_QUOTE_STORAGE_KEY)
+  })
+
   const [isCalculating, setIsCalculating] = useState(false)
+
+  useEffect(() => {
+    saveToLocalStorage(IC_FORM_STORAGE_KEY, formData)
+  }, [formData])
+
+  useEffect(() => {
+    if (quote) {
+      saveToLocalStorage(IC_QUOTE_STORAGE_KEY, quote)
+    }
+  }, [quote])
 
   const countries = getAvailableCountries()
   const selectedCountryData = formData.country ? getCountryByName(formData.country) : null
@@ -96,6 +159,26 @@ export default function ICCalculatorPage() {
     "Customer Support",
     "Other",
   ]
+
+  const clearForm = () => {
+    const initialFormData: ICFormData = {
+      contractorName: "",
+      serviceType: "",
+      country: "",
+      state: "",
+      currency: "USD",
+      rateType: "pay-rate",
+      rateAmount: "",
+      paymentFrequency: "monthly",
+      contractDuration: "12",
+      complianceLevel: "standard",
+      backgroundCheckRequired: false,
+    }
+
+    setFormData(initialFormData)
+    setQuote(null)
+    clearLocalStorage()
+  }
 
   const calculateQuote = async () => {
     setIsCalculating(true)
@@ -471,12 +554,12 @@ export default function ICCalculatorPage() {
                   </div>
                 </div>
 
-                <div className="flex justify-center pt-4">
+                <div className="flex pt-4 justify-end gap-44">
                   <Button
                     onClick={calculateQuote}
                     disabled={!formData.rateAmount || !formData.country || isCalculating}
                     size="lg"
-                    className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold py-3 px-10 text-base shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none"
+                    className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold py-3 px-8 text-base shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none cursor-pointer"
                   >
                     {isCalculating ? (
                       <div className="flex items-center gap-2">
@@ -486,9 +569,19 @@ export default function ICCalculatorPage() {
                     ) : (
                       <div className="flex items-center gap-2">
                         <Calculator className="h-4 w-4" />
-                        Calculate IC Quote
+                        Calculate Quote
                       </div>
                     )}
+                  </Button>
+
+                  <Button
+                    onClick={clearForm}
+                    variant="outline"
+                    size="lg"
+                    className="border-2 border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold py-3 px-8 text-base shadow-lg hover:shadow-xl transition-all duration-200 bg-transparent cursor-pointer"
+                  >
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Clear
                   </Button>
                 </div>
               </CardContent>

@@ -8,17 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
-import {
-  ArrowLeft,
-  Calculator,
-  User,
-  MapPin,
-  DollarSign,
-  AlertCircle,
-  ExternalLink,
-  Loader2,
-  BarChart3,
-} from "lucide-react"
+import { RotateCcw } from "lucide-react"
+import { ArrowLeft, Calculator, User, MapPin, DollarSign, AlertCircle, Loader2 } from "lucide-react"
 import Link from "next/link"
 import {
   getAvailableCountries,
@@ -38,7 +29,6 @@ interface EORFormData {
   clientCountry: string
   clientCurrency: string // Added client currency field
   baseSalary: string
-  salaryFrequency: "monthly" | "yearly"
   startDate: string
   employmentType: string
   quoteType: "all-inclusive" | "statutory-only"
@@ -47,6 +37,7 @@ interface EORFormData {
   compareCountry: string
   compareState: string
   compareCurrency: string
+  compareSalary: string
   currentStep: "form" | "primary-quote" | "comparison"
   showProviderComparison: boolean
 }
@@ -118,8 +109,67 @@ interface RemoteAPIResponse {
 export default function EORCalculatorPage() {
   const quoteRef = useRef<HTMLDivElement>(null)
 
+  const STORAGE_KEYS = {
+    FORM_DATA: "eor-calculator-form-data",
+    QUOTES_DATA: "eor-calculator-quotes-data",
+  }
+
+  const saveToLocalStorage = (key: string, data: any) => {
+    try {
+      const dataWithTimestamp = {
+        data,
+        timestamp: Date.now(),
+        version: "1.0", // For future compatibility
+      }
+      localStorage.setItem(key, JSON.stringify(dataWithTimestamp))
+    } catch (error) {
+      console.error("Failed to save to localStorage:", error)
+    }
+  }
+
+  const loadFromLocalStorage = (key: string, maxAge: number = 24 * 60 * 60 * 1000) => {
+    try {
+      const stored = localStorage.getItem(key)
+      if (!stored) return null
+
+      const parsed = JSON.parse(stored)
+      const now = Date.now()
+
+      // Check if data is expired (default: 24 hours)
+      if (parsed.timestamp && now - parsed.timestamp > maxAge) {
+        localStorage.removeItem(key)
+        return null
+      }
+
+      return parsed.data
+    } catch (error) {
+      console.error("Failed to load from localStorage:", error)
+      // Clear corrupted data
+      localStorage.removeItem(key)
+      return null
+    }
+  }
+
   useEffect(() => {
     window.scrollTo(0, 0)
+
+    const savedFormData = loadFromLocalStorage(STORAGE_KEYS.FORM_DATA)
+    if (savedFormData) {
+      setFormData((prev) => ({
+        ...prev,
+        ...savedFormData,
+        // Reset step to form to avoid showing stale quotes
+        currentStep: "form",
+        showProviderComparison: false,
+      }))
+    }
+
+    const savedQuotesData = loadFromLocalStorage(STORAGE_KEYS.QUOTES_DATA)
+    if (savedQuotesData) {
+      if (savedQuotesData.deelQuote) setDeelQuote(savedQuotesData.deelQuote)
+      if (savedQuotesData.remoteQuote) setRemoteQuote(savedQuotesData.remoteQuote)
+      if (savedQuotesData.compareQuote) setCompareQuote(savedQuotesData.compareQuote)
+    }
   }, [])
 
   const [formData, setFormData] = useState<EORFormData>({
@@ -127,11 +177,10 @@ export default function EORCalculatorPage() {
     jobTitle: "",
     country: "",
     state: "",
-    currency: "USD",
+    currency: "",
     clientCountry: "",
-    clientCurrency: "USD", // Added client currency to initial state
+    clientCurrency: "",
     baseSalary: "",
-    salaryFrequency: "monthly",
     startDate: "",
     employmentType: "full-time",
     quoteType: "all-inclusive",
@@ -139,16 +188,38 @@ export default function EORCalculatorPage() {
     enableComparison: false,
     compareCountry: "",
     compareState: "",
-    compareCurrency: "USD",
+    compareCurrency: "",
+    compareSalary: "",
     currentStep: "form",
     showProviderComparison: false,
   })
+
+  useEffect(() => {
+    // Don't save initial empty state
+    if (formData.employeeName || formData.country || formData.baseSalary) {
+      saveToLocalStorage(STORAGE_KEYS.FORM_DATA, formData)
+    }
+  }, [formData])
 
   const [deelQuote, setDeelQuote] = useState<DeelAPIResponse | null>(null)
   const [remoteQuote, setRemoteQuote] = useState<RemoteAPIResponse | null>(null)
   const [compareQuote, setCompareQuote] = useState<DeelAPIResponse | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const quotesData = {
+      deelQuote,
+      remoteQuote,
+      compareQuote,
+      lastUpdated: Date.now(),
+    }
+
+    // Only save if we have at least one quote
+    if (deelQuote || remoteQuote || compareQuote) {
+      saveToLocalStorage(STORAGE_KEYS.QUOTES_DATA, quotesData)
+    }
+  }, [deelQuote, remoteQuote, compareQuote])
 
   const countries = getAvailableCountries()
   const selectedCountryData = formData.country ? getCountryByName(formData.country) : null
@@ -199,22 +270,51 @@ export default function EORCalculatorPage() {
     }
   }, [formData.clientCountry, clientCountryData])
 
+  const clearAllData = () => {
+    // Reset form data to initial state
+    setFormData({
+      employeeName: "",
+      jobTitle: "",
+      country: "",
+      state: "",
+      currency: "",
+      clientCountry: "",
+      clientCurrency: "",
+      baseSalary: "",
+      startDate: "",
+      employmentType: "full-time",
+      quoteType: "all-inclusive",
+      contractDuration: "12",
+      enableComparison: false,
+      compareCountry: "",
+      compareState: "",
+      compareCurrency: "",
+      compareSalary: "",
+      currentStep: "form",
+    })
+
+    // Clear all quotes
+    setDeelQuote(null)
+    setRemoteQuote(null)
+    setCompareQuote(null)
+    setError(null)
+
+    // Clear localStorage
+    localStorage.removeItem(STORAGE_KEYS.FORM_DATA)
+    localStorage.removeItem(STORAGE_KEYS.QUOTES_DATA)
+  }
+
   const calculateQuote = async () => {
     setIsCalculating(true)
     setError(null)
+    localStorage.removeItem(STORAGE_KEYS.QUOTES_DATA)
     setDeelQuote(null)
     setRemoteQuote(null)
     setCompareQuote(null)
 
     try {
-      const yearlySalary =
-        formData.salaryFrequency === "monthly"
-          ? (Number.parseFloat(formData.baseSalary) * 12).toString()
-          : formData.baseSalary
-
       const baseRequestData = {
-        salary: yearlySalary,
-        salaryFrequency: "yearly",
+        salary: formData.baseSalary,
         country: formData.country,
         currency: formData.currency,
         clientCountry: formData.clientCountry,
@@ -241,8 +341,7 @@ export default function EORCalculatorPage() {
       // Handle comparison quote if enabled
       if (formData.enableComparison && formData.compareCountry) {
         const compareRequestData = {
-          salary: yearlySalary,
-          salaryFrequency: "yearly",
+          salary: formData.compareSalary,
           country: formData.compareCountry,
           currency: formData.compareCurrency,
           clientCountry: formData.clientCountry,
@@ -284,14 +383,8 @@ export default function EORCalculatorPage() {
     setRemoteQuote(null)
 
     try {
-      const yearlySalary =
-        formData.salaryFrequency === "monthly"
-          ? (Number.parseFloat(formData.baseSalary) * 12).toString()
-          : formData.baseSalary
-
       const baseRequestData = {
-        salary: yearlySalary,
-        salaryFrequency: "yearly",
+        salary: formData.baseSalary,
         country: formData.country,
         currency: formData.currency,
         clientCountry: formData.clientCountry,
@@ -513,8 +606,71 @@ export default function EORCalculatorPage() {
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  <div className="mt-6 space-y-4">
+                <Separator />
+
+                {/* Salary Information */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-primary/10">
+                      <DollarSign className="h-5 w-5 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900">Salary Information</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="baseSalary"
+                        className="text-sm font-semibold text-slate-700 uppercase tracking-wide block"
+                      >
+                        Base Salary ({formData.currency})
+                      </Label>
+                      <Input
+                        id="baseSalary"
+                        type="number"
+                        placeholder={`Enter salary amount in ${formData.currency}`}
+                        value={formData.baseSalary}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, baseSalary: e.target.value }))}
+                        className="h-11 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="employmentType"
+                        className="text-sm font-semibold text-slate-700 uppercase tracking-wide block"
+                      >
+                        Employment Type
+                      </Label>
+                      <Select
+                        value={formData.employmentType}
+                        onValueChange={(value) => setFormData((prev) => ({ ...prev, employmentType: value }))}
+                      >
+                        <SelectTrigger className="h-11 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="full-time">Full-time</SelectItem>
+                          <SelectItem value="part-time">Part-time</SelectItem>
+                          <SelectItem value="contract">Contract</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Country Comparison */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-primary/10">
+                      <MapPin className="h-5 w-5 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900">Country Comparison</h3>
+                  </div>
+
+                  <div className="space-y-4">
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="enableComparison"
@@ -525,7 +681,7 @@ export default function EORCalculatorPage() {
                             enableComparison: checked as boolean,
                             compareCountry: "",
                             compareState: "",
-                            compareCurrency: "USD",
+                            compareCurrency: "",
                           }))
                         }
                       />
@@ -592,87 +748,38 @@ export default function EORCalculatorPage() {
                             <Label htmlFor="compareCurrency" className="text-sm font-medium text-slate-600">
                               Currency
                             </Label>
-                            <div className="h-11 border-2 border-slate-200 px-3 py-2 bg-white flex items-center">
-                              <span className="text-slate-700 font-medium">{formData.compareCurrency}</span>
-                            </div>
+                            <Input
+                              id="compareCurrency"
+                              value={formData.compareCurrency}
+                              readOnly
+                              className="h-11 border-2 border-slate-200 bg-slate-50 text-slate-600"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="mt-4 pt-4 border-t border-slate-200">
+                          <h5 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">
+                            Comparison Salary
+                          </h5>
+                          <div className="space-y-2">
+                            <Label
+                              htmlFor="compareSalary"
+                              className="text-sm font-semibold text-slate-700 uppercase tracking-wide block"
+                            >
+                              Base Salary ({formData.compareCurrency})
+                            </Label>
+                            <Input
+                              id="compareSalary"
+                              type="number"
+                              placeholder={`Enter salary amount in ${formData.compareCurrency}`}
+                              value={formData.compareSalary}
+                              onChange={(e) => setFormData((prev) => ({ ...prev, compareSalary: e.target.value }))}
+                              className="h-11 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                            />
                           </div>
                         </div>
                       </div>
                     )}
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Salary Information */}
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-primary/10">
-                      <DollarSign className="h-5 w-5 text-primary" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-slate-900">Salary Information</h3>
-                  </div>
-                  <div className="grid grid-cols-4 gap-4 items-end">
-                    <div className="col-span-2 space-y-2">
-                      <Label
-                        htmlFor="baseSalary"
-                        className="text-sm font-semibold text-slate-700 uppercase tracking-wide block"
-                      >
-                        {formData.salaryFrequency === "monthly" ? "Monthly" : "Yearly"} Base Salary ({formData.currency}
-                        )
-                      </Label>
-                      <Input
-                        id="baseSalary"
-                        type="number"
-                        value={formData.baseSalary}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, baseSalary: e.target.value }))}
-                        placeholder={formData.salaryFrequency === "monthly" ? "5000" : "60000"}
-                        className="h-11 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="salaryFrequency"
-                        className="text-sm font-semibold text-slate-700 uppercase tracking-wide block"
-                      >
-                        Salary Frequency
-                      </Label>
-                      <Select
-                        value={formData.salaryFrequency}
-                        onValueChange={(value: "monthly" | "yearly") =>
-                          setFormData((prev) => ({ ...prev, salaryFrequency: value, baseSalary: "" }))
-                        }
-                      >
-                        <SelectTrigger className="h-11 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="monthly">Monthly</SelectItem>
-                          <SelectItem value="yearly">Yearly</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="employmentType"
-                        className="text-sm font-semibold text-slate-700 uppercase tracking-wide block"
-                      >
-                        Employment Type
-                      </Label>
-                      <Select
-                        value={formData.employmentType}
-                        onValueChange={(value) => setFormData((prev) => ({ ...prev, employmentType: value }))}
-                      >
-                        <SelectTrigger className="h-11 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="full-time">Full-time</SelectItem>
-                          <SelectItem value="part-time">Part-time</SelectItem>
-                          <SelectItem value="contract">Contract</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
                   </div>
                 </div>
 
@@ -686,11 +793,19 @@ export default function EORCalculatorPage() {
                   </div>
                 )}
 
-                <div className="flex justify-center">
+                <div className="flex items-end justify-start gap-80">
+                  <Button
+                    onClick={clearAllData}
+                    variant="outline"
+                    className="w-auto h-12 text-lg font-semibold border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 shadow-lg hover:shadow-xl transition-all duration-200 px-8 bg-transparent cursor-pointer"
+                  >
+                    <RotateCcw className="mr-2 h-5 w-5" />
+                    Clear
+                  </Button>
                   <Button
                     onClick={calculateQuote}
                     disabled={isCalculating || !formData.country || !formData.baseSalary || !formData.clientCountry}
-                    className="w-auto h-12 text-lg font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8"
+                    className="w-auto h-12 text-lg font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8 cursor-pointer"
                   >
                     {isCalculating ? (
                       <>
@@ -709,9 +824,10 @@ export default function EORCalculatorPage() {
             </Card>
           </div>
 
+          {/* Quote Results Section */}
           <div className="space-y-6" ref={quoteRef}>
-            {/* Phase 1: Primary Deel Quote */}
-            {formData.currentStep === "primary-quote" && deelQuote && (
+            {/* Primary Deel Quote - only show when NOT comparing countries */}
+            {formData.currentStep === "primary-quote" && deelQuote && !formData.enableComparison && (
               <>
                 <div className="text-center space-y-3">
                   <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
@@ -764,58 +880,29 @@ export default function EORCalculatorPage() {
                     </div>
                   </CardContent>
                 </Card>
-
-                {!formData.showProviderComparison && (
-                  <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-                    <CardContent className="p-6 text-center space-y-4">
-                      <div className="space-y-2">
-                        <h3 className="text-xl font-semibold text-slate-900">Want to compare with other providers?</h3>
-                        <p className="text-slate-600">
-                          Get quotes from Remote to compare costs and find the best option for your needs
-                        </p>
-                      </div>
-                      <Button
-                        onClick={enableProviderComparison}
-                        disabled={isCalculating}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold"
-                      >
-                        {isCalculating ? (
-                          <>
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            Getting Comparison...
-                          </>
-                        ) : (
-                          <>
-                            <BarChart3 className="mr-2 h-5 w-5" />
-                            Compare with Remote
-                          </>
-                        )}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
               </>
             )}
 
-            {/* Phase 3: Provider Comparison */}
-            {formData.currentStep === "comparison" && formData.showProviderComparison && deelQuote && remoteQuote && (
+            {formData.currentStep === "primary-quote" && deelQuote && formData.enableComparison && compareQuote && (
               <>
-                <div className="text-center space-y-3">
+                <div className="text-center mb-8">
                   <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                    Provider Comparison
+                    Country Comparison
                   </h2>
-                  <p className="text-lg text-slate-600">Compare EOR costs between Deel and Remote</p>
+                  <p className="text-lg text-slate-600">
+                    Compare EOR costs between {formData.country} and {formData.compareCountry}
+                  </p>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
-                  {/* Deel Quote */}
+                  {/* Main Country Quote */}
                   <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
                     <CardContent className="p-6">
                       <div className="text-center mb-6">
-                        <h3 className="text-xl font-bold text-slate-900">Deel</h3>
-                        <p className="text-sm text-slate-600">{deelQuote.country}</p>
+                        <h3 className="text-xl font-bold text-slate-900">{deelQuote.country}</h3>
+                        <p className="text-sm text-slate-600">Primary Location</p>
                         <span className="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full mt-2">
-                          Primary Provider
+                          Main Quote
                         </span>
                       </div>
 
@@ -857,14 +944,14 @@ export default function EORCalculatorPage() {
                     </CardContent>
                   </Card>
 
-                  {/* Remote Quote */}
+                  {/* Comparison Country Quote */}
                   <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
                     <CardContent className="p-6">
                       <div className="text-center mb-6">
-                        <h3 className="text-xl font-bold text-slate-900">Remote</h3>
-                        <p className="text-sm text-slate-600">{remoteQuote.country}</p>
+                        <h3 className="text-xl font-bold text-slate-900">{compareQuote.country}</h3>
+                        <p className="text-sm text-slate-600">Comparison Location</p>
                         <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full mt-2">
-                          Comparison Provider
+                          Compare Quote
                         </span>
                       </div>
 
@@ -872,77 +959,25 @@ export default function EORCalculatorPage() {
                         <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
                           <span className="text-slate-600 font-medium">Base Salary</span>
                           <span className="font-bold text-lg text-slate-900">
-                            {remoteQuote.currency} {remoteQuote.salary.monthly.toLocaleString()}
+                            {compareQuote.currency} {Number.parseFloat(compareQuote.salary).toLocaleString()}
                           </span>
                         </div>
 
                         <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
-                          <span className="text-slate-600 font-medium">Monthly Contributions</span>
+                          <span className="text-slate-600 font-medium">Platform Fee</span>
                           <span className="font-bold text-lg text-slate-900">
-                            {remoteQuote.currency} {remoteQuote.costs.monthly_contributions.toLocaleString()}
+                            {compareQuote.currency} {Number.parseFloat(compareQuote.deel_fee).toLocaleString()}
                           </span>
                         </div>
 
-                        {remoteQuote.details.has_extra_statutory_payment && (
-                          <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
-                            <span className="text-slate-600 font-medium">Extra Statutory Payments</span>
+                        {compareQuote.costs.map((cost, index) => (
+                          <div key={index} className="flex justify-between items-center py-3 px-4 bg-slate-50">
+                            <span className="text-slate-600 font-medium">{cost.name}</span>
                             <span className="font-bold text-lg text-slate-900">
-                              {remoteQuote.currency}{" "}
-                              {Math.round(remoteQuote.costs.extra_statutory_payments_monthly).toLocaleString()}
+                              {compareQuote.currency} {Number.parseFloat(cost.amount).toLocaleString()}
                             </span>
                           </div>
-                        )}
-
-                        <div className="mt-6 pt-4 border-t border-slate-200">
-                          <h4 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">
-                            Local Currency Costs ({remoteQuote.regional_costs.currency})
-                          </h4>
-
-                          <div className="space-y-2">
-                            <div className="flex justify-between items-center py-2 px-3 bg-slate-50/50">
-                              <span className="text-slate-600 text-sm">Monthly Salary</span>
-                              <span className="font-semibold text-slate-900">
-                                {remoteQuote.regional_costs.currency}{" "}
-                                {remoteQuote.regional_costs.monthly_gross_salary.toLocaleString()}
-                              </span>
-                            </div>
-
-                            <div className="flex justify-between items-center py-2 px-3 bg-slate-50/50">
-                              <span className="text-slate-600 text-sm">Monthly Contributions</span>
-                              <span className="font-semibold text-slate-900">
-                                {remoteQuote.regional_costs.currency}{" "}
-                                {remoteQuote.regional_costs.monthly_contributions.toLocaleString()}
-                              </span>
-                            </div>
-
-                            {remoteQuote.details.has_extra_statutory_payment && (
-                              <div className="flex justify-between items-center py-2 px-3 bg-slate-50/50">
-                                <span className="text-slate-600 text-sm">Extra Statutory Payments</span>
-                                <span className="font-semibold text-slate-900">
-                                  {remoteQuote.regional_costs.currency}{" "}
-                                  {Math.round(
-                                    remoteQuote.regional_costs.extra_statutory_payments_monthly,
-                                  ).toLocaleString()}
-                                </span>
-                              </div>
-                            )}
-
-                            <div className="flex justify-between items-center py-2 px-3 bg-primary/10 font-semibold">
-                              <span className="text-slate-700 text-sm">Total Monthly Cost</span>
-                              <span className="text-slate-900">
-                                {remoteQuote.regional_costs.currency}{" "}
-                                {remoteQuote.regional_costs.monthly_total.toLocaleString()}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
-                          <span className="text-slate-600 font-medium">Onboarding Time</span>
-                          <span className="font-bold text-lg text-slate-900">
-                            {remoteQuote.details.minimum_onboarding_time} days
-                          </span>
-                        </div>
+                        ))}
 
                         <Separator className="my-4" />
 
@@ -950,37 +985,10 @@ export default function EORCalculatorPage() {
                           <div className="text-center">
                             <span className="text-lg font-bold text-slate-900">Total Monthly Cost</span>
                             <div className="text-primary text-2xl font-bold mt-1">
-                              {remoteQuote.currency} {remoteQuote.costs.monthly_total.toLocaleString()}
+                              {compareQuote.currency} {Number.parseFloat(compareQuote.total_costs).toLocaleString()}
                             </div>
                           </div>
                         </div>
-
-                        {(remoteQuote.details.country_benefits_url || remoteQuote.details.country_guide_url) && (
-                          <div className="pt-4 space-y-2">
-                            {remoteQuote.details.country_benefits_url && (
-                              <a
-                                href={remoteQuote.details.country_benefits_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
-                              >
-                                <ExternalLink className="h-4 w-4" />
-                                View Benefits Guide
-                              </a>
-                            )}
-                            {remoteQuote.details.country_guide_url && (
-                              <a
-                                href={remoteQuote.details.country_guide_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
-                              >
-                                <ExternalLink className="h-4 w-4" />
-                                View Country Guide
-                              </a>
-                            )}
-                          </div>
-                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -988,6 +996,7 @@ export default function EORCalculatorPage() {
               </>
             )}
 
+            {/* Phase 3: Provider Comparison */}
             {/* country comparison section */}
           </div>
         </div>
