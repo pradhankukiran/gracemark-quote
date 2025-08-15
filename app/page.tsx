@@ -8,8 +8,8 @@ export default function HomePage() {
     <div className="min-h-screen bg-white">
       <main className="container mx-auto px-6 py-6 max-w-4xl">
         {/* Hero Section */}
-        <div className="text-center mb-10">
-          <h1 className="font-serif font-bold text-foreground mb-3 leading-tight text-5xl">GraceMark Quote</h1>
+        <div className="text-center mb-20">
+          <h1 className="font-serif font-bold text-foreground mb-8 leading-tight text-4xl">GraceMark Quote Tool</h1>
           {/* <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">Simple. Fast. Tailored to Your Needs.</p> */}
         </div>
 

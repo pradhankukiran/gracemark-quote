@@ -94,30 +94,34 @@ const clearLocalStorage = () => {
 export default function ICCalculatorPage() {
   useEffect(() => {
     window.scrollTo(0, 0)
+    
+    // Load data from localStorage after component mounts (client-side only)
+    const savedFormData = loadFromLocalStorage(IC_FORM_STORAGE_KEY)
+    if (savedFormData) {
+      setFormData(savedFormData)
+    }
+    
+    const savedQuote = loadFromLocalStorage(IC_QUOTE_STORAGE_KEY)
+    if (savedQuote) {
+      setQuote(savedQuote)
+    }
   }, [])
 
-  const [formData, setFormData] = useState<ICFormData>(() => {
-    const savedData = loadFromLocalStorage(IC_FORM_STORAGE_KEY)
-    return (
-      savedData || {
-        contractorName: "",
-        serviceType: "",
-        country: "",
-        state: "",
-        currency: "USD",
-        rateType: "pay-rate",
-        rateAmount: "",
-        paymentFrequency: "monthly",
-        contractDuration: "12",
-        complianceLevel: "standard",
-        backgroundCheckRequired: false,
-      }
-    )
+  const [formData, setFormData] = useState<ICFormData>({
+    contractorName: "",
+    serviceType: "",
+    country: "",
+    state: "",
+    currency: "USD",
+    rateType: "pay-rate",
+    rateAmount: "",
+    paymentFrequency: "monthly",
+    contractDuration: "12",
+    complianceLevel: "standard",
+    backgroundCheckRequired: false,
   })
 
-  const [quote, setQuote] = useState<ICQuoteResult | null>(() => {
-    return loadFromLocalStorage(IC_QUOTE_STORAGE_KEY)
-  })
+  const [quote, setQuote] = useState<ICQuoteResult | null>(null)
 
   const [isCalculating, setIsCalculating] = useState(false)
 
@@ -279,9 +283,9 @@ export default function ICCalculatorPage() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                 IC Quote Calculator
               </h1>
-              <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+              {/* <p className="text-lg text-slate-600 max-w-2xl mx-auto">
                 Get an accurate cost estimate for your Independent Contractor services
-              </p>
+              </p> */}
             </div>
 
             {/* Consolidated Form Fields */}
