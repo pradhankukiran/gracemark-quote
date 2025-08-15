@@ -356,7 +356,7 @@ export default function EORCalculatorPage() {
                       htmlFor="clientCountry"
                       className="text-sm font-semibold text-slate-700 uppercase tracking-wide"
                     >
-                      Client Country (Where your company is based)
+                      Client Country
                     </Label>
                     <Select
                       value={formData.clientCountry}
