@@ -523,7 +523,7 @@ export default function EORCalculatorPage() {
           {/* Form Section */}
           <div className="space-y-6">
             <div className="text-center space-y-3">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                 EOR Quote Calculator
               </h1>
               {/* <p className="text-lg text-slate-600 max-w-2xl mx-auto">
