@@ -214,12 +214,12 @@ export default function EORCalculatorPage() {
   const [compareQuote, setCompareQuote] = useState<DeelAPIResponse | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+
   // Currency conversion state
   const [isConverting, setIsConverting] = useState(false)
   const [conversionInfo, setConversionInfo] = useState<string | null>(null)
   const [isComparisonManuallyEdited, setIsComparisonManuallyEdited] = useState(false)
-  
+
   // Refs
   const baseSalaryInputRef = useRef<HTMLInputElement>(null)
   const conversionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -272,29 +272,29 @@ export default function EORCalculatorPage() {
           compareState: "",
           compareSalary: "", // Clear comparison salary when changing country
         }))
-        
+
         // Clear conversion info when changing country
         setConversionInfo(null)
         // Reset manual edit flag when country changes
         setIsComparisonManuallyEdited(false)
-        
+
         // Auto-convert salary if base salary exists and currencies are different
         if (formData.baseSalary && formData.currency && formData.currency !== newCurrency) {
-          handleCurrencyConversion(parseFloat(formData.baseSalary), formData.currency, newCurrency)
+          handleCurrencyConversion(Number.parseFloat(formData.baseSalary), formData.currency, newCurrency)
         }
       }
     }
   }, [formData.compareCountry, compareCountryData])
-  
+
   const handleCurrencyConversion = async (amount: number, sourceCurrency: string, targetCurrency: string) => {
     if (!amount || sourceCurrency === targetCurrency) return
-    
+
     setIsConverting(true)
     setConversionInfo(null)
-    
+
     try {
       const result = await convertCurrency(amount, sourceCurrency, targetCurrency)
-      
+
       if (result.success && result.data) {
         setFormData((prev) => ({
           ...prev,
@@ -319,7 +319,7 @@ export default function EORCalculatorPage() {
     if (conversionTimeoutRef.current) {
       clearTimeout(conversionTimeoutRef.current)
     }
-    
+
     // Set new timeout for debounced conversion
     conversionTimeoutRef.current = setTimeout(() => {
       if (!isNaN(amount) && amount > 0 && sourceCurrency !== targetCurrency) {
@@ -332,14 +332,14 @@ export default function EORCalculatorPage() {
   useEffect(() => {
     if (
       formData.baseSalary &&
-      formData.enableComparison && 
-      formData.compareCountry && 
+      formData.enableComparison &&
+      formData.compareCountry &&
       formData.compareCurrency &&
       formData.currency &&
       formData.currency !== formData.compareCurrency &&
       !isComparisonManuallyEdited
     ) {
-      const amount = parseFloat(formData.baseSalary)
+      const amount = Number.parseFloat(formData.baseSalary)
       debouncedCurrencyConversion(amount, formData.currency, formData.compareCurrency)
     }
   }, [formData.baseSalary])
@@ -887,52 +887,52 @@ export default function EORCalculatorPage() {
                                 ℹ️ {conversionInfo}
                               </p>
                             )}
-                            {formData.baseSalary && 
-                             formData.currency && 
-                             formData.compareCurrency && 
-                             formData.currency !== formData.compareCurrency && 
-                             !conversionInfo && 
-                             !formData.compareSalary && 
-                             !isConverting && (
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  const amount = parseFloat(formData.baseSalary)
-                                  if (!isNaN(amount) && amount > 0) {
-                                    setIsComparisonManuallyEdited(false) // Reset manual edit flag
-                                    handleCurrencyConversion(amount, formData.currency, formData.compareCurrency)
-                                  }
-                                }}
-                                className="text-xs h-8"
-                              >
-                                Convert from {formData.currency}
-                              </Button>
-                            )}
-                            {formData.baseSalary && 
-                             formData.currency && 
-                             formData.compareCurrency && 
-                             formData.currency !== formData.compareCurrency && 
-                             !conversionInfo && 
-                             formData.compareSalary && 
-                             !isConverting && (
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  const amount = parseFloat(formData.baseSalary)
-                                  if (!isNaN(amount) && amount > 0) {
-                                    setIsComparisonManuallyEdited(false) // Reset manual edit flag
-                                    handleCurrencyConversion(amount, formData.currency, formData.compareCurrency)
-                                  }
-                                }}
-                                className="text-xs h-8 text-slate-500"
-                              >
-                                Re-convert from {formData.currency}
-                              </Button>
-                            )}
+                            {formData.baseSalary &&
+                              formData.currency &&
+                              formData.compareCurrency &&
+                              formData.currency !== formData.compareCurrency &&
+                              !conversionInfo &&
+                              !formData.compareSalary &&
+                              !isConverting && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    const amount = Number.parseFloat(formData.baseSalary)
+                                    if (!isNaN(amount) && amount > 0) {
+                                      setIsComparisonManuallyEdited(false) // Reset manual edit flag
+                                      handleCurrencyConversion(amount, formData.currency, formData.compareCurrency)
+                                    }
+                                  }}
+                                  className="text-xs h-8"
+                                >
+                                  Convert from {formData.currency}
+                                </Button>
+                              )}
+                            {formData.baseSalary &&
+                              formData.currency &&
+                              formData.compareCurrency &&
+                              formData.currency !== formData.compareCurrency &&
+                              !conversionInfo &&
+                              formData.compareSalary &&
+                              !isConverting && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    const amount = Number.parseFloat(formData.baseSalary)
+                                    if (!isNaN(amount) && amount > 0) {
+                                      setIsComparisonManuallyEdited(false) // Reset manual edit flag
+                                      handleCurrencyConversion(amount, formData.currency, formData.compareCurrency)
+                                    }
+                                  }}
+                                  className="text-xs h-8 text-slate-500"
+                                >
+                                  Re-convert from {formData.currency}
+                                </Button>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -950,19 +950,12 @@ export default function EORCalculatorPage() {
                   </div>
                 )}
 
-                <div className="flex items-end justify-start gap-80">
-                  <Button
-                    onClick={clearAllData}
-                    variant="outline"
-                    className="w-auto h-12 text-lg font-semibold border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 shadow-lg hover:shadow-xl transition-all duration-200 px-8 bg-transparent cursor-pointer"
-                  >
-                    <RotateCcw className="mr-2 h-5 w-5" />
-                    Clear
-                  </Button>
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 pt-4">
+                  <div className="hidden sm:block"></div>
                   <Button
                     onClick={calculateQuote}
                     disabled={isCalculating || !formData.country || !formData.baseSalary || !formData.clientCountry}
-                    className="w-auto h-12 text-lg font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8 cursor-pointer"
+                    className="w-full sm:w-auto h-12 text-lg font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8 cursor-pointer"
                   >
                     {isCalculating ? (
                       <>
@@ -975,6 +968,14 @@ export default function EORCalculatorPage() {
                         Get Quote
                       </>
                     )}
+                  </Button>
+                  <Button
+                    onClick={clearAllData}
+                    variant="outline"
+                    className="w-full sm:w-auto h-12 text-lg font-semibold border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 shadow-lg hover:shadow-xl transition-all duration-200 px-8 bg-transparent cursor-pointer"
+                  >
+                    <RotateCcw className="mr-2 h-5 w-5" />
+                    Clear
                   </Button>
                 </div>
               </CardContent>

@@ -94,13 +94,13 @@ const clearLocalStorage = () => {
 export default function ICCalculatorPage() {
   useEffect(() => {
     window.scrollTo(0, 0)
-    
+
     // Load data from localStorage after component mounts (client-side only)
     const savedFormData = loadFromLocalStorage(IC_FORM_STORAGE_KEY)
     if (savedFormData) {
       setFormData(savedFormData)
     }
-    
+
     const savedQuote = loadFromLocalStorage(IC_QUOTE_STORAGE_KEY)
     if (savedQuote) {
       setQuote(savedQuote)
@@ -558,12 +558,13 @@ export default function ICCalculatorPage() {
                   </div>
                 </div>
 
-                <div className="flex pt-4 justify-end gap-44">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 pt-4">
+                  <div className="hidden sm:block"></div>
                   <Button
                     onClick={calculateQuote}
                     disabled={!formData.rateAmount || !formData.country || isCalculating}
                     size="lg"
-                    className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold py-3 px-8 text-base shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none cursor-pointer"
+                    className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground font-semibold py-3 px-8 text-base shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none cursor-pointer"
                   >
                     {isCalculating ? (
                       <div className="flex items-center gap-2">
@@ -577,12 +578,11 @@ export default function ICCalculatorPage() {
                       </div>
                     )}
                   </Button>
-
                   <Button
                     onClick={clearForm}
                     variant="outline"
                     size="lg"
-                    className="border-2 border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold py-3 px-8 text-base shadow-lg hover:shadow-xl transition-all duration-200 bg-transparent cursor-pointer"
+                    className="w-full sm:w-auto border-2 border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold py-3 px-8 text-base shadow-lg hover:shadow-xl transition-all duration-200 bg-transparent cursor-pointer"
                   >
                     <RotateCcw className="h-4 w-4 mr-2" />
                     Clear
