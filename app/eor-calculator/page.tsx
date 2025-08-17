@@ -220,6 +220,31 @@ export default function EORCalculatorPage() {
   const [conversionInfo, setConversionInfo] = useState<string | null>(null)
   const [isComparisonManuallyEdited, setIsComparisonManuallyEdited] = useState(false)
 
+  // USD conversion state
+  const [usdConversions, setUsdConversions] = useState<{
+    deel?: {
+      salary: number
+      deelFee: number
+      costs: number[]
+      totalCosts: number
+    }
+    compare?: {
+      salary: number
+      deelFee: number
+      costs: number[]
+      totalCosts: number
+    }
+    remote?: {
+      monthlySalary: number
+      monthlyContributions: number
+      monthlyTotal: number
+      monthlyTce: number
+    }
+  }>({})
+  const [isConvertingDeelToUsd, setIsConvertingDeelToUsd] = useState(false)
+  const [isConvertingCompareToUsd, setIsConvertingCompareToUsd] = useState(false)
+  const [usdConversionError, setUsdConversionError] = useState<string | null>(null)
+
   // Refs
   const baseSalaryInputRef = useRef<HTMLInputElement>(null)
   const conversionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -237,6 +262,7 @@ export default function EORCalculatorPage() {
       saveToLocalStorage(STORAGE_KEYS.QUOTES_DATA, quotesData)
     }
   }, [deelQuote, remoteQuote, compareQuote])
+
 
   const countries = getAvailableCountries()
   const selectedCountryData = formData.country ? getCountryByName(formData.country) : null
@@ -313,6 +339,92 @@ export default function EORCalculatorPage() {
     }
   }
 
+  // USD conversion helper function  
+  const convertQuoteToUsd = async (quote: DeelAPIResponse | RemoteAPIResponse, quoteType: "deel" | "compare" | "remote") => {
+    if (!quote) return
+
+    const sourceCurrency = quote.currency
+    if (sourceCurrency === "USD") return // Already in USD
+
+    // Set appropriate loading state based on quote type
+    if (quoteType === "deel") {
+      setIsConvertingDeelToUsd(true)
+    } else if (quoteType === "compare") {
+      setIsConvertingCompareToUsd(true)
+    }
+    setUsdConversionError(null)
+
+    try {
+      if (quoteType === "deel" || quoteType === "compare") {
+        const deelQuote = quote as DeelAPIResponse
+        
+        console.log("Converting Deel quote:", deelQuote)
+        console.log("Source currency:", sourceCurrency)
+        
+        // Convert the exact values displayed in the UI
+        const salaryAmount = Number.parseFloat(deelQuote.salary)
+        const feeAmount = Number.parseFloat(deelQuote.deel_fee) 
+        const totalAmount = Number.parseFloat(deelQuote.total_costs)
+        
+        console.log("Converting amounts:", { salaryAmount, feeAmount, totalAmount })
+
+        // Convert main amounts serially
+        const salaryResult = await convertCurrency(salaryAmount, sourceCurrency, "USD")
+        if (!salaryResult.success) {
+          console.error("Salary conversion failed:", salaryResult.error)
+          throw new Error("Failed to convert salary")
+        }
+
+        const feeResult = await convertCurrency(feeAmount, sourceCurrency, "USD")
+        if (!feeResult.success) {
+          console.error("Fee conversion failed:", feeResult.error)
+          throw new Error("Failed to convert platform fee")
+        }
+
+        const totalResult = await convertCurrency(totalAmount, sourceCurrency, "USD")
+        if (!totalResult.success) {
+          console.error("Total conversion failed:", totalResult.error)
+          throw new Error("Failed to convert total costs")
+        }
+
+        // Convert cost items serially
+        const convertedCosts: number[] = []
+        for (const cost of deelQuote.costs) {
+          const costAmount = Number.parseFloat(cost.amount)
+          const costResult = await convertCurrency(costAmount, sourceCurrency, "USD")
+          if (!costResult.success) {
+            console.error(`Cost conversion failed for ${cost.name}:`, costResult.error)
+            throw new Error(`Failed to convert ${cost.name}`)
+          }
+          // Handle negative amounts - use -1 as indicator to show "---"
+          convertedCosts.push(costResult.data!.target_amount)
+        }
+
+        console.log("All conversions successful!")
+        
+        setUsdConversions(prev => ({
+          ...prev,
+          [quoteType]: {
+            salary: salaryResult.data!.target_amount,
+            deelFee: feeResult.data!.target_amount,
+            costs: convertedCosts,
+            totalCosts: totalResult.data!.target_amount
+          }
+        }))
+      }
+    } catch (error) {
+      console.error("USD conversion error:", error)
+      setUsdConversionError("Failed to convert to USD - " + (error instanceof Error ? error.message : "Unknown error"))
+    } finally {
+      // Clear appropriate loading state based on quote type
+      if (quoteType === "deel") {
+        setIsConvertingDeelToUsd(false)
+      } else if (quoteType === "compare") {
+        setIsConvertingCompareToUsd(false)
+      }
+    }
+  }
+
   // Debounced conversion function
   const debouncedCurrencyConversion = (amount: number, sourceCurrency: string, targetCurrency: string) => {
     // Clear any existing timeout
@@ -385,6 +497,8 @@ export default function EORCalculatorPage() {
     setRemoteQuote(null)
     setCompareQuote(null)
     setError(null)
+    setUsdConversionError(null)
+    setUsdConversions({})
 
     // Clear localStorage
     localStorage.removeItem(STORAGE_KEYS.FORM_DATA)
@@ -394,6 +508,8 @@ export default function EORCalculatorPage() {
   const calculateQuote = async () => {
     setIsCalculating(true)
     setError(null)
+    setUsdConversionError(null)
+    setUsdConversions({}) // Clear previous USD conversions
     localStorage.removeItem(STORAGE_KEYS.QUOTES_DATA)
     setDeelQuote(null)
     setRemoteQuote(null)
@@ -950,6 +1066,16 @@ export default function EORCalculatorPage() {
                   </div>
                 )}
 
+                {usdConversionError && (
+                  <div className="bg-yellow-50 border border-yellow-200 p-4 flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h4 className="text-yellow-800 font-medium">USD conversion warning</h4>
+                      <p className="text-yellow-700 text-sm mt-1">{usdConversionError}</p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 pt-4">
                   <div className="hidden sm:block"></div>
                   <Button
@@ -984,60 +1110,129 @@ export default function EORCalculatorPage() {
 
           {/* Quote Results Section */}
           <div className="space-y-6" ref={quoteRef}>
-            {/* Primary Deel Quote - only show when NOT comparing countries */}
-            {formData.currentStep === "primary-quote" && deelQuote && !formData.enableComparison && (
+            {/* Primary Deel Quote - show when not comparing OR when comparing but no comparison quote yet */}
+            {formData.currentStep === "primary-quote" && deelQuote && (!formData.enableComparison || (formData.enableComparison && !compareQuote)) && (
               <>
-                <div className="text-center space-y-3">
+                {/* <div className="text-center space-y-3">
                   <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                     Primary Quote - Deel
                   </h2>
                   <p className="text-lg text-slate-600">Your comprehensive EOR cost breakdown from Deel</p>
-                </div>
+                </div> */}
 
                 <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
                   <CardContent className="p-6">
-                    <div className="text-center mb-6">
-                      <h3 className="text-xl font-bold text-slate-900">Deel Quote - {deelQuote.country}</h3>
-                      <p className="text-sm text-slate-600">Reliable EOR provider with comprehensive legal coverage</p>
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="text-center flex-1">
+                        <h3 className="text-xl font-bold text-slate-900">Deel Quote - {deelQuote.country}</h3>
+                        <p className="text-sm text-slate-600">Reliable EOR provider with comprehensive legal coverage</p>
+                      </div>
+                      {deelQuote.currency !== "USD" && (
+                        <Button
+                          onClick={() => convertQuoteToUsd(deelQuote, "deel")}
+                          disabled={isConvertingDeelToUsd}
+                          variant="outline"
+                          size="sm"
+                          className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 ml-4"
+                        >
+                          {isConvertingDeelToUsd ? (
+                            <>
+                              <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                              Converting...
+                            </>
+                          ) : (
+                            <>
+                              <DollarSign className="mr-2 h-3 w-3" />
+                              USD prices
+                            </>
+                          )}
+                        </Button>
+                      )}
                     </div>
 
                     <div className="space-y-4">
-                      <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
+                      {/* Header row for columns */}
+                      {deelQuote.currency !== "USD" && usdConversions.deel && (
+                        <div className="grid grid-cols-3 gap-4 py-2 px-4 bg-slate-100 border-b border-slate-200">
+                          <span className="text-slate-700 font-semibold text-sm">Cost Item</span>
+                          <span className="text-slate-700 font-semibold text-sm text-right">Local Currency</span>
+                          <span className="text-slate-700 font-semibold text-sm text-right">USD Equivalent</span>
+                        </div>
+                      )}
+                      
+                      {/* Base Salary */}
+                      <div className={`py-3 px-4 bg-slate-50 ${deelQuote.currency !== "USD" && usdConversions.deel ? "grid grid-cols-3 gap-4 items-center" : "flex justify-between items-center"}`}>
                         <span className="text-slate-600 font-medium">Base Salary</span>
-                        <span className="font-bold text-lg text-slate-900">
+                        <span className="font-bold text-lg text-slate-900 text-right">
                           {deelQuote.currency} {Number.parseFloat(deelQuote.salary).toLocaleString()}
                         </span>
+                        {deelQuote.currency !== "USD" && usdConversions.deel && (
+                          <span className="font-bold text-lg text-slate-700 text-right">
+                            ${usdConversions.deel.salary.toLocaleString()}
+                          </span>
+                        )}
                       </div>
 
-                      <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
+                      {/* Platform Fee */}
+                      <div className={`py-3 px-4 bg-slate-50 ${deelQuote.currency !== "USD" && usdConversions.deel ? "grid grid-cols-3 gap-4 items-center" : "flex justify-between items-center"}`}>
                         <span className="text-slate-600 font-medium">Platform Fee</span>
-                        <span className="font-bold text-lg text-slate-900">
+                        <span className="font-bold text-lg text-slate-900 text-right">
                           {deelQuote.currency} {Number.parseFloat(deelQuote.deel_fee).toLocaleString()}
                         </span>
+                        {deelQuote.currency !== "USD" && usdConversions.deel && (
+                          <span className="font-bold text-lg text-slate-700 text-right">
+                            ${usdConversions.deel.deelFee.toLocaleString()}
+                          </span>
+                        )}
                       </div>
 
+                      {/* Cost items */}
                       {deelQuote.costs.map((cost, index) => (
-                        <div key={index} className="flex justify-between items-center py-3 px-4 bg-slate-50">
+                        <div key={index} className={`py-3 px-4 bg-slate-50 ${deelQuote.currency !== "USD" && usdConversions.deel ? "grid grid-cols-3 gap-4 items-center" : "flex justify-between items-center"}`}>
                           <span className="text-slate-600 font-medium">{cost.name}</span>
-                          <span className="font-bold text-lg text-slate-900">
+                          <span className="font-bold text-lg text-slate-900 text-right">
                             {deelQuote.currency} {Number.parseFloat(cost.amount).toLocaleString()}
                           </span>
+                          {deelQuote.currency !== "USD" && usdConversions.deel && usdConversions.deel.costs[index] !== undefined && (
+                            <span className="font-bold text-lg text-slate-700 text-right">
+                              {usdConversions.deel.costs[index] === -1 ? "---" : `$${usdConversions.deel.costs[index].toLocaleString()}`}
+                            </span>
+                          )}
                         </div>
                       ))}
 
                       <Separator className="my-4" />
 
                       <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 border-2 border-primary/20">
-                        <div className="text-center">
-                          <span className="text-lg font-bold text-slate-900">Total Monthly Cost</span>
-                          <div className="text-primary text-2xl font-bold mt-1">
-                            {deelQuote.currency} {Number.parseFloat(deelQuote.total_costs).toLocaleString()}
+                        {deelQuote.currency !== "USD" && usdConversions.deel ? (
+                          <div className="grid grid-cols-3 gap-4 items-center">
+                            <span className="text-lg font-bold text-slate-900">Total Monthly Cost</span>
+                            <span className="text-primary text-2xl font-bold text-right">
+                              {deelQuote.currency} {Number.parseFloat(deelQuote.total_costs).toLocaleString()}
+                            </span>
+                            <span className="text-slate-700 text-xl font-semibold text-right">
+                              ${usdConversions.deel.totalCosts.toLocaleString()} USD
+                            </span>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="flex justify-between items-center">
+                            <span className="text-lg font-bold text-slate-900">Total Monthly Cost</span>
+                            <span className="text-primary text-2xl font-bold">
+                              {deelQuote.currency} {Number.parseFloat(deelQuote.total_costs).toLocaleString()}
+                            </span>
+                          </div>
+                        )}
+                        {isConvertingDeelToUsd && (
+                          <div className="text-slate-500 text-sm mt-2 flex items-center justify-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Converting to USD...
+                          </div>
+                        )}
                       </div>
                     </div>
                   </CardContent>
                 </Card>
+
               </>
             )}
 
@@ -1056,47 +1251,109 @@ export default function EORCalculatorPage() {
                   {/* Main Country Quote */}
                   <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
                     <CardContent className="p-6">
-                      <div className="text-center mb-6">
-                        <h3 className="text-xl font-bold text-slate-900">{deelQuote.country}</h3>
-                        <p className="text-sm text-slate-600">Primary Location</p>
-                        <span className="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full mt-2">
-                          Main Quote
-                        </span>
+                      <div className="flex justify-between items-start mb-6">
+                        <div className="text-center flex-1">
+                          <h3 className="text-xl font-bold text-slate-900">{deelQuote.country}</h3>
+                          <p className="text-sm text-slate-600">Primary Location</p>
+                          <span className="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full mt-2">
+                            Main Quote
+                          </span>
+                        </div>
+                        {deelQuote.currency !== "USD" && (
+                          <Button
+                            onClick={() => convertQuoteToUsd(deelQuote, "deel")}
+                            disabled={isConvertingDeelToUsd}
+                            variant="outline"
+                            size="sm"
+                            className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 ml-4"
+                          >
+                            {isConvertingDeelToUsd ? (
+                              <>
+                                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                                Converting...
+                              </>
+                            ) : (
+                              <>
+                                <DollarSign className="mr-2 h-3 w-3" />
+                                USD prices
+                              </>
+                            )}
+                          </Button>
+                        )}
                       </div>
 
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
-                          <span className="text-slate-600 font-medium">Base Salary</span>
-                          <span className="font-bold text-lg text-slate-900">
+                        {/* Header row for columns - main quote */}
+                        {deelQuote.currency !== "USD" && usdConversions.deel && (
+                          <div className="grid grid-cols-3 gap-2 py-1 px-2 bg-slate-100 border-b border-slate-200">
+                            <span className="text-slate-700 font-semibold text-xs">Cost Item</span>
+                            <span className="text-slate-700 font-semibold text-xs text-right">Local</span>
+                            <span className="text-slate-700 font-semibold text-xs text-right">USD</span>
+                          </div>
+                        )}
+                        
+                        {/* Base Salary */}
+                        <div className={`py-2 px-2 bg-slate-50 ${deelQuote.currency !== "USD" && usdConversions.deel ? "grid grid-cols-3 gap-2 items-center" : "flex justify-between items-center"}`}>
+                          <span className="text-slate-600 font-medium text-sm">Base Salary</span>
+                          <span className="font-bold text-sm text-slate-900 text-right">
                             {deelQuote.currency} {Number.parseFloat(deelQuote.salary).toLocaleString()}
                           </span>
+                          {deelQuote.currency !== "USD" && usdConversions.deel && (
+                            <span className="font-bold text-sm text-slate-700 text-right">
+                              ${usdConversions.deel.salary.toLocaleString()}
+                            </span>
+                          )}
                         </div>
 
-                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
-                          <span className="text-slate-600 font-medium">Platform Fee</span>
-                          <span className="font-bold text-lg text-slate-900">
+                        {/* Platform Fee */}
+                        <div className={`py-2 px-2 bg-slate-50 ${deelQuote.currency !== "USD" && usdConversions.deel ? "grid grid-cols-3 gap-2 items-center" : "flex justify-between items-center"}`}>
+                          <span className="text-slate-600 font-medium text-sm">Platform Fee</span>
+                          <span className="font-bold text-sm text-slate-900 text-right">
                             {deelQuote.currency} {Number.parseFloat(deelQuote.deel_fee).toLocaleString()}
                           </span>
+                          {deelQuote.currency !== "USD" && usdConversions.deel && (
+                            <span className="font-bold text-sm text-slate-700 text-right">
+                              ${usdConversions.deel.deelFee.toLocaleString()}
+                            </span>
+                          )}
                         </div>
 
+                        {/* Cost items */}
                         {deelQuote.costs.map((cost, index) => (
-                          <div key={index} className="flex justify-between items-center py-3 px-4 bg-slate-50">
-                            <span className="text-slate-600 font-medium">{cost.name}</span>
-                            <span className="font-bold text-lg text-slate-900">
+                          <div key={index} className={`py-2 px-2 bg-slate-50 ${deelQuote.currency !== "USD" && usdConversions.deel ? "grid grid-cols-3 gap-2 items-center" : "flex justify-between items-center"}`}>
+                            <span className="text-slate-600 font-medium text-sm">{cost.name}</span>
+                            <span className="font-bold text-sm text-slate-900 text-right">
                               {deelQuote.currency} {Number.parseFloat(cost.amount).toLocaleString()}
                             </span>
+                            {deelQuote.currency !== "USD" && usdConversions.deel && usdConversions.deel.costs[index] !== undefined && (
+                              <span className="font-bold text-sm text-slate-700 text-right">
+                                {usdConversions.deel.costs[index] === -1 ? "---" : `$${usdConversions.deel.costs[index].toLocaleString()}`}
+                              </span>
+                            )}
                           </div>
                         ))}
 
                         <Separator className="my-4" />
 
                         <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 border-2 border-primary/20">
-                          <div className="text-center">
-                            <span className="text-lg font-bold text-slate-900">Total Monthly Cost</span>
-                            <div className="text-primary text-2xl font-bold mt-1">
-                              {deelQuote.currency} {Number.parseFloat(deelQuote.total_costs).toLocaleString()}
+                          {deelQuote.currency !== "USD" && usdConversions.deel ? (
+                            <div className="grid grid-cols-3 gap-2 items-center">
+                              <span className="text-sm font-bold text-slate-900">Total Monthly Cost</span>
+                              <span className="text-primary text-lg font-bold text-right">
+                                {deelQuote.currency} {Number.parseFloat(deelQuote.total_costs).toLocaleString()}
+                              </span>
+                              <span className="text-slate-700 text-sm font-semibold text-right">
+                                ${usdConversions.deel.totalCosts.toLocaleString()} USD
+                              </span>
                             </div>
-                          </div>
+                          ) : (
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-bold text-slate-900">Total Monthly Cost</span>
+                              <span className="text-primary text-lg font-bold">
+                                {deelQuote.currency} {Number.parseFloat(deelQuote.total_costs).toLocaleString()}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -1105,52 +1362,115 @@ export default function EORCalculatorPage() {
                   {/* Comparison Country Quote */}
                   <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
                     <CardContent className="p-6">
-                      <div className="text-center mb-6">
-                        <h3 className="text-xl font-bold text-slate-900">{compareQuote.country}</h3>
-                        <p className="text-sm text-slate-600">Comparison Location</p>
-                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full mt-2">
-                          Compare Quote
-                        </span>
+                      <div className="flex justify-between items-start mb-6">
+                        <div className="text-center flex-1">
+                          <h3 className="text-xl font-bold text-slate-900">{compareQuote.country}</h3>
+                          <p className="text-sm text-slate-600">Comparison Location</p>
+                          <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full mt-2">
+                            Compare Quote
+                          </span>
+                        </div>
+                        {compareQuote.currency !== "USD" && (
+                          <Button
+                            onClick={() => convertQuoteToUsd(compareQuote, "compare")}
+                            disabled={isConvertingCompareToUsd}
+                            variant="outline"
+                            size="sm"
+                            className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 ml-4"
+                          >
+                            {isConvertingCompareToUsd ? (
+                              <>
+                                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                                Converting...
+                              </>
+                            ) : (
+                              <>
+                                <DollarSign className="mr-2 h-3 w-3" />
+                                USD prices
+                              </>
+                            )}
+                          </Button>
+                        )}
                       </div>
 
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
-                          <span className="text-slate-600 font-medium">Base Salary</span>
-                          <span className="font-bold text-lg text-slate-900">
+                        {/* Header row for columns - compare quote */}
+                        {compareQuote.currency !== "USD" && usdConversions.compare && (
+                          <div className="grid grid-cols-3 gap-2 py-1 px-2 bg-slate-100 border-b border-slate-200">
+                            <span className="text-slate-700 font-semibold text-xs">Cost Item</span>
+                            <span className="text-slate-700 font-semibold text-xs text-right">Local</span>
+                            <span className="text-slate-700 font-semibold text-xs text-right">USD</span>
+                          </div>
+                        )}
+                        
+                        {/* Base Salary */}
+                        <div className={`py-2 px-2 bg-slate-50 ${compareQuote.currency !== "USD" && usdConversions.compare ? "grid grid-cols-3 gap-2 items-center" : "flex justify-between items-center"}`}>
+                          <span className="text-slate-600 font-medium text-sm">Base Salary</span>
+                          <span className="font-bold text-sm text-slate-900 text-right">
                             {compareQuote.currency} {Number.parseFloat(compareQuote.salary).toLocaleString()}
                           </span>
+                          {compareQuote.currency !== "USD" && usdConversions.compare && (
+                            <span className="font-bold text-sm text-slate-700 text-right">
+                              ${usdConversions.compare.salary.toLocaleString()}
+                            </span>
+                          )}
                         </div>
 
-                        <div className="flex justify-between items-center py-3 px-4 bg-slate-50">
-                          <span className="text-slate-600 font-medium">Platform Fee</span>
-                          <span className="font-bold text-lg text-slate-900">
+                        {/* Platform Fee */}
+                        <div className={`py-2 px-2 bg-slate-50 ${compareQuote.currency !== "USD" && usdConversions.compare ? "grid grid-cols-3 gap-2 items-center" : "flex justify-between items-center"}`}>
+                          <span className="text-slate-600 font-medium text-sm">Platform Fee</span>
+                          <span className="font-bold text-sm text-slate-900 text-right">
                             {compareQuote.currency} {Number.parseFloat(compareQuote.deel_fee).toLocaleString()}
                           </span>
+                          {compareQuote.currency !== "USD" && usdConversions.compare && (
+                            <span className="font-bold text-sm text-slate-700 text-right">
+                              ${usdConversions.compare.deelFee.toLocaleString()}
+                            </span>
+                          )}
                         </div>
 
+                        {/* Cost items */}
                         {compareQuote.costs.map((cost, index) => (
-                          <div key={index} className="flex justify-between items-center py-3 px-4 bg-slate-50">
-                            <span className="text-slate-600 font-medium">{cost.name}</span>
-                            <span className="font-bold text-lg text-slate-900">
+                          <div key={index} className={`py-2 px-2 bg-slate-50 ${compareQuote.currency !== "USD" && usdConversions.compare ? "grid grid-cols-3 gap-2 items-center" : "flex justify-between items-center"}`}>
+                            <span className="text-slate-600 font-medium text-sm">{cost.name}</span>
+                            <span className="font-bold text-sm text-slate-900 text-right">
                               {compareQuote.currency} {Number.parseFloat(cost.amount).toLocaleString()}
                             </span>
+                            {compareQuote.currency !== "USD" && usdConversions.compare && usdConversions.compare.costs[index] !== undefined && (
+                              <span className="font-bold text-sm text-slate-700 text-right">
+                                {usdConversions.compare.costs[index] === -1 ? "---" : `$${usdConversions.compare.costs[index].toLocaleString()}`}
+                              </span>
+                            )}
                           </div>
                         ))}
 
                         <Separator className="my-4" />
 
                         <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 border-2 border-primary/20">
-                          <div className="text-center">
-                            <span className="text-lg font-bold text-slate-900">Total Monthly Cost</span>
-                            <div className="text-primary text-2xl font-bold mt-1">
-                              {compareQuote.currency} {Number.parseFloat(compareQuote.total_costs).toLocaleString()}
+                          {compareQuote.currency !== "USD" && usdConversions.compare ? (
+                            <div className="grid grid-cols-3 gap-2 items-center">
+                              <span className="text-sm font-bold text-slate-900">Total Monthly Cost</span>
+                              <span className="text-primary text-lg font-bold text-right">
+                                {compareQuote.currency} {Number.parseFloat(compareQuote.total_costs).toLocaleString()}
+                              </span>
+                              <span className="text-slate-700 text-sm font-semibold text-right">
+                                ${usdConversions.compare.totalCosts.toLocaleString()} USD
+                              </span>
                             </div>
-                          </div>
+                          ) : (
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-bold text-slate-900">Total Monthly Cost</span>
+                              <span className="text-primary text-lg font-bold">
+                                {compareQuote.currency} {Number.parseFloat(compareQuote.total_costs).toLocaleString()}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
+
               </>
             )}
 
