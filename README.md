@@ -1,30 +1,95 @@
-# EOR and IC calculator
+# GraceMark Quote Calculator
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+This is a Next.js application that provides two main features: an Employer of Record (EOR) cost calculator and an Independent Contractor (IC) cost calculator. It also includes a currency converter.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/pradhankukiran-projects/v0-eor-and-ic-calculator)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/projects/BGkUxCIlBDy)
+## Features
 
-## Overview
+- **EOR Cost Calculator:** Calculates the total cost of hiring an employee in a specific country, taking into account salary, benefits, and other statutory costs. It uses the Deel and Remote APIs to get the cost estimations.
+- **IC Cost Calculator:** Calculates the total cost of hiring an independent contractor, taking into account their pay rate, bill rate, and other fees.
+- **Currency Converter:** Converts currencies using the Remote API.
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+## Getting Started
 
-## Deployment
+To get the project up and running, follow these steps:
 
-Your project is live at:
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/gracemark-quote.git
+   ```
+2. **Install the dependencies:**
+   ```bash
+   pnpm install
+   ```
+3. **Create a `.env.local` file** in the root of the project and add the following environment variables:
+    ```
+    REMOTE_API_TOKEN=your_remote_api_token
+    DEEL_ORGANIZATION_TOKEN=your_deel_organization_token
+    ```
+4. **Run the development server:**
+    ```bash
+    pnpm dev
+    ```
+5. **Open your browser** and navigate to `http://localhost:3000`.
 
-**[https://vercel.com/pradhankukiran-projects/v0-eor-and-ic-calculator](https://vercel.com/pradhankukiran-projects/v0-eor-and-ic-calculator)**
+## Technologies Used
 
-## Build your app
+- [Next.js](https://nextjs.org/) - React framework for building server-side rendered and static web applications.
+- [React](https://reactjs.org/) - JavaScript library for building user interfaces.
+- [TypeScript](https://www.typescriptlang.org/) - Typed superset of JavaScript that compiles to plain JavaScript.
+- [Tailwind CSS](https://tailwindcss.com/) - A utility-first CSS framework for rapid UI development.
+- [shadcn/ui](https://ui.shadcn.com/) - A collection of re-usable components built using Radix UI and Tailwind CSS.
+- [Deel API](https://developers.deel.com/) - Used for EOR cost estimations.
+- [Remote API](https://developer.remote.com/) - Used for EOR cost estimations and currency conversion.
 
-Continue building your app on:
+## API Endpoints
 
-**[https://v0.app/chat/projects/BGkUxCIlBDy](https://v0.app/chat/projects/BGkUxCIlBDy)**
+The application has the following API endpoints:
 
-## How It Works
+- `POST /api/currency-converter`: Converts a given amount from a source currency to a target currency.
+- `POST /api/eor-cost`: Calculates the EOR cost for a given salary, country, and currency using the Deel API.
+- `POST /api/remote-cost`: Calculates the EOR cost for a given salary, country, and currency using the Remote API.
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+## File Structure
+
+The project has the following file structure:
+
+```
+.
+├── app
+│   ├── api
+│   │   ├── currency-converter
+│   │   │   └── route.ts
+│   │   ├── eor-cost
+│   │   │   └── route.ts
+│   │   └── remote-cost
+│   │       └── route.ts
+│   ├── eor-calculator
+│   │   └── page.tsx
+│   └── ic-calculator
+│       └── page.tsx
+├── components
+│   ├── theme-provider.tsx
+│   └── ui
+│       ├── button.tsx
+│       ├── card.tsx
+│       ├── checkbox.tsx
+│       ├── input.tsx
+│       ├── label.tsx
+│       ├── select.tsx
+│       └── separator.tsx
+├── lib
+│   ├── country-data.ts
+│   ├── currency-converter.ts
+│   ├── data.ts
+│   ├── remote-mapping.ts
+│   ├── remote-slugs.json
+│   └── utils.ts
+├── public
+│   ├── placeholder-logo.png
+│   ├── placeholder-logo.svg
+│   ├── placeholder-user.jpg
+│   ├── placeholder.jpg
+│   └── placeholder.svg
+└── styles
+    └── globals.css
+```

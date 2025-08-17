@@ -24,12 +24,17 @@ import { convertCurrency, formatConversionDisplay } from "@/lib/currency-convert
 interface EORFormData {
   employeeName: string
   jobTitle: string
+  workVisaRequired: boolean
   country: string
   state: string
   currency: string
   clientCountry: string
   clientCurrency: string // Added client currency field
   baseSalary: string
+  holidayDays: string
+  probationPeriod: string
+  hoursPerDay: string
+  daysPerWeek: string
   startDate: string
   employmentType: string
   quoteType: "all-inclusive" | "statutory-only"
@@ -107,72 +112,96 @@ interface RemoteAPIResponse {
   }
 }
 
+interface ValidationAPIResponse {
+  data: {
+    holiday: {
+      min: string
+      max: string | null
+      mostCommon: string
+    }
+    part_time_holiday: {
+      type: string
+      min: string
+    }
+    sick_days: {
+      min: string | null
+      max: string | null
+    }
+    salary: {
+      min: string
+      max: string
+      frequency: string
+    }
+    probation: {
+      min: string | null
+      max: string | null
+      probationRulesForJobCategorisation: any[]
+    }
+    part_time_probation: {
+      min: string | null
+      max: string | null
+    }
+    work_schedule: {
+      days: {
+        max: string
+        min: string
+      }
+      hours: {
+        max: string
+        min: string
+      }
+    }
+    currency: string
+    hiring_guide_country_name: string
+    start_date_buffer: number
+    definite_contract: {
+      type: string
+      maximum_limitation: string | null
+    }
+    adjustments_information_box: string
+    health_insurance: {
+      status: string
+      providers: Array<{
+        id: string
+        name: string
+        is_unisure: boolean
+        home_page_url: string
+        currency: string
+        attachments: any[]
+        plans: Array<{
+          name: string
+          price: string
+          currency: string
+          is_enabled: boolean
+          id: string
+        }>
+      }>
+    }
+    pension: {
+      status: string
+      providers: Array<{
+        id: string
+        name: string
+        home_page_url: string
+        contribution: {
+          type: string
+          minimum: string
+          maximum: string
+        }
+      }>
+    }
+    mandatory_fields: any[]
+  }
+}
+
 export default function EORCalculatorPage() {
   const quoteRef = useRef<HTMLDivElement>(null)
 
-  const STORAGE_KEYS = {
-    FORM_DATA: "eor-calculator-form-data",
-    QUOTES_DATA: "eor-calculator-quotes-data",
-  }
-
-  const saveToLocalStorage = (key: string, data: any) => {
-    try {
-      const dataWithTimestamp = {
-        data,
-        timestamp: Date.now(),
-        version: "1.0", // For future compatibility
-      }
-      localStorage.setItem(key, JSON.stringify(dataWithTimestamp))
-    } catch (error) {
-      console.error("Failed to save to localStorage:", error)
-    }
-  }
-
-  const loadFromLocalStorage = (key: string, maxAge: number = 24 * 60 * 60 * 1000) => {
-    try {
-      const stored = localStorage.getItem(key)
-      if (!stored) return null
-
-      const parsed = JSON.parse(stored)
-      const now = Date.now()
-
-      // Check if data is expired (default: 24 hours)
-      if (parsed.timestamp && now - parsed.timestamp > maxAge) {
-        localStorage.removeItem(key)
-        return null
-      }
-
-      return parsed.data
-    } catch (error) {
-      console.error("Failed to load from localStorage:", error)
-      // Clear corrupted data
-      localStorage.removeItem(key)
-      return null
-    }
-  }
 
   useEffect(() => {
     window.scrollTo(0, 0)
 
-    const savedFormData = loadFromLocalStorage(STORAGE_KEYS.FORM_DATA)
-    if (savedFormData) {
-      setFormData((prev) => ({
-        ...prev,
-        ...savedFormData,
-        // Reset step to form to avoid showing stale quotes
-        currentStep: "form",
-        showProviderComparison: false,
-      }))
-    }
-
-    const savedQuotesData = loadFromLocalStorage(STORAGE_KEYS.QUOTES_DATA)
-    if (savedQuotesData) {
-      if (savedQuotesData.deelQuote) setDeelQuote(savedQuotesData.deelQuote)
-      if (savedQuotesData.remoteQuote) setRemoteQuote(savedQuotesData.remoteQuote)
-      if (savedQuotesData.compareQuote) setCompareQuote(savedQuotesData.compareQuote)
-    }
-
-    // Cleanup timeout on unmount
+    // Cleanup timeouts on unmount
     return () => {
       if (conversionTimeoutRef.current) {
         clearTimeout(conversionTimeoutRef.current)
@@ -183,12 +212,17 @@ export default function EORCalculatorPage() {
   const [formData, setFormData] = useState<EORFormData>({
     employeeName: "",
     jobTitle: "",
+    workVisaRequired: false,
     country: "",
     state: "",
     currency: "",
     clientCountry: "",
     clientCurrency: "",
     baseSalary: "",
+    holidayDays: "",
+    probationPeriod: "",
+    hoursPerDay: "",
+    daysPerWeek: "",
     startDate: "",
     employmentType: "full-time",
     quoteType: "all-inclusive",
@@ -202,18 +236,15 @@ export default function EORCalculatorPage() {
     showProviderComparison: false,
   })
 
-  useEffect(() => {
-    // Don't save initial empty state
-    if (formData.employeeName || formData.country || formData.baseSalary) {
-      saveToLocalStorage(STORAGE_KEYS.FORM_DATA, formData)
-    }
-  }, [formData])
 
   const [deelQuote, setDeelQuote] = useState<DeelAPIResponse | null>(null)
   const [remoteQuote, setRemoteQuote] = useState<RemoteAPIResponse | null>(null)
   const [compareQuote, setCompareQuote] = useState<DeelAPIResponse | null>(null)
+  const [validationData, setValidationData] = useState<ValidationAPIResponse | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
+  const [isLoadingValidations, setIsLoadingValidations] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [validationError, setValidationError] = useState<string | null>(null)
 
   // Currency conversion state
   const [isConverting, setIsConverting] = useState(false)
@@ -245,23 +276,17 @@ export default function EORCalculatorPage() {
   const [isConvertingCompareToUsd, setIsConvertingCompareToUsd] = useState(false)
   const [usdConversionError, setUsdConversionError] = useState<string | null>(null)
 
+  // Validation error states
+  const [salaryError, setSalaryError] = useState<string | null>(null)
+  const [holidaysError, setHolidaysError] = useState<string | null>(null)
+  const [probationError, setProbationError] = useState<string | null>(null)
+  const [hoursError, setHoursError] = useState<string | null>(null)
+  const [daysError, setDaysError] = useState<string | null>(null)
+
   // Refs
   const baseSalaryInputRef = useRef<HTMLInputElement>(null)
   const conversionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  useEffect(() => {
-    const quotesData = {
-      deelQuote,
-      remoteQuote,
-      compareQuote,
-      lastUpdated: Date.now(),
-    }
-
-    // Only save if we have at least one quote
-    if (deelQuote || remoteQuote || compareQuote) {
-      saveToLocalStorage(STORAGE_KEYS.QUOTES_DATA, quotesData)
-    }
-  }, [deelQuote, remoteQuote, compareQuote])
 
 
   const countries = getAvailableCountries()
@@ -328,11 +353,9 @@ export default function EORCalculatorPage() {
         }))
         setConversionInfo(formatConversionDisplay(result.data))
       } else {
-        console.error("Currency conversion failed:", result.error)
         setConversionInfo("Conversion failed - please enter amount manually")
       }
     } catch (error) {
-      console.error("Currency conversion error:", error)
       setConversionInfo("Conversion failed - please enter amount manually")
     } finally {
       setIsConverting(false)
@@ -358,32 +381,24 @@ export default function EORCalculatorPage() {
       if (quoteType === "deel" || quoteType === "compare") {
         const deelQuote = quote as DeelAPIResponse
         
-        console.log("Converting Deel quote:", deelQuote)
-        console.log("Source currency:", sourceCurrency)
-        
         // Convert the exact values displayed in the UI
         const salaryAmount = Number.parseFloat(deelQuote.salary)
         const feeAmount = Number.parseFloat(deelQuote.deel_fee) 
         const totalAmount = Number.parseFloat(deelQuote.total_costs)
-        
-        console.log("Converting amounts:", { salaryAmount, feeAmount, totalAmount })
 
         // Convert main amounts serially
         const salaryResult = await convertCurrency(salaryAmount, sourceCurrency, "USD")
         if (!salaryResult.success) {
-          console.error("Salary conversion failed:", salaryResult.error)
           throw new Error("Failed to convert salary")
         }
 
         const feeResult = await convertCurrency(feeAmount, sourceCurrency, "USD")
         if (!feeResult.success) {
-          console.error("Fee conversion failed:", feeResult.error)
           throw new Error("Failed to convert platform fee")
         }
 
         const totalResult = await convertCurrency(totalAmount, sourceCurrency, "USD")
         if (!totalResult.success) {
-          console.error("Total conversion failed:", totalResult.error)
           throw new Error("Failed to convert total costs")
         }
 
@@ -393,15 +408,12 @@ export default function EORCalculatorPage() {
           const costAmount = Number.parseFloat(cost.amount)
           const costResult = await convertCurrency(costAmount, sourceCurrency, "USD")
           if (!costResult.success) {
-            console.error(`Cost conversion failed for ${cost.name}:`, costResult.error)
             throw new Error(`Failed to convert ${cost.name}`)
           }
           // Handle negative amounts - use -1 as indicator to show "---"
           convertedCosts.push(costResult.data!.target_amount)
         }
 
-        console.log("All conversions successful!")
-        
         setUsdConversions(prev => ({
           ...prev,
           [quoteType]: {
@@ -413,7 +425,6 @@ export default function EORCalculatorPage() {
         }))
       }
     } catch (error) {
-      console.error("USD conversion error:", error)
       setUsdConversionError("Failed to convert to USD - " + (error instanceof Error ? error.message : "Unknown error"))
     } finally {
       // Clear appropriate loading state based on quote type
@@ -468,17 +479,265 @@ export default function EORCalculatorPage() {
     }
   }, [formData.clientCountry, clientCountryData])
 
+  // Validation helper functions
+  const isValidNumericFormat = (value: string): boolean => {
+    // Allow empty values
+    if (value === "") return true
+    
+    // Allow valid number formats (including decimals, but not negative for these fields)
+    const numericRegex = /^\d*\.?\d*$/
+    return numericRegex.test(value)
+  }
+
+  const validateFinalNumericInput = (value: string, min?: number, max?: number): boolean => {
+    // Always allow empty values for optional fields
+    if (value === "") return true
+    
+    // Check if it's a valid number format first
+    if (!isValidNumericFormat(value)) return false
+    
+    const numValue = Number(value)
+    
+    // Check if it's a valid number
+    if (isNaN(numValue)) return false
+    
+    // If no min/max constraints, allow any valid number
+    if (min === undefined && max === undefined) return true
+    
+    // Apply constraints only if they exist
+    if (min !== undefined && numValue < min) return false
+    if (max !== undefined && numValue > max) return false
+    
+    return true
+  }
+
+  const validateSalaryInput = (value: string): boolean => {
+    // If no validation data is loaded, allow all input
+    if (!validationData?.data?.salary) return true
+    
+    const min = validationData.data.salary.min ? Number(validationData.data.salary.min) : undefined
+    const max = validationData.data.salary.max ? Number(validationData.data.salary.max) : undefined
+    return validateFinalNumericInput(value, min, max)
+  }
+
+  const validateHolidayInput = (value: string): boolean => {
+    // If no validation data is loaded, allow all input
+    if (!validationData?.data?.holiday) return true
+    
+    const min = validationData.data.holiday.min ? Number(validationData.data.holiday.min) : undefined
+    const max = validationData.data.holiday.max ? Number(validationData.data.holiday.max) : undefined
+    return validateFinalNumericInput(value, min, max)
+  }
+
+  const validateProbationInput = (value: string): boolean => {
+    // If no validation data is loaded, allow all input
+    if (!validationData?.data?.probation) return true
+    
+    const min = validationData.data.probation.min ? Number(validationData.data.probation.min) : undefined
+    const max = validationData.data.probation.max ? Number(validationData.data.probation.max) : undefined
+    return validateFinalNumericInput(value, min, max)
+  }
+
+  const validateHoursInput = (value: string): boolean => {
+    // If no validation data is loaded, allow all input
+    if (!validationData?.data?.work_schedule) return true
+    
+    const min = validationData.data.work_schedule.hours.min ? Number(validationData.data.work_schedule.hours.min) : undefined
+    const max = validationData.data.work_schedule.hours.max ? Number(validationData.data.work_schedule.hours.max) : undefined
+    return validateFinalNumericInput(value, min, max)
+  }
+
+  const validateDaysInput = (value: string): boolean => {
+    // If no validation data is loaded, allow all input
+    if (!validationData?.data?.work_schedule) return true
+    
+    const min = validationData.data.work_schedule.days.min ? Number(validationData.data.work_schedule.days.min) : undefined
+    const max = validationData.data.work_schedule.days.max ? Number(validationData.data.work_schedule.days.max) : undefined
+    return validateFinalNumericInput(value, min, max)
+  }
+
+  // Validation functions for onBlur events
+  const validateSalaryOnBlur = () => {
+    if (!formData.baseSalary) {
+      setSalaryError(null)
+      return
+    }
+    
+    if (!validateSalaryInput(formData.baseSalary)) {
+      const min = validationData?.data?.salary?.min ? Number(validationData.data.salary.min) : undefined
+      const max = validationData?.data?.salary?.max ? Number(validationData.data.salary.max) : undefined
+      const currency = validationData?.data?.currency || formData.currency
+      
+      let errorMsg = "Invalid salary amount."
+      if (min !== undefined && max !== undefined) {
+        errorMsg = `Salary must be between ${currency} ${min.toLocaleString()} and ${currency} ${max.toLocaleString()}`
+      } else if (min !== undefined) {
+        errorMsg = `Salary must be at least ${currency} ${min.toLocaleString()}`
+      } else if (max !== undefined) {
+        errorMsg = `Salary must not exceed ${currency} ${max.toLocaleString()}`
+      }
+      setSalaryError(errorMsg)
+    } else {
+      setSalaryError(null)
+    }
+  }
+
+  const validateHolidaysOnBlur = () => {
+    if (!formData.holidayDays) {
+      setHolidaysError(null)
+      return
+    }
+    
+    if (!validateHolidayInput(formData.holidayDays)) {
+      const min = validationData?.data?.holiday?.min ? Number(validationData.data.holiday.min) : undefined
+      const max = validationData?.data?.holiday?.max ? Number(validationData.data.holiday.max) : undefined
+      
+      let errorMsg = "Invalid holiday days."
+      if (min !== undefined && max !== undefined) {
+        errorMsg = `Holiday days must be between ${min} and ${max}`
+      } else if (min !== undefined) {
+        errorMsg = `Holiday days must be at least ${min}`
+      } else if (max !== undefined) {
+        errorMsg = `Holiday days must not exceed ${max}`
+      }
+      setHolidaysError(errorMsg)
+    } else {
+      setHolidaysError(null)
+    }
+  }
+
+  const validateProbationOnBlur = () => {
+    if (!formData.probationPeriod) {
+      setProbationError(null)
+      return
+    }
+    
+    if (!validateProbationInput(formData.probationPeriod)) {
+      const min = validationData?.data?.probation?.min ? Number(validationData.data.probation.min) : undefined
+      const max = validationData?.data?.probation?.max ? Number(validationData.data.probation.max) : undefined
+      
+      let errorMsg = "Invalid probation period."
+      if (min !== undefined && max !== undefined) {
+        errorMsg = `Probation period must be between ${min} and ${max} days`
+      } else if (min !== undefined) {
+        errorMsg = `Probation period must be at least ${min} days`
+      } else if (max !== undefined) {
+        errorMsg = `Probation period must not exceed ${max} days`
+      }
+      setProbationError(errorMsg)
+    } else {
+      setProbationError(null)
+    }
+  }
+
+  const validateHoursOnBlur = () => {
+    if (!formData.hoursPerDay) {
+      setHoursError(null)
+      return
+    }
+    
+    if (!validateHoursInput(formData.hoursPerDay)) {
+      const min = validationData?.data?.work_schedule?.hours?.min ? Number(validationData.data.work_schedule.hours.min) : undefined
+      const max = validationData?.data?.work_schedule?.hours?.max ? Number(validationData.data.work_schedule.hours.max) : undefined
+      
+      let errorMsg = "Invalid hours per day."
+      if (min !== undefined && max !== undefined) {
+        errorMsg = `Hours per day must be between ${min} and ${max}`
+      } else if (min !== undefined) {
+        errorMsg = `Hours per day must be at least ${min}`
+      } else if (max !== undefined) {
+        errorMsg = `Hours per day must not exceed ${max}`
+      }
+      setHoursError(errorMsg)
+    } else {
+      setHoursError(null)
+    }
+  }
+
+  const validateDaysOnBlur = () => {
+    if (!formData.daysPerWeek) {
+      setDaysError(null)
+      return
+    }
+    
+    if (!validateDaysInput(formData.daysPerWeek)) {
+      const min = validationData?.data?.work_schedule?.days?.min ? Number(validationData.data.work_schedule.days.min) : undefined
+      const max = validationData?.data?.work_schedule?.days?.max ? Number(validationData.data.work_schedule.days.max) : undefined
+      
+      let errorMsg = "Invalid days per week."
+      if (min !== undefined && max !== undefined) {
+        errorMsg = `Days per week must be between ${min} and ${max}`
+      } else if (min !== undefined) {
+        errorMsg = `Days per week must be at least ${min}`
+      } else if (max !== undefined) {
+        errorMsg = `Days per week must not exceed ${max}`
+      }
+      setDaysError(errorMsg)
+    } else {
+      setDaysError(null)
+    }
+  }
+
+  // Fetch validation data when country changes
+  const fetchValidationData = async (countryCode: string) => {
+    setIsLoadingValidations(true)
+    setValidationError(null)
+    setValidationData(null)
+
+    try {
+      const response = await fetch(`/api/eor-validations/${countryCode}`)
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(`Validation API error: ${errorData.error || "Failed to fetch validation data"}`)
+      }
+
+      const data: ValidationAPIResponse = await response.json()
+      setValidationData(data)
+    } catch (err) {
+      setValidationError(err instanceof Error ? err.message : "Failed to fetch validation data")
+    } finally {
+      setIsLoadingValidations(false)
+    }
+  }
+
+  // Fetch validation data when country is selected
+  useEffect(() => {
+    if (formData.country && selectedCountryData) {
+      const countryCode = selectedCountryData.code
+      if (countryCode) {
+        fetchValidationData(countryCode)
+      }
+    } else {
+      // Clear validation data when no country is selected
+      setValidationData(null)
+      setValidationError(null)
+    }
+    
+    // Clear validation errors when country changes (rules may have changed)
+    setSalaryError(null)
+    setHolidaysError(null)
+    setProbationError(null)
+    setHoursError(null)
+    setDaysError(null)
+  }, [formData.country, selectedCountryData])
+
   const clearAllData = () => {
     // Reset form data to initial state
     setFormData({
       employeeName: "",
       jobTitle: "",
+      workVisaRequired: false,
       country: "",
       state: "",
       currency: "",
       clientCountry: "",
       clientCurrency: "",
       baseSalary: "",
+      holidayDays: "",
+      probationPeriod: "",
+      hoursPerDay: "",
+      daysPerWeek: "",
       startDate: "",
       employmentType: "full-time",
       quoteType: "all-inclusive",
@@ -496,21 +755,61 @@ export default function EORCalculatorPage() {
     setDeelQuote(null)
     setRemoteQuote(null)
     setCompareQuote(null)
+    setValidationData(null)
     setError(null)
+    setValidationError(null)
     setUsdConversionError(null)
     setUsdConversions({})
+    
+    // Clear validation errors
+    setSalaryError(null)
+    setHolidaysError(null)
+    setProbationError(null)
+    setHoursError(null)
+    setDaysError(null)
 
-    // Clear localStorage
-    localStorage.removeItem(STORAGE_KEYS.FORM_DATA)
-    localStorage.removeItem(STORAGE_KEYS.QUOTES_DATA)
   }
 
   const calculateQuote = async () => {
+    // Perform form-level validation before submission
+    let hasValidationErrors = false
+    
+    // Validate all fields and set error states
+    if (formData.baseSalary && !validateSalaryInput(formData.baseSalary)) {
+      validateSalaryOnBlur()
+      hasValidationErrors = true
+    }
+    
+    if (formData.holidayDays && !validateHolidayInput(formData.holidayDays)) {
+      validateHolidaysOnBlur()
+      hasValidationErrors = true
+    }
+    
+    if (formData.probationPeriod && !validateProbationInput(formData.probationPeriod)) {
+      validateProbationOnBlur()
+      hasValidationErrors = true
+    }
+    
+    if (formData.hoursPerDay && !validateHoursInput(formData.hoursPerDay)) {
+      validateHoursOnBlur()
+      hasValidationErrors = true
+    }
+    
+    if (formData.daysPerWeek && !validateDaysInput(formData.daysPerWeek)) {
+      validateDaysOnBlur()
+      hasValidationErrors = true
+    }
+    
+    // If there are validation errors, don't proceed
+    if (hasValidationErrors) {
+      setError("Please fix the validation errors before submitting.")
+      return
+    }
+
     setIsCalculating(true)
     setError(null)
     setUsdConversionError(null)
     setUsdConversions({}) // Clear previous USD conversions
-    localStorage.removeItem(STORAGE_KEYS.QUOTES_DATA)
     setDeelQuote(null)
     setRemoteQuote(null)
     setCompareQuote(null)
@@ -571,7 +870,6 @@ export default function EORCalculatorPage() {
         })
       }, 100)
     } catch (err) {
-      console.error("Quote calculation error:", err)
       setError(err instanceof Error ? err.message : "Failed to calculate quote")
     } finally {
       setIsCalculating(false)
@@ -615,7 +913,6 @@ export default function EORCalculatorPage() {
         showProviderComparison: true,
       }))
     } catch (err) {
-      console.error("Provider comparison error:", err)
       setError(err instanceof Error ? err.message : "Failed to get comparison quote")
     } finally {
       setIsCalculating(false)
@@ -656,7 +953,7 @@ export default function EORCalculatorPage() {
                     <div className="p-2 bg-primary/10">
                       <MapPin className="h-5 w-5 text-primary" />
                     </div>
-                    <h3 className="text-lg font-semibold text-slate-900">Client Location</h3>
+                    <h3 className="text-lg font-semibold text-slate-900">Client Information</h3>
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -706,7 +1003,9 @@ export default function EORCalculatorPage() {
                     </div>
                     <h3 className="text-lg font-semibold text-slate-900">Employee Information</h3>
                   </div>
-                  <div className="grid md:grid-cols-2 gap-4">
+                  
+                  {/* Employee Name and Job Title */}
+                  <div className="grid md:grid-cols-2 gap-4 mb-6">
                     <div className="space-y-2">
                       <Label
                         htmlFor="employeeName"
@@ -738,129 +1037,415 @@ export default function EORCalculatorPage() {
                       />
                     </div>
                   </div>
-                </div>
 
-                <Separator />
-
-                {/* Location & Currency */}
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-primary/10">
-                      <MapPin className="h-5 w-5 text-primary" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-slate-900">Employee Location</h3>
-                  </div>
-                  <div className={`grid gap-4 ${showStateDropdown ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
-                    <div className="space-y-2">
-                      <Label htmlFor="country" className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
-                        Country
+                  {/* Work Visa Required */}
+                  <div className="mb-6">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="workVisaRequired"
+                        checked={formData.workVisaRequired}
+                        onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, workVisaRequired: checked as boolean }))}
+                      />
+                      <Label htmlFor="workVisaRequired" className="text-sm font-medium text-slate-700">
+                        Work Visa Required?
                       </Label>
-                      <Select
-                        value={formData.country}
-                        onValueChange={(value) => setFormData((prev) => ({ ...prev, country: value }))}
-                      >
-                        <SelectTrigger className="h-11 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
-                          <SelectValue placeholder="Select country" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {countries.map((country) => (
-                            <SelectItem key={country} value={country}>
-                              {country}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
                     </div>
+                  </div>
 
-                    {showStateDropdown && (
+                  {/* Location & Currency */}
+                  <div className="mb-6">
+                    <div className={`grid gap-4 ${showStateDropdown ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
                       <div className="space-y-2">
-                        <Label htmlFor="state" className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
-                          {getStateTypeLabel(selectedCountryData?.code || "")}
+                        <Label htmlFor="country" className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                          Country
                         </Label>
                         <Select
-                          value={formData.state}
-                          onValueChange={(value) => setFormData((prev) => ({ ...prev, state: value }))}
+                          value={formData.country}
+                          onValueChange={(value) => setFormData((prev) => ({ ...prev, country: value }))}
                         >
                           <SelectTrigger className="h-11 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
-                            <SelectValue
-                              placeholder={`Select ${getStateTypeLabel(selectedCountryData?.code || "").toLowerCase()}`}
-                            />
+                            <SelectValue placeholder="Select country" />
                           </SelectTrigger>
                           <SelectContent>
-                            {availableStates.map((state) => (
-                              <SelectItem key={state.code} value={state.code}>
-                                {state.name}
+                            {countries.map((country) => (
+                              <SelectItem key={country} value={country}>
+                                {country}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </div>
-                    )}
 
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="currency"
-                        className="text-sm font-semibold text-slate-700 uppercase tracking-wide"
-                      >
-                        Currency
-                      </Label>
-                      <div className="h-11 border-2 border-slate-200 px-3 py-2 bg-slate-50 flex items-center">
-                        <span className="text-slate-700 font-medium">{formData.currency}</span>
+                      {showStateDropdown && (
+                        <div className="space-y-2">
+                          <Label htmlFor="state" className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                            {getStateTypeLabel(selectedCountryData?.code || "")}
+                          </Label>
+                          <Select
+                            value={formData.state}
+                            onValueChange={(value) => setFormData((prev) => ({ ...prev, state: value }))}
+                          >
+                            <SelectTrigger className="h-11 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+                              <SelectValue
+                                placeholder={`Select ${getStateTypeLabel(selectedCountryData?.code || "").toLowerCase()}`}
+                              />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {availableStates.map((state) => (
+                                <SelectItem key={state.code} value={state.code}>
+                                  {state.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="currency"
+                          className="text-sm font-semibold text-slate-700 uppercase tracking-wide"
+                        >
+                          Currency
+                        </Label>
+                        <div className="h-11 border-2 border-slate-200 px-3 py-2 bg-slate-50 flex items-center">
+                          <span className="text-slate-700 font-medium">{formData.currency}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <Separator />
+                  {/* Validation Loading/Error States */}
+                  {isLoadingValidations && (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin text-slate-400 mr-2" />
+                      <span className="text-slate-600">Loading country validation data...</span>
+                    </div>
+                  )}
 
-                {/* Salary Information */}
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-primary/10">
-                      <DollarSign className="h-5 w-5 text-primary" />
+                  {validationError && (
+                    <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-md mb-4">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <h5 className="text-yellow-800 font-medium">Validation data unavailable</h5>
+                          <p className="text-yellow-700 text-sm mt-1">{validationError}</p>
+                        </div>
+                      </div>
                     </div>
-                    <h3 className="text-lg font-semibold text-slate-900">Salary Information</h3>
+                  )}
+
+                  {/* Salary Limits (Read-only) */}
+                  {validationData && !isLoadingValidations && (
+                    <div className="mb-6">
+                      <h5 className="text-xs font-medium text-slate-600 uppercase tracking-wide mb-3">
+                        Salary Limits ({validationData.data.currency})
+                      </h5>
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-slate-600">Minimum</Label>
+                          <Input
+                            value={validationData.data.salary.min ? 
+                              `${validationData.data.currency} ${Number(validationData.data.salary.min).toLocaleString()}` : 
+                              "Not specified"}
+                            disabled
+                            className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-slate-600">Maximum</Label>
+                          <Input
+                            value={validationData.data.salary.max ? 
+                              `${validationData.data.currency} ${Number(validationData.data.salary.max).toLocaleString()}` : 
+                              "Not specified"}
+                            disabled
+                            className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-slate-600">Frequency</Label>
+                          <Input
+                            value={validationData.data.salary.frequency || "Not specified"}
+                            disabled
+                            className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Annual Base Salary + Employment Type */}
+                  <div className="mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="baseSalary"
+                          className="text-sm font-semibold text-slate-700 uppercase tracking-wide block"
+                        >
+                          Annual Base Salary ({formData.currency})
+                        </Label>
+                        <Input
+                          ref={baseSalaryInputRef}
+                          id="baseSalary"
+                          type="text"
+                          placeholder={`Enter annual salary amount in ${formData.currency}`}
+                          value={formData.baseSalary}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            // Allow only valid numeric input (digits and decimal point)
+                            if (isValidNumericFormat(value)) {
+                              setFormData((prev) => ({ ...prev, baseSalary: value }))
+                              setSalaryError(null) // Clear error while typing
+                            }
+                          }}
+                          onBlur={validateSalaryOnBlur}
+                          className={`h-11 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
+                            salaryError ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
+                          }`}
+                        />
+                        {salaryError && (
+                          <p className="text-red-500 text-xs mt-1">{salaryError}</p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="employmentType"
+                          className="text-sm font-semibold text-slate-700 uppercase tracking-wide block"
+                        >
+                          Employment Type
+                        </Label>
+                        <Select
+                          value={formData.employmentType}
+                          onValueChange={(value) => setFormData((prev) => ({ ...prev, employmentType: value }))}
+                        >
+                          <SelectTrigger className="h-11 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="full-time">Full-time</SelectItem>
+                            <SelectItem value="part-time">Part-time</SelectItem>
+                            <SelectItem value="contract">Contract</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="baseSalary"
-                        className="text-sm font-semibold text-slate-700 uppercase tracking-wide block"
-                      >
-                        Base Salary ({formData.currency})
-                      </Label>
-                      <Input
-                        ref={baseSalaryInputRef}
-                        id="baseSalary"
-                        type="number"
-                        placeholder={`Enter salary amount in ${formData.currency}`}
-                        value={formData.baseSalary}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, baseSalary: e.target.value }))}
-                        className="h-11 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
-                      />
+
+                  {/* Holiday Information */}
+                  {validationData && !isLoadingValidations && (
+                    <div className="mb-6">
+                      <h5 className="text-xs font-medium text-slate-600 uppercase tracking-wide mb-3">Holiday Days</h5>
+                      <div className="grid md:grid-cols-4 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-slate-600">Minimum</Label>
+                          <Input
+                            value={validationData.data.holiday.min || "Not specified"}
+                            disabled
+                            className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-slate-600">Maximum</Label>
+                          <Input
+                            value={validationData.data.holiday.max || "Not specified"}
+                            disabled
+                            className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-slate-600">Most Common</Label>
+                          <Input
+                            value={validationData.data.holiday.mostCommon || "Not specified"}
+                            disabled
+                            className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="holidayDays"
+                            className="text-sm font-semibold text-slate-700 uppercase tracking-wide"
+                          >
+                            Holiday Days
+                          </Label>
+                          <Input
+                            id="holidayDays"
+                            type="text"
+                            placeholder={validationData.data.holiday.mostCommon || "Enter number of holidays"}
+                            value={formData.holidayDays}
+                            onChange={(e) => {
+                              const value = e.target.value
+                              // Allow only valid numeric input (digits and decimal point)
+                              if (isValidNumericFormat(value)) {
+                                setFormData((prev) => ({ ...prev, holidayDays: value }))
+                                setHolidaysError(null) // Clear error while typing
+                              }
+                            }}
+                            onBlur={validateHolidaysOnBlur}
+                            className={`h-10 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
+                              holidaysError ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
+                            }`}
+                          />
+                          {holidaysError && (
+                            <p className="text-red-500 text-xs mt-1">{holidaysError}</p>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="employmentType"
-                        className="text-sm font-semibold text-slate-700 uppercase tracking-wide block"
-                      >
-                        Employment Type
-                      </Label>
-                      <Select
-                        value={formData.employmentType}
-                        onValueChange={(value) => setFormData((prev) => ({ ...prev, employmentType: value }))}
-                      >
-                        <SelectTrigger className="h-11 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="full-time">Full-time</SelectItem>
-                          <SelectItem value="part-time">Part-time</SelectItem>
-                          <SelectItem value="contract">Contract</SelectItem>
-                        </SelectContent>
-                      </Select>
+                  )}
+
+                  {/* Probation Period */}
+                  {validationData && !isLoadingValidations && (validationData.data.probation.min || validationData.data.probation.max) && (
+                    <div className="mb-6">
+                      <h5 className="text-xs font-medium text-slate-600 uppercase tracking-wide mb-3">Probation Period</h5>
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-slate-600">Minimum</Label>
+                          <Input
+                            value={validationData.data.probation.min || "Not specified"}
+                            disabled
+                            className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-slate-600">Maximum</Label>
+                          <Input
+                            value={validationData.data.probation.max || "Not specified"}
+                            disabled
+                            className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="probationPeriod"
+                            className="text-sm font-semibold text-slate-700 uppercase tracking-wide"
+                          >
+                            Probation Period
+                          </Label>
+                          <Input
+                            id="probationPeriod"
+                            type="text"
+                            placeholder="Enter probation period in days"
+                            value={formData.probationPeriod}
+                            onChange={(e) => {
+                              const value = e.target.value
+                              // Allow only valid numeric input (digits and decimal point)
+                              if (isValidNumericFormat(value)) {
+                                setFormData((prev) => ({ ...prev, probationPeriod: value }))
+                                setProbationError(null) // Clear error while typing
+                              }
+                            }}
+                            onBlur={validateProbationOnBlur}
+                            className={`h-10 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
+                              probationError ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
+                            }`}
+                          />
+                          {probationError && (
+                            <p className="text-red-500 text-xs mt-1">{probationError}</p>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  )}
+
+                  {/* Work Schedule */}
+                  {validationData && !isLoadingValidations && (
+                    <div>
+                      <h5 className="text-xs font-medium text-slate-600 uppercase tracking-wide mb-3">Work Schedule</h5>
+                      <div className="grid md:grid-cols-6 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-slate-600">Min Hours/Day</Label>
+                          <Input
+                            value={validationData.data.work_schedule.hours.min || "Not specified"}
+                            disabled
+                            className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-slate-600">Max Hours/Day</Label>
+                          <Input
+                            value={validationData.data.work_schedule.hours.max || "Not specified"}
+                            disabled
+                            className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="hoursPerDay"
+                            className="text-sm font-semibold text-slate-700 uppercase tracking-wide"
+                          >
+                            Hours per Day
+                          </Label>
+                          <Input
+                            id="hoursPerDay"
+                            type="text"
+                            placeholder="Enter hours per day"
+                            value={formData.hoursPerDay}
+                            onChange={(e) => {
+                              const value = e.target.value
+                              // Allow only valid numeric input (digits and decimal point)
+                              if (isValidNumericFormat(value)) {
+                                setFormData((prev) => ({ ...prev, hoursPerDay: value }))
+                                setHoursError(null) // Clear error while typing
+                              }
+                            }}
+                            onBlur={validateHoursOnBlur}
+                            className={`h-10 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
+                              hoursError ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
+                            }`}
+                          />
+                          {hoursError && (
+                            <p className="text-red-500 text-xs mt-1">{hoursError}</p>
+                          )}
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-slate-600">Min Days/Week</Label>
+                          <Input
+                            value={validationData.data.work_schedule.days.min || "Not specified"}
+                            disabled
+                            className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-slate-600">Max Days/Week</Label>
+                          <Input
+                            value={validationData.data.work_schedule.days.max || "Not specified"}
+                            disabled
+                            className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="daysPerWeek"
+                            className="text-sm font-semibold text-slate-700 uppercase tracking-wide"
+                          >
+                            Days per Week
+                          </Label>
+                          <Input
+                            id="daysPerWeek"
+                            type="text"
+                            placeholder="Enter days per week"
+                            value={formData.daysPerWeek}
+                            onChange={(e) => {
+                              const value = e.target.value
+                              // Allow only valid numeric input (digits and decimal point)
+                              if (isValidNumericFormat(value)) {
+                                setFormData((prev) => ({ ...prev, daysPerWeek: value }))
+                                setDaysError(null) // Clear error while typing
+                              }
+                            }}
+                            onBlur={validateDaysOnBlur}
+                            className={`h-10 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
+                              daysError ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
+                            }`}
+                          />
+                          {daysError && (
+                            <p className="text-red-500 text-xs mt-1">{daysError}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                 </div>
 
                 <Separator />
@@ -975,13 +1560,13 @@ export default function EORCalculatorPage() {
                               htmlFor="compareSalary"
                               className="text-sm font-semibold text-slate-700 uppercase tracking-wide block"
                             >
-                              Base Salary ({formData.compareCurrency})
+                              Annual Base Salary ({formData.compareCurrency})
                             </Label>
                             <div className="relative">
                               <Input
                                 id="compareSalary"
                                 type="number"
-                                placeholder={`Enter salary amount in ${formData.compareCurrency}`}
+                                placeholder={`Enter annual salary amount in ${formData.compareCurrency}`}
                                 value={formData.compareSalary}
                                 onChange={(e) => {
                                   setFormData((prev) => ({ ...prev, compareSalary: e.target.value }))
