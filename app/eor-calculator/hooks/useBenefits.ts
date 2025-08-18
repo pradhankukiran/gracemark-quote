@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { BenefitsAPIResponse } from "../types"
 import { fetchBenefitsData, BenefitsRequestParams } from "../utils/apiUtils"
 
@@ -20,6 +20,7 @@ export const useBenefits = ({
   const [benefitsData, setBenefitsData] = useState<BenefitsAPIResponse | null>(null)
   const [isLoadingBenefits, setIsLoadingBenefits] = useState(false)
   const [benefitsError, setBenefitsError] = useState<string | null>(null)
+  const [benefitsFetched, setBenefitsFetched] = useState(false)
 
   const fetchBenefits = async (params: BenefitsRequestParams) => {
     setIsLoadingBenefits(true)
@@ -36,30 +37,54 @@ export const useBenefits = ({
     }
   }
 
+  // Clear benefits data when country changes
   useEffect(() => {
-    if (countryCode && hoursPerDay && daysPerWeek && employmentType) {
-      const hoursNum = parseFloat(hoursPerDay)
-      const daysNum = parseFloat(daysPerWeek)
-      
-      if (!isNaN(hoursNum) && !isNaN(daysNum) && hoursNum > 0 && daysNum > 0) {
-        const workHoursPerWeek = hoursNum * daysNum
-        
-        fetchBenefits({
-          countryCode,
-          workVisa,
-          workHoursPerWeek,
-          employmentType,
-        })
-      }
-    } else {
-      setBenefitsData(null)
-      setBenefitsError(null)
+    setBenefitsData(null)
+    setBenefitsError(null)
+    setBenefitsFetched(false)
+  }, [countryCode])
+
+  // Manual fetch function that can be called by UI
+  const fetchBenefitsManually = useCallback(async () => {
+    if (!countryCode || !hoursPerDay || !daysPerWeek || !employmentType) {
+      setBenefitsError("Missing required information to fetch benefits")
+      return
+    }
+
+    const hoursNum = parseFloat(hoursPerDay)
+    const daysNum = parseFloat(daysPerWeek)
+    
+    if (isNaN(hoursNum) || isNaN(daysNum) || hoursNum <= 0 || daysNum <= 0) {
+      setBenefitsError("Invalid hours or days values")
+      return
+    }
+
+    const workHoursPerWeek = hoursNum * daysNum
+    
+    try {
+      await fetchBenefits({
+        countryCode,
+        workVisa,
+        workHoursPerWeek,
+        employmentType,
+      })
+      setBenefitsFetched(true)
+    } catch (error) {
+      setBenefitsFetched(false)
     }
   }, [countryCode, workVisa, hoursPerDay, daysPerWeek, employmentType])
+
+  // Check if all required data is available for fetching benefits
+  const canFetchBenefits = countryCode && hoursPerDay && daysPerWeek && employmentType &&
+                          !isNaN(parseFloat(hoursPerDay)) && !isNaN(parseFloat(daysPerWeek)) &&
+                          parseFloat(hoursPerDay) > 0 && parseFloat(daysPerWeek) > 0
 
   return {
     benefitsData,
     isLoadingBenefits,
     benefitsError,
+    benefitsFetched,
+    canFetchBenefits,
+    fetchBenefitsManually,
   }
 }

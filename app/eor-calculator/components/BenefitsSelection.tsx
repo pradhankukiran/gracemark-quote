@@ -123,7 +123,21 @@ export const BenefitsSelection = ({
                             ? 'border-slate-200 bg-slate-50 opacity-50'
                             : 'border-slate-200 hover:border-primary/50'
                         }`}
-                        onClick={() => !isDisabled && onBenefitChange(benefitKey, isSelected && !benefit.is_mandatory ? undefined : planId)}
+                        onClick={() => {
+                          if (isDisabled) return;
+                          
+                          // For mandatory benefits: always select the clicked plan
+                          if (benefit.is_mandatory) {
+                            onBenefitChange(benefitKey, planId);
+                          } else {
+                            // For optional benefits: toggle selection (unselect if already selected)
+                            if (isSelected) {
+                              onBenefitChange(benefitKey, undefined);
+                            } else {
+                              onBenefitChange(benefitKey, planId);
+                            }
+                          }
+                        }}
                       >
                         <div className="flex items-start space-x-3">
                           <input
@@ -134,10 +148,9 @@ export const BenefitsSelection = ({
                             checked={isSelected}
                             disabled={isDisabled}
                             onChange={() => {}} // onClick on parent div handles it
-                            className="h-4 w-4 text-primary focus:ring-primary border-slate-300 mt-1"
+                            className="h-4 w-4 text-primary focus:ring-primary border-slate-300 mt-1 pointer-events-none"
                           />
                           <Label 
-                            htmlFor={planId}
                             className={`flex-1 cursor-pointer ${
                               isDisabled ? 'text-slate-400' : 'text-slate-700'
                             }`}

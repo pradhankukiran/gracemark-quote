@@ -20,6 +20,7 @@ import { FormActions } from "./components/FormActions"
 import { QuoteCard } from "./components/QuoteCard"
 import { QuoteComparison } from "./components/QuoteComparison"
 import { BenefitsSelection } from "./components/BenefitsSelection"
+import { RetrieveBenefitsButton } from "./components/RetrieveBenefitsButton"
 
 
 export default function EORCalculatorPage() {
@@ -39,6 +40,7 @@ export default function EORCalculatorPage() {
     updateFormData,
     updateValidationError,
     clearAllData,
+    clearValidationErrors,
     isFormValid,
     updateBenefitSelection,
     clearBenefitsSelection,
@@ -84,6 +86,9 @@ export default function EORCalculatorPage() {
     benefitsData,
     isLoadingBenefits,
     benefitsError,
+    benefitsFetched,
+    canFetchBenefits,
+    fetchBenefitsManually,
   } = useBenefits({
     countryCode: selectedCountryData?.code || null,
     workVisa: formData.workVisaRequired,
@@ -91,6 +96,26 @@ export default function EORCalculatorPage() {
     daysPerWeek: formData.daysPerWeek,
     employmentType: formData.employmentType,
   })
+
+  // Clear benefits selection, validation errors, and form input data when country changes
+  useEffect(() => {
+    clearBenefitsSelection();
+    clearValidationErrors();
+    clearQuotes();
+    clearUSDConversions();
+    
+    // Clear form input data to prevent auto-loading of sections
+    updateFormData({
+      baseSalary: "",
+      holidayDays: "",
+      probationPeriod: "",
+      hoursPerDay: "",
+      daysPerWeek: "",
+      startDate: "",
+      employmentType: "full-time", // Reset to default
+      workVisaRequired: false, // Reset to default
+    });
+  }, [selectedCountryData?.code]);
 
   useEffect(() => {
     if (benefitsData?.data) {
@@ -103,10 +128,15 @@ export default function EORCalculatorPage() {
         }
       });
     }
-  }, [benefitsData, formData.selectedBenefits, updateBenefitSelection]);
+  }, [benefitsData]);
 
   const isPageValid = () => {
     if (!isFormValid()) {
+      return false;
+    }
+
+    // Benefits must be explicitly fetched before allowing quote generation
+    if (!benefitsFetched) {
       return false;
     }
 
@@ -199,13 +229,26 @@ export default function EORCalculatorPage() {
 
                 <Separator />
 
-                <BenefitsSelection
-                  benefitsData={benefitsData}
-                  isLoadingBenefits={isLoadingBenefits}
-                  benefitsError={benefitsError}
-                  selectedBenefits={formData.selectedBenefits}
-                  onBenefitChange={updateBenefitSelection}
-                />
+                {/* Show Retrieve Benefits button if benefits haven't been fetched yet */}
+                {!benefitsFetched && (
+                  <RetrieveBenefitsButton
+                    countryName={formData.country}
+                    isLoading={isLoadingBenefits}
+                    canFetch={canFetchBenefits}
+                    onFetchBenefits={fetchBenefitsManually}
+                  />
+                )}
+
+                {/* Show Benefits Selection only after benefits have been fetched */}
+                {benefitsFetched && (
+                  <BenefitsSelection
+                    benefitsData={benefitsData}
+                    isLoadingBenefits={isLoadingBenefits}
+                    benefitsError={benefitsError}
+                    selectedBenefits={formData.selectedBenefits}
+                    onBenefitChange={updateBenefitSelection}
+                  />
+                )}
 
                 <Separator />
 

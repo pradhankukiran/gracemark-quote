@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { EORFormData, ValidationErrors } from "../types"
 import { 
   getCountryByName, 
@@ -53,13 +53,22 @@ export const useEORForm = () => {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(initialValidationErrors)
 
   const countries = getAvailableCountries()
-  const selectedCountryData = formData.country ? getCountryByName(formData.country) : null
+  const selectedCountryData = useMemo(() => 
+    formData.country ? getCountryByName(formData.country) : null, 
+    [formData.country]
+  )
   const availableStates = selectedCountryData ? getStatesForCountry(selectedCountryData.code) : []
   const showStateDropdown = selectedCountryData && hasStates(selectedCountryData.code)
 
-  const clientCountryData = formData.clientCountry ? getCountryByName(formData.clientCountry) : null
+  const clientCountryData = useMemo(() => 
+    formData.clientCountry ? getCountryByName(formData.clientCountry) : null, 
+    [formData.clientCountry]
+  )
 
-  const compareCountryData = formData.compareCountry ? getCountryByName(formData.compareCountry) : null
+  const compareCountryData = useMemo(() => 
+    formData.compareCountry ? getCountryByName(formData.compareCountry) : null, 
+    [formData.compareCountry]
+  )
   const compareAvailableStates = compareCountryData ? getStatesForCountry(compareCountryData.code) : []
   const showCompareStateDropdown = compareCountryData && hasStates(compareCountryData.code)
 
