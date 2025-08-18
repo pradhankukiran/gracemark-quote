@@ -31,6 +31,15 @@ function mapCountryNameForDeel(countryName: string): string {
   return countryMapping[countryName] || countryName
 }
 
+interface DeelRequestBody {
+  data: {
+    salary: number;
+    country: string;
+    currency: string;
+    state?: string;
+  };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { salary, country, currency, state } = await request.json()
@@ -41,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     const mappedCountry = mapCountryNameForDeel(country)
 
-    const requestBody: any = {
+    const requestBody: DeelRequestBody = {
       data: {
         salary: Number.parseFloat(salary),
         country: mappedCountry,

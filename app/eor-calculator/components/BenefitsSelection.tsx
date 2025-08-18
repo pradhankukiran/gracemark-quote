@@ -1,7 +1,8 @@
 "use client"
 
+import React from "react"
 import { Label } from "@/components/ui/label"
-import { Loader2, AlertCircle, Heart, Paperclip, Info } from "lucide-react"
+import { Loader2, AlertCircle, Heart, Info } from "lucide-react"
 import { BenefitsAPIResponse, Benefit, Provider, Plan } from "../types"
 
 interface BenefitsSelectionProps {
@@ -21,6 +22,74 @@ export const BenefitsSelection = ({
   selectedBenefits,
   onBenefitChange,
 }: BenefitsSelectionProps) => {
+  // Cache blob URLs by attachment URL to prevent duplicate fetches
+  const blobCacheRef = React.useRef<Map<string, string>>(new Map())
+  
+  // Track loading states for each attachment
+  const [loadingAttachments, setLoadingAttachments] = React.useState<Set<string>>(new Set())
+
+  // Cleanup blob URLs when component unmounts
+  React.useEffect(() => {
+    return () => {
+      blobCacheRef.current.forEach(blobUrl => URL.revokeObjectURL(blobUrl))
+      blobCacheRef.current.clear()
+    }
+  }, [])
+
+  const openPDFInNewTab = async (attachmentUrl: string, attachmentLabel: string) => {
+    // Check if we already have this PDF cached
+    if (blobCacheRef.current.has(attachmentUrl)) {
+      const cachedBlobUrl = blobCacheRef.current.get(attachmentUrl)!
+      window.open(cachedBlobUrl, '_blank')
+      return
+    }
+
+    try {
+      // Set loading state
+      setLoadingAttachments(prev => new Set(prev).add(attachmentUrl))
+
+      // Fetch PDF as blob
+      const response = await fetch(attachmentUrl)
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch PDF: ${response.statusText}`)
+      }
+      
+      const blob = await response.blob()
+      
+      // Create blob URL
+      const blobUrl = URL.createObjectURL(blob)
+      
+      // Cache the blob URL
+      blobCacheRef.current.set(attachmentUrl, blobUrl)
+      
+      // Open in new tab with a descriptive title
+      const newTab = window.open(blobUrl, '_blank')
+      
+      if (newTab) {
+        // Set a more descriptive title for the new tab
+        newTab.document.title = attachmentLabel || 'PDF Document'
+      }
+      
+      // Clean up this specific blob URL after 30 minutes
+      setTimeout(() => {
+        URL.revokeObjectURL(blobUrl)
+        blobCacheRef.current.delete(attachmentUrl)
+      }, 30 * 60 * 1000) // 30 minutes
+      
+    } catch (error) {
+      console.error('Error opening PDF:', error)
+      // Fallback to direct link if blob approach fails
+      window.open(attachmentUrl, '_blank')
+    } finally {
+      // Clear loading state
+      setLoadingAttachments(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(attachmentUrl)
+        return newSet
+      })
+    }
+  }
   if (isLoadingBenefits) {
     return (
       <div>
@@ -102,28 +171,13 @@ export const BenefitsSelection = ({
                     return (
                       <div 
                         key={planId} 
-                        className={`border-2 rounded-md p-3 transition-all duration-200 cursor-pointer ${
+                        className={`border-2 rounded-md p-3 transition-all duration-200 ${
                           isSelected 
                             ? 'border-primary bg-primary/5' 
                             : isDisabled
                             ? 'border-slate-200 bg-slate-50 opacity-50'
                             : 'border-slate-200 hover:border-primary/50'
                         }`}
-                        onClick={() => {
-                          if (isDisabled) return;
-                          
-                          // For mandatory benefits: always select the clicked plan
-                          if (benefit.is_mandatory) {
-                            onBenefitChange(benefitKey, planId);
-                          } else {
-                            // For optional benefits: toggle selection (unselect if already selected)
-                            if (isSelected) {
-                              onBenefitChange(benefitKey, undefined);
-                            } else {
-                              onBenefitChange(benefitKey, planId);
-                            }
-                          }
-                        }}
                       >
                         <div className="flex items-start space-x-3">
                           <input
@@ -134,39 +188,74 @@ export const BenefitsSelection = ({
                             checked={isSelected}
                             disabled={isDisabled}
                             onChange={() => {}} // onClick on parent div handles it
-                            className="h-4 w-4 text-primary focus:ring-primary border-slate-300 mt-1 pointer-events-none"
+                            className="h-4 w-4 text-primary focus:ring-primary border-slate-300 mt-1"
                           />
                           <Label 
+                            htmlFor={planId}
                             className={`flex-1 cursor-pointer ${
                               isDisabled ? 'text-slate-400' : 'text-slate-700'
                             }`}
-                          >
+                            onClick={() => {
+                              if (isDisabled) return;
+                              
+                              // For mandatory benefits: always select the clicked plan
+                              if (benefit.is_mandatory) {
+                                onBenefitChange(benefitKey, planId);
+                              } else {
+                                // For optional benefits: toggle selection (unselect if already selected)
+                                if (isSelected) {
+                                  onBenefitChange(benefitKey, undefined);
+                                } else {
+                                  onBenefitChange(benefitKey, planId);
+                                }
+                              }
+                            }}>
                             <div className="w-full">
                               <div className="flex items-center justify-between w-full mb-2">
                                 <span className="font-medium">{plan.name}</span>
-                                <div className="flex items-center gap-4">
-                                  <span className="text-sm font-semibold">
-                                    {plan.price > 0 ? `${provider.currency} ${plan.price.toFixed(2)}` : 'Included'}
-                                  </span>
-                                  {plan.attachments.length > 0 && (
-                                    <div className="flex items-center gap-2 text-slate-500">
-                                      {plan.attachments.map(attachment => (
-                                        <a
-                                          key={attachment.id}
-                                          href={attachment.url}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          title={attachment.label}
-                                          className="hover:text-primary"
-                                          onClick={(e) => e.stopPropagation()}
-                                        >
-                                          <Paperclip className="h-4 w-4" />
-                                        </a>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
+                                <span className="text-sm font-semibold">
+                                  {plan.price > 0 ? `${provider.currency} ${plan.price.toFixed(2)}` : 'Included'}
+                                </span>
                               </div>
+                              
+                              {/* Show attachments as text links */}
+                              {plan.attachments.length > 0 && (
+                                <div className="mb-2">
+                                  {plan.attachments.map(attachment => {
+                                    const isLoading = loadingAttachments.has(attachment.url)
+                                    const isCached = blobCacheRef.current.has(attachment.url)
+                                    
+                                    return (
+                                      <button
+                                        key={attachment.id}
+                                        type="button"
+                                        disabled={isLoading}
+                                        className={`text-sm block transition-colors ${
+                                          isLoading 
+                                            ? 'text-slate-400 cursor-not-allowed' 
+                                            : 'text-primary hover:underline cursor-pointer'
+                                        }`}
+                                        onClick={(e) => {
+                                          // Comprehensive event stopping
+                                          e.preventDefault()
+                                          e.stopPropagation()
+                                          e.nativeEvent.stopImmediatePropagation()
+                                          
+                                          if (!isLoading) {
+                                            openPDFInNewTab(attachment.url, attachment.label)
+                                          }
+                                        }}
+                                      >
+                                        {isLoading ? (
+                                          <>⏳ Opening {attachment.label}...</>
+                                        ) : (
+                                          <>📋 {attachment.label}{isCached ? ' ⚡' : ''}</>
+                                        )}
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              )}
                               
                               {/* Show pension contribution information if available */}
                               {isPension && (provider.min_contribution || provider.max_contribution) && (

@@ -46,7 +46,6 @@ export const RetrieveBenefitsButton = ({
           </>
         ) : (
           <>
-            <Heart className="h-5 w-5 mr-2" />
             Retrieve Benefits for {countryName}
           </>
         )}

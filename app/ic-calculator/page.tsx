@@ -50,7 +50,7 @@ const IC_FORM_STORAGE_KEY = "ic-calculator-form-data"
 const IC_QUOTE_STORAGE_KEY = "ic-calculator-quote-data"
 const STORAGE_EXPIRY_HOURS = 24
 
-const saveToLocalStorage = (key: string, data: any) => {
+const saveToLocalStorage = <T,>(key: string, data: T) => {
   try {
     const item = {
       data,
@@ -63,7 +63,7 @@ const saveToLocalStorage = (key: string, data: any) => {
   }
 }
 
-const loadFromLocalStorage = (key: string) => {
+const loadFromLocalStorage = <T,>(key: string): T | null => {
   try {
     const item = localStorage.getItem(key)
     if (!item) return null
@@ -96,12 +96,12 @@ export default function ICCalculatorPage() {
     window.scrollTo(0, 0)
 
     // Load data from localStorage after component mounts (client-side only)
-    const savedFormData = loadFromLocalStorage(IC_FORM_STORAGE_KEY)
+    const savedFormData = loadFromLocalStorage<ICFormData>(IC_FORM_STORAGE_KEY)
     if (savedFormData) {
       setFormData(savedFormData)
     }
 
-    const savedQuote = loadFromLocalStorage(IC_QUOTE_STORAGE_KEY)
+    const savedQuote = loadFromLocalStorage<ICQuoteResult>(IC_QUOTE_STORAGE_KEY)
     if (savedQuote) {
       setQuote(savedQuote)
     }
