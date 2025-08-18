@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server"
 
-const DEEL_DEMO_API_BASE = "https://api-sandbox.demo.deel.com/rest/v2"
-const HARDCODED_TEAM_ID = "90b6a7ad-d4b2-41d3-a967-dc02280505f3"
-const HARDCODED_LEGAL_ENTITY_ID = "3c347040-47e8-4fb1-ab64-28584025fea3"
+const DEEL_API_BASE = "https://api.letsdeel.com/rest/v2"
+const HARDCODED_TEAM_ID = "e122d04f-a35f-4418-8066-4b597f05d440"
+const HARDCODED_LEGAL_ENTITY_ID = "6646f7e1-7bb1-4e95-b4bf-f94a532f8753"
 
 export async function GET(request: NextRequest) {
   try {
-    const token = process.env.DEEL_DEMO_ORG_TOKEN
+    const token = process.env.DEEL_ORGANIZATION_TOKEN
     if (!token) {
       return NextResponse.json(
-        { error: "DEEL_DEMO_ORG_TOKEN not configured" },
+        { error: "DEEL_ORGANIZATION_TOKEN not configured" },
         { status: 500 }
       )
     }
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       legal_entity_id: HARDCODED_LEGAL_ENTITY_ID,
     })
 
-    const response = await fetch(`${DEEL_DEMO_API_BASE}/eor/benefits?${queryParams}`, {
+    const response = await fetch(`${DEEL_API_BASE}/eor/benefits?${queryParams}`, {
       method: "GET",
       headers: {
         accept: "application/json",

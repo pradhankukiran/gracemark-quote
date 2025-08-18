@@ -93,20 +93,6 @@ export const BenefitsSelection = ({
             <div key={provider.id}>
               <h4 className="text-sm font-medium text-slate-600 mb-3">{provider.name}</h4>
               
-              {isPension && (provider.min_contribution || provider.max_contribution) ? (
-                <div className="bg-slate-50 p-4 rounded-md border border-slate-200">
-                  <div className="flex items-center">
-                    <Info className="h-5 w-5 text-slate-500 mr-3" />
-                    <div>
-                      <p className="font-semibold text-slate-800">
-                        Employer Contribution: {provider.min_contribution}%
-                        {provider.max_contribution && provider.max_contribution !== provider.min_contribution && ` - ${provider.max_contribution}%`}
-                      </p>
-                      {provider.client_info && <p className="text-xs text-slate-500 mt-1">{provider.client_info}</p>}
-                    </div>
-                  </div>
-                </div>
-              ) : (
                 <div className="grid gap-3">
                   {provider.plans.map((plan: Plan) => {
                     const planId = plan.id
@@ -155,30 +141,65 @@ export const BenefitsSelection = ({
                               isDisabled ? 'text-slate-400' : 'text-slate-700'
                             }`}
                           >
-                            <div className="flex items-center justify-between w-full">
-                              <span className="font-medium">{plan.name}</span>
-                              <div className="flex items-center gap-4">
-                                <span className="text-sm font-semibold">
-                                  {plan.price > 0 ? `${provider.currency} ${plan.price.toFixed(2)}` : 'Included'}
-                                </span>
-                                {plan.attachments.length > 0 && (
-                                  <div className="flex items-center gap-2 text-slate-500">
-                                    {plan.attachments.map(attachment => (
-                                      <a
-                                        key={attachment.id}
-                                        href={attachment.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        title={attachment.label}
-                                        className="hover:text-primary"
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        <Paperclip className="h-4 w-4" />
-                                      </a>
-                                    ))}
-                                  </div>
-                                )}
+                            <div className="w-full">
+                              <div className="flex items-center justify-between w-full mb-2">
+                                <span className="font-medium">{plan.name}</span>
+                                <div className="flex items-center gap-4">
+                                  <span className="text-sm font-semibold">
+                                    {plan.price > 0 ? `${provider.currency} ${plan.price.toFixed(2)}` : 'Included'}
+                                  </span>
+                                  {plan.attachments.length > 0 && (
+                                    <div className="flex items-center gap-2 text-slate-500">
+                                      {plan.attachments.map(attachment => (
+                                        <a
+                                          key={attachment.id}
+                                          href={attachment.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          title={attachment.label}
+                                          className="hover:text-primary"
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          <Paperclip className="h-4 w-4" />
+                                        </a>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
+                              
+                              {/* Show pension contribution information if available */}
+                              {isPension && (provider.min_contribution || provider.max_contribution) && (
+                                <div className="bg-primary/5 p-3 rounded-md border border-primary/20 mb-2">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Info className="h-4 w-4 text-primary" />
+                                    <span className="text-sm font-semibold text-primary">
+                                      Employer Contribution: {provider.min_contribution}%
+                                      {provider.max_contribution && provider.max_contribution !== provider.min_contribution && ` - ${provider.max_contribution}%`}
+                                    </span>
+                                  </div>
+                                  {provider.client_info && (
+                                    <p className="text-xs text-slate-600 leading-relaxed">
+                                      {provider.client_info}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                              
+                              {/* Show provider website if available */}
+                              {provider.home_page_url && (
+                                <div className="text-xs text-slate-500">
+                                  Provider: <a 
+                                    href={provider.home_page_url} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-primary hover:underline"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {provider.name}
+                                  </a>
+                                </div>
+                              )}
                             </div>
                           </Label>
                         </div>
@@ -186,7 +207,6 @@ export const BenefitsSelection = ({
                     )
                   })}
                 </div>
-              )}
             </div>
           ))}
         </div>
