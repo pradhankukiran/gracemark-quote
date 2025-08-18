@@ -30,7 +30,7 @@ export const RetrieveBenefitsButton = ({
         {canFetch ? (
           <>Ready to load benefit options for your employee in <span className="font-semibold">{countryName}</span>?</>
         ) : (
-          <>Complete the employee information above to load benefit options for <span className="font-semibold">{countryName}</span></>
+          <>Complete the employee information above to load benefit options{countryName ? <> for <span className="font-semibold">{countryName}</span></> : null}</>
         )}
       </p>
       
@@ -47,7 +47,7 @@ export const RetrieveBenefitsButton = ({
           </>
         ) : (
           <>
-            Retrieve Benefits for {countryName}
+            Retrieve Benefits{countryName ? ` for ${countryName}` : ''}
           </>
         )}
       </Button>
