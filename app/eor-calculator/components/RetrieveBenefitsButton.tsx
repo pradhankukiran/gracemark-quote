@@ -16,9 +16,6 @@ export const RetrieveBenefitsButton = ({
   canFetch,
   onFetchBenefits,
 }: RetrieveBenefitsButtonProps) => {
-  if (!canFetch) {
-    return null
-  }
 
   return (
     <div className="text-center py-6">
@@ -30,12 +27,16 @@ export const RetrieveBenefitsButton = ({
       </div>
       
       <p className="text-slate-600 mb-6 max-w-md mx-auto">
-        Ready to load benefit options for your employee in <span className="font-semibold">{countryName}</span>?
+        {canFetch ? (
+          <>Ready to load benefit options for your employee in <span className="font-semibold">{countryName}</span>?</>
+        ) : (
+          <>Complete the employee information above to load benefit options for <span className="font-semibold">{countryName}</span></>
+        )}
       </p>
       
       <Button
         onClick={onFetchBenefits}
-        disabled={isLoading}
+        disabled={isLoading || !canFetch}
         size="lg"
         className="px-8 py-3 text-base font-medium"
       >

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
-import { EORFormData, ValidationErrors } from "../types"
+import { EORFormData, ValidationErrors, LocalOfficeInfo } from "../types"
 import { 
   getCountryByName, 
   getCurrencyForCountry,
@@ -7,6 +7,18 @@ import {
   getStatesForCountry,
   hasStates
 } from "@/lib/country-data"
+
+const initialLocalOfficeInfo: LocalOfficeInfo = {
+  mealVoucher: "",
+  transportation: "",
+  wfh: "",
+  healthInsurance: "",
+  monthlyPaymentsToLocalOffice: "",
+  vat: "",
+  preEmploymentMedicalTest: "",
+  drugTest: "",
+  backgroundCheckViaDeel: "",
+}
 
 const initialFormData: EORFormData = {
   employeeName: "",
@@ -38,6 +50,7 @@ const initialFormData: EORFormData = {
     pension: undefined,
     life_insurance: undefined,
   },
+  localOfficeInfo: initialLocalOfficeInfo,
 }
 
 const initialValidationErrors: ValidationErrors = {
@@ -148,6 +161,23 @@ export const useEORForm = () => {
     }))
   }
 
+  const updateLocalOfficeInfo = (updates: Partial<LocalOfficeInfo>) => {
+    setFormData((prev) => ({
+      ...prev,
+      localOfficeInfo: {
+        ...prev.localOfficeInfo,
+        ...updates,
+      },
+    }))
+  }
+
+  const clearLocalOfficeInfo = () => {
+    setFormData((prev) => ({
+      ...prev,
+      localOfficeInfo: initialLocalOfficeInfo,
+    }))
+  }
+
   const isFormValid = () => {
     return formData.country && formData.baseSalary && formData.clientCountry &&
            !Object.values(validationErrors).some(error => error !== null)
@@ -171,5 +201,7 @@ export const useEORForm = () => {
     isFormValid,
     updateBenefitSelection,
     clearBenefitsSelection,
+    updateLocalOfficeInfo,
+    clearLocalOfficeInfo,
   }
 }

@@ -40,7 +40,7 @@ export const CountryComparisonForm = ({
         <div className="p-2 bg-primary/10">
           <MapPin className="h-5 w-5 text-primary" />
         </div>
-        <h3 className="text-xl font-semibold text-slate-900">Country Comparison</h3>
+        <h3 className="text-xl font-semibold text-slate-900">Country Comparison (Optional)</h3>
       </div>
 
       <div className="space-y-4">
@@ -59,8 +59,8 @@ export const CountryComparisonForm = ({
               onClearConversionData()
             }}
           />
-          <Label htmlFor="enableComparison" className="text-sm font-medium text-slate-700">
-            Compare with another country
+          <Label htmlFor="enableComparison" className="text-sm font-medium text-slate-900">
+            Compare with another country ?
           </Label>
         </div>
 
@@ -162,7 +162,7 @@ export const CountryComparisonForm = ({
                   )}
                 </div>
                 {conversionInfo && (
-                  <p className="text-xs text-slate-600 bg-slate-50 p-2 rounded border">
+                  <p className="text-sm text-slate-600 bg-slate-50 p-2 rounded border">
                     ℹ️ {conversionInfo}
                   </p>
                 )}
@@ -178,7 +178,7 @@ export const CountryComparisonForm = ({
                       variant="outline"
                       size="sm"
                       onClick={onTriggerConversion}
-                      className="text-xs h-8"
+                      className="text-sm h-8"
                     >
                       Convert from {formData.currency}
                     </Button>
@@ -195,7 +195,7 @@ export const CountryComparisonForm = ({
                       variant="ghost"
                       size="sm"
                       onClick={onTriggerConversion}
-                      className="text-xs h-8 text-slate-500"
+                      className="text-sm h-8 text-slate-500"
                     >
                       Re-convert from {formData.currency}
                     </Button>

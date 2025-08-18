@@ -21,6 +21,8 @@ import { QuoteCard } from "./components/QuoteCard"
 import { QuoteComparison } from "./components/QuoteComparison"
 import { BenefitsSelection } from "./components/BenefitsSelection"
 import { RetrieveBenefitsButton } from "./components/RetrieveBenefitsButton"
+import { LocalOfficeInformation } from "./components/LocalOfficeInformation"
+import { isLatamCountry } from "./utils/validationUtils"
 
 
 export default function EORCalculatorPage() {
@@ -44,6 +46,8 @@ export default function EORCalculatorPage() {
     isFormValid,
     updateBenefitSelection,
     clearBenefitsSelection,
+    updateLocalOfficeInfo,
+    clearLocalOfficeInfo,
   } = useEORForm()
 
   const { validationData, isLoadingValidations, validationError } = useCountryValidation(
@@ -103,6 +107,7 @@ export default function EORCalculatorPage() {
     clearValidationErrors();
     clearQuotes();
     clearUSDConversions();
+    clearLocalOfficeInfo();
     
     // Clear form input data to prevent auto-loading of sections
     updateFormData({
@@ -248,6 +253,17 @@ export default function EORCalculatorPage() {
                     selectedBenefits={formData.selectedBenefits}
                     onBenefitChange={updateBenefitSelection}
                   />
+                )}
+
+                {/* Show Local Office Information for LATAM countries */}
+                {isLatamCountry(selectedCountryData?.code) && (
+                  <>
+                    <Separator />
+                    <LocalOfficeInformation
+                      formData={formData}
+                      onLocalOfficeUpdate={updateLocalOfficeInfo}
+                    />
+                  </>
                 )}
 
                 <Separator />

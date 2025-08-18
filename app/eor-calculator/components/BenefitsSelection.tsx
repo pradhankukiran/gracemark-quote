@@ -146,7 +146,7 @@ export const BenefitsSelection = ({
       <div key={benefit.name} className="mb-6 last:mb-0">
         <div className="flex items-center gap-3 mb-3">
           <h3 className="text-base font-semibold text-slate-700 uppercase tracking-wide">{benefit.name}</h3>
-          <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
+          <span className={`inline-block px-3 py-1 text-sm font-semibold rounded-full ${
             benefit.is_mandatory 
               ? "bg-red-100 text-red-800" 
               : "bg-slate-100 text-slate-800"
@@ -268,7 +268,7 @@ export const BenefitsSelection = ({
                                     </span>
                                   </div>
                                   {provider.client_info && (
-                                    <p className="text-xs text-slate-600 leading-relaxed">
+                                    <p className="text-sm text-slate-600 leading-relaxed">
                                       {provider.client_info}
                                     </p>
                                   )}
@@ -277,7 +277,7 @@ export const BenefitsSelection = ({
                               
                               {/* Show provider website if available */}
                               {provider.home_page_url && (
-                                <div className="text-xs text-slate-500">
+                                <div className="text-sm text-slate-500">
                                   Provider: <a 
                                     href={provider.home_page_url} 
                                     target="_blank" 

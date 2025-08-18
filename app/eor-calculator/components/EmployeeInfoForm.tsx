@@ -300,7 +300,7 @@ export const EmployeeInfoForm = ({
               }`}
             />
             {validationErrors.salary && (
-              <p className="text-red-500 text-xs mt-1">{validationErrors.salary}</p>
+              <p className="text-red-500 text-sm mt-1">{validationErrors.salary}</p>
             )}
           </div>
           <div className="space-y-2">
@@ -375,7 +375,7 @@ export const EmployeeInfoForm = ({
                 }`}
               />
               {validationErrors.holidays && (
-                <p className="text-red-500 text-xs mt-1">{validationErrors.holidays}</p>
+                <p className="text-red-500 text-sm mt-1">{validationErrors.holidays}</p>
               )}
             </div>
           </div>
@@ -422,7 +422,7 @@ export const EmployeeInfoForm = ({
                 }`}
               />
               {validationErrors.probation && (
-                <p className="text-red-500 text-xs mt-1">{validationErrors.probation}</p>
+                <p className="text-red-500 text-sm mt-1">{validationErrors.probation}</p>
               )}
             </div>
           </div>
@@ -469,7 +469,7 @@ export const EmployeeInfoForm = ({
                 }`}
               />
               {validationErrors.hours && (
-                <p className="text-red-500 text-xs mt-1">{validationErrors.hours}</p>
+                <p className="text-red-500 text-sm mt-1">{validationErrors.hours}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -507,7 +507,7 @@ export const EmployeeInfoForm = ({
                 }`}
               />
               {validationErrors.days && (
-                <p className="text-red-500 text-xs mt-1">{validationErrors.days}</p>
+                <p className="text-red-500 text-sm mt-1">{validationErrors.days}</p>
               )}
             </div>
           </div>

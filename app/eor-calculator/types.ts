@@ -1,3 +1,15 @@
+export interface LocalOfficeInfo {
+  mealVoucher: string
+  transportation: string
+  wfh: string
+  healthInsurance: string
+  monthlyPaymentsToLocalOffice: string
+  vat: string
+  preEmploymentMedicalTest: string
+  drugTest: string
+  backgroundCheckViaDeel: string
+}
+
 export interface EORFormData {
   employeeName: string
   jobTitle: string
@@ -26,6 +38,7 @@ export interface EORFormData {
   selectedBenefits: {
     [key: string]: string | undefined
   }
+  localOfficeInfo: LocalOfficeInfo
 }
 
 export interface DeelAPIResponse {

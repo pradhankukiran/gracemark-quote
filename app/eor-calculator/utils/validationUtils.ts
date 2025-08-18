@@ -1,5 +1,13 @@
 import { ValidationAPIResponse } from "../types"
 
+// LATAM countries that require Local Office Information
+const LATAM_COUNTRIES = ['CO', 'BR', 'AR', 'MX', 'CL', 'PE']
+
+export const isLatamCountry = (countryCode?: string | null): boolean => {
+  if (!countryCode) return false
+  return LATAM_COUNTRIES.includes(countryCode)
+}
+
 export const isValidNumericFormat = (value: string): boolean => {
   if (value === "") return true
   const numericRegex = /^\d*\.?\d*$/
