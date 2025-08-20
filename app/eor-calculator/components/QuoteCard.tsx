@@ -16,6 +16,7 @@ interface QuoteCardProps {
   isConvertingToUSD?: boolean
   onConvertToUSD?: () => void
   compact?: boolean
+  usdConversionError?: string | null
 }
 
 export const QuoteCard = ({
@@ -28,10 +29,12 @@ export const QuoteCard = ({
   showUSDConversion = true,
   isConvertingToUSD = false,
   onConvertToUSD,
-  compact = false
+  compact = false,
+  usdConversionError = null
 }: QuoteCardProps) => {
-  const showUSDButton = showUSDConversion && quote.currency !== "USD" && onConvertToUSD
-  const showUSDColumns = quote.currency !== "USD" && usdConversions
+  // Always show USD columns for non-USD quotes (automatic mode)
+  const showUSDColumns = quote.currency !== "USD"
+  const hasUSDData = usdConversions && Object.keys(usdConversions).length > 0
 
   const textSizes = compact 
     ? { title: "text-2xl", amount: "text-base", total: "text-xl" }
@@ -50,26 +53,26 @@ export const QuoteCard = ({
               </span>
             )}
           </div>
-          {showUSDButton && (
-            <Button
-              onClick={onConvertToUSD}
-              disabled={isConvertingToUSD}
-              variant="outline"
-              size="sm"
-              className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 ml-4"
-            >
+          
+          {/* Auto-conversion status indicator */}
+          {showUSDColumns && (
+            <div className="ml-4 text-right">
               {isConvertingToUSD ? (
-                <>
+                <div className="flex items-center text-blue-600 text-sm">
                   <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                  Converting...
-                </>
-              ) : (
-                <>
-                  <DollarSign className="mr-2 h-3 w-3" />
-                  USD prices
-                </>
-              )}
-            </Button>
+                  Converting to USD...
+                </div>
+              ) : hasUSDData ? (
+                <div className="flex items-center text-green-600 text-sm">
+                  <DollarSign className="mr-1 h-3 w-3" />
+                  USD prices included
+                </div>
+              ) : usdConversionError ? (
+                <div className="text-red-500 text-xs max-w-32">
+                  USD conversion failed
+                </div>
+              ) : null}
+            </div>
           )}
         </div>
 
@@ -99,9 +102,17 @@ export const QuoteCard = ({
             <span className={`font-bold ${textSizes.amount} text-slate-900 text-right`}>
               {formatCurrency(Number.parseFloat(quote.salary), quote.currency)}
             </span>
-            {showUSDColumns && usdConversions && (
+            {showUSDColumns && (
               <span className={`font-bold ${textSizes.amount} text-slate-700 text-right`}>
-                ${usdConversions.salary.toLocaleString()}
+                {usdConversions && usdConversions.salary !== undefined ? (
+                  `$${usdConversions.salary.toLocaleString()}`
+                ) : isConvertingToUSD ? (
+                  <span className="text-blue-500 animate-pulse">Converting...</span>
+                ) : usdConversionError ? (
+                  <span className="text-red-400 text-sm">Failed</span>
+                ) : (
+                  <span className="text-slate-400">Pending...</span>
+                )}
               </span>
             )}
           </div>
@@ -118,9 +129,17 @@ export const QuoteCard = ({
             <span className={`font-bold ${textSizes.amount} text-slate-900 text-right`}>
               {formatCurrency(Number.parseFloat(quote.deel_fee), quote.currency)}
             </span>
-            {showUSDColumns && usdConversions && (
+            {showUSDColumns && (
               <span className={`font-bold ${textSizes.amount} text-slate-700 text-right`}>
-                ${usdConversions.deelFee.toLocaleString()}
+                {usdConversions && usdConversions.deelFee !== undefined ? (
+                  `$${usdConversions.deelFee.toLocaleString()}`
+                ) : isConvertingToUSD ? (
+                  <span className="text-blue-500 animate-pulse">Converting...</span>
+                ) : usdConversionError ? (
+                  <span className="text-red-400 text-sm">Failed</span>
+                ) : (
+                  <span className="text-slate-400">Pending...</span>
+                )}
               </span>
             )}
           </div>
@@ -138,12 +157,19 @@ export const QuoteCard = ({
               <span className={`font-bold ${textSizes.amount} text-slate-900 text-right`}>
                 {formatCurrency(Number.parseFloat(cost.amount), quote.currency)}
               </span>
-              {showUSDColumns && usdConversions && usdConversions.costs[index] !== undefined && (
+              {showUSDColumns && (
                 <span className={`font-bold ${textSizes.amount} text-slate-700 text-right`}>
-                  {usdConversions.costs[index] === -1 
-                    ? "---" 
-                    : `$${usdConversions.costs[index].toLocaleString()}`
-                  }
+                  {usdConversions && usdConversions.costs && usdConversions.costs[index] !== undefined ? (
+                    usdConversions.costs[index] === -1 
+                      ? "---" 
+                      : `$${usdConversions.costs[index].toLocaleString()}`
+                  ) : isConvertingToUSD ? (
+                    <span className="text-blue-500 animate-pulse">Converting...</span>
+                  ) : usdConversionError ? (
+                    <span className="text-red-400 text-sm">Failed</span>
+                  ) : (
+                    <span className="text-slate-400">Pending...</span>
+                  )}
                 </span>
               )}
             </div>
@@ -152,7 +178,7 @@ export const QuoteCard = ({
           <Separator className="my-4" />
 
           <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 border-2 border-primary/20">
-            {showUSDColumns && usdConversions ? (
+            {showUSDColumns ? (
               <div className={`grid ${compact ? 'grid-cols-3 gap-2' : 'grid-cols-3 gap-4'} items-center`}>
                 <span className={`${compact ? 'text-base' : 'text-xl'} font-bold text-slate-900`}>
                   Total Monthly Cost
@@ -161,7 +187,15 @@ export const QuoteCard = ({
                   {formatCurrency(Number.parseFloat(quote.total_costs), quote.currency)}
                 </span>
                 <span className={`text-slate-700 ${compact ? 'text-base' : 'text-2xl'} font-semibold text-right`}>
-                  ${usdConversions.totalCosts.toLocaleString()} USD
+                  {usdConversions && usdConversions.totalCosts !== undefined ? (
+                    `$${usdConversions.totalCosts.toLocaleString()} USD`
+                  ) : isConvertingToUSD ? (
+                    <span className="text-blue-500 animate-pulse">Converting...</span>
+                  ) : usdConversionError ? (
+                    <span className="text-red-400">Failed</span>
+                  ) : (
+                    <span className="text-slate-400">Pending...</span>
+                  )}
                 </span>
               </div>
             ) : (
@@ -172,12 +206,6 @@ export const QuoteCard = ({
                 <span className={`text-primary ${textSizes.total} font-bold`}>
                   {formatCurrency(Number.parseFloat(quote.total_costs), quote.currency)}
                 </span>
-              </div>
-            )}
-            {isConvertingToUSD && (
-              <div className="text-slate-500 text-sm mt-2 flex items-center justify-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Converting to USD...
               </div>
             )}
           </div>

@@ -7,6 +7,7 @@ import {
   getStatesForCountry,
   hasStates
 } from "@/lib/country-data"
+import { convertCurrency } from "@/lib/currency-converter"
 
 const initialLocalOfficeInfo: LocalOfficeInfo = {
   mealVoucher: "",
@@ -27,6 +28,8 @@ const initialFormData: EORFormData = {
   country: "",
   state: "",
   currency: "",
+  isCurrencyManuallySet: false,
+  originalCurrency: undefined,
   clientCountry: "",
   clientCurrency: "",
   baseSalary: "",
@@ -85,19 +88,30 @@ export const useEORForm = () => {
   const compareAvailableStates = compareCountryData ? getStatesForCountry(compareCountryData.code) : []
   const showCompareStateDropdown = compareCountryData && hasStates(compareCountryData.code)
 
-  // Auto-update currency when country changes
+  // Auto-update currency when country changes (only if not manually set)
   useEffect(() => {
-    if (formData.country && selectedCountryData) {
+    if (formData.country && selectedCountryData && !formData.isCurrencyManuallySet) {
       const newCurrency = getCurrencyForCountry(selectedCountryData.code)
       if (formData.currency !== newCurrency) {
         setFormData((prev) => ({
           ...prev,
           currency: newCurrency,
+          originalCurrency: newCurrency,
           state: "",
+          isCurrencyManuallySet: false,
+        }))
+      }
+    } else if (formData.country && selectedCountryData) {
+      // Store original currency even when manually set, for reset functionality
+      const originalCurrency = getCurrencyForCountry(selectedCountryData.code)
+      if (formData.originalCurrency !== originalCurrency) {
+        setFormData((prev) => ({
+          ...prev,
+          originalCurrency: originalCurrency,
         }))
       }
     }
-  }, [formData.country, selectedCountryData, formData.currency])
+  }, [formData.country, selectedCountryData, formData.currency, formData.isCurrencyManuallySet])
 
   // Auto-update client currency when client country changes
   useEffect(() => {
@@ -178,6 +192,84 @@ export const useEORForm = () => {
     }))
   }
 
+  const overrideCurrency = async (newCurrency: string, onConversionInfo?: (info: string) => void) => {
+    const currentCurrency = formData.currency
+    const currentSalary = formData.baseSalary
+    
+    // Update currency immediately
+    setFormData((prev) => ({
+      ...prev,
+      currency: newCurrency,
+      isCurrencyManuallySet: true,
+    }))
+    
+    // Convert salary if there's an existing value and currencies are different
+    if (currentSalary && currentCurrency && currentCurrency !== newCurrency) {
+      const salaryAmount = parseFloat(currentSalary.replace(/[,\s]/g, ''))
+      
+      if (!isNaN(salaryAmount) && salaryAmount > 0) {
+        try {
+          const result = await convertCurrency(salaryAmount, currentCurrency, newCurrency)
+          
+          if (result.success && result.data) {
+            // Update with converted salary
+            setFormData((prev) => ({
+              ...prev,
+              baseSalary: result.data!.target_amount.toString(),
+            }))
+            
+            // Provide conversion info if callback is available
+            if (onConversionInfo) {
+              const oldAmount = salaryAmount.toLocaleString()
+              const newAmount = result.data.target_amount.toLocaleString()
+              onConversionInfo(`Salary converted from ${currentCurrency} ${oldAmount} to ${newCurrency} ${newAmount}`)
+            }
+          }
+        } catch (error) {
+          // Conversion failed, but currency change still applies
+          console.warn('Currency conversion failed:', error)
+        }
+      }
+    }
+  }
+
+  const resetToDefaultCurrency = async () => {
+    if (formData.originalCurrency) {
+      const currentCurrency = formData.currency
+      const currentSalary = formData.baseSalary
+      const targetCurrency = formData.originalCurrency
+      
+      // Update currency immediately
+      setFormData((prev) => ({
+        ...prev,
+        currency: targetCurrency,
+        isCurrencyManuallySet: false,
+      }))
+      
+      // Convert salary if there's an existing value and currencies are different
+      if (currentSalary && currentCurrency && currentCurrency !== targetCurrency) {
+        const salaryAmount = parseFloat(currentSalary.replace(/[,\s]/g, ''))
+        
+        if (!isNaN(salaryAmount) && salaryAmount > 0) {
+          try {
+            const result = await convertCurrency(salaryAmount, currentCurrency, targetCurrency)
+            
+            if (result.success && result.data) {
+              // Update with converted salary
+              setFormData((prev) => ({
+                ...prev,
+                baseSalary: result.data!.target_amount.toString(),
+              }))
+            }
+          } catch (error) {
+            // Conversion failed, but currency reset still applies
+            console.warn('Currency conversion failed during reset:', error)
+          }
+        }
+      }
+    }
+  }
+
   const isFormValid = () => {
     return formData.country && formData.baseSalary && formData.clientCountry &&
            !Object.values(validationErrors).some(error => error !== null)
@@ -203,5 +295,7 @@ export const useEORForm = () => {
     clearBenefitsSelection,
     updateLocalOfficeInfo,
     clearLocalOfficeInfo,
+    overrideCurrency,
+    resetToDefaultCurrency,
   }
 }

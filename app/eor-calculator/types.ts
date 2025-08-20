@@ -17,6 +17,8 @@ export interface EORFormData {
   country: string
   state: string
   currency: string
+  isCurrencyManuallySet: boolean
+  originalCurrency?: string
   clientCountry: string
   clientCurrency: string
   baseSalary: string

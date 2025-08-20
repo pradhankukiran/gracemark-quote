@@ -43,6 +43,8 @@ export default function EORCalculatorPage() {
     clearBenefitsSelection,
     updateLocalOfficeInfo,
     clearLocalOfficeInfo,
+    overrideCurrency,
+    resetToDefaultCurrency,
   } = useEORForm()
 
   const { validationData, isLoadingValidations, validationError } = useCountryValidation(
@@ -78,6 +80,7 @@ export default function EORCalculatorPage() {
     usdConversionError,
     convertQuoteToUSD,
     clearUSDConversions,
+    autoConvertQuote,
   } = useUSDConversion()
 
   const {
@@ -176,6 +179,22 @@ export default function EORCalculatorPage() {
     }
   }, [formData.currentStep, deelQuote])
 
+  // Auto-convert primary quote to USD when it arrives
+  useEffect(() => {
+    if (deelQuote && deelQuote.currency !== "USD") {
+      const cleanup = autoConvertQuote(deelQuote, "deel")
+      return cleanup
+    }
+  }, [deelQuote]) // Removed autoConvertQuote from dependencies
+
+  // Auto-convert comparison quote to USD when it arrives
+  useEffect(() => {
+    if (compareQuote && compareQuote.currency !== "USD") {
+      const cleanup = autoConvertQuote(compareQuote, "compare")
+      return cleanup
+    }
+  }, [compareQuote]) // Removed autoConvertQuote from dependencies
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
@@ -221,6 +240,8 @@ export default function EORCalculatorPage() {
                   validationErrors={validationErrors}
                   onFormUpdate={updateFormData}
                   onValidationError={updateValidationError}
+                  onCurrencyOverride={(currency, conversionInfo) => overrideCurrency(currency, conversionInfo)}
+                  onCurrencyReset={resetToDefaultCurrency}
                 />
 
                 <Separator />
@@ -291,8 +312,8 @@ export default function EORCalculatorPage() {
                 title={`Quote - ${deelQuote.country}`}
                 subtitle="Powered by Deel"
                 usdConversions={usdConversions.deel}
-                onConvertToUSD={() => convertQuoteToUSD(deelQuote, "deel")}
                 isConvertingToUSD={isConvertingDeelToUsd}
+                usdConversionError={usdConversionError}
               />
             )}
 
@@ -304,10 +325,9 @@ export default function EORCalculatorPage() {
                 primaryTitle={formData.country}
                 comparisonTitle={formData.compareCountry}
                 usdConversions={usdConversions}
-                onConvertPrimaryToUSD={() => convertQuoteToUSD(deelQuote, "deel")}
-                onConvertComparisonToUSD={() => convertQuoteToUSD(compareQuote, "compare")}
                 isConvertingPrimaryToUSD={isConvertingDeelToUsd}
                 isConvertingComparisonToUSD={isConvertingCompareToUsd}
+                usdConversionError={usdConversionError}
               />
             )}
           </div>

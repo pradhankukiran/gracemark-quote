@@ -7,10 +7,11 @@ interface QuoteComparisonProps {
   primaryTitle: string
   comparisonTitle: string
   usdConversions: USDConversions
-  onConvertPrimaryToUSD: () => void
-  onConvertComparisonToUSD: () => void
+  onConvertPrimaryToUSD?: () => void
+  onConvertComparisonToUSD?: () => void
   isConvertingPrimaryToUSD: boolean
   isConvertingComparisonToUSD: boolean
+  usdConversionError?: string | null
 }
 
 export const QuoteComparison = ({
@@ -23,6 +24,7 @@ export const QuoteComparison = ({
   onConvertComparisonToUSD,
   isConvertingPrimaryToUSD,
   isConvertingComparisonToUSD,
+  usdConversionError,
 }: QuoteComparisonProps) => {
   return (
     <div className="space-y-6">
@@ -44,8 +46,8 @@ export const QuoteComparison = ({
           badgeText="Main Quote"
           badgeColor="bg-green-100 text-green-800"
           usdConversions={usdConversions.deel}
-          onConvertToUSD={onConvertPrimaryToUSD}
           isConvertingToUSD={isConvertingPrimaryToUSD}
+          usdConversionError={usdConversionError}
           compact={true}
         />
 
@@ -57,8 +59,8 @@ export const QuoteComparison = ({
           badgeText="Compare Quote"
           badgeColor="bg-blue-100 text-blue-800"
           usdConversions={usdConversions.compare}
-          onConvertToUSD={onConvertComparisonToUSD}
           isConvertingToUSD={isConvertingComparisonToUSD}
+          usdConversionError={usdConversionError}
           compact={true}
         />
       </div>

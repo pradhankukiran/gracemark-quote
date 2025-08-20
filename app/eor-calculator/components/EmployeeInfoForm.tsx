@@ -1,4 +1,4 @@
-import { useRef } from "react"
+import { useRef, useState, useEffect } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -9,6 +9,8 @@ import { FormSectionHeader } from "./shared/FormSectionHeader"
 import { LoadingSpinner } from "./shared/LoadingSpinner"
 import { ErrorDisplay } from "./shared/ErrorDisplay"
 import { FORM_STYLES } from "../styles/constants"
+import { allCurrencies } from "@/lib/country-data"
+import { convertCurrency } from "@/lib/currency-converter"
 
 interface EmployeeInfoFormProps {
   formData: EORFormData
@@ -19,6 +21,8 @@ interface EmployeeInfoFormProps {
   validationErrors: ValidationErrors
   onFormUpdate: (updates: Partial<EORFormData>) => void
   onValidationError: (field: keyof ValidationErrors, error: string | null) => void
+  onCurrencyOverride: (currency: string, conversionInfo?: string) => void
+  onCurrencyReset: () => void
 }
 
 export const EmployeeInfoForm = ({
@@ -30,8 +34,18 @@ export const EmployeeInfoForm = ({
   validationErrors,
   onFormUpdate,
   onValidationError,
+  onCurrencyOverride,
+  onCurrencyReset,
 }: EmployeeInfoFormProps) => {
   const baseSalaryInputRef = useRef<HTMLInputElement>(null)
+  const [isEditingCurrency, setIsEditingCurrency] = useState(false)
+  const [convertedValidation, setConvertedValidation] = useState<{
+    minSalary?: string
+    maxSalary?: string
+    currency?: string
+  }>({})
+  const [isConvertingValidation, setIsConvertingValidation] = useState(false)
+  const [salaryConversionInfo, setSalaryConversionInfo] = useState<string | null>(null)
 
   const handleValidatedInput = (
     field: keyof ValidationErrors,
@@ -92,6 +106,96 @@ export const EmployeeInfoForm = ({
       }
     })
   }
+
+  const handleChangeClick = () => {
+    setIsEditingCurrency(true)
+  }
+
+  const handleCurrencySelect = (newCurrency: string) => {
+    // Don't proceed if same currency is selected
+    if (newCurrency === formData.currency) {
+      setIsEditingCurrency(false)
+      return
+    }
+    
+    onCurrencyOverride(newCurrency, setSalaryConversionInfo)
+    setIsEditingCurrency(false)
+  }
+
+  // Reset editing state when country changes
+  useEffect(() => {
+    setIsEditingCurrency(false)
+    setSalaryConversionInfo(null)
+  }, [formData.country])
+
+  // Clear salary conversion info after a delay
+  useEffect(() => {
+    if (salaryConversionInfo) {
+      const timeout = setTimeout(() => {
+        setSalaryConversionInfo(null)
+      }, 5000) // Clear after 5 seconds
+
+      return () => clearTimeout(timeout)
+    }
+  }, [salaryConversionInfo])
+
+  // Convert validation data when currency is overridden
+  useEffect(() => {
+    const convertValidationData = async () => {
+      if (!validationData || !formData.isCurrencyManuallySet || !formData.originalCurrency) {
+        setConvertedValidation({})
+        return
+      }
+
+      const originalCurrency = validationData.data.currency
+      const targetCurrency = formData.currency
+      
+      if (originalCurrency === targetCurrency) {
+        setConvertedValidation({})
+        return
+      }
+
+      setIsConvertingValidation(true)
+      
+      try {
+        const conversions: { minSalary?: string; maxSalary?: string } = {}
+        
+        // Convert minimum salary
+        if (validationData.data.salary.min) {
+          const minAmount = parseFloat(validationData.data.salary.min.replace(/[,\s]/g, ''))
+          if (!isNaN(minAmount)) {
+            const result = await convertCurrency(minAmount, originalCurrency, targetCurrency)
+            if (result.success && result.data) {
+              conversions.minSalary = result.data.target_amount.toLocaleString()
+            }
+          }
+        }
+        
+        // Convert maximum salary
+        if (validationData.data.salary.max) {
+          const maxAmount = parseFloat(validationData.data.salary.max.replace(/[,\s]/g, ''))
+          if (!isNaN(maxAmount)) {
+            const result = await convertCurrency(maxAmount, originalCurrency, targetCurrency)
+            if (result.success && result.data) {
+              conversions.maxSalary = result.data.target_amount.toLocaleString()
+            }
+          }
+        }
+        
+        setConvertedValidation({
+          ...conversions,
+          currency: targetCurrency,
+        })
+      } catch (error) {
+        console.warn('Failed to convert validation data:', error)
+        setConvertedValidation({})
+      } finally {
+        setIsConvertingValidation(false)
+      }
+    }
+
+    convertValidationData()
+  }, [validationData, formData.isCurrencyManuallySet, formData.currency, formData.originalCurrency])
 
   return (
     <div>
@@ -183,13 +287,62 @@ export const EmployeeInfoForm = ({
               className={FORM_STYLES.LABEL_BASE}
             >
               Currency
+              {formData.isCurrencyManuallySet && (
+                <span className="ml-2 text-xs text-blue-600 font-medium">
+                  (Custom)
+                </span>
+              )}
             </Label>
-            <Input
-              id="currency"
-              value={formData.currency}
-              readOnly
-              className="h-12 border-2 border-slate-200 bg-slate-50 text-slate-700"
-            />
+            
+            {!isEditingCurrency ? (
+              <div className="relative">
+                <Input
+                  id="currency"
+                  value={formData.currency}
+                  readOnly
+                  className="h-12 border-2 border-slate-200 bg-slate-50 text-slate-700 pr-24"
+                />
+                {formData.country && (
+                  <button
+                    type="button"
+                    onClick={handleChangeClick}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        handleChangeClick()
+                      }
+                    }}
+                    className="absolute top-1/2 right-2 -translate-y-1/2 bg-slate-100 hover:bg-slate-200 rounded px-2 py-1 text-xs text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    aria-label="Change currency"
+                  >
+                    Change?
+                  </button>
+                )}
+              </div>
+            ) : (
+              <Select value={formData.currency} onValueChange={handleCurrencySelect}>
+                <SelectTrigger className="!h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+                  <SelectValue placeholder="Select currency" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {allCurrencies.map((currency) => (
+                    <SelectItem key={currency.code} value={currency.code}>
+                      {currency.code} - {currency.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            
+            {formData.isCurrencyManuallySet && formData.originalCurrency && (
+              <button
+                type="button"
+                onClick={onCurrencyReset}
+                className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
+              >
+                Reset to {formData.originalCurrency} (default for {formData.country})
+              </button>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -235,11 +388,21 @@ export const EmployeeInfoForm = ({
           </h5> */}
           <div className={FORM_STYLES.GRID_3_COL}>
             <div className="space-y-2">
-              <Label className={FORM_STYLES.LABEL_BASE}>Minimum Salary</Label>
+              <Label className={FORM_STYLES.LABEL_BASE}>
+                Minimum Salary
+                {isConvertingValidation && (
+                  <span className="ml-2 text-xs text-slate-500">(Converting...)</span>
+                )}
+              </Label>
               <Input
-                value={validationData.data.salary.min ? 
-                  `${validationData.data.currency} ${Number(validationData.data.salary.min).toLocaleString()}` : 
-                  "Not specified"}
+                value={
+                  isConvertingValidation ? "Converting..." :
+                  convertedValidation.minSalary ? 
+                    `${convertedValidation.currency} ${convertedValidation.minSalary}` :
+                    validationData.data.salary.min ? 
+                      `${validationData.data.currency} ${Number(validationData.data.salary.min).toLocaleString()}` : 
+                      "Not specified"
+                }
                 disabled
                 className="h-12 bg-slate-50 border-slate-200 text-slate-700"
               />
@@ -266,13 +429,29 @@ export const EmployeeInfoForm = ({
               {validationErrors.salary && (
                 <p className="text-red-500 text-sm mt-1">{validationErrors.salary}</p>
               )}
+              {salaryConversionInfo && (
+                <p className="text-green-600 text-sm mt-1 flex items-center">
+                  <span className="mr-1">✓</span>
+                  {salaryConversionInfo}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
-              <Label className={FORM_STYLES.LABEL_BASE}>Maximum Salary</Label>
+              <Label className={FORM_STYLES.LABEL_BASE}>
+                Maximum Salary
+                {isConvertingValidation && (
+                  <span className="ml-2 text-xs text-slate-500">(Converting...)</span>
+                )}
+              </Label>
               <Input
-                value={validationData.data.salary.max ? 
-                  `${validationData.data.currency} ${Number(validationData.data.salary.max).toLocaleString()}` : 
-                  "Not specified"}
+                value={
+                  isConvertingValidation ? "Converting..." :
+                  convertedValidation.maxSalary ? 
+                    `${convertedValidation.currency} ${convertedValidation.maxSalary}` :
+                    validationData.data.salary.max ? 
+                      `${validationData.data.currency} ${Number(validationData.data.salary.max).toLocaleString()}` : 
+                      "Not specified"
+                }
                 disabled
                 className="h-12 bg-slate-50 border-slate-200 text-slate-700"
               />
