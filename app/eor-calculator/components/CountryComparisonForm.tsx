@@ -4,15 +4,13 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { MapPin, Loader2 } from "lucide-react"
-import { getStateTypeLabel } from "@/lib/country-data"
 import { EORFormData } from "../types"
+import { FormSectionHeader } from "./shared/FormSectionHeader"
+import { FORM_STYLES } from "../styles/constants"
 
 interface CountryComparisonFormProps {
   formData: EORFormData
   countries: string[]
-  compareAvailableStates: Array<{ code: string; name: string }>
-  showCompareStateDropdown: boolean
-  compareCountryCode?: string
   isConverting: boolean
   conversionInfo: string | null
   onFormUpdate: (updates: Partial<EORFormData>) => void
@@ -24,9 +22,6 @@ interface CountryComparisonFormProps {
 export const CountryComparisonForm = ({
   formData,
   countries,
-  compareAvailableStates,
-  showCompareStateDropdown,
-  compareCountryCode,
   isConverting,
   conversionInfo,
   onFormUpdate,
@@ -36,15 +31,19 @@ export const CountryComparisonForm = ({
 }: CountryComparisonFormProps) => {
   return (
     <div>
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 bg-primary/10">
-          <MapPin className="h-5 w-5 text-primary" />
-        </div>
-        <h3 className="text-xl font-semibold text-slate-900">Country Comparison (Optional)</h3>
-      </div>
+      <FormSectionHeader icon={MapPin} title="Country Comparison (Optional)" />
 
       <div className="space-y-4">
-        <div className="flex items-center space-x-2">
+        <Label
+          htmlFor="enableComparison"
+          className={`
+            flex items-center space-x-4 p-4 border-2 rounded-md cursor-pointer transition-all duration-200
+            ${formData.enableComparison
+              ? 'border-primary bg-primary/5'
+              : 'border-slate-200 hover:border-primary/50'
+            }
+          `}
+        >
           <Checkbox
             id="enableComparison"
             checked={formData.enableComparison}
@@ -58,27 +57,28 @@ export const CountryComparisonForm = ({
               })
               onClearConversionData()
             }}
+            className="h-5 w-5"
           />
-          <Label htmlFor="enableComparison" className="text-sm font-medium text-slate-900">
-            Compare with another country ?
-          </Label>
-        </div>
+          <span className="text-base font-medium text-slate-800">
+            Compare with another country?
+          </span>
+        </Label>
 
         {formData.enableComparison && (
           <div className="p-4 bg-slate-50 border-2 border-slate-200">
             <h4 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">
               Comparison Country
             </h4>
-            <div className={`grid gap-4 ${showCompareStateDropdown ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
+            <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="compareCountry" className="text-sm font-medium text-slate-600">
+                <Label htmlFor="compareCountry" className={FORM_STYLES.LABEL_BASE}>
                   Country
                 </Label>
                 <Select
                   value={formData.compareCountry}
                   onValueChange={(value) => onFormUpdate({ compareCountry: value })}
                 >
-                  <SelectTrigger className="h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+                  <SelectTrigger className="!h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
                     <SelectValue placeholder="Select country to compare" />
                   </SelectTrigger>
                   <SelectContent>
@@ -93,40 +93,15 @@ export const CountryComparisonForm = ({
                 </Select>
               </div>
 
-              {showCompareStateDropdown && (
-                <div className="space-y-2">
-                  <Label htmlFor="compareState" className="text-sm font-medium text-slate-600">
-                    {getStateTypeLabel(compareCountryCode || "")}
-                  </Label>
-                  <Select
-                    value={formData.compareState}
-                    onValueChange={(value) => onFormUpdate({ compareState: value })}
-                  >
-                    <SelectTrigger className="h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
-                      <SelectValue
-                        placeholder={`Select ${getStateTypeLabel(compareCountryCode || "").toLowerCase()}`}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {compareAvailableStates.map((state) => (
-                        <SelectItem key={state.code} value={state.code}>
-                          {state.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
               <div className="space-y-2">
-                <Label htmlFor="compareCurrency" className="text-sm font-medium text-slate-600">
+                <Label htmlFor="compareCurrency" className={FORM_STYLES.LABEL_BASE}>
                   Currency
                 </Label>
                 <Input
                   id="compareCurrency"
                   value={formData.compareCurrency}
                   readOnly
-                  className="h-12 border-2 border-slate-200 bg-slate-50 text-slate-600"
+                  className="h-12 border-2 border-slate-200 bg-slate-50 text-slate-700"
                 />
               </div>
             </div>

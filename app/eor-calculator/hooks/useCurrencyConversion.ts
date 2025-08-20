@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { convertCurrency, formatConversionDisplay } from "@/lib/currency-converter"
 import { EORFormData } from "../types"
 
@@ -13,7 +13,7 @@ export const useCurrencyConversion = ({ formData, onFormUpdate }: UseCurrencyCon
   const [isComparisonManuallyEdited, setIsComparisonManuallyEdited] = useState(false)
   const conversionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  const handleCurrencyConversion = async (
+  const handleCurrencyConversion = useCallback(async (
     amount: number, 
     sourceCurrency: string, 
     targetCurrency: string
@@ -34,14 +34,14 @@ export const useCurrencyConversion = ({ formData, onFormUpdate }: UseCurrencyCon
       } else {
         setConversionInfo("Conversion failed - please enter amount manually")
       }
-    } catch (error) {
+    } catch {
       setConversionInfo("Conversion failed - please enter amount manually")
     } finally {
       setIsConverting(false)
     }
-  }
+  }, [onFormUpdate])
 
-  const debouncedCurrencyConversion = (
+  const debouncedCurrencyConversion = useCallback((
     amount: number, 
     sourceCurrency: string, 
     targetCurrency: string
@@ -55,7 +55,7 @@ export const useCurrencyConversion = ({ formData, onFormUpdate }: UseCurrencyCon
         handleCurrencyConversion(amount, sourceCurrency, targetCurrency)
       }
     }, 800)
-  }
+  }, [handleCurrencyConversion])
 
   // Auto-convert salary when base salary changes
   useEffect(() => {
@@ -77,7 +77,8 @@ export const useCurrencyConversion = ({ formData, onFormUpdate }: UseCurrencyCon
     formData.compareCurrency, 
     formData.currency, 
     formData.enableComparison, 
-    isComparisonManuallyEdited
+    isComparisonManuallyEdited,
+    debouncedCurrencyConversion
   ])
 
   // Clear conversion info and reset manual edit flag when comparison country changes
@@ -95,7 +96,7 @@ export const useCurrencyConversion = ({ formData, onFormUpdate }: UseCurrencyCon
         )
       }
     }
-  }, [formData.compareCountry, formData.compareCurrency])
+  }, [formData.baseSalary, formData.compareCountry, formData.compareCurrency, formData.currency, handleCurrencyConversion])
 
   // Cleanup timeout on unmount
   useEffect(() => {

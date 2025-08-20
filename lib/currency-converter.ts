@@ -79,7 +79,7 @@ export function formatCurrency(amount: number, currencyCode: string, symbol?: st
 }
 
 export function formatConversionDisplay(conversionData: ConversionData): string {
-  const { source_amount, source_currency, target_amount, target_currency, exchange_rate } = conversionData
+  const { source_amount, source_currency, exchange_rate } = conversionData
   
   return `Converted from ${formatCurrency(source_amount, source_currency.code, source_currency.symbol)} at rate ${exchange_rate}`
 }

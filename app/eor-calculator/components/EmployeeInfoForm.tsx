@@ -2,18 +2,17 @@ import { useRef } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { User, AlertCircle, Loader2 } from "lucide-react"
-import { getStateTypeLabel } from "@/lib/country-data"
+import { User } from "lucide-react"
 import { EORFormData, ValidationAPIResponse, ValidationErrors } from "../types"
-import { isValidNumericFormat, generateValidationErrorMessage } from "../utils/validationUtils"
+import { isValidNumericFormat } from "../utils/validationUtils"
+import { FormSectionHeader } from "./shared/FormSectionHeader"
+import { LoadingSpinner } from "./shared/LoadingSpinner"
+import { ErrorDisplay } from "./shared/ErrorDisplay"
+import { FORM_STYLES } from "../styles/constants"
 
 interface EmployeeInfoFormProps {
   formData: EORFormData
   countries: string[]
-  availableStates: Array<{ code: string; name: string }>
-  showStateDropdown: boolean
-  selectedCountryCode?: string
   validationData: ValidationAPIResponse | null
   validationError: string | null
   isLoadingValidations: boolean
@@ -25,9 +24,6 @@ interface EmployeeInfoFormProps {
 export const EmployeeInfoForm = ({
   formData,
   countries,
-  availableStates,
-  showStateDropdown,
-  selectedCountryCode,
   validationData,
   validationError,
   isLoadingValidations,
@@ -40,8 +36,7 @@ export const EmployeeInfoForm = ({
   const handleValidatedInput = (
     field: keyof ValidationErrors,
     value: string,
-    formField: keyof EORFormData,
-    validatorType: 'salary' | 'holiday' | 'probation' | 'hours' | 'days'
+    formField: keyof EORFormData
   ) => {
     if (isValidNumericFormat(value)) {
       onFormUpdate({ [formField]: value })
@@ -100,19 +95,14 @@ export const EmployeeInfoForm = ({
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 bg-primary/10">
-          <User className="h-5 w-5 text-primary" />
-        </div>
-        <h3 className="text-xl font-semibold text-slate-900">Employee Information</h3>
-      </div>
+      <FormSectionHeader icon={User} title="Employee Information" />
       
-      {/* Employee Name and Job Title */}
-      <div className="grid md:grid-cols-2 gap-4 mb-6">
+      {/* Employee Name, Job Title, and Employment Type */}
+      <div className={`${FORM_STYLES.GRID_3_COL} mb-6`}>
         <div className="space-y-2">
           <Label
             htmlFor="employeeName"
-            className="text-base font-semibold text-slate-700 uppercase tracking-wide"
+            className={FORM_STYLES.LABEL_BASE}
           >
             Employee Name
           </Label>
@@ -127,7 +117,7 @@ export const EmployeeInfoForm = ({
         <div className="space-y-2">
           <Label
             htmlFor="jobTitle"
-            className="text-base font-semibold text-slate-700 uppercase tracking-wide"
+            className={FORM_STYLES.LABEL_BASE}
           >
             Job Title
           </Label>
@@ -139,34 +129,42 @@ export const EmployeeInfoForm = ({
             className="h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
           />
         </div>
-      </div>
-
-      {/* Work Visa Required */}
-      <div className="mb-6">
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="workVisaRequired"
-            checked={formData.workVisaRequired}
-            onCheckedChange={(checked) => onFormUpdate({ workVisaRequired: checked as boolean })}
-          />
-          <Label htmlFor="workVisaRequired" className="text-sm font-medium text-slate-700">
-            Work Visa Required?
+        <div className="space-y-2">
+          <Label
+            htmlFor="employmentType"
+            className={FORM_STYLES.LABEL_BASE}
+          >
+            Employment Type
           </Label>
+          <Select
+            value={formData.employmentType}
+            onValueChange={(value) => onFormUpdate({ employmentType: value })}
+          >
+            <SelectTrigger className="!h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="full-time">Full-time</SelectItem>
+              <SelectItem value="part-time">Part-time</SelectItem>
+              <SelectItem value="contract">Contract</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      {/* Location & Currency */}
+
+      {/* Location, Currency & Work Visa */}
       <div className="mb-6">
-        <div className={`grid gap-4 ${showStateDropdown ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
+        <div className={FORM_STYLES.GRID_3_COL}>
           <div className="space-y-2">
-            <Label htmlFor="country" className="text-base font-semibold text-slate-700 uppercase tracking-wide">
+            <Label htmlFor="country" className={FORM_STYLES.LABEL_BASE}>
               Country
             </Label>
             <Select
               value={formData.country}
               onValueChange={(value) => onFormUpdate({ country: value })}
             >
-              <SelectTrigger className="h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+              <SelectTrigger className="!h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
                 <SelectValue placeholder="Select country" />
               </SelectTrigger>
               <SelectContent>
@@ -179,205 +177,160 @@ export const EmployeeInfoForm = ({
             </Select>
           </div>
 
-          {showStateDropdown && (
-            <div className="space-y-2">
-              <Label htmlFor="state" className="text-base font-semibold text-slate-700 uppercase tracking-wide">
-                {getStateTypeLabel(selectedCountryCode || "")}
-              </Label>
-              <Select
-                value={formData.state}
-                onValueChange={(value) => onFormUpdate({ state: value })}
-              >
-                <SelectTrigger className="h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
-                  <SelectValue
-                    placeholder={`Select ${getStateTypeLabel(selectedCountryCode || "").toLowerCase()}`}
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableStates.map((state) => (
-                    <SelectItem key={state.code} value={state.code}>
-                      {state.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
           <div className="space-y-2">
             <Label
               htmlFor="currency"
-              className="text-base font-semibold text-slate-700 uppercase tracking-wide"
+              className={FORM_STYLES.LABEL_BASE}
             >
               Currency
             </Label>
-            <div className="h-12 border-2 border-slate-200 px-3 py-2 bg-slate-50 flex items-center">
-              <span className="text-slate-700 font-medium">{formData.currency}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Validation Loading/Error States */}
-      {isLoadingValidations && (
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-slate-400 mr-2" />
-          <span className="text-slate-600">Loading country validation data...</span>
-        </div>
-      )}
-
-      {validationError && (
-        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-md mb-4">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5 flex-shrink-0" />
-            <div>
-              <h5 className="text-yellow-800 font-medium">Validation data unavailable</h5>
-              <p className="text-yellow-700 text-sm mt-1">{validationError}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Salary Limits (Read-only) */}
-      {validationData && !isLoadingValidations && (
-        <div className="mb-6">
-          <h5 className="text-sm font-medium text-slate-600 uppercase tracking-wide mb-3">
-            Salary Limits ({validationData.data.currency})
-          </h5>
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-600">Minimum</Label>
-              <Input
-                value={validationData.data.salary.min ? 
-                  `${validationData.data.currency} ${Number(validationData.data.salary.min).toLocaleString()}` : 
-                  "Not specified"}
-                disabled
-                className="h-10 bg-slate-50 border-slate-200 text-slate-700"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-600">Maximum</Label>
-              <Input
-                value={validationData.data.salary.max ? 
-                  `${validationData.data.currency} ${Number(validationData.data.salary.max).toLocaleString()}` : 
-                  "Not specified"}
-                disabled
-                className="h-10 bg-slate-50 border-slate-200 text-slate-700"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-600">Frequency</Label>
-              <Input
-                value={validationData.data.salary.frequency || "Not specified"}
-                disabled
-                className="h-10 bg-slate-50 border-slate-200 text-slate-700"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Annual Base Salary + Employment Type */}
-      <div className="mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-          <div className="space-y-2">
-            <Label
-              htmlFor="baseSalary"
-              className="text-base font-semibold text-slate-700 uppercase tracking-wide block"
-            >
-              Annual Base Salary ({formData.currency})
-            </Label>
             <Input
-              ref={baseSalaryInputRef}
-              id="baseSalary"
-              type="text"
-              placeholder={`Enter annual salary amount in ${formData.currency}`}
-              value={formData.baseSalary}
-              onChange={(e) => handleValidatedInput('salary', e.target.value, 'baseSalary', 'salary')}
-              onBlur={() => handleBlurValidation('salary', formData.baseSalary, 'salary')}
-              className={`h-12 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
-                validationErrors.salary ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
-              }`}
+              id="currency"
+              value={formData.currency}
+              readOnly
+              className="h-12 border-2 border-slate-200 bg-slate-50 text-slate-700"
             />
-            {validationErrors.salary && (
-              <p className="text-red-500 text-sm mt-1">{validationErrors.salary}</p>
-            )}
           </div>
+
           <div className="space-y-2">
             <Label
-              htmlFor="employmentType"
-              className="text-base font-semibold text-slate-700 uppercase tracking-wide block"
+              htmlFor="workVisaRequired"
+              className={FORM_STYLES.LABEL_BASE}
             >
-              Employment Type
+              Work Visa Required
             </Label>
             <Select
-              value={formData.employmentType}
-              onValueChange={(value) => onFormUpdate({ employmentType: value })}
+              value={formData.workVisaRequired ? "true" : "false"}
+              onValueChange={(value) => onFormUpdate({ workVisaRequired: value === "true" })}
             >
-              <SelectTrigger className="h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+              <SelectTrigger className="!h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="full-time">Full-time</SelectItem>
-                <SelectItem value="part-time">Part-time</SelectItem>
-                <SelectItem value="contract">Contract</SelectItem>
+                <SelectItem value="true">Yes</SelectItem>
+                <SelectItem value="false">No</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
       </div>
 
+      {/* Validation Loading/Error States */}
+      {isLoadingValidations && (
+        <LoadingSpinner message="Loading country validation data..." />
+      )}
+
+      {validationError && (
+        <ErrorDisplay 
+          title="Validation data unavailable" 
+          message={validationError} 
+        />
+      )}
+
+      {/* Salary Information */}
+      {validationData && !isLoadingValidations && (
+        <div className="mb-6">
+          {/* <h5 className={`${FORM_STYLES.LABEL_BASE} mb-3`}>
+            Salary Information ({validationData.data.currency})
+          </h5> */}
+          <div className={FORM_STYLES.GRID_3_COL}>
+            <div className="space-y-2">
+              <Label className={FORM_STYLES.LABEL_BASE}>Minimum Salary</Label>
+              <Input
+                value={validationData.data.salary.min ? 
+                  `${validationData.data.currency} ${Number(validationData.data.salary.min).toLocaleString()}` : 
+                  "Not specified"}
+                disabled
+                className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label
+                htmlFor="baseSalary"
+                className={FORM_STYLES.LABEL_BASE}
+              >
+                Annual Base Salary
+              </Label>
+              <Input
+                ref={baseSalaryInputRef}
+                id="baseSalary"
+                type="text"
+                placeholder={`Enter amount in ${formData.currency}`}
+                value={formData.baseSalary}
+                onChange={(e) => handleValidatedInput('salary', e.target.value, 'baseSalary', 'salary')}
+                onBlur={() => handleBlurValidation('salary', formData.baseSalary, 'salary')}
+                className={`h-12 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
+                  validationErrors.salary ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
+                }`}
+              />
+              {validationErrors.salary && (
+                <p className="text-red-500 text-sm mt-1">{validationErrors.salary}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label className={FORM_STYLES.LABEL_BASE}>Maximum Salary</Label>
+              <Input
+                value={validationData.data.salary.max ? 
+                  `${validationData.data.currency} ${Number(validationData.data.salary.max).toLocaleString()}` : 
+                  "Not specified"}
+                disabled
+                className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Holiday Information */}
       {validationData && !isLoadingValidations && (
         <div className="mb-6">
-          <h5 className="text-sm font-medium text-slate-600 uppercase tracking-wide mb-3">Holiday Days</h5>
-          <div className="grid md:grid-cols-4 gap-4">
+          {/* <h5 className={`${FORM_STYLES.LABEL_BASE} mb-3`}>Holiday Days</h5> */}
+          <div className={FORM_STYLES.GRID_3_COL}>
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-600">Minimum</Label>
+              <Label className={FORM_STYLES.LABEL_BASE}>Minimum Holidays</Label>
               <Input
                 value={validationData.data.holiday.min || "Not specified"}
                 disabled
-                className="h-10 bg-slate-50 border-slate-200 text-slate-700"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-600">Maximum</Label>
-              <Input
-                value={validationData.data.holiday.max || "Not specified"}
-                disabled
-                className="h-10 bg-slate-50 border-slate-200 text-slate-700"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-600">Most Common</Label>
-              <Input
-                value={validationData.data.holiday.mostCommon || "Not specified"}
-                disabled
-                className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                className="h-12 bg-slate-50 border-slate-200 text-slate-700"
               />
             </div>
             <div className="space-y-2">
               <Label
                 htmlFor="holidayDays"
-                className="text-base font-semibold text-slate-700 uppercase tracking-wide"
+                className={FORM_STYLES.LABEL_BASE}
               >
                 Holiday Days
               </Label>
               <Input
                 id="holidayDays"
                 type="text"
-                placeholder={validationData.data.holiday.mostCommon || "Enter number of holidays"}
+                placeholder="Enter number of holidays"
                 value={formData.holidayDays}
                 onChange={(e) => handleValidatedInput('holidays', e.target.value, 'holidayDays', 'holiday')}
                 onBlur={() => handleBlurValidation('holidays', formData.holidayDays, 'holiday')}
-                className={`h-10 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
+                className={`h-12 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
                   validationErrors.holidays ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
                 }`}
               />
               {validationErrors.holidays && (
                 <p className="text-red-500 text-sm mt-1">{validationErrors.holidays}</p>
-              )}
-            </div>
+              )}</div>
+            <div className="space-y-2">
+              <Label className={FORM_STYLES.LABEL_BASE}>Maximum Holidays</Label>
+              <Input
+                value={validationData.data.holiday.max || "Not specified"}
+                disabled
+                className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+              />
+            </div>{/* <div className="space-y-2">
+              <Label className={FORM_STYLES.LABEL_BASE}>Most Common</Label>
+              <Input
+                value={validationData.data.holiday.mostCommon || "Not specified"}
+                disabled
+                className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+              />
+            </div> */}
+            
           </div>
         </div>
       )}
@@ -385,28 +338,20 @@ export const EmployeeInfoForm = ({
       {/* Probation Period */}
       {validationData && !isLoadingValidations && (validationData.data.probation.min || validationData.data.probation.max) && (
         <div className="mb-6">
-          <h5 className="text-sm font-medium text-slate-600 uppercase tracking-wide mb-3">Probation Period</h5>
-          <div className="grid md:grid-cols-3 gap-4">
+          {/* <h5 className={`${FORM_STYLES.LABEL_BASE} mb-3`}>Probation Period</h5> */}
+          <div className={FORM_STYLES.GRID_3_COL}>
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-600">Minimum</Label>
+              <Label className={FORM_STYLES.LABEL_BASE}>Minimum Probation</Label>
               <Input
                 value={validationData.data.probation.min || "Not specified"}
                 disabled
-                className="h-10 bg-slate-50 border-slate-200 text-slate-700"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-600">Maximum</Label>
-              <Input
-                value={validationData.data.probation.max || "Not specified"}
-                disabled
-                className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                className="h-12 bg-slate-50 border-slate-200 text-slate-700"
               />
             </div>
             <div className="space-y-2">
               <Label
                 htmlFor="probationPeriod"
-                className="text-base font-semibold text-slate-700 uppercase tracking-wide"
+                className={FORM_STYLES.LABEL_BASE}
               >
                 Probation Period
               </Label>
@@ -417,7 +362,7 @@ export const EmployeeInfoForm = ({
                 value={formData.probationPeriod}
                 onChange={(e) => handleValidatedInput('probation', e.target.value, 'probationPeriod', 'probation')}
                 onBlur={() => handleBlurValidation('probation', formData.probationPeriod, 'probation')}
-                className={`h-10 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
+                className={`h-12 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
                   validationErrors.probation ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
                 }`}
               />
@@ -425,35 +370,35 @@ export const EmployeeInfoForm = ({
                 <p className="text-red-500 text-sm mt-1">{validationErrors.probation}</p>
               )}
             </div>
+            <div className="space-y-2">
+              <Label className={FORM_STYLES.LABEL_BASE}>Maximum Probation</Label>
+              <Input
+                value={validationData.data.probation.max || "Not specified"}
+                disabled
+                className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+              />
+            </div>
           </div>
         </div>
       )}
 
       {/* Work Schedule */}
       {validationData && !isLoadingValidations && (
-        <div>
-          <h5 className="text-sm font-medium text-slate-600 uppercase tracking-wide mb-3">Work Schedule</h5>
-          <div className="grid md:grid-cols-6 gap-4">
+        <div className="mb-6">
+          {/* <h5 className={`${FORM_STYLES.LABEL_BASE} mb-3`}>Work Schedule</h5> */}
+          <div className={`${FORM_STYLES.GRID_3_COL} mb-4`}>
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-600">Min Hours/Day</Label>
+              <Label className={FORM_STYLES.LABEL_BASE}>Min Hours/Day</Label>
               <Input
                 value={validationData.data.work_schedule.hours.min || "Not specified"}
                 disabled
-                className="h-10 bg-slate-50 border-slate-200 text-slate-700"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-600">Max Hours/Day</Label>
-              <Input
-                value={validationData.data.work_schedule.hours.max || "Not specified"}
-                disabled
-                className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                className="h-12 bg-slate-50 border-slate-200 text-slate-700"
               />
             </div>
             <div className="space-y-2">
               <Label
                 htmlFor="hoursPerDay"
-                className="text-base font-semibold text-slate-700 uppercase tracking-wide"
+                className={FORM_STYLES.LABEL_BASE}
               >
                 Hours per Day
               </Label>
@@ -464,34 +409,35 @@ export const EmployeeInfoForm = ({
                 value={formData.hoursPerDay}
                 onChange={(e) => handleValidatedInput('hours', e.target.value, 'hoursPerDay', 'hours')}
                 onBlur={() => handleBlurValidation('hours', formData.hoursPerDay, 'hours')}
-                className={`h-10 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
+                className={`h-12 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
                   validationErrors.hours ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
                 }`}
               />
               {validationErrors.hours && (
                 <p className="text-red-500 text-sm mt-1">{validationErrors.hours}</p>
-              )}
-            </div>
+              )}</div>
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-600">Min Days/Week</Label>
+              <Label className={FORM_STYLES.LABEL_BASE}>Max Hours/Day</Label>
+              <Input
+                value={validationData.data.work_schedule.hours.max || "Not specified"}
+                disabled
+                className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+              />
+            </div>
+          </div>
+          <div className={FORM_STYLES.GRID_3_COL}>
+            <div className="space-y-2">
+              <Label className={FORM_STYLES.LABEL_BASE}>Min Days/Week</Label>
               <Input
                 value={validationData.data.work_schedule.days.min || "Not specified"}
                 disabled
-                className="h-10 bg-slate-50 border-slate-200 text-slate-700"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-600">Max Days/Week</Label>
-              <Input
-                value={validationData.data.work_schedule.days.max || "Not specified"}
-                disabled
-                className="h-10 bg-slate-50 border-slate-200 text-slate-700"
+                className="h-12 bg-slate-50 border-slate-200 text-slate-700"
               />
             </div>
             <div className="space-y-2">
               <Label
                 htmlFor="daysPerWeek"
-                className="text-base font-semibold text-slate-700 uppercase tracking-wide"
+                className={FORM_STYLES.LABEL_BASE}
               >
                 Days per Week
               </Label>
@@ -502,13 +448,20 @@ export const EmployeeInfoForm = ({
                 value={formData.daysPerWeek}
                 onChange={(e) => handleValidatedInput('days', e.target.value, 'daysPerWeek', 'days')}
                 onBlur={() => handleBlurValidation('days', formData.daysPerWeek, 'days')}
-                className={`h-10 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
+                className={`h-12 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
                   validationErrors.days ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
                 }`}
               />
               {validationErrors.days && (
                 <p className="text-red-500 text-sm mt-1">{validationErrors.days}</p>
-              )}
+              )}</div>
+            <div className="space-y-2">
+              <Label className={FORM_STYLES.LABEL_BASE}>Max Days/Week</Label>
+              <Input
+                value={validationData.data.work_schedule.days.max || "Not specified"}
+                disabled
+                className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+              />
             </div>
           </div>
         </div>

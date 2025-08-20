@@ -2,11 +2,10 @@ import { convertCurrency } from "@/lib/currency-converter"
 import { DeelAPIResponse, USDConversions } from "../types"
 
 export const convertQuoteToUsd = async (
-  quote: DeelAPIResponse,
-  quoteType: "deel" | "compare"
+  quote: DeelAPIResponse
 ): Promise<{
   success: boolean
-  data?: USDConversions[typeof quoteType]
+  data?: USDConversions["deel"]
   error?: string
 }> => {
   if (!quote) {

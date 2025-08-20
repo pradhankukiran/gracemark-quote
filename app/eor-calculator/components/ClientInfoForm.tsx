@@ -1,7 +1,8 @@
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { MapPin } from "lucide-react"
 import { EORFormData } from "../types"
+import { FormSectionHeader } from "./shared/FormSectionHeader"
+import { FormField } from "./shared/FormField"
+import { FORM_STYLES } from "../styles/constants"
 
 interface ClientInfoFormProps {
   formData: EORFormData
@@ -10,49 +11,29 @@ interface ClientInfoFormProps {
 }
 
 export const ClientInfoForm = ({ formData, countries, onFormUpdate }: ClientInfoFormProps) => {
+  const countryOptions = countries.map(country => ({ value: country, label: country }))
+
   return (
     <div>
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 bg-primary/10">
-          <MapPin className="h-5 w-5 text-primary" />
-        </div>
-        <h3 className="text-xl font-semibold text-slate-900">Client Information</h3>
-      </div>
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label
-            htmlFor="clientCountry"
-            className="text-base font-semibold text-slate-700 uppercase tracking-wide"
-          >
-            Client Country
-          </Label>
-          <Select
-            value={formData.clientCountry}
-            onValueChange={(value) => onFormUpdate({ clientCountry: value })}
-          >
-            <SelectTrigger className="h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
-              <SelectValue placeholder="Select client country" />
-            </SelectTrigger>
-            <SelectContent>
-              {countries.map((country) => (
-                <SelectItem key={country} value={country}>
-                  {country}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label
-            htmlFor="clientCurrency"
-            className="text-base font-semibold text-slate-700 uppercase tracking-wide"
-          >
-            Client Currency
-          </Label>
-          <div className="h-12 border-2 border-slate-200 px-3 py-2 bg-slate-50 flex items-center">
-            <span className="text-slate-700 font-medium">{formData.clientCurrency}</span>
-          </div>
-        </div>
+      <FormSectionHeader icon={MapPin} title="Client Information" />
+      <div className={FORM_STYLES.GRID_2_COL}>
+        <FormField
+          type="select"
+          label="Client Country"
+          htmlFor="clientCountry"
+          value={formData.clientCountry}
+          onChange={(value) => onFormUpdate({ clientCountry: value })}
+          placeholder="Select client country"
+          options={countryOptions}
+        />
+        <FormField
+          type="input"
+          label="Client Currency"
+          htmlFor="clientCurrency"
+          value={formData.clientCurrency}
+          onChange={() => {}}
+          readOnly
+        />
       </div>
     </div>
   )

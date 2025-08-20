@@ -34,11 +34,6 @@ export default function EORCalculatorPage() {
     validationErrors,
     countries,
     selectedCountryData,
-    availableStates,
-    showStateDropdown,
-    compareCountryData,
-    compareAvailableStates,
-    showCompareStateDropdown,
     updateFormData,
     updateValidationError,
     clearAllData,
@@ -57,7 +52,6 @@ export default function EORCalculatorPage() {
   const {
     isConverting,
     conversionInfo,
-    isComparisonManuallyEdited,
     triggerManualConversion,
     markAsManuallyEdited,
     clearConversionData,
@@ -133,7 +127,7 @@ export default function EORCalculatorPage() {
         }
       });
     }
-  }, [benefitsData]);
+  }, [benefitsData, formData.selectedBenefits]);
 
   const isPageValid = () => {
     if (!isFormValid()) {
@@ -221,9 +215,6 @@ export default function EORCalculatorPage() {
                 <EmployeeInfoForm
                   formData={formData}
                   countries={countries}
-                  availableStates={availableStates}
-                  showStateDropdown={showStateDropdown}
-                  selectedCountryCode={selectedCountryData?.code}
                   validationData={validationData}
                   validationError={validationError}
                   isLoadingValidations={isLoadingValidations}
@@ -271,12 +262,8 @@ export default function EORCalculatorPage() {
                 <CountryComparisonForm
                   formData={formData}
                   countries={countries}
-                  compareAvailableStates={compareAvailableStates}
-                  showCompareStateDropdown={showCompareStateDropdown}
-                  compareCountryCode={compareCountryData?.code}
                   isConverting={isConverting}
                   conversionInfo={conversionInfo}
-                  isComparisonManuallyEdited={isComparisonManuallyEdited}
                   onFormUpdate={updateFormData}
                   onTriggerConversion={triggerManualConversion}
                   onMarkAsManuallyEdited={markAsManuallyEdited}
@@ -301,8 +288,8 @@ export default function EORCalculatorPage() {
             {formData.currentStep === "primary-quote" && deelQuote && (!formData.enableComparison || (formData.enableComparison && !compareQuote)) && (
               <QuoteCard
                 quote={deelQuote}
-                title={`Deel Quote - ${deelQuote.country}`}
-                subtitle="Reliable EOR provider with comprehensive legal coverage"
+                title={`Quote - ${deelQuote.country}`}
+                subtitle="Powered by Deel"
                 usdConversions={usdConversions.deel}
                 onConvertToUSD={() => convertQuoteToUSD(deelQuote, "deel")}
                 isConvertingToUSD={isConvertingDeelToUsd}

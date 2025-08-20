@@ -2,6 +2,8 @@ import { Building2 } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { EORFormData, LocalOfficeInfo } from "../types"
+import { FormSectionHeader } from "./shared/FormSectionHeader"
+import { FORM_STYLES } from "../styles/constants"
 
 interface LocalOfficeInformationProps {
   formData: EORFormData
@@ -16,14 +18,8 @@ export const LocalOfficeInformation = ({
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 bg-primary/10">
-          <Building2 className="h-5 w-5 text-primary" />
-        </div>
-        <h3 className="text-xl font-semibold text-slate-900">Local Office Information</h3>
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-4 mb-6">
+      <FormSectionHeader icon={Building2} title="Local Office Information" />
+      <div className={FORM_STYLES.GRID_3_COL}>
         {/* Row 1 */}
         <div className="space-y-2">
           <Label

@@ -69,7 +69,7 @@ export const useBenefits = ({
         employmentType,
       })
       setBenefitsFetched(true)
-    } catch (error) {
+    } catch {
       setBenefitsFetched(false)
     }
   }, [countryCode, workVisa, hoursPerDay, daysPerWeek, employmentType])

@@ -151,7 +151,7 @@ export default function ICCalculatorPage() {
         }))
       }
     }
-  }, [formData.country, selectedCountryData])
+  }, [formData.country, formData.currency, selectedCountryData])
 
   const serviceTypes = [
     "Software Development",

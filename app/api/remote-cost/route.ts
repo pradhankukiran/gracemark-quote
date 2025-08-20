@@ -5,7 +5,7 @@ import { getCountryByName, getCurrencyForCountry } from "@/lib/country-data"
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { salary, salaryFrequency, country, currency, clientCountry, age = 30, state } = body
+    const { salary, salaryFrequency, country, currency, clientCountry, state } = body
 
     // Convert salary to annual if monthly
     const annualSalary = salaryFrequency === "monthly" ? salary * 12 : salary
