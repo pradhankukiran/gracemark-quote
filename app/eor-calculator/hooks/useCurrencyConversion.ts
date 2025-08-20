@@ -77,8 +77,7 @@ export const useCurrencyConversion = ({ formData, onFormUpdate }: UseCurrencyCon
     formData.compareCurrency, 
     formData.currency, 
     formData.enableComparison, 
-    isComparisonManuallyEdited,
-    debouncedCurrencyConversion
+    isComparisonManuallyEdited
   ])
 
   // Clear conversion info and reset manual edit flag when comparison country changes
@@ -86,17 +85,8 @@ export const useCurrencyConversion = ({ formData, onFormUpdate }: UseCurrencyCon
     if (formData.compareCountry) {
       setConversionInfo(null)
       setIsComparisonManuallyEdited(false)
-
-      // Auto-convert salary if base salary exists and currencies are different
-      if (formData.baseSalary && formData.currency && formData.currency !== formData.compareCurrency) {
-        handleCurrencyConversion(
-          Number.parseFloat(formData.baseSalary), 
-          formData.currency, 
-          formData.compareCurrency
-        )
-      }
     }
-  }, [formData.baseSalary, formData.compareCountry, formData.compareCurrency, formData.currency, handleCurrencyConversion])
+  }, [formData.compareCountry])
 
   // Cleanup timeout on unmount
   useEffect(() => {
