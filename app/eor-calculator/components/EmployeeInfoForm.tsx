@@ -8,6 +8,7 @@ import { isValidNumericFormat } from "../utils/validationUtils"
 import { FormSectionHeader } from "./shared/FormSectionHeader"
 import { LoadingSpinner } from "./shared/LoadingSpinner"
 import { ErrorDisplay } from "./shared/ErrorDisplay"
+import { BounceReveal } from "./shared/AnimatedReveal"
 import { FORM_STYLES } from "../styles/constants"
 import { allCurrencies } from "@/lib/country-data"
 
@@ -221,7 +222,6 @@ export const EmployeeInfoForm = ({
             <SelectContent>
               <SelectItem value="full-time">Full-time</SelectItem>
               <SelectItem value="part-time">Part-time</SelectItem>
-              <SelectItem value="contract">Contract</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -352,7 +352,7 @@ export const EmployeeInfoForm = ({
       )}
 
       {/* Salary Information */}
-      {validationData && !isLoadingValidations && (
+      <BounceReveal isVisible={validationData && !isLoadingValidations}>
         <div className="mb-6">
           {/* <h5 className={`${FORM_STYLES.LABEL_BASE} mb-3`}>
             Salary Information ({validationData.data.currency})
@@ -370,7 +370,7 @@ export const EmployeeInfoForm = ({
                   isConvertingValidation ? "Converting..." :
                   convertedValidation.minSalary ? 
                     `${convertedValidation.currency} ${convertedValidation.minSalary}` :
-                    validationData.data.salary.min ? 
+                    validationData?.data.salary.min ? 
                       `${validationData.data.currency} ${Number(validationData.data.salary.min).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 
                       "Not specified"
                 }
@@ -425,7 +425,7 @@ export const EmployeeInfoForm = ({
                   isConvertingValidation ? "Converting..." :
                   convertedValidation.maxSalary ? 
                     `${convertedValidation.currency} ${convertedValidation.maxSalary}` :
-                    validationData.data.salary.max ? 
+                    validationData?.data.salary.max ? 
                       `${validationData.data.currency} ${Number(validationData.data.salary.max).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 
                       "Not specified"
                 }
@@ -435,17 +435,17 @@ export const EmployeeInfoForm = ({
             </div>
           </div>
         </div>
-      )}
+      </BounceReveal>
 
       {/* Holiday Information */}
-      {validationData && !isLoadingValidations && (
+      <BounceReveal isVisible={validationData && !isLoadingValidations}>
         <div className="mb-6">
           {/* <h5 className={`${FORM_STYLES.LABEL_BASE} mb-3`}>Holiday Days</h5> */}
           <div className={FORM_STYLES.GRID_3_COL}>
             <div className="space-y-2">
               <Label className={FORM_STYLES.LABEL_BASE}>Minimum Holidays</Label>
               <Input
-                value={validationData.data.holiday.min || "Not specified"}
+                value={validationData?.data.holiday.min || "Not specified"}
                 disabled
                 className="h-12 bg-slate-50 border-slate-200 text-slate-700"
               />
@@ -474,7 +474,7 @@ export const EmployeeInfoForm = ({
             <div className="space-y-2">
               <Label className={FORM_STYLES.LABEL_BASE}>Maximum Holidays</Label>
               <Input
-                value={validationData.data.holiday.max || "Not specified"}
+                value={validationData?.data.holiday.max || "Not specified"}
                 disabled
                 className="h-12 bg-slate-50 border-slate-200 text-slate-700"
               />
@@ -489,17 +489,17 @@ export const EmployeeInfoForm = ({
             
           </div>
         </div>
-      )}
+      </BounceReveal>
 
       {/* Probation Period */}
-      {validationData && !isLoadingValidations && (validationData.data.probation.min || validationData.data.probation.max) && (
+      <BounceReveal isVisible={validationData && !isLoadingValidations && (validationData?.data.probation.min || validationData?.data.probation.max)}>
         <div className="mb-6">
           {/* <h5 className={`${FORM_STYLES.LABEL_BASE} mb-3`}>Probation Period</h5> */}
           <div className={FORM_STYLES.GRID_3_COL}>
             <div className="space-y-2">
               <Label className={FORM_STYLES.LABEL_BASE}>Minimum Probation</Label>
               <Input
-                value={validationData.data.probation.min || "Not specified"}
+                value={validationData?.data.probation.min || "Not specified"}
                 disabled
                 className="h-12 bg-slate-50 border-slate-200 text-slate-700"
               />
@@ -529,24 +529,24 @@ export const EmployeeInfoForm = ({
             <div className="space-y-2">
               <Label className={FORM_STYLES.LABEL_BASE}>Maximum Probation</Label>
               <Input
-                value={validationData.data.probation.max || "Not specified"}
+                value={validationData?.data.probation.max || "Not specified"}
                 disabled
                 className="h-12 bg-slate-50 border-slate-200 text-slate-700"
               />
             </div>
           </div>
         </div>
-      )}
+      </BounceReveal>
 
       {/* Work Schedule */}
-      {validationData && !isLoadingValidations && (
+      <BounceReveal isVisible={validationData && !isLoadingValidations}>
         <div className="mb-6">
           {/* <h5 className={`${FORM_STYLES.LABEL_BASE} mb-3`}>Work Schedule</h5> */}
           <div className={`${FORM_STYLES.GRID_3_COL} mb-4`}>
             <div className="space-y-2">
               <Label className={FORM_STYLES.LABEL_BASE}>Min Hours/Day</Label>
               <Input
-                value={validationData.data.work_schedule.hours.min || "Not specified"}
+                value={validationData?.data.work_schedule.hours.min || "Not specified"}
                 disabled
                 className="h-12 bg-slate-50 border-slate-200 text-slate-700"
               />
@@ -575,7 +575,7 @@ export const EmployeeInfoForm = ({
             <div className="space-y-2">
               <Label className={FORM_STYLES.LABEL_BASE}>Max Hours/Day</Label>
               <Input
-                value={validationData.data.work_schedule.hours.max || "Not specified"}
+                value={validationData?.data.work_schedule.hours.max || "Not specified"}
                 disabled
                 className="h-12 bg-slate-50 border-slate-200 text-slate-700"
               />
@@ -585,7 +585,7 @@ export const EmployeeInfoForm = ({
             <div className="space-y-2">
               <Label className={FORM_STYLES.LABEL_BASE}>Min Days/Week</Label>
               <Input
-                value={validationData.data.work_schedule.days.min || "Not specified"}
+                value={validationData?.data.work_schedule.days.min || "Not specified"}
                 disabled
                 className="h-12 bg-slate-50 border-slate-200 text-slate-700"
               />
@@ -614,14 +614,14 @@ export const EmployeeInfoForm = ({
             <div className="space-y-2">
               <Label className={FORM_STYLES.LABEL_BASE}>Max Days/Week</Label>
               <Input
-                value={validationData.data.work_schedule.days.max || "Not specified"}
+                value={validationData?.data.work_schedule.days.max || "Not specified"}
                 disabled
                 className="h-12 bg-slate-50 border-slate-200 text-slate-700"
               />
             </div>
           </div>
         </div>
-      )}
+      </BounceReveal>
     </div>
   )
 }

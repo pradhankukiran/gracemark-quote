@@ -18,36 +18,9 @@ export const ClientInfoForm = ({ formData, countries, onFormUpdate }: ClientInfo
       <FormSectionHeader icon={MapPin} title="Client Information" />
       <div className={FORM_STYLES.GRID_3_COL}>
         <div className="space-y-2">
-          <div className="flex items-center gap-6">
-            <label htmlFor="clientName" className="text-base font-semibold text-slate-700 uppercase tracking-wide">
-              Client Name
-            </label>
-            <div className="flex gap-3">
-              {[
-                { value: 'new', label: 'New' },
-                { value: 'existing', label: 'Existing' }
-              ].map((option) => (
-                <label 
-                  key={option.value}
-                  className="flex items-center gap-1 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={formData.clientType === option.value}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        onFormUpdate({ clientType: option.value as 'new' | 'existing' })
-                      } else {
-                        onFormUpdate({ clientType: null })
-                      }
-                    }}
-                    className="w-3 h-3 text-primary border border-slate-300 rounded focus:ring-2 focus:ring-primary/20"
-                  />
-                  <span className="text-base font-semibold text-slate-700 uppercase tracking-wide">{option.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
+          <label htmlFor="clientName" className="text-base font-semibold text-slate-700 uppercase tracking-wide">
+            Client Name
+          </label>
           <input
             id="clientName"
             type="text"
@@ -56,6 +29,31 @@ export const ClientInfoForm = ({ formData, countries, onFormUpdate }: ClientInfo
             placeholder="Enter client name"
             className="h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 w-full px-3 rounded-md"
           />
+          <div className="flex gap-3 justify-end">
+            {[
+              { value: 'new', label: 'New' },
+              { value: 'existing', label: 'Existing' }
+            ].map((option) => (
+              <label 
+                key={option.value}
+                className="flex items-center gap-1 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  checked={formData.clientType === option.value}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      onFormUpdate({ clientType: option.value as 'new' | 'existing' })
+                    } else {
+                      onFormUpdate({ clientType: null })
+                    }
+                  }}
+                  className="w-3 h-3 text-primary border border-slate-300 rounded focus:ring-2 focus:ring-primary/20"
+                />
+                <span className="text-base font-semibold text-slate-700 uppercase tracking-wide">{option.label}</span>
+              </label>
+            ))}
+          </div>
         </div>
         <FormField
           type="select"

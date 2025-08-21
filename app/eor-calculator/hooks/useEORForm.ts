@@ -90,10 +90,11 @@ export const useEORForm = () => {
   const compareAvailableStates = compareCountryData ? getStatesForCountry(compareCountryData.code) : []
   const showCompareStateDropdown = compareCountryData && hasStates(compareCountryData.code)
 
-  // Auto-update currency when country changes (only if not manually set)
+  // Auto-update currency and local office data when country changes
   useEffect(() => {
     if (formData.country && selectedCountryData && !formData.isCurrencyManuallySet) {
       const newCurrency = getCurrencyForCountry(selectedCountryData.code)
+      
       if (formData.currency !== newCurrency) {
         setFormData((prev) => ({
           ...prev,
@@ -101,15 +102,20 @@ export const useEORForm = () => {
           originalCurrency: newCurrency,
           state: "",
           isCurrencyManuallySet: false,
+          // Reset local office info to trigger fresh conversion
+          localOfficeInfo: initialLocalOfficeInfo,
         }))
       }
     } else if (formData.country && selectedCountryData) {
       // Store original currency even when manually set, for reset functionality
       const originalCurrency = getCurrencyForCountry(selectedCountryData.code)
+      
       if (formData.originalCurrency !== originalCurrency) {
         setFormData((prev) => ({
           ...prev,
           originalCurrency: originalCurrency,
+          // Reset local office info to trigger fresh conversion
+          localOfficeInfo: initialLocalOfficeInfo,
         }))
       }
     }
@@ -197,6 +203,7 @@ export const useEORForm = () => {
       localOfficeInfo: initialLocalOfficeInfo,
     }))
   }
+  
 
   const overrideCurrency = async (newCurrency: string, onConversionInfo?: (info: string) => void) => {
     const currentCurrency = formData.currency

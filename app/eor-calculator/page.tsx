@@ -326,6 +326,7 @@ export default function EORCalculatorPage() {
                     <LocalOfficeInformation
                       formData={formData}
                       onLocalOfficeUpdate={updateLocalOfficeInfo}
+                      countryCode={selectedCountryData?.code}
                     />
                   </>
                 )}

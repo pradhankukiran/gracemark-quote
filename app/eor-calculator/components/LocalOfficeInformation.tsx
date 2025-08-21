@@ -4,21 +4,81 @@ import { Input } from "@/components/ui/input"
 import { EORFormData, LocalOfficeInfo } from "../types"
 import { FormSectionHeader } from "./shared/FormSectionHeader"
 import { FORM_STYLES } from "../styles/constants"
+import { getOriginalLocalOfficeData } from "../utils/localOfficeData"
+import { useLocalOfficeConversion, getConvertedLocalOfficeValue } from "../hooks/useLocalOfficeConversion"
+import { LoadingSpinner } from "./shared/LoadingSpinner"
 
 interface LocalOfficeInformationProps {
   formData: EORFormData
   onLocalOfficeUpdate: (updates: Partial<LocalOfficeInfo>) => void
+  countryCode?: string
 }
 
 export const LocalOfficeInformation = ({
   formData,
   onLocalOfficeUpdate,
+  countryCode,
 }: LocalOfficeInformationProps) => {
   const { localOfficeInfo, currency } = formData
+  
+  // Get original USD data for conversion
+  const originalData = countryCode ? getOriginalLocalOfficeData(countryCode) : null
+  
+  // Use conversion hook with same pattern as useValidationConversion
+  const {
+    convertedLocalOffice,
+    isConvertingLocalOffice,
+  } = useLocalOfficeConversion({
+    originalData,
+    countryCode: countryCode || null,
+    formCurrency: formData.currency,
+    isCurrencyManuallySet: formData.isCurrencyManuallySet,
+    originalCurrency: formData.originalCurrency,
+  })
+  
+  const getDisplayCurrency = () => {
+    // All fields display in local currency after conversion
+    return currency
+  }
+  
+  const getDisplayValue = (field: keyof LocalOfficeInfo) => {
+    if (isConvertingLocalOffice) {
+      return localOfficeInfo[field] || '' // Show existing value during conversion
+    }
+    // Use converted value if available, otherwise fall back to original data or form data
+    return getConvertedLocalOfficeValue(field, convertedLocalOffice, originalData) || localOfficeInfo[field] || ''
+  }
+  
+  const getPlaceholder = (field: keyof LocalOfficeInfo) => {
+    const value = getDisplayValue(field)
+    if (isConvertingLocalOffice) return 'Converting...'
+    return value === 'N/A' ? 'N/A' : (value || 'Enter amount')
+  }
+  
+  const isFieldDisabled = (field: keyof LocalOfficeInfo) => {
+    const value = getDisplayValue(field)
+    return value === 'N/A' || isConvertingLocalOffice
+  }
+  
+  const handleFieldUpdate = (field: keyof LocalOfficeInfo, value: string) => {
+    onLocalOfficeUpdate({ [field]: value })
+  }
 
   return (
     <div>
       <FormSectionHeader icon={Building2} title="Local Office Information" />
+      
+      {/* Conversion Status */}
+      {isConvertingLocalOffice && (
+        <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-4">
+          <div className="flex items-center gap-2">
+            <LoadingSpinner className="h-4 w-4" />
+            <span className="text-blue-700 text-sm font-medium">
+              Converting USD values to {currency}...
+            </span>
+          </div>
+        </div>
+      )}
       <div className={FORM_STYLES.GRID_3_COL}>
         {/* Row 1 */}
         <div className="space-y-2">
@@ -26,15 +86,19 @@ export const LocalOfficeInformation = ({
             htmlFor="mealVoucher"
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
-            Meal Voucher ({currency})
+            Meal Voucher ({getDisplayCurrency()})
           </Label>
           <Input
             id="mealVoucher"
-            value={localOfficeInfo.mealVoucher}
-            onChange={(e) => onLocalOfficeUpdate({ mealVoucher: e.target.value })}
-            placeholder="Awaiting configuration"
-            disabled
-            className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+            value={getDisplayValue('mealVoucher')}
+            onChange={(e) => handleFieldUpdate('mealVoucher', e.target.value)}
+            placeholder={getPlaceholder('mealVoucher')}
+            disabled={isFieldDisabled('mealVoucher')}
+            className={`h-12 border-slate-200 text-slate-700 ${
+              isFieldDisabled('mealVoucher') 
+                ? 'bg-slate-50 cursor-not-allowed' 
+                : 'bg-white'
+            }`}
           />
         </div>
 
@@ -43,15 +107,19 @@ export const LocalOfficeInformation = ({
             htmlFor="transportation"
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
-            Transportation ({currency})
+            Transportation ({getDisplayCurrency()})
           </Label>
           <Input
             id="transportation"
-            value={localOfficeInfo.transportation}
-            onChange={(e) => onLocalOfficeUpdate({ transportation: e.target.value })}
-            placeholder="Awaiting configuration"
-            disabled
-            className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+            value={getDisplayValue('transportation')}
+            onChange={(e) => handleFieldUpdate('transportation', e.target.value)}
+            placeholder={getPlaceholder('transportation')}
+            disabled={isFieldDisabled('transportation')}
+            className={`h-12 border-slate-200 text-slate-700 ${
+              isFieldDisabled('transportation') 
+                ? 'bg-slate-50 cursor-not-allowed' 
+                : 'bg-white'
+            }`}
           />
         </div>
 
@@ -60,15 +128,19 @@ export const LocalOfficeInformation = ({
             htmlFor="wfh"
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
-            WFH
+            WFH ({getDisplayCurrency()})
           </Label>
           <Input
             id="wfh"
-            value={localOfficeInfo.wfh}
-            onChange={(e) => onLocalOfficeUpdate({ wfh: e.target.value })}
-            placeholder="Awaiting configuration"
-            disabled
-            className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+            value={getDisplayValue('wfh')}
+            onChange={(e) => handleFieldUpdate('wfh', e.target.value)}
+            placeholder={getPlaceholder('wfh')}
+            disabled={isFieldDisabled('wfh')}
+            className={`h-12 border-slate-200 text-slate-700 ${
+              isFieldDisabled('wfh') 
+                ? 'bg-slate-50 cursor-not-allowed' 
+                : 'bg-white'
+            }`}
           />
         </div>
       </div>
@@ -80,15 +152,19 @@ export const LocalOfficeInformation = ({
             htmlFor="healthInsurance"
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
-            Health Insurance ({currency})
+            Health Insurance ({getDisplayCurrency()})
           </Label>
           <Input
             id="healthInsurance"
-            value={localOfficeInfo.healthInsurance}
-            onChange={(e) => onLocalOfficeUpdate({ healthInsurance: e.target.value })}
-            placeholder="Awaiting configuration"
-            disabled
-            className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+            value={getDisplayValue('healthInsurance')}
+            onChange={(e) => handleFieldUpdate('healthInsurance', e.target.value)}
+            placeholder={getPlaceholder('healthInsurance')}
+            disabled={isFieldDisabled('healthInsurance')}
+            className={`h-12 border-slate-200 text-slate-700 ${
+              isFieldDisabled('healthInsurance') 
+                ? 'bg-slate-50 cursor-not-allowed' 
+                : 'bg-white'
+            }`}
           />
         </div>
 
@@ -97,15 +173,19 @@ export const LocalOfficeInformation = ({
             htmlFor="monthlyPaymentsToLocalOffice"
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
-            Monthly Payments to Local Office ({currency})
+            Monthly Payments to Local Office ({getDisplayCurrency()})
           </Label>
           <Input
             id="monthlyPaymentsToLocalOffice"
-            value={localOfficeInfo.monthlyPaymentsToLocalOffice}
-            onChange={(e) => onLocalOfficeUpdate({ monthlyPaymentsToLocalOffice: e.target.value })}
-            placeholder="Awaiting configuration"
-            disabled
-            className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+            value={getDisplayValue('monthlyPaymentsToLocalOffice')}
+            onChange={(e) => handleFieldUpdate('monthlyPaymentsToLocalOffice', e.target.value)}
+            placeholder={getPlaceholder('monthlyPaymentsToLocalOffice')}
+            disabled={isFieldDisabled('monthlyPaymentsToLocalOffice')}
+            className={`h-12 border-slate-200 text-slate-700 ${
+              isFieldDisabled('monthlyPaymentsToLocalOffice') 
+                ? 'bg-slate-50 cursor-not-allowed' 
+                : 'bg-white'
+            }`}
           />
         </div>
 
@@ -118,11 +198,15 @@ export const LocalOfficeInformation = ({
           </Label>
           <Input
             id="vat"
-            value={localOfficeInfo.vat}
-            onChange={(e) => onLocalOfficeUpdate({ vat: e.target.value })}
-            placeholder="Awaiting configuration"
-            disabled
-            className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+            value={getDisplayValue('vat')}
+            onChange={(e) => handleFieldUpdate('vat', e.target.value)}
+            placeholder={getPlaceholder('vat')}
+            disabled={isFieldDisabled('vat')}
+            className={`h-12 border-slate-200 text-slate-700 ${
+              isFieldDisabled('vat') 
+                ? 'bg-slate-50 cursor-not-allowed' 
+                : 'bg-white'
+            }`}
           />
         </div>
       </div>
@@ -134,15 +218,19 @@ export const LocalOfficeInformation = ({
             htmlFor="preEmploymentMedicalTest"
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
-            Pre-Employment Medical Test ({currency})
+            Pre-Employment Medical Test ({getDisplayCurrency()})
           </Label>
           <Input
             id="preEmploymentMedicalTest"
-            value={localOfficeInfo.preEmploymentMedicalTest}
-            onChange={(e) => onLocalOfficeUpdate({ preEmploymentMedicalTest: e.target.value })}
-            placeholder="Awaiting configuration"
-            disabled
-            className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+            value={getDisplayValue('preEmploymentMedicalTest')}
+            onChange={(e) => handleFieldUpdate('preEmploymentMedicalTest', e.target.value)}
+            placeholder={getPlaceholder('preEmploymentMedicalTest')}
+            disabled={isFieldDisabled('preEmploymentMedicalTest')}
+            className={`h-12 border-slate-200 text-slate-700 ${
+              isFieldDisabled('preEmploymentMedicalTest') 
+                ? 'bg-slate-50 cursor-not-allowed' 
+                : 'bg-white'
+            }`}
           />
         </div>
 
@@ -151,15 +239,19 @@ export const LocalOfficeInformation = ({
             htmlFor="drugTest"
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
-            Drug Test ({currency})
+            Drug Test ({getDisplayCurrency()})
           </Label>
           <Input
             id="drugTest"
-            value={localOfficeInfo.drugTest}
-            onChange={(e) => onLocalOfficeUpdate({ drugTest: e.target.value })}
-            placeholder="Awaiting configuration"
-            disabled
-            className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+            value={getDisplayValue('drugTest')}
+            onChange={(e) => handleFieldUpdate('drugTest', e.target.value)}
+            placeholder={getPlaceholder('drugTest')}
+            disabled={isFieldDisabled('drugTest')}
+            className={`h-12 border-slate-200 text-slate-700 ${
+              isFieldDisabled('drugTest') 
+                ? 'bg-slate-50 cursor-not-allowed' 
+                : 'bg-white'
+            }`}
           />
         </div>
 
@@ -168,15 +260,19 @@ export const LocalOfficeInformation = ({
             htmlFor="backgroundCheckViaDeel"
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
-            Background Check via Deel ({currency})
+            Background Check via Deel ({getDisplayCurrency()})
           </Label>
           <Input
             id="backgroundCheckViaDeel"
-            value={localOfficeInfo.backgroundCheckViaDeel}
-            onChange={(e) => onLocalOfficeUpdate({ backgroundCheckViaDeel: e.target.value })}
-            placeholder="Awaiting configuration"
-            disabled
-            className="h-12 bg-slate-50 border-slate-200 text-slate-700"
+            value={getDisplayValue('backgroundCheckViaDeel')}
+            onChange={(e) => handleFieldUpdate('backgroundCheckViaDeel', e.target.value)}
+            placeholder={getPlaceholder('backgroundCheckViaDeel')}
+            disabled={isFieldDisabled('backgroundCheckViaDeel')}
+            className={`h-12 border-slate-200 text-slate-700 ${
+              isFieldDisabled('backgroundCheckViaDeel') 
+                ? 'bg-slate-50 cursor-not-allowed' 
+                : 'bg-white'
+            }`}
           />
         </div>
       </div>

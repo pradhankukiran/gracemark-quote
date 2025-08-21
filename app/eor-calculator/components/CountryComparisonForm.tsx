@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MapPin, Loader2, RefreshCw } from "lucide-react"
 import { EORFormData } from "../types"
 import { FormSectionHeader } from "./shared/FormSectionHeader"
+import { BounceReveal } from "./shared/AnimatedReveal"
 import { FORM_STYLES } from "../styles/constants"
 
 interface CountryComparisonFormProps {
@@ -63,9 +64,9 @@ export const CountryComparisonForm = ({
           </span>
         </Label>
 
-        {formData.enableComparison && (
-          <div className="p-4 bg-slate-50 border-2 border-slate-200">
-            <div className="grid gap-4 md:grid-cols-3">
+        <BounceReveal isVisible={formData.enableComparison}>
+          <div className="p-4 bg-slate-50 border-2 border-slate-200 rounded-md">
+            <div className={FORM_STYLES.GRID_3_COL}>
               {/* Comparison Country */}
               <div className="space-y-2">
                 <Label htmlFor="compareCountry" className={FORM_STYLES.LABEL_BASE}>
@@ -139,7 +140,7 @@ export const CountryComparisonForm = ({
               </div>
             </div>
           </div>
-        )}
+        </BounceReveal>
       </div>
     </div>
   )
