@@ -88,7 +88,7 @@ export const QuoteCard = ({
             ) : isDualCurrencyMode && localAmount !== undefined ? (
               typeof localAmount === 'string' ? localAmount : formatCurrency(localAmount, localQuote?.currency || '')
             ) : usdConversions && localAmount !== undefined ? (
-              typeof localAmount === 'string' ? localAmount : `$${localAmount.toLocaleString()}`
+              typeof localAmount === 'string' ? localAmount : `${localAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
             ) : isConvertingToUSD ? (
               <span className="text-blue-500 animate-pulse">Converting...</span>
             ) : usdConversionError ? (
@@ -244,7 +244,7 @@ export const QuoteCard = ({
                   ) : isDualCurrencyMode && localQuote ? (
                     formatCurrency(Number.parseFloat(localQuote.total_costs), localQuote.currency)
                   ) : usdConversions && usdConversions.totalCosts !== undefined ? (
-                    `$${usdConversions.totalCosts.toLocaleString()} USD`
+                    `${usdConversions.totalCosts.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`
                   ) : isConvertingToUSD ? (
                     <span className="text-blue-500 animate-pulse">Converting...</span>
                   ) : usdConversionError ? (

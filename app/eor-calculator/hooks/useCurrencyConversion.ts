@@ -54,7 +54,7 @@ export const useCurrencyConversion = ({ formData, onFormUpdate }: UseCurrencyCon
       if (!isNaN(amount) && amount > 0 && sourceCurrency !== targetCurrency) {
         handleCurrencyConversion(amount, sourceCurrency, targetCurrency)
       }
-    }, 800)
+    }, 300)
   }, [handleCurrencyConversion])
 
   // Auto-convert salary when base salary changes

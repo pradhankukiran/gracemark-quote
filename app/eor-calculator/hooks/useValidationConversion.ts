@@ -63,7 +63,7 @@ export const useValidationConversion = (
           if (!isNaN(minAmount)) {
             const result = await convertCurrency(minAmount, originalCur, targetCurrency)
             if (result.success && result.data) {
-              conversions.minSalary = result.data.target_amount.toLocaleString()
+              conversions.minSalary = result.data.target_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
             }
           }
         }
@@ -74,7 +74,7 @@ export const useValidationConversion = (
           if (!isNaN(maxAmount)) {
             const result = await convertCurrency(maxAmount, originalCur, targetCurrency)
             if (result.success && result.data) {
-              conversions.maxSalary = result.data.target_amount.toLocaleString()
+              conversions.maxSalary = result.data.target_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
             }
           }
         }

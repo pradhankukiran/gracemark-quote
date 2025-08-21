@@ -371,7 +371,7 @@ export const EmployeeInfoForm = ({
                   convertedValidation.minSalary ? 
                     `${convertedValidation.currency} ${convertedValidation.minSalary}` :
                     validationData.data.salary.min ? 
-                      `${validationData.data.currency} ${Number(validationData.data.salary.min).toLocaleString()}` : 
+                      `${validationData.data.currency} ${Number(validationData.data.salary.min).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 
                       "Not specified"
                 }
                 disabled
@@ -426,7 +426,7 @@ export const EmployeeInfoForm = ({
                   convertedValidation.maxSalary ? 
                     `${convertedValidation.currency} ${convertedValidation.maxSalary}` :
                     validationData.data.salary.max ? 
-                      `${validationData.data.currency} ${Number(validationData.data.salary.max).toLocaleString()}` : 
+                      `${validationData.data.currency} ${Number(validationData.data.salary.max).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 
                       "Not specified"
                 }
                 disabled

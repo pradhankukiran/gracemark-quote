@@ -78,10 +78,10 @@ export const convertQuoteToUsd = async (
 }
 
 export const formatCurrency = (amount: number, currency: string): string => {
-  return `${currency} ${amount.toLocaleString()}`
+  return `${currency} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
 export const formatNumberWithCommas = (value: string): string => {
   const num = Number.parseFloat(value)
-  return isNaN(num) ? value : num.toLocaleString()
+  return isNaN(num) ? value : num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
