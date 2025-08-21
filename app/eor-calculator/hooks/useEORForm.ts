@@ -30,6 +30,7 @@ const initialFormData: EORFormData = {
   currency: "",
   isCurrencyManuallySet: false,
   originalCurrency: undefined,
+  clientName: "",
   clientCountry: "",
   clientCurrency: "",
   baseSalary: "",
@@ -129,7 +130,8 @@ export const useEORForm = () => {
   // Auto-update comparison currency when comparison country changes
   useEffect(() => {
     if (formData.compareCountry && compareCountryData) {
-      const newCurrency = getCurrencyForCountry(compareCountryData.code)
+      const newCurrency = getCurrencyForCountry(compareCountryData.code);
+
       if (formData.compareCurrency !== newCurrency) {
         setFormData((prev) => ({
           ...prev,
@@ -139,7 +141,10 @@ export const useEORForm = () => {
         }))
       }
     }
-  }, [formData.compareCountry, compareCountryData, formData.compareCurrency])
+  }, [
+    formData.compareCountry, 
+    compareCountryData
+  ])
 
   const updateFormData = (updates: Partial<EORFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }))

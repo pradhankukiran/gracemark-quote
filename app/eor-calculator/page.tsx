@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Heart } from "lucide-react"
 import Link from "next/link"
 
 import { useEORForm } from "./hooks/useEORForm"
@@ -12,6 +12,7 @@ import { useCurrencyConversion } from "./hooks/useCurrencyConversion"
 import { useCountryValidation } from "./hooks/useCountryValidation"
 import { useUSDConversion } from "./hooks/useUSDConversion"
 import { useBenefits } from "./hooks/useBenefits"
+import { useValidationConversion } from "./hooks/useValidationConversion"
 
 import { ClientInfoForm } from "./components/ClientInfoForm"
 import { EmployeeInfoForm } from "./components/EmployeeInfoForm"
@@ -51,6 +52,18 @@ export default function EORCalculatorPage() {
     selectedCountryData?.code || null
   )
 
+  // Use validation conversion hook at page level
+  const {
+    convertedValidation,
+    isConvertingValidation,
+    isValidationReady,
+  } = useValidationConversion(
+    validationData,
+    formData.currency,
+    formData.isCurrencyManuallySet,
+    formData.originalCurrency
+  )
+
   const {
     isConverting,
     conversionInfo,
@@ -66,9 +79,11 @@ export default function EORCalculatorPage() {
     error,
     calculateQuote,
     clearQuotes,
+    dualCurrencyQuotes,
   } = useQuoteCalculation({
     formData,
     validationData,
+    convertedValidation,
     onValidationError: updateValidationError,
     onFormUpdate: updateFormData,
   })
@@ -88,8 +103,10 @@ export default function EORCalculatorPage() {
     isLoadingBenefits,
     benefitsError,
     benefitsFetched,
+    benefitsSkipped,
     canFetchBenefits,
     fetchBenefitsManually,
+    skipBenefits,
   } = useBenefits({
     countryCode: selectedCountryData?.code || null,
     workVisa: formData.workVisaRequired,
@@ -137,8 +154,8 @@ export default function EORCalculatorPage() {
       return false;
     }
 
-    // Benefits must be explicitly fetched before allowing quote generation
-    if (!benefitsFetched) {
+    // Benefits must be explicitly fetched or skipped before allowing quote generation
+    if (!benefitsFetched && !benefitsSkipped) {
       return false;
     }
 
@@ -169,7 +186,11 @@ export default function EORCalculatorPage() {
 
   // Scroll to results when quote is calculated
   useEffect(() => {
-    if (formData.currentStep === "primary-quote" && deelQuote) {
+    const hasQuoteData = dualCurrencyQuotes.isDualCurrencyMode ? 
+      (dualCurrencyQuotes.selectedCurrencyQuote || dualCurrencyQuotes.localCurrencyQuote) : 
+      deelQuote
+      
+    if (formData.currentStep === "primary-quote" && hasQuoteData) {
       setTimeout(() => {
         quoteRef.current?.scrollIntoView({
           behavior: "smooth",
@@ -177,23 +198,23 @@ export default function EORCalculatorPage() {
         })
       }, 100)
     }
-  }, [formData.currentStep, deelQuote])
+  }, [formData.currentStep, deelQuote, dualCurrencyQuotes.selectedCurrencyQuote, dualCurrencyQuotes.localCurrencyQuote])
 
-  // Auto-convert primary quote to USD when it arrives
+  // Auto-convert primary quote to USD when it arrives (skip in dual currency mode)
   useEffect(() => {
-    if (deelQuote && deelQuote.currency !== "USD") {
+    if (!dualCurrencyQuotes.isDualCurrencyMode && deelQuote && deelQuote.currency !== "USD") {
       const cleanup = autoConvertQuote(deelQuote, "deel")
       return cleanup
     }
-  }, [deelQuote]) // Removed autoConvertQuote from dependencies
+  }, [deelQuote, dualCurrencyQuotes.isDualCurrencyMode]) // Removed autoConvertQuote from dependencies
 
-  // Auto-convert comparison quote to USD when it arrives
+  // Auto-convert comparison quote to USD when it arrives (skip in dual currency mode)
   useEffect(() => {
-    if (compareQuote && compareQuote.currency !== "USD") {
+    if (!dualCurrencyQuotes.isDualCurrencyMode && compareQuote && compareQuote.currency !== "USD") {
       const cleanup = autoConvertQuote(compareQuote, "compare")
       return cleanup
     }
-  }, [compareQuote]) // Removed autoConvertQuote from dependencies
+  }, [compareQuote, dualCurrencyQuotes.isDualCurrencyMode]) // Removed autoConvertQuote from dependencies
 
 
   return (
@@ -238,22 +259,53 @@ export default function EORCalculatorPage() {
                   validationError={validationError}
                   isLoadingValidations={isLoadingValidations}
                   validationErrors={validationErrors}
+                  convertedValidation={convertedValidation}
+                  isConvertingValidation={isConvertingValidation}
+                  isValidationReady={isValidationReady}
                   onFormUpdate={updateFormData}
                   onValidationError={updateValidationError}
-                  onCurrencyOverride={(currency, conversionInfo) => overrideCurrency(currency, conversionInfo)}
+                  onCurrencyOverride={(currency, conversionInfoCallback) => overrideCurrency(currency, conversionInfoCallback)}
                   onCurrencyReset={resetToDefaultCurrency}
                 />
 
                 <Separator />
 
-                {/* Show Retrieve Benefits button if benefits haven't been fetched yet */}
-                {!benefitsFetched && (
+                {/* Show Retrieve Benefits button if benefits haven't been fetched or skipped yet */}
+                {!benefitsFetched && !benefitsSkipped && (
                   <RetrieveBenefitsButton
                     countryName={formData.country}
                     isLoading={isLoadingBenefits}
-                    canFetch={canFetchBenefits}
+                    canFetch={!!canFetchBenefits}
                     onFetchBenefits={fetchBenefitsManually}
+                    onSkipBenefits={skipBenefits}
                   />
+                )}
+
+                {/* Show message when benefits are skipped */}
+                {benefitsSkipped && (
+                  <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <div className="p-1 bg-blue-100 rounded-full mt-0.5">
+                        <Heart className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-blue-800 font-medium">Benefits Skipped</h4>
+                        <p className="text-blue-700 text-sm mt-1">
+                          You&apos;ve chosen to skip benefits selection. Your quote will include basic employment costs only.
+                          {" "}
+                          <button 
+                            onClick={() => {
+                              // Reset skip state to show retrieve button again
+                              fetchBenefitsManually()
+                            }}
+                            className="underline hover:no-underline"
+                          >
+                            Add benefits instead?
+                          </button>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 )}
 
                 {/* Show Benefits Selection only after benefits have been fetched */}
@@ -306,19 +358,25 @@ export default function EORCalculatorPage() {
           {/* Quote Results Section */}
           <div className="space-y-6" ref={quoteRef}>
             {/* Primary Deel Quote - show when not comparing OR when comparing but no comparison quote yet */}
-            {formData.currentStep === "primary-quote" && deelQuote && (!formData.enableComparison || (formData.enableComparison && !compareQuote)) && (
+            {formData.currentStep === "primary-quote" && (
+              (dualCurrencyQuotes.isDualCurrencyMode && (dualCurrencyQuotes.selectedCurrencyQuote || dualCurrencyQuotes.localCurrencyQuote)) ||
+              (!dualCurrencyQuotes.isDualCurrencyMode && deelQuote)
+            ) && (!formData.enableComparison || (formData.enableComparison && !compareQuote && !dualCurrencyQuotes.isDualCurrencyMode)) && (
               <QuoteCard
-                quote={deelQuote}
-                title={`Quote - ${deelQuote.country}`}
+                quote={dualCurrencyQuotes.isDualCurrencyMode ? undefined : deelQuote || undefined}
+                title={`Quote - ${dualCurrencyQuotes.isDualCurrencyMode ? 
+                  (dualCurrencyQuotes.selectedCurrencyQuote?.country || formData.country) : 
+                  deelQuote?.country || formData.country}`}
                 subtitle="Powered by Deel"
-                usdConversions={usdConversions.deel}
-                isConvertingToUSD={isConvertingDeelToUsd}
-                usdConversionError={usdConversionError}
+                usdConversions={dualCurrencyQuotes.isDualCurrencyMode ? undefined : usdConversions.deel}
+                isConvertingToUSD={dualCurrencyQuotes.isDualCurrencyMode ? false : isConvertingDeelToUsd}
+                usdConversionError={dualCurrencyQuotes.isDualCurrencyMode ? null : usdConversionError}
+                dualCurrencyQuotes={dualCurrencyQuotes}
               />
             )}
 
-            {/* Country Comparison */}
-            {formData.currentStep === "primary-quote" && deelQuote && formData.enableComparison && compareQuote && (
+            {/* Country Comparison - Single Currency Mode */}
+            {formData.currentStep === "primary-quote" && !dualCurrencyQuotes.isDualCurrencyMode && deelQuote && formData.enableComparison && compareQuote && (
               <QuoteComparison
                 primaryQuote={deelQuote}
                 comparisonQuote={compareQuote}
@@ -328,6 +386,20 @@ export default function EORCalculatorPage() {
                 isConvertingPrimaryToUSD={isConvertingDeelToUsd}
                 isConvertingComparisonToUSD={isConvertingCompareToUsd}
                 usdConversionError={usdConversionError}
+              />
+            )}
+
+            {/* Country Comparison - Dual Currency Mode */}
+            {formData.currentStep === "primary-quote" && dualCurrencyQuotes.isDualCurrencyMode && dualCurrencyQuotes.hasComparison && 
+             dualCurrencyQuotes.selectedCurrencyQuote && dualCurrencyQuotes.compareSelectedCurrencyQuote && (
+              <QuoteComparison
+                primaryTitle={formData.country}
+                comparisonTitle={formData.compareCountry}
+                usdConversions={usdConversions}
+                isConvertingPrimaryToUSD={isConvertingDeelToUsd}
+                isConvertingComparisonToUSD={isConvertingCompareToUsd}
+                usdConversionError={usdConversionError}
+                dualCurrencyQuotes={dualCurrencyQuotes}
               />
             )}
           </div>

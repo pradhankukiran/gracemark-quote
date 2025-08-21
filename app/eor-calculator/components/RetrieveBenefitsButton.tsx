@@ -8,6 +8,7 @@ interface RetrieveBenefitsButtonProps {
   isLoading: boolean
   canFetch: boolean
   onFetchBenefits: () => void
+  onSkipBenefits: () => void
 }
 
 export const RetrieveBenefitsButton = ({
@@ -15,6 +16,7 @@ export const RetrieveBenefitsButton = ({
   isLoading,
   canFetch,
   onFetchBenefits,
+  onSkipBenefits,
 }: RetrieveBenefitsButtonProps) => {
 
   return (
@@ -34,23 +36,35 @@ export const RetrieveBenefitsButton = ({
         )}
       </p>
       
-      <Button
-        onClick={onFetchBenefits}
-        disabled={isLoading || !canFetch}
-        size="lg"
-        className="px-8 py-3 text-base font-medium"
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="h-5 w-5 animate-spin mr-2" />
-            Loading Benefits...
-          </>
-        ) : (
-          <>
-            Retrieve Benefits{countryName ? ` for ${countryName}` : ''}
-          </>
-        )}
-      </Button>
+      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <Button
+          onClick={onFetchBenefits}
+          disabled={isLoading || !canFetch}
+          size="lg"
+          className="px-8 py-3 text-base font-medium"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin mr-2" />
+              Loading Benefits...
+            </>
+          ) : (
+            <>
+              Retrieve Benefits{countryName ? ` for ${countryName}` : ''}
+            </>
+          )}
+        </Button>
+        
+        <Button
+          onClick={onSkipBenefits}
+          disabled={isLoading || !canFetch}
+          variant="outline"
+          size="lg"
+          className="px-8 py-3 text-base font-medium"
+        >
+          Skip Benefits
+        </Button>
+      </div>
     </div>
   )
 }

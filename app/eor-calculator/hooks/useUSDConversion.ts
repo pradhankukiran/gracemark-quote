@@ -8,62 +8,43 @@ export const useUSDConversion = () => {
   const [isConvertingCompareToUsd, setIsConvertingCompareToUsd] = useState(false)
   const [usdConversionError, setUsdConversionError] = useState<string | null>(null)
   
-  // Track conversion cancellation
-  const conversionAbortControllerRef = useRef<AbortController | null>(null)
+  const conversionAbortControllerRef = useRef<{
+    deel: AbortController | null,
+    compare: AbortController | null
+  }>({ deel: null, compare: null });
   
-  // Track which quotes have been converted to prevent duplicates
   const convertedQuotesRef = useRef<Set<string>>(new Set())
 
-  const convertQuoteToUSD = async (
+  const convertQuoteToUSD = useCallback(async (
     quote: DeelAPIResponse, 
-    quoteType: "deel" | "compare",
-    isAutomatic = false
+    quoteType: "deel" | "compare"
   ) => {
-    if (!quote) return
+    if (!quote || quote.currency === "USD") return
 
-    const sourceCurrency = quote.currency
-    if (sourceCurrency === "USD") return // Already in USD
-
-    // Cancel any ongoing conversion
-    if (conversionAbortControllerRef.current) {
-      conversionAbortControllerRef.current.abort()
+    if (conversionAbortControllerRef.current[quoteType]) {
+      conversionAbortControllerRef.current[quoteType]?.abort()
     }
 
-    // Create new abort controller for this conversion
     const abortController = new AbortController()
-    conversionAbortControllerRef.current = abortController
+    conversionAbortControllerRef.current[quoteType] = abortController
 
-    // Set appropriate loading state based on quote type
     if (quoteType === "deel") {
       setIsConvertingDeelToUsd(true)
-    } else if (quoteType === "compare") {
+    } else {
       setIsConvertingCompareToUsd(true)
     }
     setUsdConversionError(null)
 
     try {
-      // Create progressive callbacks to update UI as each conversion completes
       const progressCallback = {
         onSalaryConverted: (amount: number) => {
           if (!abortController.signal.aborted) {
-            setUsdConversions(prev => ({
-              ...prev,
-              [quoteType]: {
-                ...prev[quoteType],
-                salary: amount
-              }
-            }))
+            setUsdConversions(prev => ({ ...prev, [quoteType]: { ...prev[quoteType], salary: amount } }))
           }
         },
         onFeeConverted: (amount: number) => {
           if (!abortController.signal.aborted) {
-            setUsdConversions(prev => ({
-              ...prev,
-              [quoteType]: {
-                ...prev[quoteType],
-                deelFee: amount
-              }
-            }))
+            setUsdConversions(prev => ({ ...prev, [quoteType]: { ...prev[quoteType], deelFee: amount } }))
           }
         },
         onCostConverted: (costIndex: number, amount: number) => {
@@ -72,108 +53,74 @@ export const useUSDConversion = () => {
               const currentData = prev[quoteType] || { costs: [] }
               const updatedCosts = [...(currentData.costs || [])]
               updatedCosts[costIndex] = amount
-              return {
-                ...prev,
-                [quoteType]: {
-                  ...currentData,
-                  costs: updatedCosts
-                }
-              }
+              return { ...prev, [quoteType]: { ...currentData, costs: updatedCosts } }
             })
           }
         },
         onTotalConverted: (amount: number) => {
           if (!abortController.signal.aborted) {
-            setUsdConversions(prev => ({
-              ...prev,
-              [quoteType]: {
-                ...prev[quoteType],
-                totalCosts: amount
-              }
-            }))
+            setUsdConversions(prev => ({ ...prev, [quoteType]: { ...prev[quoteType], totalCosts: amount } }))
           }
         }
       }
 
       const result = await convertQuoteToUsd(quote, progressCallback)
       
-      // Check if conversion was aborted
-      if (abortController.signal.aborted) {
-        return
-      }
+      if (abortController.signal.aborted) return
       
       if (!result.success) {
         throw new Error(result.error || "Conversion failed")
       }
     } catch (error) {
-      // Don't set error if conversion was aborted
       if (!abortController.signal.aborted) {
         setUsdConversionError(
           "Failed to convert to USD - " + (error instanceof Error ? error.message : "Unknown error")
         )
       }
     } finally {
-      // Clear appropriate loading state based on quote type (only if not aborted)
-      if (!abortController.signal.aborted) {
+      if (conversionAbortControllerRef.current[quoteType] === abortController) {
         if (quoteType === "deel") {
           setIsConvertingDeelToUsd(false)
-        } else if (quoteType === "compare") {
+        } else {
           setIsConvertingCompareToUsd(false)
         }
-      }
-      
-      // Clear abort controller reference if this was the active one
-      if (conversionAbortControllerRef.current === abortController) {
-        conversionAbortControllerRef.current = null
+        conversionAbortControllerRef.current[quoteType] = null
       }
     }
-  }
+  }, [])
 
-  const clearUSDConversions = () => {
-    // Cancel any ongoing conversions
-    if (conversionAbortControllerRef.current) {
-      conversionAbortControllerRef.current.abort()
-      conversionAbortControllerRef.current = null
-    }
+  const clearUSDConversions = useCallback(() => {
+    conversionAbortControllerRef.current.deel?.abort()
+    conversionAbortControllerRef.current.compare?.abort()
+    conversionAbortControllerRef.current = { deel: null, compare: null }
     
-    // Clear conversion tracking
     convertedQuotesRef.current.clear()
     
     setUsdConversions({})
     setUsdConversionError(null)
     setIsConvertingDeelToUsd(false)
     setIsConvertingCompareToUsd(false)
-  }
+  }, [])
 
-  // Auto-convert quotes when they arrive - memoized to prevent infinite loops
   const autoConvertQuote = useCallback((quote: DeelAPIResponse | null, quoteType: "deel" | "compare") => {
     if (!quote || quote.currency === "USD") return
     
-    // Create unique identifier for this quote
     const quoteId = `${quoteType}-${quote.country}-${quote.currency}-${quote.total_costs}`
+    if (convertedQuotesRef.current.has(quoteId)) return
     
-    // Skip if already converted
-    if (convertedQuotesRef.current.has(quoteId)) {
-      return
-    }
-    
-    // Mark as being converted
     convertedQuotesRef.current.add(quoteId)
     
-    // Debounce automatic conversions (wait 500ms before converting)
     const timeoutId = setTimeout(() => {
-      convertQuoteToUSD(quote, quoteType, true)
+      convertQuoteToUSD(quote, quoteType)
     }, 500)
 
     return () => clearTimeout(timeoutId)
   }, [convertQuoteToUSD])
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (conversionAbortControllerRef.current) {
-        conversionAbortControllerRef.current.abort()
-      }
+      conversionAbortControllerRef.current.deel?.abort()
+      conversionAbortControllerRef.current.compare?.abort()
     }
   }, [])
 

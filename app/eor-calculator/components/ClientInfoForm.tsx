@@ -16,7 +16,15 @@ export const ClientInfoForm = ({ formData, countries, onFormUpdate }: ClientInfo
   return (
     <div>
       <FormSectionHeader icon={MapPin} title="Client Information" />
-      <div className={FORM_STYLES.GRID_2_COL}>
+      <div className={FORM_STYLES.GRID_3_COL}>
+        <FormField
+          type="input"
+          label="Client Name"
+          htmlFor="clientName"
+          value={formData.clientName}
+          onChange={(value) => onFormUpdate({ clientName: value })}
+          placeholder="Enter client name"
+        />
         <FormField
           type="select"
           label="Client Country"

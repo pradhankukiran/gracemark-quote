@@ -19,6 +19,7 @@ export interface EORFormData {
   currency: string
   isCurrencyManuallySet: boolean
   originalCurrency?: string
+  clientName: string
   clientCountry: string
   clientCurrency: string
   baseSalary: string
@@ -208,6 +209,19 @@ export interface USDConversions {
     monthlyTotal: number
     monthlyTce: number
   }
+}
+
+export interface DualCurrencyQuotes {
+  selectedCurrencyQuote: DeelAPIResponse | null
+  localCurrencyQuote: DeelAPIResponse | null
+  compareSelectedCurrencyQuote: DeelAPIResponse | null
+  compareLocalCurrencyQuote: DeelAPIResponse | null
+  isCalculatingSelected: boolean
+  isCalculatingLocal: boolean
+  isCalculatingCompareSelected: boolean
+  isCalculatingCompareLocal: boolean
+  isDualCurrencyMode: boolean
+  hasComparison: boolean
 }
 
 export interface ValidationErrors {

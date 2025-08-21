@@ -21,6 +21,7 @@ export const useBenefits = ({
   const [isLoadingBenefits, setIsLoadingBenefits] = useState(false)
   const [benefitsError, setBenefitsError] = useState<string | null>(null)
   const [benefitsFetched, setBenefitsFetched] = useState(false)
+  const [benefitsSkipped, setBenefitsSkipped] = useState(false)
 
   const fetchBenefits = async (params: BenefitsRequestParams) => {
     setIsLoadingBenefits(true)
@@ -42,6 +43,7 @@ export const useBenefits = ({
     setBenefitsData(null)
     setBenefitsError(null)
     setBenefitsFetched(false)
+    setBenefitsSkipped(false)
   }, [countryCode])
 
   // Manual fetch function that can be called by UI
@@ -69,10 +71,19 @@ export const useBenefits = ({
         employmentType,
       })
       setBenefitsFetched(true)
+      setBenefitsSkipped(false)
     } catch {
       setBenefitsFetched(false)
     }
   }, [countryCode, workVisa, hoursPerDay, daysPerWeek, employmentType])
+
+  // Function to skip benefits explicitly
+  const skipBenefits = useCallback(() => {
+    setBenefitsSkipped(true)
+    setBenefitsFetched(false)
+    setBenefitsError(null)
+    setBenefitsData(null)
+  }, [])
 
   // Check if all required data is available for fetching benefits
   const canFetchBenefits = countryCode && hoursPerDay && daysPerWeek && employmentType &&
@@ -84,7 +95,9 @@ export const useBenefits = ({
     isLoadingBenefits,
     benefitsError,
     benefitsFetched,
+    benefitsSkipped,
     canFetchBenefits,
     fetchBenefitsManually,
+    skipBenefits,
   }
 }

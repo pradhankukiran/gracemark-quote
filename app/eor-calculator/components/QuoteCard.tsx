@@ -2,21 +2,23 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { DollarSign, Loader2 } from "lucide-react"
-import { DeelAPIResponse, USDConversions } from "../types"
+import { DeelAPIResponse, USDConversions, DualCurrencyQuotes } from "../types"
 import { formatCurrency } from "../utils/currencyUtils"
 
 interface QuoteCardProps {
-  quote: DeelAPIResponse
+  quote?: DeelAPIResponse
   title: string
   subtitle: string
   badgeText?: string
   badgeColor?: string
-  usdConversions?: USDConversions[keyof USDConversions]
+  usdConversions?: USDConversions["deel"] | USDConversions["compare"]
   showUSDConversion?: boolean
   isConvertingToUSD?: boolean
   onConvertToUSD?: () => void
   compact?: boolean
   usdConversionError?: string | null
+  // Dual currency props
+  dualCurrencyQuotes?: DualCurrencyQuotes
 }
 
 export const QuoteCard = ({
@@ -30,15 +32,88 @@ export const QuoteCard = ({
   isConvertingToUSD = false,
   onConvertToUSD,
   compact = false,
-  usdConversionError = null
+  usdConversionError = null,
+  dualCurrencyQuotes
 }: QuoteCardProps) => {
-  // Always show USD columns for non-USD quotes (automatic mode)
-  const showUSDColumns = quote.currency !== "USD"
+  // Determine display mode
+  const isDualCurrencyMode = dualCurrencyQuotes?.isDualCurrencyMode && 
+                            dualCurrencyQuotes?.selectedCurrencyQuote && 
+                            dualCurrencyQuotes?.localCurrencyQuote
+  
+  const selectedQuote = dualCurrencyQuotes?.selectedCurrencyQuote
+  const localQuote = dualCurrencyQuotes?.localCurrencyQuote
+  const isCalculatingSelected = dualCurrencyQuotes?.isCalculatingSelected
+  const isCalculatingLocal = dualCurrencyQuotes?.isCalculatingLocal
+
+  // Use dual currency quotes if available, otherwise fall back to single quote
+  const primaryQuote = isDualCurrencyMode ? selectedQuote : quote
+  
+  // Always show USD columns for non-USD quotes in single currency mode
+  const showUSDColumns = !isDualCurrencyMode && quote && quote.currency !== "USD"
   const hasUSDData = usdConversions && Object.keys(usdConversions).length > 0
 
   const textSizes = compact 
     ? { title: "text-2xl", amount: "text-base", total: "text-xl" }
     : { title: "text-2xl", amount: "text-xl", total: "text-3xl" }
+
+  // Helper function to render cost item row
+  const renderCostRow = (
+    label: string, 
+    selectedAmount: string | number, 
+    localAmount?: string | number,
+    isLoading = false
+  ) => {
+    const showDualColumns = isDualCurrencyMode || showUSDColumns
+    
+    return (
+      <div className={`${compact ? 'py-2 px-2' : 'py-3 px-4'} bg-slate-50 ${
+        showDualColumns 
+          ? `grid ${compact ? 'grid-cols-3 gap-2' : 'grid-cols-3 gap-4'} items-center`
+          : 'flex justify-between items-center'
+      }`}>
+        <span className={`text-slate-600 font-medium ${compact ? 'text-base' : 'text-base'}`}>
+          {label}
+        </span>
+        <span className={`font-bold ${textSizes.amount} text-slate-900 text-right`}>
+          {isLoading ? (
+            <span className="text-blue-500 animate-pulse">Loading...</span>
+          ) : (
+            typeof selectedAmount === 'string' ? selectedAmount : formatCurrency(selectedAmount, primaryQuote?.currency || '')
+          )}
+        </span>
+        {showDualColumns && (
+          <span className={`font-bold ${textSizes.amount} text-slate-700 text-right`}>
+            {isLoading ? (
+              <span className="text-blue-500 animate-pulse">Loading...</span>
+            ) : isDualCurrencyMode && localAmount !== undefined ? (
+              typeof localAmount === 'string' ? localAmount : formatCurrency(localAmount, localQuote?.currency || '')
+            ) : usdConversions && localAmount !== undefined ? (
+              typeof localAmount === 'string' ? localAmount : `$${localAmount.toLocaleString()}`
+            ) : isConvertingToUSD ? (
+              <span className="text-blue-500 animate-pulse">Converting...</span>
+            ) : usdConversionError ? (
+              <span className="text-red-400 text-sm">Failed</span>
+            ) : (
+              <span className="text-slate-400">Pending...</span>
+            )}
+          </span>
+        )}
+      </div>
+    )
+  }
+
+  // Return loading state if no quote data is available
+  if (!primaryQuote && !isDualCurrencyMode) {
+    return (
+      <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+        <CardContent className="p-6">
+          <div className="flex justify-center items-center h-40">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
@@ -54,8 +129,22 @@ export const QuoteCard = ({
             )}
           </div>
           
-          {/* Auto-conversion status indicator */}
-          {showUSDColumns && (
+          {/* Status indicators */}
+          {isDualCurrencyMode ? (
+            <div className="ml-4 text-right">
+              {(isCalculatingSelected || isCalculatingLocal) ? (
+                <div className="flex items-center text-blue-600 text-sm">
+                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                  Loading dual quotes...
+                </div>
+              ) : (
+                <div className="flex items-center text-green-600 text-sm">
+                  <DollarSign className="mr-1 h-3 w-3" />
+                  Dual currency view
+                </div>
+              )}
+            </div>
+          ) : showUSDColumns && (
             <div className="ml-4 text-right">
               {isConvertingToUSD ? (
                 <div className="flex items-center text-blue-600 text-sm">
@@ -78,116 +167,83 @@ export const QuoteCard = ({
 
         <div className="space-y-4">
           {/* Header row for columns */}
-          {showUSDColumns && (
+          {(isDualCurrencyMode || showUSDColumns) && (
             <div className={`grid ${compact ? 'grid-cols-3 gap-2 py-1 px-2' : 'grid-cols-3 gap-4 py-2 px-4'} bg-slate-100 border-b border-slate-200`}>
               <span className="text-slate-700 font-semibold text-sm">Cost Item</span>
               <span className="text-slate-700 font-semibold text-sm text-right">
-                {compact ? 'Local' : 'Local Currency'}
+                {isDualCurrencyMode ? 
+                  (compact ? `${selectedQuote?.currency}` : `Selected (${selectedQuote?.currency})`) :
+                  (compact ? 'Local' : 'Local Currency')
+                }
               </span>
               <span className="text-slate-700 font-semibold text-sm text-right">
-                {compact ? 'USD' : 'USD Equivalent'}
+                {isDualCurrencyMode ? 
+                  (compact ? `${localQuote?.currency}` : `Local Market (${localQuote?.currency})`) :
+                  (compact ? 'USD' : 'USD Equivalent')
+                }
               </span>
             </div>
           )}
           
           {/* Base Salary */}
-          <div className={`${compact ? 'py-2 px-2' : 'py-3 px-4'} bg-slate-50 ${
-            showUSDColumns 
-              ? `grid ${compact ? 'grid-cols-3 gap-2' : 'grid-cols-3 gap-4'} items-center`
-              : 'flex justify-between items-center'
-          }`}>
-            <span className={`text-slate-600 font-medium ${compact ? 'text-base' : 'text-base'}`}>
-              Base Salary
-            </span>
-            <span className={`font-bold ${textSizes.amount} text-slate-900 text-right`}>
-              {formatCurrency(Number.parseFloat(quote.salary), quote.currency)}
-            </span>
-            {showUSDColumns && (
-              <span className={`font-bold ${textSizes.amount} text-slate-700 text-right`}>
-                {usdConversions && usdConversions.salary !== undefined ? (
-                  `$${usdConversions.salary.toLocaleString()}`
-                ) : isConvertingToUSD ? (
-                  <span className="text-blue-500 animate-pulse">Converting...</span>
-                ) : usdConversionError ? (
-                  <span className="text-red-400 text-sm">Failed</span>
-                ) : (
-                  <span className="text-slate-400">Pending...</span>
-                )}
-              </span>
-            )}
-          </div>
+          {primaryQuote && renderCostRow(
+            "Base Salary",
+            Number.parseFloat(primaryQuote.salary),
+            isDualCurrencyMode && localQuote ? Number.parseFloat(localQuote.salary) : 
+            usdConversions?.salary,
+            isCalculatingSelected || isCalculatingLocal
+          )}
 
           {/* Platform Fee */}
-          <div className={`${compact ? 'py-2 px-2' : 'py-3 px-4'} bg-slate-50 ${
-            showUSDColumns 
-              ? `grid ${compact ? 'grid-cols-3 gap-2' : 'grid-cols-3 gap-4'} items-center`
-              : 'flex justify-between items-center'
-          }`}>
-            <span className={`text-slate-600 font-medium ${compact ? 'text-base' : 'text-base'}`}>
-              Platform Fee
-            </span>
-            <span className={`font-bold ${textSizes.amount} text-slate-900 text-right`}>
-              {formatCurrency(Number.parseFloat(quote.deel_fee), quote.currency)}
-            </span>
-            {showUSDColumns && (
-              <span className={`font-bold ${textSizes.amount} text-slate-700 text-right`}>
-                {usdConversions && usdConversions.deelFee !== undefined ? (
-                  `$${usdConversions.deelFee.toLocaleString()}`
-                ) : isConvertingToUSD ? (
-                  <span className="text-blue-500 animate-pulse">Converting...</span>
-                ) : usdConversionError ? (
-                  <span className="text-red-400 text-sm">Failed</span>
-                ) : (
-                  <span className="text-slate-400">Pending...</span>
-                )}
-              </span>
-            )}
-          </div>
+          {primaryQuote && renderCostRow(
+            "Platform Fee",
+            Number.parseFloat(primaryQuote.deel_fee),
+            isDualCurrencyMode && localQuote ? Number.parseFloat(localQuote.deel_fee) : 
+            usdConversions?.deelFee,
+            isCalculatingSelected || isCalculatingLocal
+          )}
 
           {/* Cost items */}
-          {quote.costs.map((cost, index) => (
-            <div key={index} className={`${compact ? 'py-2 px-2' : 'py-3 px-4'} bg-slate-50 ${
-              showUSDColumns 
-                ? `grid ${compact ? 'grid-cols-3 gap-2' : 'grid-cols-3 gap-4'} items-center`
-                : 'flex justify-between items-center'
-            }`}>
-              <span className={`text-slate-600 font-medium ${compact ? 'text-base' : 'text-base'}`}>
-                {cost.name}
-              </span>
-              <span className={`font-bold ${textSizes.amount} text-slate-900 text-right`}>
-                {formatCurrency(Number.parseFloat(cost.amount), quote.currency)}
-              </span>
-              {showUSDColumns && (
-                <span className={`font-bold ${textSizes.amount} text-slate-700 text-right`}>
-                  {usdConversions && usdConversions.costs && usdConversions.costs[index] !== undefined ? (
-                    usdConversions.costs[index] === -1 
-                      ? "---" 
-                      : `$${usdConversions.costs[index].toLocaleString()}`
-                  ) : isConvertingToUSD ? (
-                    <span className="text-blue-500 animate-pulse">Converting...</span>
-                  ) : usdConversionError ? (
-                    <span className="text-red-400 text-sm">Failed</span>
-                  ) : (
-                    <span className="text-slate-400">Pending...</span>
-                  )}
-                </span>
-              )}
-            </div>
-          ))}
+          {primaryQuote?.costs.map((cost, index) => {
+            const localCostAmount = isDualCurrencyMode && localQuote?.costs[index] ? 
+              Number.parseFloat(localQuote.costs[index].amount) : 
+              usdConversions?.costs?.[index]
+            
+            return (
+              <div key={index}>
+                {renderCostRow(
+                  cost.name,
+                  Number.parseFloat(cost.amount),
+                  localCostAmount,
+                  isCalculatingSelected || isCalculatingLocal
+                )}
+              </div>
+            )
+          }) || []}
 
           <Separator className="my-4" />
 
           <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 border-2 border-primary/20">
-            {showUSDColumns ? (
+            {(isDualCurrencyMode || showUSDColumns) ? (
               <div className={`grid ${compact ? 'grid-cols-3 gap-2' : 'grid-cols-3 gap-4'} items-center`}>
                 <span className={`${compact ? 'text-base' : 'text-xl'} font-bold text-slate-900`}>
                   Total Monthly Cost
                 </span>
                 <span className={`text-primary ${textSizes.total} font-bold text-right`}>
-                  {formatCurrency(Number.parseFloat(quote.total_costs), quote.currency)}
+                  {(isCalculatingSelected || isCalculatingLocal) ? (
+                    <span className="text-blue-500 animate-pulse">Loading...</span>
+                  ) : primaryQuote ? (
+                    formatCurrency(Number.parseFloat(primaryQuote.total_costs), primaryQuote.currency)
+                  ) : (
+                    <span className="text-slate-400">Pending...</span>
+                  )}
                 </span>
                 <span className={`text-slate-700 ${compact ? 'text-base' : 'text-2xl'} font-semibold text-right`}>
-                  {usdConversions && usdConversions.totalCosts !== undefined ? (
+                  {(isCalculatingSelected || isCalculatingLocal) ? (
+                    <span className="text-blue-500 animate-pulse">Loading...</span>
+                  ) : isDualCurrencyMode && localQuote ? (
+                    formatCurrency(Number.parseFloat(localQuote.total_costs), localQuote.currency)
+                  ) : usdConversions && usdConversions.totalCosts !== undefined ? (
                     `$${usdConversions.totalCosts.toLocaleString()} USD`
                   ) : isConvertingToUSD ? (
                     <span className="text-blue-500 animate-pulse">Converting...</span>
@@ -204,7 +260,11 @@ export const QuoteCard = ({
                   Total Monthly Cost
                 </span>
                 <span className={`text-primary ${textSizes.total} font-bold`}>
-                  {formatCurrency(Number.parseFloat(quote.total_costs), quote.currency)}
+                  {primaryQuote ? (
+                    formatCurrency(Number.parseFloat(primaryQuote.total_costs), primaryQuote.currency)
+                  ) : (
+                    <span className="text-slate-400">Pending...</span>
+                  )}
                 </span>
               </div>
             )}

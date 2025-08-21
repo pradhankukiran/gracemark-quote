@@ -1,9 +1,9 @@
-import { DeelAPIResponse, USDConversions } from "../types"
+import { DeelAPIResponse, DualCurrencyQuotes, USDConversions } from "../types"
 import { QuoteCard } from "./QuoteCard"
 
 interface QuoteComparisonProps {
-  primaryQuote: DeelAPIResponse
-  comparisonQuote: DeelAPIResponse
+  primaryQuote?: DeelAPIResponse
+  comparisonQuote?: DeelAPIResponse
   primaryTitle: string
   comparisonTitle: string
   usdConversions: USDConversions
@@ -12,6 +12,7 @@ interface QuoteComparisonProps {
   isConvertingPrimaryToUSD: boolean
   isConvertingComparisonToUSD: boolean
   usdConversionError?: string | null
+  dualCurrencyQuotes?: DualCurrencyQuotes
 }
 
 export const QuoteComparison = ({
@@ -25,7 +26,28 @@ export const QuoteComparison = ({
   isConvertingPrimaryToUSD,
   isConvertingComparisonToUSD,
   usdConversionError,
+  dualCurrencyQuotes,
 }: QuoteComparisonProps) => {
+  const isDualMode = dualCurrencyQuotes?.isDualCurrencyMode && dualCurrencyQuotes?.hasComparison;
+
+  const primaryCardDualQuotes = isDualMode ? {
+    ...dualCurrencyQuotes,
+    selectedCurrencyQuote: dualCurrencyQuotes.selectedCurrencyQuote,
+    localCurrencyQuote: dualCurrencyQuotes.localCurrencyQuote,
+    compareSelectedCurrencyQuote: null,
+    compareLocalCurrencyQuote: null,
+    hasComparison: false,
+  } : undefined;
+
+  const comparisonCardDualQuotes = isDualMode ? {
+    ...dualCurrencyQuotes,
+    selectedCurrencyQuote: dualCurrencyQuotes.compareSelectedCurrencyQuote,
+    localCurrencyQuote: dualCurrencyQuotes.compareLocalCurrencyQuote,
+    compareSelectedCurrencyQuote: null,
+    compareLocalCurrencyQuote: null,
+    hasComparison: false,
+  } : undefined;
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -40,28 +62,30 @@ export const QuoteComparison = ({
       <div className="grid md:grid-cols-2 gap-6">
         {/* Primary Quote */}
         <QuoteCard
-          quote={primaryQuote}
+          quote={isDualMode ? undefined : primaryQuote}
           title={primaryTitle}
           subtitle="Primary Location"
           badgeText="Main Quote"
           badgeColor="bg-green-100 text-green-800"
-          usdConversions={usdConversions.deel}
+          usdConversions={usdConversions?.deel}
           isConvertingToUSD={isConvertingPrimaryToUSD}
           usdConversionError={usdConversionError}
           compact={true}
+          dualCurrencyQuotes={primaryCardDualQuotes}
         />
 
         {/* Comparison Quote */}
         <QuoteCard
-          quote={comparisonQuote}
+          quote={isDualMode ? undefined : comparisonQuote}
           title={comparisonTitle}
           subtitle="Comparison Location"
           badgeText="Compare Quote"
           badgeColor="bg-blue-100 text-blue-800"
-          usdConversions={usdConversions.compare}
+          usdConversions={usdConversions?.compare}
           isConvertingToUSD={isConvertingComparisonToUSD}
           usdConversionError={usdConversionError}
           compact={true}
+          dualCurrencyQuotes={comparisonCardDualQuotes}
         />
       </div>
     </div>

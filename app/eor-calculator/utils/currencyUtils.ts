@@ -26,60 +26,53 @@ export const convertQuoteToUsd = async (
   }
 
   try {
-    const salaryAmount = Number.parseFloat(quote.salary)
-    const feeAmount = Number.parseFloat(quote.deel_fee)
-    const totalAmount = Number.parseFloat(quote.total_costs)
+    const sourceCurrency = quote.currency
+    const amountsToConvert = [
+      Number.parseFloat(quote.salary),
+      Number.parseFloat(quote.deel_fee),
+      ...quote.costs.map((cost) => Number.parseFloat(cost.amount)),
+      Number.parseFloat(quote.total_costs),
+    ]
 
-    // Convert main amounts serially with progressive updates
-    const salaryResult = await convertCurrency(salaryAmount, sourceCurrency, "USD")
-    if (!salaryResult.success) {
-      throw new Error("Failed to convert salary")
-    }
-    // Immediately notify UI of salary conversion
-    progressCallback?.onSalaryConverted?.(salaryResult.data!.target_amount)
+    const conversionPromises = amountsToConvert.map((amount) =>
+      convertCurrency(amount, sourceCurrency, "USD")
+    )
 
-    const feeResult = await convertCurrency(feeAmount, sourceCurrency, "USD")
-    if (!feeResult.success) {
-      throw new Error("Failed to convert platform fee")
-    }
-    // Immediately notify UI of fee conversion
-    progressCallback?.onFeeConverted?.(feeResult.data!.target_amount)
+    const conversionResults = await Promise.all(conversionPromises)
 
-    // Convert cost items serially with progressive updates
-    const convertedCosts: number[] = []
-    for (let i = 0; i < quote.costs.length; i++) {
-      const cost = quote.costs[i]
-      const costAmount = Number.parseFloat(cost.amount)
-      const costResult = await convertCurrency(costAmount, sourceCurrency, "USD")
-      if (!costResult.success) {
-        throw new Error(`Failed to convert ${cost.name}`)
-      }
-      const convertedAmount = costResult.data!.target_amount
-      convertedCosts.push(convertedAmount)
-      // Immediately notify UI of this cost conversion
-      progressCallback?.onCostConverted?.(i, convertedAmount)
+    const failedConversion = conversionResults.find((r) => !r.success)
+    if (failedConversion) {
+      throw new Error(failedConversion.error || "A currency conversion failed")
     }
 
-    const totalResult = await convertCurrency(totalAmount, sourceCurrency, "USD")
-    if (!totalResult.success) {
-      throw new Error("Failed to convert total costs")
-    }
-    // Immediately notify UI of total conversion
-    progressCallback?.onTotalConverted?.(totalResult.data!.target_amount)
+    const successfulResults = conversionResults.map((r) => r.data!)
+
+    const salaryAmount = successfulResults[0].target_amount
+    const feeAmount = successfulResults[1].target_amount
+    const costAmounts = successfulResults.slice(2, -1).map((r) => r.target_amount)
+    const totalAmount = successfulResults[successfulResults.length - 1].target_amount
+
+    // Call callbacks to update UI progressively, even though results arrive at once
+    progressCallback?.onSalaryConverted?.(salaryAmount)
+    progressCallback?.onFeeConverted?.(feeAmount)
+    costAmounts.forEach((amount, i) => {
+      progressCallback?.onCostConverted?.(i, amount)
+    })
+    progressCallback?.onTotalConverted?.(totalAmount)
 
     return {
       success: true,
       data: {
-        salary: salaryResult.data!.target_amount,
-        deelFee: feeResult.data!.target_amount,
-        costs: convertedCosts,
-        totalCosts: totalResult.data!.target_amount
-      }
+        salary: salaryAmount,
+        deelFee: feeAmount,
+        costs: costAmounts,
+        totalCosts: totalAmount,
+      },
     }
   } catch (error) {
     return {
       success: false,
-      error: "Failed to convert to USD - " + (error instanceof Error ? error.message : "Unknown error")
+      error: "Failed to convert to USD - " + (error instanceof Error ? error.message : "Unknown error"),
     }
   }
 }

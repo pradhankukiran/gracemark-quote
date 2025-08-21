@@ -100,7 +100,7 @@ export const generateValidationErrorMessage = (
   let min: number | undefined
   let max: number | undefined
   let unit = ''
-  let fieldName = field
+  let fieldName: string = field
 
   switch (field) {
     case 'salary':

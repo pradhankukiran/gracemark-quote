@@ -10,7 +10,6 @@ import { LoadingSpinner } from "./shared/LoadingSpinner"
 import { ErrorDisplay } from "./shared/ErrorDisplay"
 import { FORM_STYLES } from "../styles/constants"
 import { allCurrencies } from "@/lib/country-data"
-import { convertCurrency } from "@/lib/currency-converter"
 
 interface EmployeeInfoFormProps {
   formData: EORFormData
@@ -19,9 +18,16 @@ interface EmployeeInfoFormProps {
   validationError: string | null
   isLoadingValidations: boolean
   validationErrors: ValidationErrors
+  convertedValidation: {
+    minSalary?: string
+    maxSalary?: string
+    currency?: string
+  }
+  isConvertingValidation: boolean
+  isValidationReady: boolean
   onFormUpdate: (updates: Partial<EORFormData>) => void
   onValidationError: (field: keyof ValidationErrors, error: string | null) => void
-  onCurrencyOverride: (currency: string, conversionInfo?: string) => void
+  onCurrencyOverride: (currency: string, conversionInfoCallback?: (info: string) => void) => void
   onCurrencyReset: () => void
 }
 
@@ -32,6 +38,9 @@ export const EmployeeInfoForm = ({
   validationError,
   isLoadingValidations,
   validationErrors,
+  convertedValidation,
+  isConvertingValidation,
+  isValidationReady,
   onFormUpdate,
   onValidationError,
   onCurrencyOverride,
@@ -39,12 +48,6 @@ export const EmployeeInfoForm = ({
 }: EmployeeInfoFormProps) => {
   const baseSalaryInputRef = useRef<HTMLInputElement>(null)
   const [isEditingCurrency, setIsEditingCurrency] = useState(false)
-  const [convertedValidation, setConvertedValidation] = useState<{
-    minSalary?: string
-    maxSalary?: string
-    currency?: string
-  }>({})
-  const [isConvertingValidation, setIsConvertingValidation] = useState(false)
   const [salaryConversionInfo, setSalaryConversionInfo] = useState<string | null>(null)
 
   const handleValidatedInput = (
@@ -68,6 +71,31 @@ export const EmployeeInfoForm = ({
       return
     }
 
+    // Skip validation if conversion is still in progress
+    if (isConvertingValidation && validatorType === 'salary' && formData.isCurrencyManuallySet) {
+      return
+    }
+
+    // Use converted validation data if currency has been manually set
+    let effectiveValidationData = validationData
+    if (
+      validatorType === 'salary' &&
+      formData.isCurrencyManuallySet &&
+      convertedValidation.currency === formData.currency &&
+      validationData
+    ) {
+      // Create a deep copy to avoid mutating the original validationData state
+      const newValidationData = JSON.parse(JSON.stringify(validationData))
+      
+      if (convertedValidation.minSalary) {
+        newValidationData.data.salary.min = convertedValidation.minSalary.replace(/[\,\s]/g, '')
+      }
+      if (convertedValidation.maxSalary) {
+        newValidationData.data.salary.max = convertedValidation.maxSalary.replace(/[\,\s]/g, '')
+      }
+      effectiveValidationData = newValidationData
+    }
+
     // Dynamically import and use the appropriate validator
     import("../utils/validationUtils").then(({
       validateSalaryInput, 
@@ -80,25 +108,25 @@ export const EmployeeInfoForm = ({
       let isValid = false
       switch (validatorType) {
         case 'salary':
-          isValid = validateSalaryInput(value, validationData)
+          isValid = validateSalaryInput(value, effectiveValidationData)
           break
         case 'holiday':
-          isValid = validateHolidayInput(value, validationData)
+          isValid = validateHolidayInput(value, effectiveValidationData)
           break
         case 'probation':
-          isValid = validateProbationInput(value, validationData)
+          isValid = validateProbationInput(value, effectiveValidationData)
           break
         case 'hours':
-          isValid = validateHoursInput(value, validationData)
+          isValid = validateHoursInput(value, effectiveValidationData)
           break
         case 'days':
-          isValid = validateDaysInput(value, validationData)
+          isValid = validateDaysInput(value, effectiveValidationData)
           break
       }
 
       if (!isValid) {
         import("../utils/validationUtils").then(({ generateValidationErrorMessage }) => {
-          const errorMsg = generateValidationErrorMessage(validatorType, validationData, formData.currency)
+          const errorMsg = generateValidationErrorMessage(validatorType, effectiveValidationData, formData.currency)
           onValidationError(field, errorMsg)
         })
       } else {
@@ -139,63 +167,6 @@ export const EmployeeInfoForm = ({
     }
   }, [salaryConversionInfo])
 
-  // Convert validation data when currency is overridden
-  useEffect(() => {
-    const convertValidationData = async () => {
-      if (!validationData || !formData.isCurrencyManuallySet || !formData.originalCurrency) {
-        setConvertedValidation({})
-        return
-      }
-
-      const originalCurrency = validationData.data.currency
-      const targetCurrency = formData.currency
-      
-      if (originalCurrency === targetCurrency) {
-        setConvertedValidation({})
-        return
-      }
-
-      setIsConvertingValidation(true)
-      
-      try {
-        const conversions: { minSalary?: string; maxSalary?: string } = {}
-        
-        // Convert minimum salary
-        if (validationData.data.salary.min) {
-          const minAmount = parseFloat(validationData.data.salary.min.replace(/[,\s]/g, ''))
-          if (!isNaN(minAmount)) {
-            const result = await convertCurrency(minAmount, originalCurrency, targetCurrency)
-            if (result.success && result.data) {
-              conversions.minSalary = result.data.target_amount.toLocaleString()
-            }
-          }
-        }
-        
-        // Convert maximum salary
-        if (validationData.data.salary.max) {
-          const maxAmount = parseFloat(validationData.data.salary.max.replace(/[,\s]/g, ''))
-          if (!isNaN(maxAmount)) {
-            const result = await convertCurrency(maxAmount, originalCurrency, targetCurrency)
-            if (result.success && result.data) {
-              conversions.maxSalary = result.data.target_amount.toLocaleString()
-            }
-          }
-        }
-        
-        setConvertedValidation({
-          ...conversions,
-          currency: targetCurrency,
-        })
-      } catch (error) {
-        console.warn('Failed to convert validation data:', error)
-        setConvertedValidation({})
-      } finally {
-        setIsConvertingValidation(false)
-      }
-    }
-
-    convertValidationData()
-  }, [validationData, formData.isCurrencyManuallySet, formData.currency, formData.originalCurrency])
 
   return (
     <div>
@@ -420,7 +391,7 @@ export const EmployeeInfoForm = ({
                 type="text"
                 placeholder={`Enter amount in ${formData.currency}`}
                 value={formData.baseSalary}
-                onChange={(e) => handleValidatedInput('salary', e.target.value, 'baseSalary', 'salary')}
+                onChange={(e) => handleValidatedInput('salary', e.target.value, 'baseSalary')}
                 onBlur={() => handleBlurValidation('salary', formData.baseSalary, 'salary')}
                 className={`h-12 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
                   validationErrors.salary ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
@@ -428,6 +399,12 @@ export const EmployeeInfoForm = ({
               />
               {validationErrors.salary && (
                 <p className="text-red-500 text-sm mt-1">{validationErrors.salary}</p>
+              )}
+              {!isValidationReady && formData.isCurrencyManuallySet && (
+                <p className="text-blue-600 text-sm mt-1 flex items-center">
+                  <span className="mr-1">⏳</span>
+                  Validation pending currency conversion...
+                </p>
               )}
               {salaryConversionInfo && (
                 <p className="text-green-600 text-sm mt-1 flex items-center">
@@ -485,7 +462,7 @@ export const EmployeeInfoForm = ({
                 type="text"
                 placeholder="Enter number of holidays"
                 value={formData.holidayDays}
-                onChange={(e) => handleValidatedInput('holidays', e.target.value, 'holidayDays', 'holiday')}
+                onChange={(e) => handleValidatedInput('holidays', e.target.value, 'holidayDays')}
                 onBlur={() => handleBlurValidation('holidays', formData.holidayDays, 'holiday')}
                 className={`h-12 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
                   validationErrors.holidays ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
@@ -539,7 +516,7 @@ export const EmployeeInfoForm = ({
                 type="text"
                 placeholder="Enter probation period in days"
                 value={formData.probationPeriod}
-                onChange={(e) => handleValidatedInput('probation', e.target.value, 'probationPeriod', 'probation')}
+                onChange={(e) => handleValidatedInput('probation', e.target.value, 'probationPeriod')}
                 onBlur={() => handleBlurValidation('probation', formData.probationPeriod, 'probation')}
                 className={`h-12 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
                   validationErrors.probation ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
@@ -586,7 +563,7 @@ export const EmployeeInfoForm = ({
                 type="text"
                 placeholder="Enter hours per day"
                 value={formData.hoursPerDay}
-                onChange={(e) => handleValidatedInput('hours', e.target.value, 'hoursPerDay', 'hours')}
+                onChange={(e) => handleValidatedInput('hours', e.target.value, 'hoursPerDay')}
                 onBlur={() => handleBlurValidation('hours', formData.hoursPerDay, 'hours')}
                 className={`h-12 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
                   validationErrors.hours ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
@@ -625,7 +602,7 @@ export const EmployeeInfoForm = ({
                 type="text"
                 placeholder="Enter days per week"
                 value={formData.daysPerWeek}
-                onChange={(e) => handleValidatedInput('days', e.target.value, 'daysPerWeek', 'days')}
+                onChange={(e) => handleValidatedInput('days', e.target.value, 'daysPerWeek')}
                 onBlur={() => handleBlurValidation('days', formData.daysPerWeek, 'days')}
                 className={`h-12 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
                   validationErrors.days ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
