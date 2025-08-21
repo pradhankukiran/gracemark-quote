@@ -20,6 +20,7 @@ export interface EORFormData {
   isCurrencyManuallySet: boolean
   originalCurrency?: string
   clientName: string
+  clientType: 'new' | 'existing' | null
   clientCountry: string
   clientCurrency: string
   baseSalary: string

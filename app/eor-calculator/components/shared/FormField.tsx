@@ -31,7 +31,15 @@ interface SelectFormFieldProps extends BaseFormFieldProps {
   options: Array<{ value: string; label: string }>
 }
 
-type FormFieldProps = InputFormFieldProps | SelectFormFieldProps
+interface CheckboxGroupFormFieldProps extends BaseFormFieldProps {
+  type: "checkbox-group"
+  value: string | null
+  onChange: (value: string | null) => void
+  options: Array<{ value: string; label: string }>
+  disabled?: boolean
+}
+
+type FormFieldProps = InputFormFieldProps | SelectFormFieldProps | CheckboxGroupFormFieldProps
 
 export const FormField = ({ label, htmlFor, error, className = "", required, ...props }: FormFieldProps) => {
   const inputClasses = `h-12 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
@@ -80,6 +88,32 @@ export const FormField = ({ label, htmlFor, error, className = "", required, ...
             ))}
           </SelectContent>
         </Select>
+      )}
+
+      {props.type === "checkbox-group" && (
+        <div className="flex gap-4 mt-2">
+          {props.options.map((option) => (
+            <label 
+              key={option.value}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <input
+                type="checkbox"
+                checked={props.value === option.value}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    props.onChange(option.value)
+                  } else {
+                    props.onChange(null)
+                  }
+                }}
+                disabled={props.disabled}
+                className="w-4 h-4 text-primary border-2 border-slate-300 rounded focus:ring-2 focus:ring-primary/20"
+              />
+              <span className="text-sm font-medium text-slate-700">{option.label}</span>
+            </label>
+          ))}
+        </div>
       )}
 
       <div className="h-6">

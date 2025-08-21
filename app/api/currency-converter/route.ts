@@ -1,4 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { PapayaCurrencyProvider } from "@/lib/providers/papaya-currency-provider"
+import { RemoteCurrencyProvider } from "@/lib/providers/remote-currency-provider"
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,98 +19,41 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // If currencies are the same, return without API call
-    if (source_currency === target_currency) {
-      console.log("Same currency, returning 1:1 conversion")
-      return NextResponse.json({
-        data: {
-          conversion_data: {
-            exchange_rate: "1",
-            target_currency: {
-              code: target_currency,
-              name: target_currency,
-              symbol: target_currency
-            },
-            source_currency: {
-              code: source_currency,
-              name: source_currency,
-              symbol: source_currency
-            },
-            source_amount: amount,
-            target_amount: amount
-          }
-        }
-      })
+    // Initialize providers
+    const papayaProvider = new PapayaCurrencyProvider()
+    const remoteProvider = new RemoteCurrencyProvider()
+
+    // Always try Papaya Global first (primary provider)
+    console.log("Trying Papaya Global provider...")
+    let result = await papayaProvider.convertCurrency(amount, source_currency, target_currency)
+
+    // If Papaya Global fails, fallback to Remote.com
+    if (!result.success) {
+      console.log("Papaya Global failed, falling back to Remote.com provider...")
+      console.log("Papaya error:", result.error)
+      result = await remoteProvider.convertCurrency(amount, source_currency, target_currency)
+      
+      if (result.success) {
+        console.log("Remote.com fallback successful")
+      } else {
+        console.log("Remote.com fallback also failed:", result.error)
+      }
+    } else {
+      console.log("Papaya Global conversion successful")
     }
 
-    console.log("Making Remote API call...")
-    console.log("API Token exists:", !!process.env.REMOTE_API_TOKEN)
-
-
-    const roundedAmount = Math.round(Number.parseFloat(amount))
-    
-    // Skip conversion for negative amounts - Remote API doesn't accept them
-    if (roundedAmount < 0) {
-      console.log("Negative amount detected, returning --- placeholder")
-      return NextResponse.json({
-        data: {
-          conversion_data: {
-            exchange_rate: "0",
-            target_currency: {
-              code: target_currency,
-              name: target_currency,
-              symbol: target_currency
-            },
-            source_currency: {
-              code: source_currency,
-              name: source_currency,
-              symbol: source_currency
-            },
-            source_amount: amount,
-            target_amount: -1 // Special value to indicate negative/skip
-          }
-        }
-      })
-    }
-
-    const requestPayload = {
-      amount: roundedAmount,
-      source_currency,
-      target_currency,
-    }
-    
-    console.log("Remote API request payload:", requestPayload)
-
-    const options = {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "content-type": "application/json",
-        authorization: `Bearer ${process.env.REMOTE_API_TOKEN}`,
-      },
-      body: JSON.stringify(requestPayload),
-    }
-
-    console.log("Making request to: https://gateway.remote.com/v1/currency-converter")
-    const response = await fetch("https://gateway.remote.com/v1/currency-converter", options)
-    console.log("Remote API response status:", response.status)
-    console.log("Remote API response ok:", response.ok)
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error("Remote Currency Converter API Error status:", response.status)
-      console.error("Remote Currency Converter API Error response:", errorText)
-      console.error("Request that failed:", requestPayload)
+    // Return result or error
+    if (result.success && result.data) {
+      console.log("=== CURRENCY CONVERTER API SUCCESS ===")
+      return NextResponse.json({ data: result.data })
+    } else {
+      console.error("=== ALL CURRENCY PROVIDERS FAILED ===")
+      console.error("Final error:", result.error)
       return NextResponse.json(
-        { error: "Failed to convert currency" }, 
-        { status: response.status }
+        { error: result.error || "All currency conversion providers failed" }, 
+        { status: 500 }
       )
     }
-
-    const data = await response.json()
-    console.log("Remote API success response:", data)
-    console.log("=== CURRENCY CONVERTER API SUCCESS ===")
-    return NextResponse.json(data)
   } catch (error) {
     console.error("=== CURRENCY CONVERTER API CRASHED ===")
     console.error("Currency Converter API Error:", error)
