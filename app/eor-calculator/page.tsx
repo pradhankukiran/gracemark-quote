@@ -15,6 +15,7 @@ import { useBenefits } from "./hooks/useBenefits"
 import { useValidationConversion } from "./hooks/useValidationConversion"
 
 import { ClientInfoForm } from "./components/ClientInfoForm"
+import { QuotationTypeForm } from "./components/QuotationTypeForm"
 import { EmployeeInfoForm } from "./components/EmployeeInfoForm"
 import { CountryComparisonForm } from "./components/CountryComparisonForm"
 import { FormActions } from "./components/FormActions"
@@ -247,6 +248,13 @@ export default function EORCalculatorPage() {
                 <ClientInfoForm
                   formData={formData}
                   countries={countries}
+                  onFormUpdate={updateFormData}
+                />
+
+                <Separator />
+
+                <QuotationTypeForm
+                  formData={formData}
                   onFormUpdate={updateFormData}
                 />
 
