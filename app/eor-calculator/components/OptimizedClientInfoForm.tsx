@@ -92,7 +92,7 @@ export const OptimizedClientInfoForm = memo(({
             id="clientCountry"
             value={formData.clientCountry}
             onChange={(e) => handleCountryChange(e.target.value)}
-            className="h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 w-full px-3 rounded-md bg-white"
+            className="h-12 border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 w-full px-3 rounded-md bg-white"
           >
             <option value="">Select client country</option>
             {countryOptions.map((option) => (

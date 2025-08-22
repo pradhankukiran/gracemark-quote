@@ -66,7 +66,7 @@ export const QuoteCard = ({
     const showDualColumns = isDualCurrencyMode || showUSDColumns
     
     return (
-      <div className={`${compact ? 'py-2 px-2' : 'py-3 px-4'} bg-slate-50 ${
+      <div className={`${compact ? 'py-2 px-2' : 'py-3 px-4'} bg-gray-50 ${
         showDualColumns 
           ? `grid ${compact ? 'grid-cols-3 gap-2' : 'grid-cols-3 gap-4'} items-center`
           : 'flex justify-between items-center'
