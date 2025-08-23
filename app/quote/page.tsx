@@ -182,7 +182,6 @@ function QuotePageContent() {
                 title={`${quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? 
                   (quoteData.dualCurrencyQuotes?.selectedCurrencyQuote?.country || quoteData.formData.country) : 
                   quoteData.quotes.deel?.country || quoteData.formData.country} EOR Quote`}
-                subtitle="Powered by Deel"
                 usdConversions={quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? undefined : usdConversions.deel}
                 isConvertingToUSD={quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? false : isConvertingDeelToUsd}
                 usdConversionError={quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? null : usdConversionError}

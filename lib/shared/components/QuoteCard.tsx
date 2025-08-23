@@ -3,11 +3,12 @@ import { Separator } from "@/components/ui/separator";
 import { DollarSign, Loader2 } from "lucide-react";
 import { Quote, USDConversions, DualCurrencyQuotes } from "@/lib/shared/types";
 import { formatCurrency } from "@/lib/shared/utils/currencyUtils";
+import Image from "next/image";
 
 interface QuoteCardProps {
   quote?: Quote;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   badgeText?: string;
   badgeColor?: string;
   usdConversions?: USDConversions["deel"] | USDConversions["compare"];
@@ -139,12 +140,24 @@ export const QuoteCard = ({
   return (
     <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
       <CardContent className="p-6">
-        <div className="flex justify-between items-start mb-6">
-          <div className="text-center flex-1">
+        {/* 3-Column Header */}
+        <div className="grid grid-cols-3 items-center mb-6">
+          {/* Left: Logo */}
+          <div className="flex justify-start">
+            <Image
+              src="/deel_logo.png"
+              alt="Deel Logo"
+              width={80}
+              height={32}
+              className="object-contain"
+            />
+          </div>
+
+          {/* Middle: Title */}
+          <div className="text-center">
             <h3 className={`${textSizes.title} font-bold text-slate-900`}>
               {title}
             </h3>
-            <p className="text-base text-slate-600">{subtitle}</p>
             {badgeText && (
               <span
                 className={`inline-block px-3 py-1 ${badgeColor} text-sm font-semibold rounded-full mt-2`}
@@ -154,42 +167,40 @@ export const QuoteCard = ({
             )}
           </div>
 
-          {/* Status indicators */}
-          {isDualCurrencyMode ? (
-            <div className="ml-4 text-right">
-              {isCalculatingSelected || isCalculatingLocal ? (
-                <div className="flex items-center text-blue-600 text-sm">
-                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                  Loading dual quotes...
+          {/* Right: USD Status */}
+          <div className="flex justify-end">
+            {isDualCurrencyMode ? (
+              isCalculatingSelected || isCalculatingLocal ? (
+                <div className="flex items-center whitespace-nowrap text-blue-600 text-sm">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading...
                 </div>
               ) : (
-                <div className="flex items-center text-green-600 text-sm">
-                  <DollarSign className="mr-1 h-3 w-3" />
-                  Dual currency view
+                <div className="flex items-center whitespace-nowrap text-green-600 text-sm">
+                  <DollarSign className="mr-1 h-4 w-4" />
+                  Dual currency
                 </div>
-              )}
-            </div>
-          ) : (
-            showUSDColumns && (
-              <div className="ml-4 text-right">
-                {isConvertingToUSD ? (
-                  <div className="flex items-center text-blue-600 text-sm">
-                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                    Converting to USD...
+              )
+            ) : (
+              showUSDColumns && (
+                isConvertingToUSD ? (
+                  <div className="flex items-center whitespace-nowrap text-blue-600 text-sm">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Converting...
                   </div>
                 ) : hasUSDData ? (
-                  <div className="flex items-center text-green-600 text-sm">
-                    <DollarSign className="mr-1 h-3 w-3" />
+                  <div className="flex items-center whitespace-nowrap text-green-600 text-sm">
+                    <DollarSign className="mr-1 h-4 w-4" />
                     USD prices included
                   </div>
                 ) : usdConversionError ? (
-                  <div className="text-red-500 text-xs max-w-32">
+                  <div className="text-red-500 text-xs">
                     USD conversion failed
                   </div>
-                ) : null}
-              </div>
-            )
-          )}
+                ) : null
+              )
+            )}
+          </div>
         </div>
 
         <div className="space-y-4">

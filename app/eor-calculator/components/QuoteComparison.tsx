@@ -48,14 +48,14 @@ export const QuoteComparison = ({
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
+      {/* <div className="text-center mb-8">
         <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
           Country Comparison
         </h2>
         <p className="text-lg text-slate-600">
           Compare EOR costs between {primaryTitle} and {comparisonTitle}
         </p>
-      </div>
+      </div> */}
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Primary Quote */}
