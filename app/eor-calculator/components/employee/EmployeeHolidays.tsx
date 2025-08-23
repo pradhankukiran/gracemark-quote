@@ -1,14 +1,15 @@
 import { memo, useCallback } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { EORFormData, ValidationAPIResponse, ValidationErrors } from "../../types"
+import { EORFormData, ValidationAPIResponse, ValidationErrors } from "@/lib/shared/types"
 import { FORM_STYLES } from "../../styles/constants"
 import { useDebouncedInput } from "../../hooks/useDebouncedInput"
 import { useValidationUtils } from "../../hooks/useValidationUtils"
-import { isValidNumericFormat } from "../../utils/validationUtils"
+import { isValidNumericFormat } from "@/lib/shared/utils/validationUtils"
 
 interface EmployeeHolidaysProps {
-  formData: EORFormData
+  holidayDays: string
+  currency: string
   validationData: ValidationAPIResponse | null
   validationErrors: ValidationErrors
   onFormUpdate: (updates: Partial<EORFormData>) => void
@@ -16,7 +17,8 @@ interface EmployeeHolidaysProps {
 }
 
 export const EmployeeHolidays = memo(({
-  formData,
+  holidayDays,
+  currency,
   validationData,
   validationErrors,
   onFormUpdate,
@@ -24,8 +26,7 @@ export const EmployeeHolidays = memo(({
 }: EmployeeHolidaysProps) => {
   const { validateField, isValidationReady } = useValidationUtils()
 
-  // Debounced input for holiday days
-  const holidaysInput = useDebouncedInput(formData.holidayDays, {
+  const holidaysInput = useDebouncedInput(holidayDays, {
     debounceDelay: 300,
     onImmediate: (value: string) => {
       if (isValidNumericFormat(value)) {
@@ -42,9 +43,9 @@ export const EmployeeHolidays = memo(({
       return
     }
 
-    const result = validateField('holidays', value, 'holiday', validationData, formData.currency)
+    const result = validateField('holidays', value, 'holiday', validationData, currency)
     onValidationError('holidays', result.isValid ? null : result.errorMessage || 'Invalid holiday days')
-  }, [isValidationReady, validateField, validationData, formData.currency, onValidationError])
+  }, [isValidationReady, validateField, validationData, currency, onValidationError])
 
   return (
     <div className="mb-6">

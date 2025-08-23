@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
-import { BenefitsAPIResponse } from "../types"
-import { fetchBenefitsData, BenefitsRequestParams } from "../utils/apiUtils"
+import { BenefitsAPIResponse } from "@/lib/shared/types"
+import { fetchBenefitsData, BenefitsRequestParams } from "@/lib/shared/utils/apiUtils"
 
 interface UseBenefitsProps {
   countryCode: string | null

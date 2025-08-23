@@ -1,17 +1,32 @@
+import { useMemo, useCallback, memo } from "react"
 import { MapPin } from "lucide-react"
-import { EORFormData } from "../types"
+import { EORFormData } from "@/lib/shared/types"
 import { FormSectionHeader } from "./shared/FormSectionHeader"
 import { FormField } from "./shared/FormField"
 import { FORM_STYLES } from "../styles/constants"
 
 interface ClientInfoFormProps {
-  formData: EORFormData
+  clientName: string
+  clientType: 'new' | 'existing' | null
+  clientCountry: string
+  clientCurrency: string
   countries: string[]
   onFormUpdate: (updates: Partial<EORFormData>) => void
 }
 
-export const ClientInfoForm = ({ formData, countries, onFormUpdate }: ClientInfoFormProps) => {
-  const countryOptions = countries.map(country => ({ value: country, label: country }))
+export const ClientInfoForm = memo(({
+  clientName,
+  clientType,
+  clientCountry,
+  clientCurrency,
+  countries,
+  onFormUpdate,
+}: ClientInfoFormProps) => {
+  const countryOptions = useMemo(() => countries.map(country => ({ value: country, label: country })), [countries])
+
+  const handleClientCountryChange = useCallback((value: string) => {
+    onFormUpdate({ clientCountry: value })
+  }, [onFormUpdate])
 
   return (
     <div>
@@ -24,12 +39,12 @@ export const ClientInfoForm = ({ formData, countries, onFormUpdate }: ClientInfo
           <input
             id="clientName"
             type="text"
-            value={formData.clientName}
+            value={clientName}
             onChange={(e) => onFormUpdate({ clientName: e.target.value })}
             placeholder="Enter client name"
             className="h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 w-full px-3 rounded-md"
           />
-          <div className="flex gap-3 justify-end">
+          <div className="flex gap-3 justify-start">
             {[
               { value: 'new', label: 'New' },
               { value: 'existing', label: 'Existing' }
@@ -40,7 +55,7 @@ export const ClientInfoForm = ({ formData, countries, onFormUpdate }: ClientInfo
               >
                 <input
                   type="checkbox"
-                  checked={formData.clientType === option.value}
+                  checked={clientType === option.value}
                   onChange={(e) => {
                     if (e.target.checked) {
                       onFormUpdate({ clientType: option.value as 'new' | 'existing' })
@@ -59,8 +74,8 @@ export const ClientInfoForm = ({ formData, countries, onFormUpdate }: ClientInfo
           type="select"
           label="Client Country"
           htmlFor="clientCountry"
-          value={formData.clientCountry}
-          onChange={(value) => onFormUpdate({ clientCountry: value })}
+          value={clientCountry}
+          onChange={handleClientCountryChange}
           placeholder="Select client country"
           options={countryOptions}
         />
@@ -68,11 +83,13 @@ export const ClientInfoForm = ({ formData, countries, onFormUpdate }: ClientInfo
           type="input"
           label="Client Currency"
           htmlFor="clientCurrency"
-          value={formData.clientCurrency}
+          value={clientCurrency}
           onChange={() => {}}
           readOnly
         />
       </div>
     </div>
   )
-}
+})
+
+ClientInfoForm.displayName = 'ClientInfoForm'

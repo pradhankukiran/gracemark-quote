@@ -1,65 +1,65 @@
 import { Building2 } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { EORFormData, LocalOfficeInfo } from "../types"
+import { EORFormData, LocalOfficeInfo } from "@/lib/shared/types"
 import { FormSectionHeader } from "./shared/FormSectionHeader"
 import { FORM_STYLES } from "../styles/constants"
-import { getOriginalLocalOfficeData } from "../utils/localOfficeData"
+import { getOriginalLocalOfficeData } from "@/lib/shared/utils/localOfficeData"
 import { useLocalOfficeConversion, getConvertedLocalOfficeValue } from "../hooks/useLocalOfficeConversion"
 import { LoadingSpinner } from "./shared/LoadingSpinner"
 
 interface LocalOfficeInformationProps {
-  formData: EORFormData
+  localOfficeInfo: LocalOfficeInfo
+  isCurrencyManuallySet: boolean
+  originalCurrency: string | null
+  currency: string
   onLocalOfficeUpdate: (updates: Partial<LocalOfficeInfo>) => void
   countryCode?: string
 }
 
 export const LocalOfficeInformation = ({
-  formData,
+  localOfficeInfo,
+  isCurrencyManuallySet,
+  originalCurrency,
+  currency,
   onLocalOfficeUpdate,
   countryCode,
 }: LocalOfficeInformationProps) => {
-  const { localOfficeInfo, currency } = formData
-  
-  // Get original USD data for conversion
   const originalData = countryCode ? getOriginalLocalOfficeData(countryCode) : null
-  
-  // Use conversion hook with same pattern as useValidationConversion
+
   const {
     convertedLocalOffice,
     isConvertingLocalOffice,
   } = useLocalOfficeConversion({
     originalData,
     countryCode: countryCode || null,
-    formCurrency: formData.currency,
-    isCurrencyManuallySet: formData.isCurrencyManuallySet,
-    originalCurrency: formData.originalCurrency,
+    formCurrency: currency,
+    isCurrencyManuallySet: isCurrencyManuallySet,
+    originalCurrency: originalCurrency,
   })
-  
+
   const getDisplayCurrency = () => {
-    // All fields display in local currency after conversion
     return currency
   }
-  
+
   const getDisplayValue = (field: keyof LocalOfficeInfo) => {
     if (isConvertingLocalOffice) {
-      return localOfficeInfo[field] || '' // Show existing value during conversion
+      return localOfficeInfo[field] || ''
     }
-    // Use converted value if available, otherwise fall back to original data or form data
     return getConvertedLocalOfficeValue(field, convertedLocalOffice, originalData) || localOfficeInfo[field] || ''
   }
-  
+
   const getPlaceholder = (field: keyof LocalOfficeInfo) => {
     const value = getDisplayValue(field)
     if (isConvertingLocalOffice) return 'Converting...'
     return value === 'N/A' ? 'N/A' : (value || 'Enter amount')
   }
-  
+
   const isFieldDisabled = (field: keyof LocalOfficeInfo) => {
     const value = getDisplayValue(field)
     return value === 'N/A' || isConvertingLocalOffice
   }
-  
+
   const handleFieldUpdate = (field: keyof LocalOfficeInfo, value: string) => {
     onLocalOfficeUpdate({ [field]: value })
   }
@@ -67,8 +67,7 @@ export const LocalOfficeInformation = ({
   return (
     <div>
       <FormSectionHeader icon={Building2} title="Local Office Information" />
-      
-      {/* Conversion Status */}
+
       {isConvertingLocalOffice && (
         <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-4">
           <div className="flex items-center gap-2">
@@ -80,7 +79,6 @@ export const LocalOfficeInformation = ({
         </div>
       )}
       <div className={FORM_STYLES.GRID_3_COL}>
-        {/* Row 1 */}
         <div className="space-y-2">
           <Label
             htmlFor="mealVoucher"
@@ -146,7 +144,6 @@ export const LocalOfficeInformation = ({
       </div>
 
       <div className="grid md:grid-cols-3 gap-4 mb-6">
-        {/* Row 2 */}
         <div className="space-y-2">
           <Label
             htmlFor="healthInsurance"
@@ -212,7 +209,6 @@ export const LocalOfficeInformation = ({
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
-        {/* Row 3 */}
         <div className="space-y-2">
           <Label
             htmlFor="preEmploymentMedicalTest"

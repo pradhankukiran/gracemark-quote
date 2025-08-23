@@ -20,9 +20,7 @@ interface RemoteConversionResponse {
   }
 }
 
-interface RemoteConversionError {
-  error: string
-}
+
 
 export class RemoteCurrencyProvider implements CurrencyProvider {
   getName(): string {

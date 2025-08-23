@@ -2,21 +2,29 @@ import { memo, useState, useEffect, useCallback } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { EORFormData } from "../../types"
+import { EORFormData } from "@/lib/shared/types"
 import { FORM_STYLES } from "../../styles/constants"
 import { allCurrencies } from "@/lib/country-data"
 
 interface EmployeeLocationInfoProps {
-  formData: EORFormData
+  country: string
+  currency: string
+  isCurrencyManuallySet: boolean
+  originalCurrency: string | null
+  workVisaRequired: boolean
   countries: string[]
   onFormUpdate: (updates: Partial<EORFormData>) => void
   onCountryChange: (country: string) => void
-  onCurrencyOverride: (currency: string, conversionInfoCallback?: (info: string) => void) => void
+  onCurrencyOverride: (currency: string) => void
   onCurrencyReset: () => void
 }
 
 export const EmployeeLocationInfo = memo(({ 
-  formData, 
+  country,
+  currency,
+  isCurrencyManuallySet,
+  originalCurrency,
+  workVisaRequired,
   countries,
   onFormUpdate,
   onCountryChange,
@@ -24,39 +32,24 @@ export const EmployeeLocationInfo = memo(({
   onCurrencyReset
 }: EmployeeLocationInfoProps) => {
   const [isEditingCurrency, setIsEditingCurrency] = useState(false)
-  const [salaryConversionInfo, setSalaryConversionInfo] = useState<string | null>(null)
 
   const handleChangeClick = useCallback(() => {
     setIsEditingCurrency(true)
   }, [])
 
   const handleCurrencySelect = useCallback((newCurrency: string) => {
-    // Don't proceed if same currency is selected
-    if (newCurrency === formData.currency) {
+    if (newCurrency === currency) {
       setIsEditingCurrency(false)
       return
     }
     
-    onCurrencyOverride(newCurrency, setSalaryConversionInfo)
+    onCurrencyOverride(newCurrency)
     setIsEditingCurrency(false)
-  }, [formData.currency, onCurrencyOverride])
+  }, [currency, onCurrencyOverride])
 
-  // Reset editing state when country changes
   useEffect(() => {
     setIsEditingCurrency(false)
-    setSalaryConversionInfo(null)
-  }, [formData.country])
-
-  // Clear salary conversion info after a delay
-  useEffect(() => {
-    if (salaryConversionInfo) {
-      const timeout = setTimeout(() => {
-        setSalaryConversionInfo(null)
-      }, 5000) // Clear after 5 seconds
-
-      return () => clearTimeout(timeout)
-    }
-  }, [salaryConversionInfo])
+  }, [country])
 
   return (
     <div className="mb-6">
@@ -66,16 +59,16 @@ export const EmployeeLocationInfo = memo(({
             Country
           </Label>
           <Select
-            value={formData.country}
+            value={country}
             onValueChange={onCountryChange}
           >
             <SelectTrigger className="!h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
               <SelectValue placeholder="Select country" />
             </SelectTrigger>
             <SelectContent>
-              {countries.map((country) => (
-                <SelectItem key={country} value={country}>
-                  {country}
+              {countries.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -88,7 +81,7 @@ export const EmployeeLocationInfo = memo(({
             className={FORM_STYLES.LABEL_BASE}
           >
             Currency
-            {formData.isCurrencyManuallySet && (
+            {isCurrencyManuallySet && (
               <span className="ml-2 text-xs text-blue-600 font-medium">
                 (Custom)
               </span>
@@ -99,11 +92,11 @@ export const EmployeeLocationInfo = memo(({
             <div className="relative">
               <Input
                 id="currency"
-                value={formData.currency}
+                value={currency}
                 readOnly
                 className="h-12 border-2 border-slate-200 bg-slate-50 text-slate-700 pr-24"
               />
-              {formData.country && (
+              {country && (
                 <button
                   type="button"
                   onClick={handleChangeClick}
@@ -121,35 +114,28 @@ export const EmployeeLocationInfo = memo(({
               )}
             </div>
           ) : (
-            <Select value={formData.currency} onValueChange={handleCurrencySelect}>
+            <Select value={currency} onValueChange={handleCurrencySelect}>
               <SelectTrigger className="!h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
               <SelectContent className="max-h-60">
-                {allCurrencies.map((currency) => (
-                  <SelectItem key={currency.code} value={currency.code}>
-                    {currency.code} - {currency.name}
+                {allCurrencies.map((curr) => (
+                  <SelectItem key={curr.code} value={curr.code}>
+                    {curr.code} - {curr.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           )}
           
-          {formData.isCurrencyManuallySet && formData.originalCurrency && (
+          {isCurrencyManuallySet && originalCurrency && (
             <button
               type="button"
               onClick={onCurrencyReset}
               className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
             >
-              Reset to {formData.originalCurrency} (default for {formData.country})
+              Reset to {originalCurrency} (default for {country})
             </button>
-          )}
-
-          {salaryConversionInfo && (
-            <p className="text-green-600 text-sm mt-1 flex items-center">
-              <span className="mr-1">✓</span>
-              {salaryConversionInfo}
-            </p>
           )}
         </div>
 
@@ -161,7 +147,7 @@ export const EmployeeLocationInfo = memo(({
             Work Visa Required
           </Label>
           <Select
-            value={formData.workVisaRequired ? "true" : "false"}
+            value={workVisaRequired ? "true" : "false"}
             onValueChange={(value) => onFormUpdate({ workVisaRequired: value === "true" })}
           >
             <SelectTrigger className="!h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">

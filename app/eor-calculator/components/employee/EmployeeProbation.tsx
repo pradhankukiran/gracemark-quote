@@ -1,14 +1,15 @@
 import { memo, useCallback } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { EORFormData, ValidationAPIResponse, ValidationErrors } from "../../types"
+import { EORFormData, ValidationAPIResponse, ValidationErrors } from "@/lib/shared/types"
 import { FORM_STYLES } from "../../styles/constants"
 import { useDebouncedInput } from "../../hooks/useDebouncedInput"
 import { useValidationUtils } from "../../hooks/useValidationUtils"
-import { isValidNumericFormat } from "../../utils/validationUtils"
+import { isValidNumericFormat } from "@/lib/shared/utils/validationUtils"
 
 interface EmployeeProbationProps {
-  formData: EORFormData
+  probationPeriod: string
+  currency: string
   validationData: ValidationAPIResponse | null
   validationErrors: ValidationErrors
   onFormUpdate: (updates: Partial<EORFormData>) => void
@@ -16,7 +17,8 @@ interface EmployeeProbationProps {
 }
 
 export const EmployeeProbation = memo(({
-  formData,
+  probationPeriod,
+  currency,
   validationData,
   validationErrors,
   onFormUpdate,
@@ -24,8 +26,7 @@ export const EmployeeProbation = memo(({
 }: EmployeeProbationProps) => {
   const { validateField, isValidationReady } = useValidationUtils()
 
-  // Debounced input for probation period
-  const probationInput = useDebouncedInput(formData.probationPeriod, {
+  const probationInput = useDebouncedInput(probationPeriod, {
     debounceDelay: 300,
     onImmediate: (value: string) => {
       if (isValidNumericFormat(value)) {
@@ -42,11 +43,10 @@ export const EmployeeProbation = memo(({
       return
     }
 
-    const result = validateField('probation', value, 'probation', validationData, formData.currency)
+    const result = validateField('probation', value, 'probation', validationData, currency)
     onValidationError('probation', result.isValid ? null : result.errorMessage || 'Invalid probation period')
-  }, [isValidationReady, validateField, validationData, formData.currency, onValidationError])
+  }, [isValidationReady, validateField, validationData, currency, onValidationError])
 
-  // Only show probation section if validation data has probation info
   if (!validationData?.data.probation.min && !validationData?.data.probation.max) {
     return null
   }

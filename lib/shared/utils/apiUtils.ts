@@ -1,5 +1,8 @@
-import { DeelAPIResponse, RemoteAPIResponse, ValidationAPIResponse, BenefitsAPIResponse, EORFormData } from "../types"
+// lib/shared/utils/apiUtils.ts - Shared API utilities
 
+import { DeelAPIResponse, RemoteAPIResponse, ValidationAPIResponse, BenefitsAPIResponse, EORFormData } from "@/lib/shared/types"
+
+// Quote Request Data Interface
 export interface QuoteRequestData {
   salary: string
   country: string
@@ -9,6 +12,17 @@ export interface QuoteRequestData {
   state?: string
 }
 
+// Benefits Request Parameters
+export interface BenefitsRequestParams {
+  countryCode: string
+  workVisa: boolean
+  workHoursPerWeek: number
+  employmentType: string
+}
+
+/**
+ * Creates quote request data from form data
+ */
 export const createQuoteRequestData = (
   formData: EORFormData,
   useComparisonData = false
@@ -29,6 +43,9 @@ export const createQuoteRequestData = (
   return baseData
 }
 
+/**
+ * Fetches EOR cost from Deel API
+ */
 export const fetchEORCost = async (requestData: QuoteRequestData): Promise<DeelAPIResponse> => {
   const response = await fetch("/api/eor-cost", {
     method: "POST",
@@ -44,6 +61,9 @@ export const fetchEORCost = async (requestData: QuoteRequestData): Promise<DeelA
   return response.json()
 }
 
+/**
+ * Fetches Remote.com cost estimates
+ */
 export const fetchRemoteCost = async (requestData: QuoteRequestData): Promise<RemoteAPIResponse> => {
   const response = await fetch("/api/remote-cost", {
     method: "POST",
@@ -59,6 +79,9 @@ export const fetchRemoteCost = async (requestData: QuoteRequestData): Promise<Re
   return response.json()
 }
 
+/**
+ * Fetches validation data for a specific country
+ */
 export const fetchValidationData = async (countryCode: string): Promise<ValidationAPIResponse> => {
   const response = await fetch(`/api/eor-validations/${countryCode}`)
   
@@ -70,13 +93,9 @@ export const fetchValidationData = async (countryCode: string): Promise<Validati
   return response.json()
 }
 
-export interface BenefitsRequestParams {
-  countryCode: string
-  workVisa: boolean
-  workHoursPerWeek: number
-  employmentType: string
-}
-
+/**
+ * Fetches benefits data for a specific country and employment configuration
+ */
 export const fetchBenefitsData = async (params: BenefitsRequestParams): Promise<BenefitsAPIResponse> => {
   // Transform employment type to match API expectations
   const transformEmploymentType = (type: string): string => {

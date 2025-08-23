@@ -1,6 +1,9 @@
-import { convertCurrency } from "@/lib/currency-converter"
-import { DeelAPIResponse, USDConversions } from "../types"
+// lib/shared/utils/currencyUtils.ts - Consolidated currency utilities
 
+import { convertCurrency } from "@/lib/currency-converter"
+import { DeelAPIResponse, USDConversions } from "@/lib/shared/types"
+
+// Progress callback interface for USD conversion
 interface ProgressCallback {
   onSalaryConverted?: (amount: number) => void
   onFeeConverted?: (amount: number) => void
@@ -8,6 +11,24 @@ interface ProgressCallback {
   onTotalConverted?: (amount: number) => void
 }
 
+/**
+ * Formats a number as currency with the specified currency code
+ */
+export const formatCurrency = (amount: number, currency: string): string => {
+  return `${currency} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
+/**
+ * Formats a string number with commas and decimal places
+ */
+export const formatNumberWithCommas = (value: string): string => {
+  const num = Number.parseFloat(value);
+  return isNaN(num) ? value : num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+/**
+ * Converts a Deel quote to USD with progress callbacks
+ */
 export const convertQuoteToUsd = async (
   quote: DeelAPIResponse,
   progressCallback?: ProgressCallback
@@ -52,7 +73,7 @@ export const convertQuoteToUsd = async (
     const costAmounts = successfulResults.slice(2, -1).map((r) => r.target_amount)
     const totalAmount = successfulResults[successfulResults.length - 1].target_amount
 
-    // Call callbacks to update UI progressively, even though results arrive at once
+    // Call callbacks to update UI progressively
     progressCallback?.onSalaryConverted?.(salaryAmount)
     progressCallback?.onFeeConverted?.(feeAmount)
     costAmounts.forEach((amount, i) => {
@@ -75,13 +96,4 @@ export const convertQuoteToUsd = async (
       error: "Failed to convert to USD - " + (error instanceof Error ? error.message : "Unknown error"),
     }
   }
-}
-
-export const formatCurrency = (amount: number, currency: string): string => {
-  return `${currency} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-}
-
-export const formatNumberWithCommas = (value: string): string => {
-  const num = Number.parseFloat(value)
-  return isNaN(num) ? value : num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }

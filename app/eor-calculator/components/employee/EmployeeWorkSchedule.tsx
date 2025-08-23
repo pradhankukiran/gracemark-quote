@@ -1,14 +1,16 @@
 import { memo, useCallback } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { EORFormData, ValidationAPIResponse, ValidationErrors } from "../../types"
+import { EORFormData, ValidationAPIResponse, ValidationErrors } from "@/lib/shared/types"
 import { FORM_STYLES } from "../../styles/constants"
 import { useDebouncedInput } from "../../hooks/useDebouncedInput"
 import { useValidationUtils } from "../../hooks/useValidationUtils"
-import { isValidNumericFormat } from "../../utils/validationUtils"
+import { isValidNumericFormat } from "@/lib/shared/utils/validationUtils"
 
 interface EmployeeWorkScheduleProps {
-  formData: EORFormData
+  hoursPerDay: string
+  daysPerWeek: string
+  currency: string
   validationData: ValidationAPIResponse | null
   validationErrors: ValidationErrors
   onFormUpdate: (updates: Partial<EORFormData>) => void
@@ -16,7 +18,9 @@ interface EmployeeWorkScheduleProps {
 }
 
 export const EmployeeWorkSchedule = memo(({
-  formData,
+  hoursPerDay,
+  daysPerWeek,
+  currency,
   validationData,
   validationErrors,
   onFormUpdate,
@@ -24,8 +28,7 @@ export const EmployeeWorkSchedule = memo(({
 }: EmployeeWorkScheduleProps) => {
   const { validateField, isValidationReady } = useValidationUtils()
 
-  // Debounced input for hours per day
-  const hoursInput = useDebouncedInput(formData.hoursPerDay, {
+  const hoursInput = useDebouncedInput(hoursPerDay, {
     debounceDelay: 300,
     onImmediate: (value: string) => {
       if (isValidNumericFormat(value)) {
@@ -36,8 +39,7 @@ export const EmployeeWorkSchedule = memo(({
     onValidate: (value: string) => handleHoursValidation(value)
   })
 
-  // Debounced input for days per week
-  const daysInput = useDebouncedInput(formData.daysPerWeek, {
+  const daysInput = useDebouncedInput(daysPerWeek, {
     debounceDelay: 300,
     onImmediate: (value: string) => {
       if (isValidNumericFormat(value)) {
@@ -54,9 +56,9 @@ export const EmployeeWorkSchedule = memo(({
       return
     }
 
-    const result = validateField('hours', value, 'hours', validationData, formData.currency)
+    const result = validateField('hours', value, 'hours', validationData, currency)
     onValidationError('hours', result.isValid ? null : result.errorMessage || 'Invalid hours per day')
-  }, [isValidationReady, validateField, validationData, formData.currency, onValidationError])
+  }, [isValidationReady, validateField, validationData, currency, onValidationError])
 
   const handleDaysValidation = useCallback((value: string) => {
     if (!value || !isValidationReady()) {
@@ -64,9 +66,9 @@ export const EmployeeWorkSchedule = memo(({
       return
     }
 
-    const result = validateField('days', value, 'days', validationData, formData.currency)
+    const result = validateField('days', value, 'days', validationData, currency)
     onValidationError('days', result.isValid ? null : result.errorMessage || 'Invalid days per week')
-  }, [isValidationReady, validateField, validationData, formData.currency, onValidationError])
+  }, [isValidationReady, validateField, validationData, currency, onValidationError])
 
   return (
     <div className="mb-6">

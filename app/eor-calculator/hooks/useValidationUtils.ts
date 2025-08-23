@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from "react"
-import { ValidationAPIResponse, ValidationErrors } from "../types"
+import { ValidationAPIResponse, ValidationErrors } from "@/lib/shared/types"
 
 // Type definitions for validation functions
 type ValidationFunctions = {
@@ -27,7 +27,7 @@ export const useValidationUtils = () => {
     // Preload validation utilities on mount
     const loadValidationUtils = async () => {
       try {
-        const validationUtils = await import("../utils/validationUtils")
+        const validationUtils = await import("@/lib/shared/utils/validationUtils")
         
         validationFunctionsRef.current = {
           validateSalaryInput: validationUtils.validateSalaryInput,

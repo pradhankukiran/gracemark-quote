@@ -1,4 +1,6 @@
-import { LocalOfficeInfo } from "../types"
+// lib/shared/utils/localOfficeData.ts - Local office data for LATAM countries
+
+import { LocalOfficeInfo } from "@/lib/shared/types"
 
 interface LocalOfficeData {
   [countryCode: string]: LocalOfficeInfo

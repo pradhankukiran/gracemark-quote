@@ -1,4 +1,6 @@
-import { ValidationAPIResponse } from "../types"
+// lib/shared/utils/validationUtils.ts - Shared validation utilities
+
+import { ValidationAPIResponse } from "@/lib/shared/types"
 
 // LATAM countries that require Local Office Information
 const LATAM_COUNTRIES = ['CO', 'BR', 'AR', 'MX', 'CL', 'PE']

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react"
-import { DeelAPIResponse, USDConversions } from "../types"
-import { convertQuoteToUsd } from "../utils/currencyUtils"
+import { DeelAPIResponse, USDConversions } from "@/lib/shared/types"
+import { convertQuoteToUsd } from "@/lib/shared/utils/currencyUtils"
 
 export const useUSDConversion = () => {
   const [usdConversions, setUsdConversions] = useState<USDConversions>({})

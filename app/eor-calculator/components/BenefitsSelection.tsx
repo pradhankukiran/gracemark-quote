@@ -4,7 +4,7 @@ import React from "react"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Heart, Info } from "lucide-react"
-import { BenefitsAPIResponse, Benefit } from "../types"
+import { BenefitsAPIResponse, Benefit } from "@/lib/shared/types"
 import { FormSectionHeader } from "./shared/FormSectionHeader"
 import { LoadingSpinner } from "./shared/LoadingSpinner"
 import { ErrorDisplay } from "./shared/ErrorDisplay"
@@ -37,7 +37,7 @@ export const BenefitsSelection = ({
     }
   }, [])
 
-  const openPDFInNewTab = async (attachmentUrl: string, attachmentLabel: string) => {
+  const openPDFInNewTab = React.useCallback(async (attachmentUrl: string, attachmentLabel: string) => {
     if (blobCacheRef.current.has(attachmentUrl)) {
       const cachedBlobUrl = blobCacheRef.current.get(attachmentUrl)!
       window.open(cachedBlobUrl, '_blank')
@@ -66,38 +66,13 @@ export const BenefitsSelection = ({
         return newSet
       })
     }
-  }
+  }, [])
 
-  if (isLoadingBenefits) {
-    return (
-      <div>
-        <FormSectionHeader icon={Heart} title="Employee Benefits" />
-        <LoadingSpinner message="Loading country benefits data..." />
-      </div>
-    )
-  }
-
-  if (benefitsError) {
-    return (
-      <div>
-        <FormSectionHeader icon={Heart} title="Employee Benefits" />
-        <ErrorDisplay 
-          title="Benefits data unavailable" 
-          message={benefitsError} 
-        />
-      </div>
-    )
-  }
-
-  if (!benefitsData || !benefitsData.data || benefitsData.data.length === 0) {
-    return null
-  }
-
-  const getBenefitKey = (benefitName: string): string => {
+  const getBenefitKey = React.useCallback((benefitName: string): string => {
     return benefitName.toLowerCase().replace(/\s+/g, "_")
-  }
+  }, [])
 
-  const renderBenefit = (benefit: Benefit) => {
+  const renderBenefit = React.useCallback((benefit: Benefit) => {
     const benefitKey = getBenefitKey(benefit.name)
     const selectedPlanId = selectedBenefits[benefitKey]
     const isPension = benefit.name.toLowerCase() === 'pension'
@@ -205,6 +180,31 @@ export const BenefitsSelection = ({
         )}
       </div>
     )
+  }, [getBenefitKey, onBenefitChange, openPDFInNewTab, selectedBenefits, loadingAttachments])
+
+  if (isLoadingBenefits) {
+    return (
+      <div>
+        <FormSectionHeader icon={Heart} title="Employee Benefits" />
+        <LoadingSpinner message="Loading country benefits data..." />
+      </div>
+    )
+  }
+
+  if (benefitsError) {
+    return (
+      <div>
+        <FormSectionHeader icon={Heart} title="Employee Benefits" />
+        <ErrorDisplay 
+          title="Benefits data unavailable" 
+          message={benefitsError} 
+        />
+      </div>
+    )
+  }
+
+  if (!benefitsData || !benefitsData.data || benefitsData.data.length === 0) {
+    return null
   }
 
   return (

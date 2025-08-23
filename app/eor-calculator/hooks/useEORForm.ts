@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react"
-import { EORFormData, ValidationErrors, LocalOfficeInfo } from "../types"
+import { useState, useEffect, useMemo, useCallback } from "react"
+import { EORFormData, ValidationErrors, LocalOfficeInfo } from "@/lib/shared/types"
 import { 
   getCountryByName, 
   getCurrencyForCountry,
@@ -27,13 +27,11 @@ const initialFormData: EORFormData = {
   workVisaRequired: false,
   country: "",
   state: "",
-  currency: "",
   isCurrencyManuallySet: false,
   originalCurrency: undefined,
   clientName: "",
   clientType: null,
   clientCountry: "",
-  clientCurrency: "",
   baseSalary: "",
   holidayDays: "",
   probationPeriod: "",
@@ -46,7 +44,6 @@ const initialFormData: EORFormData = {
   enableComparison: false,
   compareCountry: "",
   compareState: "",
-  compareCurrency: "",
   compareSalary: "",
   currentStep: "form",
   showProviderComparison: false,
@@ -69,8 +66,13 @@ const initialValidationErrors: ValidationErrors = {
 export const useEORForm = () => {
   const [formData, setFormData] = useState<EORFormData>(initialFormData)
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(initialValidationErrors)
+  const [currency, setCurrency] = useState("")
+  const [clientCurrency, setClientCurrency] = useState("")
+  const [compareCurrency, setCompareCurrency] = useState("")
+  const [compareCountry, setCompareCountry] = useState("")
+  const [salaryConversionMessage, setSalaryConversionMessage] = useState<string | null>(null)
 
-  const countries = getAvailableCountries()
+  const countries = useMemo(() => getAvailableCountries(), [])
   const selectedCountryData = useMemo(() => 
     formData.country ? getCountryByName(formData.country) : null, 
     [formData.country]
@@ -94,83 +96,55 @@ export const useEORForm = () => {
   useEffect(() => {
     if (formData.country && selectedCountryData && !formData.isCurrencyManuallySet) {
       const newCurrency = getCurrencyForCountry(selectedCountryData.code)
-      
-      if (formData.currency !== newCurrency) {
-        setFormData((prev) => ({
-          ...prev,
-          currency: newCurrency,
-          originalCurrency: newCurrency,
-          state: "",
-          isCurrencyManuallySet: false,
-          // Reset local office info to trigger fresh conversion
-          localOfficeInfo: initialLocalOfficeInfo,
-        }))
-      }
+      setCurrency(newCurrency)
     } else if (formData.country && selectedCountryData) {
-      // Store original currency even when manually set, for reset functionality
       const originalCurrency = getCurrencyForCountry(selectedCountryData.code)
-      
       if (formData.originalCurrency !== originalCurrency) {
         setFormData((prev) => ({
           ...prev,
           originalCurrency: originalCurrency,
-          // Reset local office info to trigger fresh conversion
-          localOfficeInfo: initialLocalOfficeInfo,
         }))
       }
     }
-  }, [formData.country, selectedCountryData, formData.currency, formData.isCurrencyManuallySet])
+  }, [formData.country, selectedCountryData, formData.isCurrencyManuallySet, formData.originalCurrency])
 
   // Auto-update client currency when client country changes
   useEffect(() => {
     if (formData.clientCountry && clientCountryData) {
       const newClientCurrency = getCurrencyForCountry(clientCountryData.code)
-      if (formData.clientCurrency !== newClientCurrency) {
-        setFormData((prev) => ({
-          ...prev,
-          clientCurrency: newClientCurrency,
-        }))
-      }
+      setClientCurrency(newClientCurrency)
     }
-  }, [formData.clientCountry, clientCountryData, formData.clientCurrency])
+  }, [formData.clientCountry, clientCountryData])
 
   // Auto-update comparison currency when comparison country changes
   useEffect(() => {
     if (formData.compareCountry && compareCountryData) {
       const newCurrency = getCurrencyForCountry(compareCountryData.code);
-
-      if (formData.compareCurrency !== newCurrency) {
-        setFormData((prev) => ({
-          ...prev,
-          compareCurrency: newCurrency,
-          compareState: "",
-          compareSalary: "",
-        }))
-      }
+      setCompareCurrency(newCurrency)
     }
   }, [
     formData.compareCountry, 
     compareCountryData
   ])
 
-  const updateFormData = (updates: Partial<EORFormData>) => {
+  const updateFormData = useCallback((updates: Partial<EORFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }))
-  }
+  }, [])
 
-  const updateValidationError = (field: keyof ValidationErrors, error: string | null) => {
+  const updateValidationError = useCallback((field: keyof ValidationErrors, error: string | null) => {
     setValidationErrors((prev) => ({ ...prev, [field]: error }))
-  }
+  }, [])
 
-  const clearValidationErrors = () => {
+  const clearValidationErrors = useCallback(() => {
     setValidationErrors(initialValidationErrors)
-  }
+  }, [])
 
-  const clearAllData = () => {
+  const clearAllData = useCallback(() => {
     setFormData(initialFormData)
     setValidationErrors(initialValidationErrors)
-  }
+  }, [])
 
-  const updateBenefitSelection = (benefitType: string, planId: string | undefined) => {
+  const updateBenefitSelection = useCallback((benefitType: string, planId: string | undefined) => {
     setFormData((prev) => ({
       ...prev,
       selectedBenefits: {
@@ -178,16 +152,16 @@ export const useEORForm = () => {
         [benefitType]: planId,
       },
     }))
-  }
+  }, [])
 
-  const clearBenefitsSelection = () => {
+  const clearBenefitsSelection = useCallback(() => {
     setFormData((prev) => ({
       ...prev,
       selectedBenefits: {},
     }))
-  }
+  }, [])
 
-  const updateLocalOfficeInfo = (updates: Partial<LocalOfficeInfo>) => {
+  const updateLocalOfficeInfo = useCallback((updates: Partial<LocalOfficeInfo>) => {
     setFormData((prev) => ({
       ...prev,
       localOfficeInfo: {
@@ -195,24 +169,39 @@ export const useEORForm = () => {
         ...updates,
       },
     }))
-  }
+  }, [])
 
-  const clearLocalOfficeInfo = () => {
+  const clearLocalOfficeInfo = useCallback(() => {
     setFormData((prev) => ({
       ...prev,
       localOfficeInfo: initialLocalOfficeInfo,
     }))
-  }
-  
+  }, [])
 
-  const overrideCurrency = async (newCurrency: string, onConversionInfo?: (info: string) => void) => {
-    const currentCurrency = formData.currency
-    const currentSalary = formData.baseSalary
-    
-    // Update currency immediately
+  const handleCompareCountryChange = useCallback((value: string) => {
     setFormData((prev) => ({
       ...prev,
-      currency: newCurrency,
+      compareCountry: value,
+    }))
+  }, [])
+
+  const handleCountryChange = useCallback((country: string) => {
+    updateFormData({ country, state: '' }); // Also reset state when country changes
+    setSalaryConversionMessage(null); // Clear message on country change
+  }, [updateFormData]);
+
+  
+
+  const overrideCurrency = useCallback(async (newCurrency: string) => {
+    const currentCurrency = currency
+    const currentSalary = formData.baseSalary
+    
+    setSalaryConversionMessage(null)
+
+    // Update currency immediately
+    setCurrency(newCurrency)
+    setFormData((prev) => ({
+      ...prev,
       isCurrencyManuallySet: true,
     }))
     
@@ -231,31 +220,30 @@ export const useEORForm = () => {
               baseSalary: result.data!.target_amount.toString(),
             }))
             
-            // Provide conversion info if callback is available
-            if (onConversionInfo) {
-              const oldAmount = salaryAmount.toLocaleString()
-              const newAmount = result.data.target_amount.toLocaleString()
-              onConversionInfo(`Salary converted from ${currentCurrency} ${oldAmount} to ${newCurrency} ${newAmount}`)
-            }
+            const oldAmount = salaryAmount.toLocaleString()
+            const newAmount = result.data.target_amount.toLocaleString()
+            setSalaryConversionMessage(`Salary converted from ${currentCurrency} ${oldAmount} to ${newCurrency} ${newAmount}`)
           }
         } catch (error) {
-          // Conversion failed, but currency change still applies
           console.warn('Currency conversion failed:', error)
+          setSalaryConversionMessage('Automatic salary conversion failed.')
         }
       }
     }
-  }
+  }, [currency, formData.baseSalary, updateFormData])
 
-  const resetToDefaultCurrency = async () => {
+  const resetToDefaultCurrency = useCallback(async () => {
     if (formData.originalCurrency) {
-      const currentCurrency = formData.currency
+      const currentCurrency = currency
       const currentSalary = formData.baseSalary
       const targetCurrency = formData.originalCurrency
       
+      setSalaryConversionMessage(null)
+
       // Update currency immediately
+      setCurrency(targetCurrency)
       setFormData((prev) => ({
         ...prev,
-        currency: targetCurrency,
         isCurrencyManuallySet: false,
       }))
       
@@ -273,23 +261,29 @@ export const useEORForm = () => {
                 ...prev,
                 baseSalary: result.data!.target_amount.toString(),
               }))
+              const oldAmount = salaryAmount.toLocaleString()
+              const newAmount = result.data.target_amount.toLocaleString()
+              setSalaryConversionMessage(`Salary reset from ${currentCurrency} ${oldAmount} to ${targetCurrency} ${newAmount}`)
             }
           } catch (error) {
-            // Conversion failed, but currency reset still applies
             console.warn('Currency conversion failed during reset:', error)
+            setSalaryConversionMessage('Automatic salary conversion failed.')
           }
         }
       }
     }
-  }
+  }, [formData.originalCurrency, currency, formData.baseSalary, updateFormData])
 
-  const isFormValid = () => {
+  const isFormValid = useCallback(() => {
     return formData.country && formData.baseSalary && formData.clientCountry &&
            !Object.values(validationErrors).some(error => error !== null)
-  }
+  }, [formData.country, formData.baseSalary, formData.clientCountry, validationErrors])
 
   return {
     formData,
+    currency,
+    clientCurrency,
+    compareCurrency,
     validationErrors,
     countries,
     selectedCountryData,
@@ -310,5 +304,8 @@ export const useEORForm = () => {
     clearLocalOfficeInfo,
     overrideCurrency,
     resetToDefaultCurrency,
+    handleCompareCountryChange,
+    handleCountryChange,
+    salaryConversionMessage,
   }
 }

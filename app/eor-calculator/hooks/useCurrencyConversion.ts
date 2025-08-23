@@ -1,13 +1,24 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { convertCurrency, formatConversionDisplay } from "@/lib/currency-converter"
-import { EORFormData } from "../types"
+import { EORFormData } from "@/lib/shared/types"
 
 interface UseCurrencyConversionProps {
-  formData: EORFormData
+  baseSalary: string
+  enableComparison: boolean
+  compareCountry: string
+  currency: string
+  compareCurrency: string
   onFormUpdate: (updates: Partial<EORFormData>) => void
 }
 
-export const useCurrencyConversion = ({ formData, onFormUpdate }: UseCurrencyConversionProps) => {
+export const useCurrencyConversion = ({
+  baseSalary,
+  enableComparison,
+  compareCountry,
+  currency,
+  compareCurrency,
+  onFormUpdate,
+}: UseCurrencyConversionProps) => {
   const [isConverting, setIsConverting] = useState(false)
   const [conversionInfo, setConversionInfo] = useState<string | null>(null)
   const [isComparisonManuallyEdited, setIsComparisonManuallyEdited] = useState(false)
@@ -60,33 +71,34 @@ export const useCurrencyConversion = ({ formData, onFormUpdate }: UseCurrencyCon
   // Auto-convert salary when base salary changes
   useEffect(() => {
     if (
-      formData.baseSalary &&
-      formData.enableComparison &&
-      formData.compareCountry &&
-      formData.compareCurrency &&
-      formData.currency &&
-      formData.currency !== formData.compareCurrency &&
+      baseSalary &&
+      enableComparison &&
+      compareCountry &&
+      compareCurrency &&
+      currency &&
+      currency !== compareCurrency &&
       !isComparisonManuallyEdited
     ) {
-      const amount = Number.parseFloat(formData.baseSalary)
-      debouncedCurrencyConversion(amount, formData.currency, formData.compareCurrency)
+      const amount = Number.parseFloat(baseSalary)
+      debouncedCurrencyConversion(amount, currency, compareCurrency)
     }
   }, [
-    formData.baseSalary, 
-    formData.compareCountry, 
-    formData.compareCurrency, 
-    formData.currency, 
-    formData.enableComparison, 
-    isComparisonManuallyEdited
+    baseSalary, 
+    compareCountry, 
+    compareCurrency, 
+    currency, 
+    enableComparison, 
+    isComparisonManuallyEdited,
+    debouncedCurrencyConversion
   ])
 
   // Clear conversion info and reset manual edit flag when comparison country changes
   useEffect(() => {
-    if (formData.compareCountry) {
+    if (compareCountry) {
       setConversionInfo(null)
       setIsComparisonManuallyEdited(false)
     }
-  }, [formData.compareCountry])
+  }, [compareCountry])
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -98,11 +110,11 @@ export const useCurrencyConversion = ({ formData, onFormUpdate }: UseCurrencyCon
   }, [])
 
   const triggerManualConversion = () => {
-    if (formData.baseSalary && formData.currency && formData.compareCurrency) {
-      const amount = Number.parseFloat(formData.baseSalary)
+    if (baseSalary && currency && compareCurrency) {
+      const amount = Number.parseFloat(baseSalary)
       if (!isNaN(amount) && amount > 0) {
         setIsComparisonManuallyEdited(false)
-        handleCurrencyConversion(amount, formData.currency, formData.compareCurrency)
+        handleCurrencyConversion(amount, currency, compareCurrency)
       }
     }
   }

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import { convertCurrency } from "@/lib/currency-converter"
-import { LocalOfficeInfo } from "../types"
-import { getFieldCurrency } from "../utils/localOfficeData"
+import { LocalOfficeInfo } from "@/lib/shared/types"
+import { getFieldCurrency } from "@/lib/shared/utils/localOfficeData"
 
 interface ConvertedLocalOfficeData {
   [key: string]: string

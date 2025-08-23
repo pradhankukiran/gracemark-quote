@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
-import { ValidationAPIResponse } from "../types"
-import { fetchValidationData } from "../utils/apiUtils"
+import { ValidationAPIResponse } from "@/lib/shared/types"
+import { fetchValidationData } from "@/lib/shared/utils/apiUtils"
 
 export const useCountryValidation = (countryCode: string | null) => {
   const [validationData, setValidationData] = useState<ValidationAPIResponse | null>(null)

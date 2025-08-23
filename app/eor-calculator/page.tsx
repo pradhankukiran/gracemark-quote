@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { ArrowLeft, Heart } from "lucide-react"
@@ -19,20 +19,20 @@ import { QuotationTypeForm } from "./components/QuotationTypeForm"
 import { EmployeeInfoForm } from "./components/EmployeeInfoForm"
 import { CountryComparisonForm } from "./components/CountryComparisonForm"
 import { FormActions } from "./components/FormActions"
-import { QuoteCard } from "./components/QuoteCard"
-import { QuoteComparison } from "./components/QuoteComparison"
 import { BenefitsSelection } from "./components/BenefitsSelection"
 import { RetrieveBenefitsButton } from "./components/RetrieveBenefitsButton"
 import { LocalOfficeInformation } from "./components/LocalOfficeInformation"
-import { isLatamCountry } from "./utils/validationUtils"
+import { isLatamCountry } from "@/lib/shared/utils/validationUtils"
 
 
 export default function EORCalculatorPage() {
-  const quoteRef = useRef<HTMLDivElement>(null)
 
   // Initialize hooks
   const {
     formData,
+    currency,
+    clientCurrency,
+    compareCurrency,
     validationErrors,
     countries,
     selectedCountryData,
@@ -47,6 +47,9 @@ export default function EORCalculatorPage() {
     clearLocalOfficeInfo,
     overrideCurrency,
     resetToDefaultCurrency,
+    handleCompareCountryChange,
+    handleCountryChange,
+    salaryConversionMessage,
   } = useEORForm()
 
   const { validationData, isLoadingValidations, validationError } = useCountryValidation(
@@ -60,7 +63,7 @@ export default function EORCalculatorPage() {
     isValidationReady,
   } = useValidationConversion(
     validationData,
-    formData.currency,
+    currency,
     formData.isCurrencyManuallySet,
     formData.originalCurrency
   )
@@ -71,32 +74,32 @@ export default function EORCalculatorPage() {
     triggerManualConversion,
     markAsManuallyEdited,
     clearConversionData,
-  } = useCurrencyConversion({ formData, onFormUpdate: updateFormData })
-
-  const {
-    deelQuote,
-    compareQuote,
-    isCalculating,
-    error,
-    calculateQuote,
-    clearQuotes,
-    dualCurrencyQuotes,
-  } = useQuoteCalculation({
-    formData,
-    validationData,
-    convertedValidation,
-    onValidationError: updateValidationError,
+  } = useCurrencyConversion({
+    baseSalary: formData.baseSalary,
+    enableComparison: formData.enableComparison,
+    compareCountry: formData.compareCountry,
+    currency,
+    compareCurrency,
     onFormUpdate: updateFormData,
   })
 
   const {
-    usdConversions,
-    isConvertingDeelToUsd,
-    isConvertingCompareToUsd,
+    error,
+    calculateQuote,
+    clearQuotes,
+  } = useQuoteCalculation({
+    formData,
+    currency,
+    clientCurrency,
+    compareCurrency,
+    validationData,
+    convertedValidation,
+    onValidationError: updateValidationError,
+  })
+
+  const {
     usdConversionError,
-    convertQuoteToUSD,
     clearUSDConversions,
-    autoConvertQuote,
   } = useUSDConversion()
 
   const {
@@ -116,29 +119,38 @@ export default function EORCalculatorPage() {
     employmentType: formData.employmentType,
   })
 
+  // Track whether we've auto-selected benefits for current benefits data to prevent infinite loops
+  const hasAutoSelectedBenefitsRef = useRef(false)
+
   // Clear benefits selection, validation errors, and form input data when country changes
   useEffect(() => {
-    clearBenefitsSelection();
-    clearValidationErrors();
-    clearQuotes();
-    clearUSDConversions();
-    clearLocalOfficeInfo();
-    
-    // Clear form input data to prevent auto-loading of sections
-    updateFormData({
-      baseSalary: "",
-      holidayDays: "",
-      probationPeriod: "",
-      hoursPerDay: "",
-      daysPerWeek: "",
-      startDate: "",
-      employmentType: "full-time", // Reset to default
-      workVisaRequired: false, // Reset to default
-    });
+    if (selectedCountryData?.code) {
+      clearBenefitsSelection();
+      clearValidationErrors();
+      clearQuotes();
+      clearUSDConversions();
+      clearLocalOfficeInfo();
+      
+      updateFormData({
+        baseSalary: "",
+        holidayDays: "",
+        probationPeriod: "",
+        hoursPerDay: "",
+        daysPerWeek: "",
+        startDate: "",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCountryData?.code]);
 
+  // Reset auto-selection flag when benefits data changes
   useEffect(() => {
-    if (benefitsData?.data) {
+    hasAutoSelectedBenefitsRef.current = false
+  }, [benefitsData])
+
+  // Auto-select mandatory benefits (with proper dependencies and infinite loop prevention)
+  useEffect(() => {
+    if (benefitsData?.data && !hasAutoSelectedBenefitsRef.current) {
       benefitsData.data.forEach(benefit => {
         if (benefit.is_mandatory && benefit.name.toLowerCase() === 'pension') {
           const benefitKey = benefit.name.toLowerCase().replace(/\s+/g, "_");
@@ -147,32 +159,33 @@ export default function EORCalculatorPage() {
           }
         }
       });
+      hasAutoSelectedBenefitsRef.current = true
     }
-  }, [benefitsData, formData.selectedBenefits]);
+  }, [benefitsData, formData.selectedBenefits, updateBenefitSelection]);
 
-  const isPageValid = () => {
+  const isPageValid = useMemo(() => {
     if (!isFormValid()) {
-      return false;
+      return false
     }
 
     // Benefits must be explicitly fetched or skipped before allowing quote generation
     if (!benefitsFetched && !benefitsSkipped) {
-      return false;
+      return false
     }
 
     if (benefitsData?.data) {
-      const mandatoryBenefits = benefitsData.data.filter(b => b.is_mandatory);
+      const mandatoryBenefits = benefitsData.data.filter(b => b.is_mandatory)
       if (mandatoryBenefits.length > 0) {
         const allMandatorySelected = mandatoryBenefits.every(benefit => {
-          const benefitKey = benefit.name.toLowerCase().replace(/\s+/g, "_");
-          return !!formData.selectedBenefits[benefitKey];
-        });
-        if (!allMandatorySelected) return false;
+          const benefitKey = benefit.name.toLowerCase().replace(/\s+/g, "_")
+          return !!formData.selectedBenefits[benefitKey]
+        })
+        if (!allMandatorySelected) return false
       }
     }
 
-    return true;
-  };
+    return true
+  }, [isFormValid, benefitsFetched, benefitsSkipped, benefitsData?.data, formData.selectedBenefits])
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -185,37 +198,6 @@ export default function EORCalculatorPage() {
     clearBenefitsSelection()
   }
 
-  // Scroll to results when quote is calculated
-  useEffect(() => {
-    const hasQuoteData = dualCurrencyQuotes.isDualCurrencyMode ? 
-      (dualCurrencyQuotes.selectedCurrencyQuote || dualCurrencyQuotes.localCurrencyQuote) : 
-      deelQuote
-      
-    if (formData.currentStep === "primary-quote" && hasQuoteData) {
-      setTimeout(() => {
-        quoteRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        })
-      }, 100)
-    }
-  }, [formData.currentStep, deelQuote, dualCurrencyQuotes.selectedCurrencyQuote, dualCurrencyQuotes.localCurrencyQuote])
-
-  // Auto-convert primary quote to USD when it arrives (skip in dual currency mode)
-  useEffect(() => {
-    if (!dualCurrencyQuotes.isDualCurrencyMode && deelQuote && deelQuote.currency !== "USD") {
-      const cleanup = autoConvertQuote(deelQuote, "deel")
-      return cleanup
-    }
-  }, [deelQuote, dualCurrencyQuotes.isDualCurrencyMode]) // Removed autoConvertQuote from dependencies
-
-  // Auto-convert comparison quote to USD when it arrives (skip in dual currency mode)
-  useEffect(() => {
-    if (!dualCurrencyQuotes.isDualCurrencyMode && compareQuote && compareQuote.currency !== "USD") {
-      const cleanup = autoConvertQuote(compareQuote, "compare")
-      return cleanup
-    }
-  }, [compareQuote, dualCurrencyQuotes.isDualCurrencyMode]) // Removed autoConvertQuote from dependencies
 
 
   return (
@@ -246,7 +228,10 @@ export default function EORCalculatorPage() {
             <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
               <CardContent className="p-6 space-y-6">
                 <ClientInfoForm
-                  formData={formData}
+                  clientName={formData.clientName}
+                  clientType={formData.clientType}
+                  clientCountry={formData.clientCountry}
+                  clientCurrency={clientCurrency}
                   countries={countries}
                   onFormUpdate={updateFormData}
                 />
@@ -254,25 +239,35 @@ export default function EORCalculatorPage() {
                 <Separator />
 
                 <QuotationTypeForm
-                  formData={formData}
+                  quoteType={formData.quoteType}
                   onFormUpdate={updateFormData}
                 />
 
                 <Separator />
 
                 <EmployeeInfoForm
-                  formData={formData}
+                  country={formData.country}
+                  currency={currency}
+                  isCurrencyManuallySet={formData.isCurrencyManuallySet}
+                  originalCurrency={formData.originalCurrency}
+                  workVisaRequired={formData.workVisaRequired}
+                  baseSalary={formData.baseSalary}
+                  hoursPerDay={formData.hoursPerDay}
+                  daysPerWeek={formData.daysPerWeek}
+                  holidayDays={formData.holidayDays}
+                  probationPeriod={formData.probationPeriod}
                   countries={countries}
+                  salaryConversionMessage={salaryConversionMessage}
                   validationData={validationData}
-                  validationError={validationError}
-                  isLoadingValidations={isLoadingValidations}
                   validationErrors={validationErrors}
                   convertedValidation={convertedValidation}
+                  isLoadingValidations={isLoadingValidations}
                   isConvertingValidation={isConvertingValidation}
                   isValidationReady={isValidationReady}
                   onFormUpdate={updateFormData}
                   onValidationError={updateValidationError}
-                  onCurrencyOverride={(currency, conversionInfoCallback) => overrideCurrency(currency, conversionInfoCallback)}
+                  onCountryChange={handleCountryChange}
+                  onCurrencyOverride={overrideCurrency}
                   onCurrencyReset={resetToDefaultCurrency}
                 />
 
@@ -332,7 +327,10 @@ export default function EORCalculatorPage() {
                   <>
                     <Separator />
                     <LocalOfficeInformation
-                      formData={formData}
+                      localOfficeInfo={formData.localOfficeInfo}
+                      isCurrencyManuallySet={formData.isCurrencyManuallySet}
+                      originalCurrency={formData.originalCurrency}
+                      currency={currency}
                       onLocalOfficeUpdate={updateLocalOfficeInfo}
                       countryCode={selectedCountryData?.code}
                     />
@@ -342,7 +340,11 @@ export default function EORCalculatorPage() {
                 <Separator />
 
                 <CountryComparisonForm
-                  formData={formData}
+                  country={formData.country}
+                  enableComparison={formData.enableComparison}
+                  compareCountry={formData.compareCountry}
+                  compareSalary={formData.compareSalary}
+                  compareCurrency={compareCurrency}
                   countries={countries}
                   isConverting={isConverting}
                   conversionInfo={conversionInfo}
@@ -350,11 +352,12 @@ export default function EORCalculatorPage() {
                   onTriggerConversion={triggerManualConversion}
                   onMarkAsManuallyEdited={markAsManuallyEdited}
                   onClearConversionData={clearConversionData}
+                  onCompareCountryChange={handleCompareCountryChange}
                 />
 
                 <FormActions
-                  isCalculating={isCalculating}
-                  isFormValid={isPageValid()}
+                  isCalculating={false}
+                  isFormValid={isPageValid}
                   error={error}
                   usdConversionError={usdConversionError}
                   onCalculate={calculateQuote}
@@ -364,54 +367,6 @@ export default function EORCalculatorPage() {
             </Card>
           </div>
 
-          {/* Quote Results Section */}
-          <div className="space-y-6" ref={quoteRef}>
-            {/* Primary Deel Quote - show when not comparing OR when comparing but no comparison quote yet */}
-            {formData.currentStep === "primary-quote" && (
-              (dualCurrencyQuotes.isDualCurrencyMode && (dualCurrencyQuotes.selectedCurrencyQuote || dualCurrencyQuotes.localCurrencyQuote)) ||
-              (!dualCurrencyQuotes.isDualCurrencyMode && deelQuote)
-            ) && (!formData.enableComparison || (formData.enableComparison && !compareQuote && !dualCurrencyQuotes.isDualCurrencyMode)) && (
-              <QuoteCard
-                quote={dualCurrencyQuotes.isDualCurrencyMode ? undefined : deelQuote || undefined}
-                title={`Quote - ${dualCurrencyQuotes.isDualCurrencyMode ? 
-                  (dualCurrencyQuotes.selectedCurrencyQuote?.country || formData.country) : 
-                  deelQuote?.country || formData.country}`}
-                subtitle="Powered by Deel"
-                usdConversions={dualCurrencyQuotes.isDualCurrencyMode ? undefined : usdConversions.deel}
-                isConvertingToUSD={dualCurrencyQuotes.isDualCurrencyMode ? false : isConvertingDeelToUsd}
-                usdConversionError={dualCurrencyQuotes.isDualCurrencyMode ? null : usdConversionError}
-                dualCurrencyQuotes={dualCurrencyQuotes}
-              />
-            )}
-
-            {/* Country Comparison - Single Currency Mode */}
-            {formData.currentStep === "primary-quote" && !dualCurrencyQuotes.isDualCurrencyMode && deelQuote && formData.enableComparison && compareQuote && (
-              <QuoteComparison
-                primaryQuote={deelQuote}
-                comparisonQuote={compareQuote}
-                primaryTitle={formData.country}
-                comparisonTitle={formData.compareCountry}
-                usdConversions={usdConversions}
-                isConvertingPrimaryToUSD={isConvertingDeelToUsd}
-                isConvertingComparisonToUSD={isConvertingCompareToUsd}
-                usdConversionError={usdConversionError}
-              />
-            )}
-
-            {/* Country Comparison - Dual Currency Mode */}
-            {formData.currentStep === "primary-quote" && dualCurrencyQuotes.isDualCurrencyMode && dualCurrencyQuotes.hasComparison && 
-             dualCurrencyQuotes.selectedCurrencyQuote && dualCurrencyQuotes.compareSelectedCurrencyQuote && (
-              <QuoteComparison
-                primaryTitle={formData.country}
-                comparisonTitle={formData.compareCountry}
-                usdConversions={usdConversions}
-                isConvertingPrimaryToUSD={isConvertingDeelToUsd}
-                isConvertingComparisonToUSD={isConvertingCompareToUsd}
-                usdConversionError={usdConversionError}
-                dualCurrencyQuotes={dualCurrencyQuotes}
-              />
-            )}
-          </div>
         </div>
       </main>
     </div>

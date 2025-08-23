@@ -1,3 +1,6 @@
+// lib/shared/types/index.ts - Consolidated type definitions
+
+// Local Office Information
 export interface LocalOfficeInfo {
   mealVoucher: string
   transportation: string
@@ -10,6 +13,7 @@ export interface LocalOfficeInfo {
   backgroundCheckViaDeel: string
 }
 
+// Form Data Interfaces
 export interface EORFormData {
   employeeName: string
   jobTitle: string
@@ -45,7 +49,17 @@ export interface EORFormData {
   localOfficeInfo: LocalOfficeInfo
 }
 
-export interface DeelAPIResponse {
+// Quote Cost Interface
+export interface QuoteCost {
+  name: string
+  amount: string
+  frequency: string
+  country: string
+  country_code: string
+}
+
+// Main Quote Interface (previously DeelAPIResponse)
+export interface Quote {
   provider: string
   salary: string
   currency: string
@@ -59,19 +73,17 @@ export interface DeelAPIResponse {
   severance_accural: string
   total_costs: string
   employer_costs: string
-  costs: Array<{
-    name: string
-    amount: string
-    frequency: string
-    country: string
-    country_code: string
-  }>
+  costs: QuoteCost[]
   benefits_data: unknown[]
   additional_data: {
     additional_notes: string[]
   }
 }
 
+// Keep DeelAPIResponse as alias for backward compatibility
+export type DeelAPIResponse = Quote
+
+// Remote API Response (for Remote.com integration)
 export interface RemoteAPIResponse {
   provider: string
   country: string
@@ -109,6 +121,7 @@ export interface RemoteAPIResponse {
   }
 }
 
+// Validation API Response
 export interface ValidationAPIResponse {
   data: {
     holiday: {
@@ -191,6 +204,7 @@ export interface ValidationAPIResponse {
   }
 }
 
+// USD Conversion Types
 export interface USDConversions {
   deel?: {
     salary: number
@@ -212,11 +226,12 @@ export interface USDConversions {
   }
 }
 
+// Dual Currency Quote Management
 export interface DualCurrencyQuotes {
-  selectedCurrencyQuote: DeelAPIResponse | null
-  localCurrencyQuote: DeelAPIResponse | null
-  compareSelectedCurrencyQuote: DeelAPIResponse | null
-  compareLocalCurrencyQuote: DeelAPIResponse | null
+  selectedCurrencyQuote: Quote | null
+  localCurrencyQuote: Quote | null
+  compareSelectedCurrencyQuote: Quote | null
+  compareLocalCurrencyQuote: Quote | null
   isCalculatingSelected: boolean
   isCalculatingLocal: boolean
   isCalculatingCompareSelected: boolean
@@ -225,6 +240,7 @@ export interface DualCurrencyQuotes {
   hasComparison: boolean
 }
 
+// Validation Error Types
 export interface ValidationErrors {
   salary: string | null
   holidays: string | null
@@ -233,6 +249,7 @@ export interface ValidationErrors {
   days: string | null
 }
 
+// Benefits API Types
 export interface BenefitsAPIResponse {
   data: Benefit[]
 }
@@ -278,4 +295,23 @@ export interface Attachment {
 export interface ContributionOption {
   id: string
   amount: number
+}
+
+// Quote Result Data Structure
+export interface QuoteData {
+  calculatorType: 'eor' | 'ic'
+  formData: EORFormData | Record<string, unknown>
+  quotes: {
+    deel?: Quote
+    remote?: RemoteAPIResponse
+    comparison?: Quote
+  }
+  metadata: {
+    timestamp: number
+    currency: string
+    usdConversions?: USDConversions
+  }
+  dualCurrencyQuotes?: DualCurrencyQuotes
+  status: 'calculating' | 'completed' | 'error'
+  error?: string
 }

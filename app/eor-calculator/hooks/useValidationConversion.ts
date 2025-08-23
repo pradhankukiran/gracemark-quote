@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react"
-import { ValidationAPIResponse } from "../types"
+import { ValidationAPIResponse } from "@/lib/shared/types"
 import { convertCurrency } from "@/lib/currency-converter"
 
 interface ConvertedValidation {

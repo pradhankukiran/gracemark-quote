@@ -1,5 +1,5 @@
-import { DeelAPIResponse, DualCurrencyQuotes, USDConversions } from "../types"
-import { QuoteCard } from "./QuoteCard"
+import { DeelAPIResponse, DualCurrencyQuotes, USDConversions } from "@/lib/shared/types"
+import { QuoteCard } from "@/lib/shared/components/QuoteCard"
 
 interface QuoteComparisonProps {
   primaryQuote?: DeelAPIResponse
@@ -21,8 +21,6 @@ export const QuoteComparison = ({
   primaryTitle,
   comparisonTitle,
   usdConversions,
-  onConvertPrimaryToUSD,
-  onConvertComparisonToUSD,
   isConvertingPrimaryToUSD,
   isConvertingComparisonToUSD,
   usdConversionError,
