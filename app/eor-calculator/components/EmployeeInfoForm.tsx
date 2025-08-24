@@ -1,5 +1,7 @@
 import { memo } from "react"
+import { User } from "lucide-react"
 import { EORFormData, ValidationAPIResponse, ValidationErrors } from "@/lib/shared/types"
+import { FormSectionHeader } from "./shared/FormSectionHeader"
 import {
   EmployeeHolidays,
   EmployeeLocationInfo,
@@ -64,8 +66,10 @@ export const EmployeeInfoForm = memo(({
   onCurrencyReset,
 }: EmployeeInfoFormProps) => {
   return (
-    <div className="space-y-6">
-      <EmployeeLocationInfo
+    <div>
+      <FormSectionHeader icon={User} title="Employee Information" />
+      <div className="space-y-6">
+        <EmployeeLocationInfo
         country={country}
         currency={currency}
         isCurrencyManuallySet={isCurrencyManuallySet}
@@ -116,6 +120,7 @@ export const EmployeeInfoForm = memo(({
         onFormUpdate={onFormUpdate}
         onValidationError={onValidationError}
       />
+      </div>
     </div>
   )
 })

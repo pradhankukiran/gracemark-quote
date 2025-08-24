@@ -47,10 +47,6 @@ export const EmployeeProbation = memo(({
     onValidationError('probation', result.isValid ? null : result.errorMessage || 'Invalid probation period')
   }, [isValidationReady, validateField, validationData, currency, onValidationError])
 
-  if (!validationData?.data.probation.min && !validationData?.data.probation.max) {
-    return null
-  }
-
   return (
     <div className="mb-6">
       <div className={FORM_STYLES.GRID_3_COL}>
