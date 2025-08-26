@@ -193,45 +193,76 @@ const QuotePageContent = memo(() => {
           {/* Primary Quote Display */}
           {quoteData.status === "completed" && (
             <div className="max-w-4xl mx-auto">
-              {currentProvider === 'deel' && (
-                (quoteData.dualCurrencyQuotes?.isDualCurrencyMode && (quoteData.dualCurrencyQuotes?.selectedCurrencyQuote || quoteData.dualCurrencyQuotes?.localCurrencyQuote)) ||
-                (!quoteData.dualCurrencyQuotes?.isDualCurrencyMode && quoteData.quotes.deel)
-              ) && (!quoteData.formData.enableComparison || (quoteData.formData.enableComparison && !quoteData.quotes.comparison && !quoteData.dualCurrencyQuotes?.isDualCurrencyMode)) && (
-                <QuoteCard
-                  quote={quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? undefined : quoteData.quotes.deel || undefined}
-                  title={`${quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? 
-                    (quoteData.dualCurrencyQuotes?.selectedCurrencyQuote?.country || quoteData.formData.country) : 
-                    quoteData.quotes.deel?.country || quoteData.formData.country} EOR Quote`}
-                  usdConversions={quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? undefined : usdConversions.deel}
-                  isConvertingToUSD={quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? false : isConvertingDeelToUsd}
-                  usdConversionError={quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? null : usdConversionError}
-                  dualCurrencyQuotes={quoteData.dualCurrencyQuotes}
-                />
-              )}
+              {(() => {
+                const deelDualCurrency = quoteData.dualCurrencyQuotes?.deel;
+                const shouldShowDeel = currentProvider === 'deel' && (
+                  (deelDualCurrency?.isDualCurrencyMode && (deelDualCurrency?.selectedCurrencyQuote || deelDualCurrency?.localCurrencyQuote)) ||
+                  (!deelDualCurrency?.isDualCurrencyMode && quoteData.quotes.deel)
+                ) && (!quoteData.formData.enableComparison || (quoteData.formData.enableComparison && !quoteData.quotes.comparison && !deelDualCurrency?.isDualCurrencyMode));
+                
+                return shouldShowDeel ? (
+                  <QuoteCard
+                    quote={deelDualCurrency?.isDualCurrencyMode ? undefined : quoteData.quotes.deel || undefined}
+                    title={`${deelDualCurrency?.isDualCurrencyMode ? 
+                      (deelDualCurrency?.selectedCurrencyQuote?.country || quoteData.formData.country) : 
+                      quoteData.quotes.deel?.country || quoteData.formData.country} EOR Quote`}
+                    usdConversions={deelDualCurrency?.isDualCurrencyMode ? undefined : usdConversions.deel}
+                    isConvertingToUSD={deelDualCurrency?.isDualCurrencyMode ? false : isConvertingDeelToUsd}
+                    usdConversionError={deelDualCurrency?.isDualCurrencyMode ? null : usdConversionError}
+                    dualCurrencyQuotes={deelDualCurrency}
+                  />
+                ) : null;
+              })()}
 
-              {currentProvider === 'remote' && (
-                (quoteData.dualCurrencyQuotes?.isDualCurrencyMode && (quoteData.dualCurrencyQuotes?.selectedCurrencyQuote || quoteData.dualCurrencyQuotes?.localCurrencyQuote)) ||
-                (!quoteData.dualCurrencyQuotes?.isDualCurrencyMode && quoteData.quotes.remote)
-              ) && (!quoteData.formData.enableComparison || (quoteData.formData.enableComparison && !quoteData.quotes.comparison && !quoteData.dualCurrencyQuotes?.isDualCurrencyMode)) && (
+              {(() => {
+                const currentProviderDualCurrency = currentProvider === 'deel' ? quoteData.dualCurrencyQuotes?.deel : quoteData.dualCurrencyQuotes?.remote;
+                const shouldShowRemote = currentProvider === 'remote' && (
+                  (currentProviderDualCurrency?.isDualCurrencyMode && (currentProviderDualCurrency?.selectedCurrencyQuote || currentProviderDualCurrency?.localCurrencyQuote)) ||
+                  (!currentProviderDualCurrency?.isDualCurrencyMode && quoteData.quotes.remote)
+                ) && (!quoteData.formData.enableComparison || (quoteData.formData.enableComparison && !quoteData.quotes.comparison && !currentProviderDualCurrency?.isDualCurrencyMode));
+                
+                console.log('🎨 UI Render - Remote quote decision:', {
+                  currentProvider,
+                  shouldShowRemote,
+                  isDualCurrencyMode: !!currentProviderDualCurrency?.isDualCurrencyMode,
+                  hasRemoteQuote: !!quoteData.quotes.remote,
+                  hasSelectedQuote: !!currentProviderDualCurrency?.selectedCurrencyQuote,
+                  hasLocalQuote: !!currentProviderDualCurrency?.localCurrencyQuote,
+                  selectedCurrency: currentProviderDualCurrency?.selectedCurrencyQuote?.currency,
+                  localCurrency: currentProviderDualCurrency?.localCurrencyQuote?.currency
+                });
+                
+                return shouldShowRemote;
+              })() && (
                 <>
-                  {quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? (
-                    <QuoteCard
-                      quote={undefined}
-                      title={`${quoteData.dualCurrencyQuotes?.selectedCurrencyQuote?.country || quoteData.formData.country} EOR Quote`}
-                      usdConversions={undefined}
-                      isConvertingToUSD={false}
-                      usdConversionError={null}
-                      dualCurrencyQuotes={quoteData.dualCurrencyQuotes}
-                    />
-                  ) : (
-                    <RemoteQuoteCard
-                      quote={quoteData.quotes.remote}
-                      title={`${quoteData.quotes.remote?.employment?.country?.name || quoteData.formData.country} EOR Quote`}
-                      usdConversions={usdConversions.remote}
-                      isConvertingToUSD={isConvertingDeelToUsd} // TODO: Add Remote-specific USD conversion
-                      usdConversionError={usdConversionError}
-                    />
-                  )}
+                  {(() => {
+                    const remoteDualCurrency = quoteData.dualCurrencyQuotes?.remote;
+                    return remoteDualCurrency?.isDualCurrencyMode ? (
+                      <>
+                        {console.log('🎨 UI Render - Using QuoteCard with Remote dual currency data:', {
+                          selectedQuote: remoteDualCurrency.selectedCurrencyQuote?.currency,
+                          localQuote: remoteDualCurrency.localCurrencyQuote?.currency,
+                          provider: 'Remote (dual currency mode)'
+                        })}
+                        <QuoteCard
+                          quote={undefined}
+                          title={`${remoteDualCurrency?.selectedCurrencyQuote?.country || quoteData.formData.country} EOR Quote`}
+                          usdConversions={undefined}
+                          isConvertingToUSD={false}
+                          usdConversionError={null}
+                          dualCurrencyQuotes={remoteDualCurrency}
+                        />
+                      </>
+                    ) : (
+                      <RemoteQuoteCard
+                        quote={quoteData.quotes.remote}
+                        title={`${quoteData.quotes.remote?.employment?.country?.name || quoteData.formData.country} EOR Quote`}
+                        usdConversions={usdConversions.remote}
+                        isConvertingToUSD={isConvertingDeelToUsd} // TODO: Add Remote-specific USD conversion
+                        usdConversionError={usdConversionError}
+                      />
+                    );
+                  })()}
                 </>
               )}
 

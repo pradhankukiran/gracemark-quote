@@ -29,3 +29,8 @@ export function getRemoteCountryStates(
   const country = remoteData.data.find((c) => c.name === countryName)
   return country?.child_regions && country.child_regions.length > 0 ? country.child_regions : null
 }
+
+export function getRemoteCountryCurrency(countryName: string): string | null {
+  const country = remoteData.data.find((c) => c.name === countryName)
+  return country?.currency?.code || null
+}

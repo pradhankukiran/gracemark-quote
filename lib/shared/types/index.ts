@@ -281,8 +281,8 @@ export interface USDConversions {
   }
 }
 
-// Dual Currency Quote Management
-export interface DualCurrencyQuotes {
+// Provider-specific dual currency data
+export interface ProviderDualCurrencyQuotes {
   selectedCurrencyQuote: Quote | null
   localCurrencyQuote: Quote | null
   compareSelectedCurrencyQuote: Quote | null
@@ -293,6 +293,23 @@ export interface DualCurrencyQuotes {
   isCalculatingCompareLocal: boolean
   isDualCurrencyMode: boolean
   hasComparison: boolean
+}
+
+// Dual Currency Quote Management (provider-specific)
+export interface DualCurrencyQuotes {
+  deel?: ProviderDualCurrencyQuotes
+  remote?: ProviderDualCurrencyQuotes
+  // Legacy support - will be phased out
+  selectedCurrencyQuote?: Quote | null
+  localCurrencyQuote?: Quote | null
+  compareSelectedCurrencyQuote?: Quote | null
+  compareLocalCurrencyQuote?: Quote | null
+  isCalculatingSelected?: boolean
+  isCalculatingLocal?: boolean
+  isCalculatingCompareSelected?: boolean
+  isCalculatingCompareLocal?: boolean
+  isDualCurrencyMode?: boolean
+  hasComparison?: boolean
 }
 
 // Validation Error Types

@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from "react"
 import { fetchEORCost, fetchRemoteCost, createQuoteRequestData, ensureFormDefaults } from "@/lib/shared/utils/apiUtils"
 import { convertCurrency } from "@/lib/currency-converter"
 import { getCountryByName, getCurrencyForCountry } from "@/lib/country-data"
-import { DeelAPIResponse, RemoteAPIResponse, EORFormData, DualCurrencyQuotes, QuoteData } from "@/lib/shared/types"
+import { getRemoteCountryCurrency } from "@/lib/remote-mapping"
+import { DeelAPIResponse, RemoteAPIResponse, EORFormData, DualCurrencyQuotes, ProviderDualCurrencyQuotes, QuoteData } from "@/lib/shared/types"
 import { getJsonFromSessionStorage, setJsonInSessionStorage } from "@/lib/shared/utils/storageUtils"
 import { safeValidateQuoteData, validateQuoteId } from "@/lib/shared/utils/dataValidation"
 
@@ -103,7 +104,22 @@ const calculateDualCurrencyQuote = async (formData: EORFormData, data: QuoteData
     }
     const results = await Promise.all(apiCalls)
     const [selectedCurrencyData, localCurrencyData, compareSelectedData, compareLocalData] = results
+    const deelDualCurrencyQuotes: ProviderDualCurrencyQuotes = {
+      selectedCurrencyQuote: selectedCurrencyData,
+      localCurrencyQuote: localCurrencyData,
+      compareSelectedCurrencyQuote: compareSelectedData || null,
+      compareLocalCurrencyQuote: compareLocalData || null,
+      isCalculatingSelected: false,
+      isCalculatingLocal: false,
+      isCalculatingCompareSelected: false,
+      isCalculatingCompareLocal: false,
+      isDualCurrencyMode: true,
+      hasComparison: !!hasComparison
+    }
+
     const dualCurrencyQuotes: DualCurrencyQuotes = {
+      deel: deelDualCurrencyQuotes,
+      // Legacy support
       selectedCurrencyQuote: selectedCurrencyData,
       localCurrencyQuote: localCurrencyData,
       compareSelectedCurrencyQuote: compareSelectedData || null,
@@ -128,26 +144,45 @@ const calculateDualCurrencyQuote = async (formData: EORFormData, data: QuoteData
 // Remote-specific calculation functions
 const calculateRemoteSingleCurrencyQuote = async (formData: EORFormData, data: QuoteData): Promise<QuoteData> => {
   const formDataWithDefaults = ensureFormDefaults(formData)
-  const requestData = createQuoteRequestData(formDataWithDefaults)
+  let requestData = createQuoteRequestData(formDataWithDefaults)
+
+  // If currency is manually set, convert to the country's local currency before sending to Remote
+  if (formData.isCurrencyManuallySet && formData.originalCurrency && formData.currency !== formData.originalCurrency) {
+    const salaryAmount = parseFloat(formData.baseSalary.replace(/[,\s]/g, ''))
+    const conversionResult = await convertCurrency(salaryAmount, formData.currency, formData.originalCurrency)
+
+    if (conversionResult.success && conversionResult.data) {
+      requestData = {
+        ...requestData,
+        salary: conversionResult.data.target_amount.toString(),
+        currency: formData.originalCurrency,
+      }
+    } else {
+      // Handle conversion failure: throw an error or fall back to original values
+      throw new Error('Failed to convert currency for Remote.com calculation.')
+    }
+  }
+
   const remoteQuote = await fetchRemoteCost(requestData)
   let comparisonQuote: RemoteAPIResponse | undefined
-  
-  // Handle comparison quote if enabled (following Deel's pattern)
+
+  // Handle comparison quote if enabled
   if (formData.enableComparison && formData.compareCountry) {
     try {
       const compareRequestData = createQuoteRequestData(formDataWithDefaults, true)
+      // Similar currency conversion logic might be needed here if comparison currency can be different
       comparisonQuote = await fetchRemoteCost(compareRequestData)
     } catch (compareError) {
       console.error('Failed to fetch Remote comparison quote:', compareError)
     }
   }
-  
+
   return {
     ...data,
     formData: formDataWithDefaults,
     quotes: { remote: remoteQuote, comparison: comparisonQuote },
     metadata: { ...data.metadata, currency: remoteQuote.employment.employer_currency_costs.currency.code },
-    status: 'completed'
+    status: 'completed',
   }
 }
 
@@ -182,25 +217,20 @@ const calculateRemoteDualCurrencyQuote = async (formData: EORFormData, data: Quo
   if (hasComparison) {
     const compareCountryData = getCountryByName(formDataWithDefaults.compareCountry!)
     const compareLocalCurrency = getCurrencyForCountry(compareCountryData!.code)
+    const compareRegionalCurrency = getRemoteCountryCurrency(formDataWithDefaults.compareCountry!)
     const selectedCurrency = formDataWithDefaults.currency
-    const compareSalaryInLocal = parseFloat(formDataWithDefaults.compareSalary?.replace(/[,\s]/g, '') || '0')
+    // Comparison salary is entered in the selected currency (same as main country)
+    const compareSalaryInSelected = parseFloat(formDataWithDefaults.compareSalary?.replace(/[,\s]/g, '') || '0')
     
-    const compareLocalCurrencyRequestData: QuoteRequestData = {
-      salary: compareSalaryInLocal.toString(),
-      country: formDataWithDefaults.compareCountry!,
-      currency: compareLocalCurrency,
-      clientCountry: formDataWithDefaults.clientCountry,
-      age: 30,
-      state: formDataWithDefaults.compareState,
-    }
-    
-    // Convert comparison salary from local currency to selected currency
-    const comparisonConversionResult = await convertCurrency(compareSalaryInLocal, compareLocalCurrency, selectedCurrency)
-    if (!comparisonConversionResult.success || !comparisonConversionResult.data) {
-      throw new Error(`Failed to convert comparison salary from ${compareLocalCurrency} to ${selectedCurrency}`)
-    }
-    const compareSalaryInSelected = comparisonConversionResult.data.target_amount
-    
+    console.log('🎯 Remote Dual Currency - Comparison Data:', {
+      compareCountry: formDataWithDefaults.compareCountry,
+      compareLocalCurrency,
+      compareRegionalCurrency,
+      selectedCurrency,
+      compareSalaryInSelected
+    });
+
+    // Create selected currency request (comparison salary is already in selected currency)
     const compareSelectedCurrencyRequestData: QuoteRequestData = {
       salary: compareSalaryInSelected.toString(),
       country: formDataWithDefaults.compareCountry!,
@@ -209,6 +239,50 @@ const calculateRemoteDualCurrencyQuote = async (formData: EORFormData, data: Quo
       age: 30,
       state: formDataWithDefaults.compareState,
     }
+    
+    // Convert comparison salary from selected currency to comparison country's regional currency
+    // This mirrors the main country logic where we convert from selected to regional currency for Remote API
+    let compareLocalCurrencyRequestData: QuoteRequestData
+    
+    if (compareRegionalCurrency && selectedCurrency !== compareRegionalCurrency) {
+      // Need to convert from selected currency to comparison country's regional currency
+      const comparisonConversionResult = await convertCurrency(compareSalaryInSelected, selectedCurrency, compareRegionalCurrency)
+      if (!comparisonConversionResult.success || !comparisonConversionResult.data) {
+        throw new Error(`Failed to convert comparison salary from ${selectedCurrency} to ${compareRegionalCurrency}`)
+      }
+      const compareSalaryInRegional = comparisonConversionResult.data.target_amount
+      
+      compareLocalCurrencyRequestData = {
+        salary: Math.round(compareSalaryInRegional).toString(),
+        country: formDataWithDefaults.compareCountry!,
+        currency: compareRegionalCurrency,
+        clientCountry: formDataWithDefaults.clientCountry,
+        age: 30,
+        state: formDataWithDefaults.compareState,
+      }
+      
+      console.log('✅ Remote Dual Currency - Comparison currency converted:', {
+        originalAmount: compareSalaryInSelected,
+        originalCurrency: selectedCurrency,
+        convertedAmount: Math.round(compareSalaryInRegional),
+        targetCurrency: compareRegionalCurrency
+      });
+    } else {
+      // No conversion needed, use selected currency (same as regional currency)
+      compareLocalCurrencyRequestData = {
+        salary: compareSalaryInSelected.toString(),
+        country: formDataWithDefaults.compareCountry!,
+        currency: compareRegionalCurrency || selectedCurrency,
+        clientCountry: formDataWithDefaults.clientCountry,
+        age: 30,
+        state: formDataWithDefaults.compareState,
+      }
+    }
+
+    console.log('🎯 Remote Dual Currency - Comparison Requests:', {
+      selected: compareSelectedCurrencyRequestData,
+      regional: compareLocalCurrencyRequestData
+    });
     
     apiCalls.push(
       fetchRemoteCost(compareSelectedCurrencyRequestData),
@@ -219,6 +293,13 @@ const calculateRemoteDualCurrencyQuote = async (formData: EORFormData, data: Quo
   // Execute all API calls
   const results = await Promise.all(apiCalls)
   const [selectedCurrencyData, localCurrencyData, compareSelectedData, compareLocalData] = results
+  
+  console.log('🎯 Remote Dual Currency - API Results:', {
+    selectedCurrency: selectedCurrencyData?.employment?.employer_currency_costs?.currency?.code,
+    localCurrency: localCurrencyData?.employment?.employer_currency_costs?.currency?.code,
+    compareSelected: compareSelectedData?.employment?.employer_currency_costs?.currency?.code,
+    compareLocal: compareLocalData?.employment?.employer_currency_costs?.currency?.code
+  })
   
   // Create equivalent Quote objects from Remote API responses for dual currency structure
   // Note: We need to transform Remote API responses to match the Quote interface expectations
@@ -268,7 +349,14 @@ const calculateRemoteDualCurrencyQuote = async (formData: EORFormData, data: Quo
   const compareSelectedQuote = compareSelectedData ? createQuoteFromRemote(compareSelectedData) : null
   const compareLocalQuote = compareLocalData ? createQuoteFromRemote(compareLocalData) : null
   
-  const dualCurrencyQuotes: DualCurrencyQuotes = {
+  console.log('🎯 Remote Dual Currency - Transformed Quotes:', {
+    selectedQuote: { currency: selectedQuote.currency, total: selectedQuote.total_costs },
+    localQuote: { currency: localQuote.currency, total: localQuote.total_costs },
+    compareSelectedQuote: compareSelectedQuote ? { currency: compareSelectedQuote.currency, total: compareSelectedQuote.total_costs } : null,
+    compareLocalQuote: compareLocalQuote ? { currency: compareLocalQuote.currency, total: compareLocalQuote.total_costs } : null
+  })
+  
+  const remoteDualCurrencyQuotes: ProviderDualCurrencyQuotes = {
     selectedCurrencyQuote: selectedQuote,
     localCurrencyQuote: localQuote,
     compareSelectedCurrencyQuote: compareSelectedQuote,
@@ -280,6 +368,33 @@ const calculateRemoteDualCurrencyQuote = async (formData: EORFormData, data: Quo
     isDualCurrencyMode: true,
     hasComparison: !!hasComparison
   }
+
+  const dualCurrencyQuotes: DualCurrencyQuotes = {
+    remote: remoteDualCurrencyQuotes,
+    // Legacy support
+    selectedCurrencyQuote: selectedQuote,
+    localCurrencyQuote: localQuote,
+    compareSelectedCurrencyQuote: compareSelectedQuote,
+    compareLocalCurrencyQuote: compareLocalQuote,
+    isCalculatingSelected: false,
+    isCalculatingLocal: false,
+    isCalculatingCompareSelected: false,
+    isCalculatingCompareLocal: false,
+    isDualCurrencyMode: true,
+    hasComparison: !!hasComparison
+  }
+  
+  console.log('🎯 Remote Dual Currency - Final Structure:', {
+    dualCurrencyQuotes: {
+      selectedCurrency: dualCurrencyQuotes.selectedCurrencyQuote?.currency,
+      localCurrency: dualCurrencyQuotes.localCurrencyQuote?.currency,
+      isDualMode: dualCurrencyQuotes.isDualCurrencyMode
+    },
+    quotes: { 
+      remote: !!selectedCurrencyData,
+      comparison: !!compareSelectedData 
+    }
+  })
   
   return {
     ...data,
@@ -319,7 +434,12 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   })
 
   const switchProvider = useCallback(async (newProvider: Provider) => {
-    if (!quoteData || newProvider === currentProvider) return
+    console.log('🔄 Provider Switch - Starting switch to:', newProvider, 'from:', currentProvider)
+    
+    if (!quoteData || newProvider === currentProvider) {
+      console.log('🔄 Provider Switch - Skipping: no data or same provider')
+      return
+    }
     
     setProviderLoading(prev => ({ ...prev, [newProvider]: true }))
     setCurrentProvider(newProvider)
@@ -329,30 +449,72 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       const hasExistingQuote = (newProvider === 'deel' && quoteData.quotes.deel) || 
                               (newProvider === 'remote' && quoteData.quotes.remote)
       
+      console.log('🔄 Provider Switch - Has existing quote:', hasExistingQuote, {
+        deel: !!quoteData.quotes.deel,
+        remote: !!quoteData.quotes.remote,
+        requestedProvider: newProvider
+      })
+      
       if (!hasExistingQuote && quoteData.status === 'completed') {
+        console.log('🔄 Provider Switch - Calculating new quote for:', newProvider)
         const formData = quoteData.formData as EORFormData
+        console.log('🔄 Provider Switch - Form data:', { 
+          country: formData.country, 
+          currency: formData.currency,
+          salary: formData.baseSalary 
+        })
         const calculatedQuote = await calculateQuoteForProvider(formData, quoteData, newProvider)
+        console.log('✅ Provider Switch - Quote calculated successfully:', {
+          provider: newProvider,
+          hasQuote: !!calculatedQuote.quotes[newProvider]
+        })
         
-        // Merge the new quote data with existing quotes
+        // Merge the new quote data with existing quotes, preserving provider-specific dual currency data
         const updatedQuoteData = {
           ...calculatedQuote,
           quotes: {
             ...quoteData.quotes,
             ...calculatedQuote.quotes
+          },
+          dualCurrencyQuotes: {
+            ...quoteData.dualCurrencyQuotes,
+            ...calculatedQuote.dualCurrencyQuotes
           }
         }
+        
+        console.log('✅ Provider Switch - Updated quote data:', {
+          deel: !!updatedQuoteData.quotes.deel,
+          remote: !!updatedQuoteData.quotes.remote,
+          currentProvider: newProvider,
+          dualCurrencyMode: !!updatedQuoteData.dualCurrencyQuotes?.isDualCurrencyMode,
+          dualCurrencyQuotes: {
+            deel: updatedQuoteData.dualCurrencyQuotes?.deel ? {
+              selectedCurrency: updatedQuoteData.dualCurrencyQuotes.deel.selectedCurrencyQuote?.currency,
+              localCurrency: updatedQuoteData.dualCurrencyQuotes.deel.localCurrencyQuote?.currency,
+              isDualMode: updatedQuoteData.dualCurrencyQuotes.deel.isDualCurrencyMode
+            } : null,
+            remote: updatedQuoteData.dualCurrencyQuotes?.remote ? {
+              selectedCurrency: updatedQuoteData.dualCurrencyQuotes.remote.selectedCurrencyQuote?.currency,
+              localCurrency: updatedQuoteData.dualCurrencyQuotes.remote.localCurrencyQuote?.currency,
+              isDualMode: updatedQuoteData.dualCurrencyQuotes.remote.isDualCurrencyMode
+            } : null
+          }
+        })
         
         setQuoteData(updatedQuoteData)
         if (quoteId) {
           setJsonInSessionStorage(quoteId, updatedQuoteData)
         }
+      } else {
+        console.log('🔄 Provider Switch - Using existing quote for:', newProvider)
       }
     } catch (error) {
-      console.error(`Error calculating ${newProvider} quote:`, error)
+      console.error(`❌ Provider Switch - Error calculating ${newProvider} quote:`, error)
       // Don't change provider if calculation fails
       setCurrentProvider(currentProvider)
     } finally {
       setProviderLoading(prev => ({ ...prev, [newProvider]: false }))
+      console.log('🔄 Provider Switch - Finished switch to:', newProvider)
     }
   }, [quoteData, currentProvider, quoteId])
 
