@@ -376,7 +376,9 @@ export interface QuoteData {
   quotes: {
     deel?: Quote
     remote?: RemoteAPIResponse
-    comparison?: Quote
+    comparison?: Quote | RemoteAPIResponse
+    comparisonDeel?: Quote
+    comparisonRemote?: RemoteAPIResponse
   }
   metadata: {
     timestamp: number

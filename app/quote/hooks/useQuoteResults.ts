@@ -3,7 +3,7 @@ import { fetchEORCost, fetchRemoteCost, createQuoteRequestData, ensureFormDefaul
 import { convertCurrency } from "@/lib/currency-converter"
 import { getCountryByName, getCurrencyForCountry } from "@/lib/country-data"
 import { getRemoteCountryCurrency } from "@/lib/remote-mapping"
-import { DeelAPIResponse, RemoteAPIResponse, EORFormData, DualCurrencyQuotes, ProviderDualCurrencyQuotes, QuoteData } from "@/lib/shared/types"
+import { DeelAPIResponse, RemoteAPIResponse, EORFormData, DualCurrencyQuotes, ProviderDualCurrencyQuotes, QuoteData, QuoteCost } from "@/lib/shared/types"
 import { getJsonFromSessionStorage, setJsonInSessionStorage } from "@/lib/shared/utils/storageUtils"
 import { safeValidateQuoteData, validateQuoteId } from "@/lib/shared/utils/dataValidation"
 
@@ -309,14 +309,14 @@ const calculateRemoteDualCurrencyQuote = async (formData: EORFormData, data: Quo
     
     // Transform Remote breakdown items to QuoteCost format
     const quoteCosts: QuoteCost[] = [
-      ...costs.monthly_contributions_breakdown.map(item => ({
+      ...(costs.monthly_contributions_breakdown || []).map(item => ({
         name: item.name,
         amount: item.amount.toString(),
         frequency: 'monthly',
         country: employment.country.name,
         country_code: employment.country.code
       })),
-      ...costs.extra_statutory_payments_breakdown.map(item => ({
+      ...(costs.extra_statutory_payments_breakdown || []).map(item => ({
         name: item.name,
         amount: item.amount.toString(),
         frequency: 'monthly',
@@ -458,24 +458,30 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       if (!hasExistingQuote && quoteData.status === 'completed') {
         console.log('🔄 Provider Switch - Calculating new quote for:', newProvider)
         const formData = quoteData.formData as EORFormData
-        console.log('🔄 Provider Switch - Form data:', { 
-          country: formData.country, 
-          currency: formData.currency,
-          salary: formData.baseSalary 
-        })
         const calculatedQuote = await calculateQuoteForProvider(formData, quoteData, newProvider)
         console.log('✅ Provider Switch - Quote calculated successfully:', {
           provider: newProvider,
           hasQuote: !!calculatedQuote.quotes[newProvider]
         })
         
+        const updatedQuotes = {
+          ...quoteData.quotes,
+          [newProvider]: calculatedQuote.quotes[newProvider],
+          comparison: calculatedQuote.quotes.comparison, // Keep this in sync
+        };
+
+        if (calculatedQuote.quotes.comparison) {
+          if (newProvider === 'deel') {
+            updatedQuotes.comparisonDeel = calculatedQuote.quotes.comparison as Quote;
+          } else { // 'remote'
+            updatedQuotes.comparisonRemote = calculatedQuote.quotes.comparison as RemoteAPIResponse;
+          }
+        }
+
         // Merge the new quote data with existing quotes, preserving provider-specific dual currency data
         const updatedQuoteData = {
           ...calculatedQuote,
-          quotes: {
-            ...quoteData.quotes,
-            ...calculatedQuote.quotes
-          },
+          quotes: updatedQuotes,
           dualCurrencyQuotes: {
             ...quoteData.dualCurrencyQuotes,
             ...calculatedQuote.dualCurrencyQuotes
@@ -507,6 +513,19 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         }
       } else {
         console.log('🔄 Provider Switch - Using existing quote for:', newProvider)
+        if (quoteData.formData.enableComparison) {
+          const newComparison = newProvider === 'deel' ? quoteData.quotes.comparisonDeel : quoteData.quotes.comparisonRemote;
+          // Only update state if the generic comparison quote is not the correct one
+          if (newComparison && quoteData.quotes.comparison !== newComparison) {
+            setQuoteData({
+              ...quoteData,
+              quotes: {
+                ...quoteData.quotes,
+                comparison: newComparison,
+              }
+            });
+          }
+        }
       }
     } catch (error) {
       console.error(`❌ Provider Switch - Error calculating ${newProvider} quote:`, error)

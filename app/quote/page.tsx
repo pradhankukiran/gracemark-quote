@@ -195,7 +195,7 @@ const QuotePageContent = memo(() => {
             <div className="max-w-4xl mx-auto">
               {(() => {
                 const deelDualCurrency = quoteData.dualCurrencyQuotes?.deel;
-                const shouldShowDeel = currentProvider === 'deel' && (
+                                const shouldShowDeel = currentProvider === 'deel' && (
                   (deelDualCurrency?.isDualCurrencyMode && (deelDualCurrency?.selectedCurrencyQuote || deelDualCurrency?.localCurrencyQuote)) ||
                   (!deelDualCurrency?.isDualCurrencyMode && quoteData.quotes.deel)
                 ) && (!quoteData.formData.enableComparison || (quoteData.formData.enableComparison && !quoteData.quotes.comparison && !deelDualCurrency?.isDualCurrencyMode));

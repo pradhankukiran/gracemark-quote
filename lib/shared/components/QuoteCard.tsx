@@ -257,9 +257,9 @@ export const QuoteCard = memo(({
             )}
 
           {/* Cost items */}
-          {primaryQuote?.costs.map((cost, index) => {
+          {primaryQuote?.costs?.map((cost, index) => {
             const localCostAmount =
-              isDualCurrencyMode && localQuote?.costs[index]
+              isDualCurrencyMode && localQuote?.costs?.[index]?.amount
                 ? Number.parseFloat(localQuote.costs[index].amount)
                 : usdConversions?.costs?.[index];
 
