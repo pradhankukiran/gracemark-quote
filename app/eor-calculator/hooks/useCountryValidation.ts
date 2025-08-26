@@ -5,18 +5,17 @@ import { fetchValidationData } from "@/lib/shared/utils/apiUtils"
 export const useCountryValidation = (countryCode: string | null) => {
   const [validationData, setValidationData] = useState<ValidationAPIResponse | null>(null)
   const [isLoadingValidations, setIsLoadingValidations] = useState(false)
-  const [validationError, setValidationError] = useState<string | null>(null)
 
   const fetchValidations = async (code: string) => {
     setIsLoadingValidations(true)
-    setValidationError(null)
     setValidationData(null)
 
     try {
       const data = await fetchValidationData(code)
       setValidationData(data)
     } catch (err) {
-      setValidationError(err instanceof Error ? err.message : "Failed to fetch validation data")
+      // In a real app, you'd want to handle this error more gracefully
+      console.error(err)
     } finally {
       setIsLoadingValidations(false)
     }
@@ -27,13 +26,11 @@ export const useCountryValidation = (countryCode: string | null) => {
       fetchValidations(countryCode)
     } else {
       setValidationData(null)
-      setValidationError(null)
     }
   }, [countryCode])
 
   return {
     validationData,
     isLoadingValidations,
-    validationError,
   }
 }

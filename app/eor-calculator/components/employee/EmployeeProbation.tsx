@@ -43,8 +43,7 @@ export const EmployeeProbation = memo(({
       return
     }
 
-    const result = validateField('probation', value, 'probation', validationData, currency)
-    onValidationError('probation', result.isValid ? null : result.errorMessage || 'Invalid probation period')
+    validateField('probation', value, 'probation', validationData, currency, onValidationError)
   }, [isValidationReady, validateField, validationData, currency, onValidationError])
 
   return (
@@ -63,12 +62,12 @@ export const EmployeeProbation = memo(({
             htmlFor="probationPeriod"
             className={FORM_STYLES.LABEL_BASE}
           >
-            Probation Period
+            Probation Period <span className="text-slate-400 font-normal">(Optional)</span>
           </Label>
           <Input
             id="probationPeriod"
             type="text"
-            placeholder="Enter probation period in days"
+            placeholder="Optional - leave empty for country default"
             value={probationInput.value}
             onChange={(e) => probationInput.handleChange(e.target.value)}
             onBlur={() => handleProbationValidation(probationInput.value)}

@@ -1,5 +1,17 @@
 // lib/shared/types/index.ts - Consolidated type definitions
 
+// Selected Benefit Information
+export interface SelectedBenefit {
+  planId: string
+  planName: string
+  providerId: string
+  providerName: string
+  price: number
+  currency: string
+  isMandatory: boolean
+  benefitName: string
+}
+
 // Local Office Information
 export interface LocalOfficeInfo {
   mealVoucher: string
@@ -43,8 +55,10 @@ export interface EORFormData {
   compareSalary: string
   currentStep: "form" | "primary-quote" | "comparison"
   showProviderComparison: boolean
+  showOptionalEmployeeData: boolean
+  showBenefits: boolean
   selectedBenefits: {
-    [key: string]: string | undefined
+    [key: string]: SelectedBenefit | undefined
   }
   localOfficeInfo: LocalOfficeInfo
 }

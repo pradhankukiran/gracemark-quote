@@ -2,6 +2,29 @@
 
 import { DeelAPIResponse, RemoteAPIResponse, ValidationAPIResponse, BenefitsAPIResponse, EORFormData } from "@/lib/shared/types"
 
+// Default values for optional fields
+export const getDefaultValues = () => ({
+  hoursPerDay: "8",
+  daysPerWeek: "5", 
+  holidayDays: "25", // Common default, could be enhanced with country-specific data
+  probationPeriod: "90" // Common default, could be enhanced with country-specific data
+})
+
+/**
+ * Ensures form data has default values for optional fields
+ */
+export const ensureFormDefaults = (formData: EORFormData): EORFormData => {
+  const defaults = getDefaultValues()
+  
+  return {
+    ...formData,
+    hoursPerDay: formData.hoursPerDay || defaults.hoursPerDay,
+    daysPerWeek: formData.daysPerWeek || defaults.daysPerWeek,
+    holidayDays: formData.holidayDays || defaults.holidayDays,
+    probationPeriod: formData.probationPeriod || defaults.probationPeriod,
+  }
+}
+
 // Quote Request Data Interface
 export interface QuoteRequestData {
   salary: string

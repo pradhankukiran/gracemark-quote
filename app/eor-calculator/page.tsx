@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { ArrowLeft, Heart } from "lucide-react"
 import Link from "next/link"
@@ -13,6 +15,7 @@ import { useCountryValidation } from "./hooks/useCountryValidation"
 import { useUSDConversion } from "./hooks/useUSDConversion"
 import { useBenefits } from "./hooks/useBenefits"
 import { useValidationConversion } from "./hooks/useValidationConversion"
+import { getDefaultValues } from "@/lib/shared/utils/apiUtils"
 
 import { ClientInfoForm } from "./components/ClientInfoForm"
 import { QuotationTypeForm } from "./components/QuotationTypeForm"
@@ -20,9 +23,10 @@ import { EmployeeInfoForm } from "./components/EmployeeInfoForm"
 import { CountryComparisonForm } from "./components/CountryComparisonForm"
 import { FormActions } from "./components/FormActions"
 import { BenefitsSelection } from "./components/BenefitsSelection"
-import { RetrieveBenefitsButton } from "./components/RetrieveBenefitsButton"
 import { LocalOfficeInformation } from "./components/LocalOfficeInformation"
+import { FormSectionHeader } from "./components/shared/FormSectionHeader"
 import { isLatamCountry } from "@/lib/shared/utils/validationUtils"
+import { SmoothReveal } from "./components/shared/OptimizedReveal"
 
 
 export default function EORCalculatorPage() {
@@ -52,7 +56,7 @@ export default function EORCalculatorPage() {
     salaryConversionMessage,
   } = useEORForm()
 
-  const { validationData, isLoadingValidations, validationError } = useCountryValidation(
+  const { validationData, isLoadingValidations } = useCountryValidation(
     selectedCountryData?.code || null
   )
 
@@ -94,7 +98,6 @@ export default function EORCalculatorPage() {
     compareCurrency,
     validationData,
     convertedValidation,
-    onValidationError: updateValidationError,
   })
 
   const {
@@ -102,20 +105,24 @@ export default function EORCalculatorPage() {
     clearUSDConversions,
   } = useUSDConversion()
 
+  // Compute fallback values for benefits when optional employee data is not provided
+  // This ensures benefits work with default 40 hours/week (8 hours × 5 days) when optional section is unchecked
+  const defaults = getDefaultValues(selectedCountryData?.code)
+  const benefitsHoursPerDay = formData.hoursPerDay || defaults.hoursPerDay
+  const benefitsDaysPerWeek = formData.daysPerWeek || defaults.daysPerWeek
+
   const {
     benefitsData,
     isLoadingBenefits,
     benefitsError,
     benefitsFetched,
-    benefitsSkipped,
     canFetchBenefits,
     fetchBenefitsManually,
-    skipBenefits,
   } = useBenefits({
     countryCode: selectedCountryData?.code || null,
     workVisa: formData.workVisaRequired,
-    hoursPerDay: formData.hoursPerDay,
-    daysPerWeek: formData.daysPerWeek,
+    hoursPerDay: benefitsHoursPerDay,
+    daysPerWeek: benefitsDaysPerWeek,
     employmentType: formData.employmentType,
   })
 
@@ -155,7 +162,18 @@ export default function EORCalculatorPage() {
         if (benefit.is_mandatory && benefit.name.toLowerCase() === 'pension') {
           const benefitKey = benefit.name.toLowerCase().replace(/\s+/g, "_");
           if (!formData.selectedBenefits[benefitKey] && benefit.providers[0]?.plans[0]?.id) {
-            updateBenefitSelection(benefitKey, benefit.providers[0].plans[0].id);
+            const firstPlan = benefit.providers[0].plans[0];
+            const benefitData = {
+              planId: firstPlan.id,
+              planName: firstPlan.name,
+              providerId: benefit.providers[0].id,
+              providerName: benefit.providers[0].name,
+              price: firstPlan.price,
+              currency: benefit.providers[0].currency,
+              isMandatory: benefit.is_mandatory,
+              benefitName: benefit.name
+            };
+            updateBenefitSelection(benefitKey, benefitData);
           }
         }
       });
@@ -168,24 +186,26 @@ export default function EORCalculatorPage() {
       return false
     }
 
-    // Benefits must be explicitly fetched or skipped before allowing quote generation
-    if (!benefitsFetched && !benefitsSkipped) {
-      return false
-    }
+    // If benefits are shown, they must be fetched, and mandatory benefits must be selected
+    if (formData.showBenefits) {
+      if (!benefitsFetched) {
+        return false
+      }
 
-    if (benefitsData?.data) {
-      const mandatoryBenefits = benefitsData.data.filter(b => b.is_mandatory)
-      if (mandatoryBenefits.length > 0) {
-        const allMandatorySelected = mandatoryBenefits.every(benefit => {
-          const benefitKey = benefit.name.toLowerCase().replace(/\s+/g, "_")
-          return !!formData.selectedBenefits[benefitKey]
-        })
-        if (!allMandatorySelected) return false
+      if (benefitsData?.data) {
+        const mandatoryBenefits = benefitsData.data.filter(b => b.is_mandatory)
+        if (mandatoryBenefits.length > 0) {
+          const allMandatorySelected = mandatoryBenefits.every(benefit => {
+            const benefitKey = benefit.name.toLowerCase().replace(/\s+/g, "_")
+            return !!formData.selectedBenefits[benefitKey]
+          })
+          if (!allMandatorySelected) return false
+        }
       }
     }
 
     return true
-  }, [isFormValid, benefitsFetched, benefitsSkipped, benefitsData?.data, formData.selectedBenefits])
+  }, [isFormValid, formData.showBenefits, benefitsFetched, benefitsData?.data, formData.selectedBenefits])
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -198,7 +218,50 @@ export default function EORCalculatorPage() {
     clearBenefitsSelection()
   }
 
+  // Memoize grouped props to reduce unnecessary rerenders
+  const employeeDataProps = useMemo(() => ({
+    country: formData.country,
+    workVisaRequired: formData.workVisaRequired,
+    baseSalary: formData.baseSalary,
+    showOptionalEmployeeData: formData.showOptionalEmployeeData,
+    hoursPerDay: formData.hoursPerDay,
+    daysPerWeek: formData.daysPerWeek,
+    holidayDays: formData.holidayDays,
+    probationPeriod: formData.probationPeriod,
+  }), [
+    formData.country,
+    formData.workVisaRequired,
+    formData.baseSalary,
+    formData.showOptionalEmployeeData,
+    formData.hoursPerDay,
+    formData.daysPerWeek,
+    formData.holidayDays,
+    formData.probationPeriod,
+  ])
 
+  const currencyProps = useMemo(() => ({
+    currency,
+    isCurrencyManuallySet: formData.isCurrencyManuallySet,
+    originalCurrency: formData.originalCurrency,
+    salaryConversionMessage,
+  }), [currency, formData.isCurrencyManuallySet, formData.originalCurrency, salaryConversionMessage])
+
+  const validationProps = useMemo(() => ({
+    validationData,
+    validationErrors,
+    convertedValidation,
+    isLoadingValidations,
+    isConvertingValidation,
+    isValidationReady,
+  }), [validationData, validationErrors, convertedValidation, isLoadingValidations, isConvertingValidation, isValidationReady])
+
+  const callbackProps = useMemo(() => ({
+    onFormUpdate: updateFormData,
+    onCountryChange: handleCountryChange,
+    onCurrencyOverride: overrideCurrency,
+    onCurrencyReset: resetToDefaultCurrency,
+    onValidationError: updateValidationError,
+  }), [updateFormData, handleCountryChange, overrideCurrency, resetToDefaultCurrency, updateValidationError])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
@@ -246,73 +309,56 @@ export default function EORCalculatorPage() {
                 <Separator />
 
                 <EmployeeInfoForm
-                  country={formData.country}
-                  currency={currency}
-                  isCurrencyManuallySet={formData.isCurrencyManuallySet}
-                  originalCurrency={formData.originalCurrency}
-                  workVisaRequired={formData.workVisaRequired}
-                  baseSalary={formData.baseSalary}
-                  hoursPerDay={formData.hoursPerDay}
-                  daysPerWeek={formData.daysPerWeek}
-                  holidayDays={formData.holidayDays}
-                  probationPeriod={formData.probationPeriod}
+                  {...employeeDataProps}
+                  {...currencyProps}
+                  {...validationProps}
+                  {...callbackProps}
                   countries={countries}
-                  salaryConversionMessage={salaryConversionMessage}
-                  validationData={validationData}
-                  validationErrors={validationErrors}
-                  convertedValidation={convertedValidation}
-                  isLoadingValidations={isLoadingValidations}
-                  isConvertingValidation={isConvertingValidation}
-                  isValidationReady={isValidationReady}
-                  onFormUpdate={updateFormData}
-                  onValidationError={updateValidationError}
-                  onCountryChange={handleCountryChange}
-                  onCurrencyOverride={overrideCurrency}
-                  onCurrencyReset={resetToDefaultCurrency}
                 />
 
                 <Separator />
 
-                {/* Show Retrieve Benefits button if benefits haven't been fetched or skipped yet */}
-                {!benefitsFetched && !benefitsSkipped && (
-                  <RetrieveBenefitsButton
-                    countryName={formData.country}
-                    isLoading={isLoadingBenefits}
-                    canFetch={!!canFetchBenefits}
-                    onFetchBenefits={fetchBenefitsManually}
-                    onSkipBenefits={skipBenefits}
-                  />
-                )}
+                <FormSectionHeader
+                  icon={Heart}
+                  title="Employee Benefits"
+                  subtitle="Select benefit plans for the employee. Mandatory benefits must have a selection."
+                />
 
-                {/* Show message when benefits are skipped */}
-                {benefitsSkipped && (
-                  <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-                    <div className="flex items-start gap-3">
-                      <div className="p-1 bg-blue-100 rounded-full mt-0.5">
-                        <Heart className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <div>
-                        <h4 className="text-blue-800 font-medium">Benefits Skipped</h4>
-                        <p className="text-blue-700 text-sm mt-1">
-                          You&apos;ve chosen to skip benefits selection. Your quote will include basic employment costs only.
-                          {" "}
-                          <button 
-                            onClick={() => {
-                              // Reset skip state to show retrieve button again
-                              fetchBenefitsManually()
-                            }}
-                            className="underline hover:no-underline"
-                          >
-                            Add benefits instead?
-                          </button>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                <Label
+                  htmlFor="show-benefits"
+                  className={`
+                    flex items-center space-x-4 p-4 border-2 rounded-md cursor-pointer transition-all duration-200
+                    ${formData.showBenefits
+                      ? 'border-primary bg-primary/5'
+                      : 'border-slate-200 hover:border-primary/50'
+                    }
+                  `}
+                >
+                  <Checkbox
+                    id="show-benefits"
+                    checked={formData.showBenefits}
+                    onCheckedChange={(checked) => {
+                      const newShowBenefits = !!checked
+                      updateFormData({ showBenefits: newShowBenefits })
+                      if (newShowBenefits && !benefitsFetched) {
+                        fetchBenefitsManually()
+                      }
+                    }}
+                    disabled={!canFetchBenefits}
+                    className="h-5 w-5"
+                  />
+                  <span className="text-base font-medium text-slate-800">
+                    Add Employee Benefits
+                  </span>
+                </Label>
+                {!canFetchBenefits && !formData.showBenefits && (
+                  <p className="text-sm text-slate-500 mt-2">
+                    Please select a country and employment type to add benefits.
+                  </p>
                 )}
 
                 {/* Show Benefits Selection only after benefits have been fetched */}
-                {benefitsFetched && (
+                <SmoothReveal isVisible={formData.showBenefits && benefitsFetched}>
                   <BenefitsSelection
                     benefitsData={benefitsData}
                     isLoadingBenefits={isLoadingBenefits}
@@ -320,7 +366,7 @@ export default function EORCalculatorPage() {
                     selectedBenefits={formData.selectedBenefits}
                     onBenefitChange={updateBenefitSelection}
                   />
-                )}
+                </SmoothReveal>
 
                 {/* Show Local Office Information for LATAM countries */}
                 {isLatamCountry(selectedCountryData?.code) && (

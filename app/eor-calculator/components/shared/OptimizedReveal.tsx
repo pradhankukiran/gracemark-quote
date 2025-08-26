@@ -1,4 +1,4 @@
-import { ReactNode, memo, useMemo } from "react"
+import { ReactNode, memo, useMemo, useState, useEffect } from "react"
 
 interface OptimizedRevealProps {
   isVisible: boolean
@@ -17,6 +17,16 @@ export const OptimizedReveal = memo(({
   className = "",
   animation = 'smooth'
 }: OptimizedRevealProps) => {
+  const [shouldRender, setShouldRender] = useState(isVisible)
+
+  useEffect(() => {
+    if (isVisible) {
+      setShouldRender(true)
+    } else {
+      const timer = setTimeout(() => setShouldRender(false), 300) // Match animation duration
+      return () => clearTimeout(timer)
+    }
+  }, [isVisible])
   
   // Memoize animation classes to prevent recalculation
   const animationClasses = useMemo(() => {
@@ -24,7 +34,7 @@ export const OptimizedReveal = memo(({
     
     switch (animation) {
       case 'fade':
-        return `${baseClasses} duration-200 ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`
+        return `${baseClasses} duration-300 ${isVisible ? 'opacity-100 max-h-screen' : 'opacity-0 pointer-events-none max-h-0'}`
       case 'smooth':
         return `${baseClasses} duration-300 ${isVisible ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`
       case 'none':
@@ -33,6 +43,8 @@ export const OptimizedReveal = memo(({
         return `${baseClasses} duration-300 ${isVisible ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`
     }
   }, [isVisible, animation])
+
+  if (!shouldRender) return null
 
   // For 'none' animation, simply show/hide without transitions
   if (animation === 'none') {

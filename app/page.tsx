@@ -16,6 +16,7 @@ export default function HomePage() {
               alt="GraceMark Logo"
               width={150}
               height={100}
+              priority
             />
             <h1 className="font-serif font-bold text-slate-900 leading-tight text-3xl ml-4">
               Quote Tool

@@ -28,36 +28,13 @@ export const EmployeeWorkSchedule = memo(({
 }: EmployeeWorkScheduleProps) => {
   const { validateField, isValidationReady } = useValidationUtils()
 
-  const hoursInput = useDebouncedInput(hoursPerDay, {
-    debounceDelay: 300,
-    onImmediate: (value: string) => {
-      if (isValidNumericFormat(value)) {
-        onFormUpdate({ hoursPerDay: value })
-        onValidationError('hours', null)
-      }
-    },
-    onValidate: (value: string) => handleHoursValidation(value)
-  })
-
-  const daysInput = useDebouncedInput(daysPerWeek, {
-    debounceDelay: 300,
-    onImmediate: (value: string) => {
-      if (isValidNumericFormat(value)) {
-        onFormUpdate({ daysPerWeek: value })
-        onValidationError('days', null)
-      }
-    },
-    onValidate: (value: string) => handleDaysValidation(value)
-  })
-
   const handleHoursValidation = useCallback((value: string) => {
     if (!value || !isValidationReady()) {
       onValidationError('hours', null)
       return
     }
 
-    const result = validateField('hours', value, 'hours', validationData, currency)
-    onValidationError('hours', result.isValid ? null : result.errorMessage || 'Invalid hours per day')
+    validateField('hours', value, 'hours', validationData, currency, onValidationError)
   }, [isValidationReady, validateField, validationData, currency, onValidationError])
 
   const handleDaysValidation = useCallback((value: string) => {
@@ -66,9 +43,34 @@ export const EmployeeWorkSchedule = memo(({
       return
     }
 
-    const result = validateField('days', value, 'days', validationData, currency)
-    onValidationError('days', result.isValid ? null : result.errorMessage || 'Invalid days per week')
+    validateField('days', value, 'days', validationData, currency, onValidationError)
   }, [isValidationReady, validateField, validationData, currency, onValidationError])
+
+  const debouncedHours = useDebouncedInput(
+    hoursPerDay || "",
+    {
+      onImmediate: (value: string) => {
+        if (isValidNumericFormat(value)) {
+          onFormUpdate({ hoursPerDay: value })
+          onValidationError('hours', null)
+        }
+      },
+      onValidate: (value: string) => handleHoursValidation(value)
+    }
+  )
+
+  const debouncedDays = useDebouncedInput(
+    daysPerWeek || "",
+    {
+      onImmediate: (value: string) => {
+        if (isValidNumericFormat(value)) {
+          onFormUpdate({ daysPerWeek: value })
+          onValidationError('days', null)
+        }
+      },
+      onValidate: (value: string) => handleDaysValidation(value)
+    }
+  )
 
   return (
     <div className="mb-6">
@@ -76,7 +78,7 @@ export const EmployeeWorkSchedule = memo(({
         <div className="space-y-2">
           <Label className={FORM_STYLES.LABEL_BASE}>Min Hours/Day</Label>
           <Input
-            value={validationData?.data.work_schedule.hours.min || "Not specified"}
+            value={validationData?.data?.work_schedule?.hours?.min || "Not specified"}
             disabled
             className="h-12 bg-slate-50 border-slate-200 text-slate-700"
           />
@@ -86,15 +88,15 @@ export const EmployeeWorkSchedule = memo(({
             htmlFor="hoursPerDay"
             className={FORM_STYLES.LABEL_BASE}
           >
-            Hours per Day
+            Hours per Day <span className="text-slate-400 font-normal">(Optional)</span>
           </Label>
           <Input
             id="hoursPerDay"
             type="text"
-            placeholder="Enter hours per day"
-            value={hoursInput.value}
-            onChange={(e) => hoursInput.handleChange(e.target.value)}
-            onBlur={() => handleHoursValidation(hoursInput.value)}
+            placeholder="Optional - leave empty for default (8 hours)"
+            value={debouncedHours.value}
+            onChange={(e) => debouncedHours.handleChange(e.target.value)}
+            onBlur={() => handleHoursValidation(debouncedHours.value)}
             className={`h-12 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
               validationErrors.hours ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
             }`}
@@ -106,7 +108,7 @@ export const EmployeeWorkSchedule = memo(({
         <div className="space-y-2">
           <Label className={FORM_STYLES.LABEL_BASE}>Max Hours/Day</Label>
           <Input
-            value={validationData?.data.work_schedule.hours.max || "Not specified"}
+            value={validationData?.data?.work_schedule?.hours?.max || "Not specified"}
             disabled
             className="h-12 bg-slate-50 border-slate-200 text-slate-700"
           />
@@ -116,7 +118,7 @@ export const EmployeeWorkSchedule = memo(({
         <div className="space-y-2">
           <Label className={FORM_STYLES.LABEL_BASE}>Min Days/Week</Label>
           <Input
-            value={validationData?.data.work_schedule.days.min || "Not specified"}
+            value={validationData?.data?.work_schedule?.days?.min || "Not specified"}
             disabled
             className="h-12 bg-slate-50 border-slate-200 text-slate-700"
           />
@@ -126,15 +128,15 @@ export const EmployeeWorkSchedule = memo(({
             htmlFor="daysPerWeek"
             className={FORM_STYLES.LABEL_BASE}
           >
-            Days per Week
+            Days per Week <span className="text-slate-400 font-normal">(Optional)</span>
           </Label>
           <Input
             id="daysPerWeek"
             type="text"
-            placeholder="Enter days per week"
-            value={daysInput.value}
-            onChange={(e) => daysInput.handleChange(e.target.value)}
-            onBlur={() => handleDaysValidation(daysInput.value)}
+            placeholder="Optional - leave empty for default (5 days)"
+            value={debouncedDays.value}
+            onChange={(e) => debouncedDays.handleChange(e.target.value)}
+            onBlur={() => handleDaysValidation(debouncedDays.value)}
             className={`h-12 border-2 focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
               validationErrors.days ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
             }`}
@@ -146,7 +148,7 @@ export const EmployeeWorkSchedule = memo(({
         <div className="space-y-2">
           <Label className={FORM_STYLES.LABEL_BASE}>Max Days/Week</Label>
           <Input
-            value={validationData?.data.work_schedule.days.max || "Not specified"}
+            value={validationData?.data?.work_schedule?.days?.max || "Not specified"}
             disabled
             className="h-12 bg-slate-50 border-slate-200 text-slate-700"
           />

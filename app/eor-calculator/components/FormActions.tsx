@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { Button } from "@/components/ui/button"
 import { Calculator, RotateCcw, Loader2, AlertCircle } from "lucide-react"
 
@@ -10,7 +11,7 @@ interface FormActionsProps {
   onClear: () => void
 }
 
-export const FormActions = ({
+export const FormActions = memo(({
   isCalculating,
   isFormValid,
   error,
@@ -70,4 +71,6 @@ export const FormActions = ({
       </div>
     </div>
   )
-}
+});
+
+FormActions.displayName = 'FormActions';

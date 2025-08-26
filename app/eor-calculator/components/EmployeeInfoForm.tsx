@@ -3,11 +3,9 @@ import { User } from "lucide-react"
 import { EORFormData, ValidationAPIResponse, ValidationErrors } from "@/lib/shared/types"
 import { FormSectionHeader } from "./shared/FormSectionHeader"
 import {
-  EmployeeHolidays,
   EmployeeLocationInfo,
-  EmployeeProbation,
   EmployeeSalaryInfo,
-  EmployeeWorkSchedule,
+  OptionalEmployeeDataSection,
 } from "./employee"
 
 interface EmployeeInfoFormProps {
@@ -17,6 +15,7 @@ interface EmployeeInfoFormProps {
   originalCurrency: string | null
   workVisaRequired: boolean
   baseSalary: string
+  showOptionalEmployeeData: boolean
   hoursPerDay: string
   daysPerWeek: string
   holidayDays: string
@@ -34,10 +33,74 @@ interface EmployeeInfoFormProps {
   isConvertingValidation: boolean
   isValidationReady: boolean
   onFormUpdate: (updates: Partial<EORFormData>) => void
-  onValidationError: (field: keyof ValidationErrors, error: string | null) => void
   onCountryChange: (country: string) => void
   onCurrencyOverride: (currency: string, conversionInfoCallback?: (info: string) => void) => void
   onCurrencyReset: () => void
+  onValidationError: (field: keyof ValidationErrors, error: string | null) => void
+}
+
+// Custom comparison function for better memoization
+const arePropsEqual = (
+  prevProps: EmployeeInfoFormProps,
+  nextProps: EmployeeInfoFormProps
+): boolean => {
+  // Compare primitive values
+  const primitiveKeys: (keyof EmployeeInfoFormProps)[] = [
+    'country', 'currency', 'isCurrencyManuallySet', 'originalCurrency',
+    'workVisaRequired', 'baseSalary', 'showOptionalEmployeeData',
+    'hoursPerDay', 'daysPerWeek', 'holidayDays', 'probationPeriod',
+    'salaryConversionMessage', 'isLoadingValidations', 'isConvertingValidation',
+    'isValidationReady'
+  ]
+  
+  for (const key of primitiveKeys) {
+    if (prevProps[key] !== nextProps[key]) {
+      return false
+    }
+  }
+
+  // Compare arrays (countries should be memoized but let's be safe)
+  if (JSON.stringify(prevProps.countries) !== JSON.stringify(nextProps.countries)) {
+    return false
+  }
+
+  // Compare callback references (they should be memoized from parent)
+  const callbackKeys: (keyof EmployeeInfoFormProps)[] = [
+    'onFormUpdate', 'onCountryChange', 
+    'onCurrencyOverride', 'onCurrencyReset', 'onValidationError'
+  ]
+  
+  for (const key of callbackKeys) {
+    if (prevProps[key] !== nextProps[key]) {
+      return false
+    }
+  }
+
+  // Deep compare validationData
+  if (prevProps.validationData !== nextProps.validationData) {
+    if (!prevProps.validationData && !nextProps.validationData) {
+      // Both null/undefined, equal
+    } else if (!prevProps.validationData || !nextProps.validationData) {
+      return false
+    } else if (
+      JSON.stringify(prevProps.validationData.data) !== 
+      JSON.stringify(nextProps.validationData.data)
+    ) {
+      return false
+    }
+  }
+
+  // Deep compare validationErrors
+  if (JSON.stringify(prevProps.validationErrors) !== JSON.stringify(nextProps.validationErrors)) {
+    return false
+  }
+
+  // Deep compare convertedValidation
+  if (JSON.stringify(prevProps.convertedValidation) !== JSON.stringify(nextProps.convertedValidation)) {
+    return false
+  }
+
+  return true
 }
 
 export const EmployeeInfoForm = memo(({
@@ -47,6 +110,7 @@ export const EmployeeInfoForm = memo(({
   originalCurrency,
   workVisaRequired,
   baseSalary,
+  showOptionalEmployeeData,
   hoursPerDay,
   daysPerWeek,
   holidayDays,
@@ -60,10 +124,10 @@ export const EmployeeInfoForm = memo(({
   isConvertingValidation,
   isValidationReady,
   onFormUpdate,
-  onValidationError,
   onCountryChange,
   onCurrencyOverride,
   onCurrencyReset,
+  onValidationError,
 }: EmployeeInfoFormProps) => {
   return (
     <div>
@@ -95,24 +159,11 @@ export const EmployeeInfoForm = memo(({
         onFormUpdate={onFormUpdate}
         onValidationError={onValidationError}
       />
-      <EmployeeWorkSchedule
+      <OptionalEmployeeDataSection
+        showOptionalEmployeeData={showOptionalEmployeeData}
         hoursPerDay={hoursPerDay}
         daysPerWeek={daysPerWeek}
-        currency={currency}
-        validationData={validationData}
-        validationErrors={validationErrors}
-        onFormUpdate={onFormUpdate}
-        onValidationError={onValidationError}
-      />
-      <EmployeeHolidays
         holidayDays={holidayDays}
-        currency={currency}
-        validationData={validationData}
-        validationErrors={validationErrors}
-        onFormUpdate={onFormUpdate}
-        onValidationError={onValidationError}
-      />
-      <EmployeeProbation
         probationPeriod={probationPeriod}
         currency={currency}
         validationData={validationData}
@@ -123,6 +174,6 @@ export const EmployeeInfoForm = memo(({
       </div>
     </div>
   )
-})
+}, arePropsEqual)
 
 EmployeeInfoForm.displayName = 'EmployeeInfoForm'

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-import { fetchEORCost, createQuoteRequestData } from "@/lib/shared/utils/apiUtils"
+import { fetchEORCost, createQuoteRequestData, ensureFormDefaults } from "@/lib/shared/utils/apiUtils"
 import { convertCurrency } from "@/lib/currency-converter"
 import { getCountryByName, getCurrencyForCountry } from "@/lib/country-data"
 import { DeelAPIResponse, EORFormData, DualCurrencyQuotes, QuoteData } from "@/lib/shared/types"
@@ -23,12 +23,14 @@ interface QuoteRequestData {
 
 // Helper functions are moved outside the hook as they don't depend on hook state.
 const calculateSingleCurrencyQuote = async (formData: EORFormData, data: QuoteData): Promise<QuoteData> => {
-  const requestData = createQuoteRequestData(formData)
+  // Ensure form data has defaults for optional fields
+  const formDataWithDefaults = ensureFormDefaults(formData)
+  const requestData = createQuoteRequestData(formDataWithDefaults)
   const deelQuote = await fetchEORCost(requestData)
   let comparisonQuote: DeelAPIResponse | undefined
   if (formData.enableComparison && formData.compareCountry) {
     try {
-      const compareRequestData = createQuoteRequestData(formData, true)
+      const compareRequestData = createQuoteRequestData(formDataWithDefaults, true)
       comparisonQuote = await fetchEORCost(compareRequestData)
     } catch (compareError) {
       console.error('Failed to fetch comparison quote:', compareError)
@@ -36,6 +38,7 @@ const calculateSingleCurrencyQuote = async (formData: EORFormData, data: QuoteDa
   }
   return {
     ...data,
+    formData: formDataWithDefaults, // Store the form data with defaults
     quotes: { deel: deelQuote, comparison: comparisonQuote },
     metadata: { ...data.metadata, currency: deelQuote.currency },
     status: 'completed'
@@ -43,35 +46,37 @@ const calculateSingleCurrencyQuote = async (formData: EORFormData, data: QuoteDa
 }
 
 const calculateDualCurrencyQuote = async (formData: EORFormData, data: QuoteData): Promise<QuoteData> => {
-    const hasComparison = formData.enableComparison && formData.compareCountry
-    const salaryAmount = parseFloat(formData.baseSalary.replace(/[,\s]/g, ''))
-    const conversionResult = await convertCurrency(salaryAmount, formData.currency, formData.originalCurrency!)
+    // Ensure form data has defaults for optional fields
+    const formDataWithDefaults = ensureFormDefaults(formData)
+    const hasComparison = formDataWithDefaults.enableComparison && formDataWithDefaults.compareCountry
+    const salaryAmount = parseFloat(formDataWithDefaults.baseSalary.replace(/[,\s]/g, ''))
+    const conversionResult = await convertCurrency(salaryAmount, formDataWithDefaults.currency, formDataWithDefaults.originalCurrency!)
     if (!conversionResult.success || !conversionResult.data) {
       throw new Error("Failed to convert salary to local currency")
     }
     const convertedSalaryAmount = conversionResult.data.target_amount.toString()
-    const selectedCurrencyRequestData = createQuoteRequestData(formData)
+    const selectedCurrencyRequestData = createQuoteRequestData(formDataWithDefaults)
     const localCurrencyRequestData = {
       ...selectedCurrencyRequestData,
       salary: convertedSalaryAmount,
-      currency: formData.originalCurrency!
+      currency: formDataWithDefaults.originalCurrency!
     }
     const apiCalls = [
       fetchEORCost(selectedCurrencyRequestData),
       fetchEORCost(localCurrencyRequestData)
     ]
     if (hasComparison) {
-      const compareCountryData = getCountryByName(formData.compareCountry!)
+      const compareCountryData = getCountryByName(formDataWithDefaults.compareCountry!)
       const compareLocalCurrency = getCurrencyForCountry(compareCountryData!.code)
-      const selectedCurrency = formData.currency
-      const compareSalaryInLocal = parseFloat(formData.compareSalary?.replace(/[,\s]/g, '') || '0')
+      const selectedCurrency = formDataWithDefaults.currency
+      const compareSalaryInLocal = parseFloat(formDataWithDefaults.compareSalary?.replace(/[,\s]/g, '') || '0')
       const compareLocalCurrencyRequestData: QuoteRequestData = {
         salary: compareSalaryInLocal.toString(),
-        country: formData.compareCountry!,
+        country: formDataWithDefaults.compareCountry!,
         currency: compareLocalCurrency,
-        clientCountry: formData.clientCountry,
+        clientCountry: formDataWithDefaults.clientCountry,
         age: 30,
-        state: formData.compareState,
+        state: formDataWithDefaults.compareState,
       }
       const comparisonConversionResult = await convertCurrency(compareSalaryInLocal, compareLocalCurrency, selectedCurrency)
       if (!comparisonConversionResult.success || !comparisonConversionResult.data) {
@@ -80,11 +85,11 @@ const calculateDualCurrencyQuote = async (formData: EORFormData, data: QuoteData
       const compareSalaryInSelected = comparisonConversionResult.data.target_amount
       const compareSelectedCurrencyRequestData: QuoteRequestData = {
         salary: compareSalaryInSelected.toString(),
-        country: formData.compareCountry!,
+        country: formDataWithDefaults.compareCountry!,
         currency: selectedCurrency,
-        clientCountry: formData.clientCountry,
+        clientCountry: formDataWithDefaults.clientCountry,
         age: 30,
-        state: formData.compareState,
+        state: formDataWithDefaults.compareState,
       }
       apiCalls.push(
         fetchEORCost(compareSelectedCurrencyRequestData),
@@ -107,6 +112,7 @@ const calculateDualCurrencyQuote = async (formData: EORFormData, data: QuoteData
     }
     return {
       ...data,
+      formData: formDataWithDefaults, // Store the form data with defaults
       quotes: { deel: selectedCurrencyData, comparison: compareSelectedData },
       dualCurrencyQuotes,
       metadata: { ...data.metadata, currency: selectedCurrencyData.currency },
@@ -150,6 +156,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       }
 
       const data = validationResult.data
+      console.log("EOR form data retrieved on quote page:", data.formData)
       setQuoteData(data)
 
       if (data.status === 'calculating') {

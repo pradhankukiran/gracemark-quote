@@ -81,15 +81,14 @@ export const EmployeeSalaryInfo = memo(({
           ...validationData.data,
           salary: {
             ...validationData.data.salary,
-            min: convertedValidation.minSalary ? convertedValidation.minSalary.replace(/[\,\s]/g, '') : validationData.data.salary.min,
-            max: convertedValidation.maxSalary ? convertedValidation.maxSalary.replace(/[\,\s]/g, '') : validationData.data.salary.max
+            min: convertedValidation.minSalary ? convertedValidation.minSalary.replace(/[/\,\s]/g, '') : validationData.data.salary.min,
+            max: convertedValidation.maxSalary ? convertedValidation.maxSalary.replace(/[/\,\s]/g, '') : validationData.data.salary.max
           }
         }
       }
     }
 
-    const result = validateField('salary', value, 'salary', effectiveValidationData, currency)
-    onValidationError('salary', result.isValid ? null : result.errorMessage || 'Invalid salary amount')
+    validateField('salary', value, 'salary', effectiveValidationData, currency, onValidationError)
   }, [
     isValidationUtilsReady,
     isConvertingValidation,
@@ -100,6 +99,7 @@ export const EmployeeSalaryInfo = memo(({
     validateField,
     onValidationError
   ])
+
 
   const handleSalaryChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     salaryInput.handleChange(e.target.value)

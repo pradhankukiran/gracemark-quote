@@ -56,9 +56,11 @@ export const useValidationUtils = () => {
     value: string,
     validatorType: 'salary' | 'holiday' | 'probation' | 'hours' | 'days',
     validationData: ValidationAPIResponse | null,
-    currency: string
+    currency: string,
+    onValidationError?: (field: keyof ValidationErrors, error: string | null) => void
   ): { isValid: boolean; errorMessage?: string } => {
     if (!isLoaded || !validationFunctionsRef.current || !value) {
+      onValidationError?.(field, null)
       return { isValid: true }
     }
 
@@ -89,9 +91,11 @@ export const useValidationUtils = () => {
         validationData, 
         currency
       )
+      onValidationError?.(field, errorMessage || `Invalid ${validatorType}`)
       return { isValid, errorMessage }
     }
 
+    onValidationError?.(field, null)
     return { isValid }
   }
 

@@ -1,7 +1,8 @@
+import { useEffect, memo } from "react"
 import { Building2 } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { EORFormData, LocalOfficeInfo } from "@/lib/shared/types"
+import { LocalOfficeInfo } from "@/lib/shared/types"
 import { FormSectionHeader } from "./shared/FormSectionHeader"
 import { FORM_STYLES } from "../styles/constants"
 import { getOriginalLocalOfficeData } from "@/lib/shared/utils/localOfficeData"
@@ -17,7 +18,7 @@ interface LocalOfficeInformationProps {
   countryCode?: string
 }
 
-export const LocalOfficeInformation = ({
+export const LocalOfficeInformation = memo(({
   localOfficeInfo,
   isCurrencyManuallySet,
   originalCurrency,
@@ -37,6 +38,32 @@ export const LocalOfficeInformation = ({
     isCurrencyManuallySet: isCurrencyManuallySet,
     originalCurrency: originalCurrency,
   })
+
+  // Store converted values in form state when conversion is complete
+  useEffect(() => {
+    if (!isConvertingLocalOffice && (originalData || Object.keys(convertedLocalOffice).length > 0)) {
+      const updatedLocalOfficeInfo: Partial<LocalOfficeInfo> = {}
+      
+      // Build the local office data with converted values
+      const fields: Array<keyof LocalOfficeInfo> = [
+        'mealVoucher', 'transportation', 'wfh', 'healthInsurance',
+        'monthlyPaymentsToLocalOffice', 'vat', 'preEmploymentMedicalTest',
+        'drugTest', 'backgroundCheckViaDeel'
+      ]
+      
+      fields.forEach(field => {
+        const convertedValue = getConvertedLocalOfficeValue(field, convertedLocalOffice, originalData)
+        if (convertedValue && convertedValue !== 'N/A') {
+          updatedLocalOfficeInfo[field] = convertedValue
+        }
+      })
+      
+      // Only update if we have values to set
+      if (Object.keys(updatedLocalOfficeInfo).length > 0) {
+        onLocalOfficeUpdate(updatedLocalOfficeInfo)
+      }
+    }
+  }, [convertedLocalOffice, originalData, isConvertingLocalOffice, onLocalOfficeUpdate])
 
   const getDisplayCurrency = () => {
     return currency
@@ -274,4 +301,6 @@ export const LocalOfficeInformation = ({
       </div>
     </div>
   )
-}
+});
+
+LocalOfficeInformation.displayName = 'LocalOfficeInformation';

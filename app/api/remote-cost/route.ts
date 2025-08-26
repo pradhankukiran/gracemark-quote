@@ -62,6 +62,9 @@ export async function POST(request: NextRequest) {
             employment_term: "fixed", // Default to fixed term as shown in UK sample
           },
         ],
+        include_premium_benefits: true,
+        include_cost_breakdowns: true,
+        include_benefits: true,
       }),
     }
 

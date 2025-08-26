@@ -20,7 +20,6 @@ interface UseQuoteCalculationProps {
     maxSalary?: string
     currency?: string
   }
-  onValidationError: (field: keyof ValidationErrors, error: string | null) => void
 }
 
 export const useQuoteCalculation = ({ 
@@ -29,8 +28,7 @@ export const useQuoteCalculation = ({
   clientCurrency,
   compareCurrency,
   validationData, 
-  convertedValidation,
-  onValidationError
+  convertedValidation
 }: UseQuoteCalculationProps) => {
   const [error, setError] = useState<string | null>(null)
 
@@ -60,45 +58,7 @@ export const useQuoteCalculation = ({
     return newValidationData
   }
 
-  const validateAllFields = (): boolean => {
-    let hasValidationErrors = false
-    
-    // Use effective validation data (original or converted)
-    const effectiveValidationData = getEffectiveValidationData()
-    
-    if (formData.baseSalary && !validateSalaryInput(formData.baseSalary, effectiveValidationData)) {
-      onValidationError('salary', 'Invalid salary amount')
-      hasValidationErrors = true
-    }
-    
-    if (formData.holidayDays && !validateHolidayInput(formData.holidayDays, effectiveValidationData)) {
-      onValidationError('holidays', 'Invalid holiday days')
-      hasValidationErrors = true
-    }
-    
-    if (formData.probationPeriod && !validateProbationInput(formData.probationPeriod, effectiveValidationData)) {
-      onValidationError('probation', 'Invalid probation period')
-      hasValidationErrors = true
-    }
-    
-    if (formData.hoursPerDay && !validateHoursInput(formData.hoursPerDay, effectiveValidationData)) {
-      onValidationError('hours', 'Invalid hours per day')
-      hasValidationErrors = true
-    }
-    
-    if (formData.daysPerWeek && !validateDaysInput(formData.daysPerWeek, effectiveValidationData)) {
-      onValidationError('days', 'Invalid days per week')
-      hasValidationErrors = true
-    }
-    
-    return !hasValidationErrors
-  }
-
   const calculateQuote = async () => {
-    if (!validateAllFields()) {
-      setError("Please fix the validation errors before submitting.")
-      return
-    }
 
     // Clear any existing errors
     setError(null)

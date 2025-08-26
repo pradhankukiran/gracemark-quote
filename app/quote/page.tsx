@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, Suspense } from "react"
+import { useEffect, Suspense, memo } from "react"
 import { useSearchParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -18,7 +18,7 @@ const LoadingSpinner = () => (
   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
 )
 
-function QuotePageContent() {
+const QuotePageContent = memo(() => {
   const searchParams = useSearchParams()
   const quoteId = searchParams.get('id')
   
@@ -234,7 +234,9 @@ function QuotePageContent() {
       </div>
     </div>
   )
-}
+});
+
+QuotePageContent.displayName = 'QuotePageContent';
 
 export default function QuotePage() {
   return (

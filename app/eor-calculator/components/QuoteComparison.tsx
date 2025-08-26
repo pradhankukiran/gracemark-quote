@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { DeelAPIResponse, DualCurrencyQuotes, USDConversions } from "@/lib/shared/types"
 import { QuoteCard } from "@/lib/shared/components/QuoteCard"
 
@@ -15,7 +16,7 @@ interface QuoteComparisonProps {
   dualCurrencyQuotes?: DualCurrencyQuotes
 }
 
-export const QuoteComparison = ({
+export const QuoteComparison = memo(({
   primaryQuote,
   comparisonQuote,
   primaryTitle,
@@ -88,4 +89,6 @@ export const QuoteComparison = ({
       </div>
     </div>
   )
-}
+});
+
+QuoteComparison.displayName = 'QuoteComparison';

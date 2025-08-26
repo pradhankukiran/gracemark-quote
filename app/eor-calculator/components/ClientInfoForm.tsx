@@ -33,40 +33,39 @@ export const ClientInfoForm = memo(({
       <FormSectionHeader icon={MapPin} title="Client Information" />
       <div className={FORM_STYLES.GRID_3_COL}>
         <div className="space-y-2">
-          <label htmlFor="clientName" className="text-base font-semibold text-slate-700 uppercase tracking-wide">
-            Client Name
-          </label>
-          <input
-            id="clientName"
-            type="text"
+          <FormField
+            type="input"
+            label="Client Name"
+            htmlFor="clientName"
             value={clientName}
-            onChange={(e) => onFormUpdate({ clientName: e.target.value })}
+            onChange={(value) => onFormUpdate({ clientName: value })}
             placeholder="Enter client name"
-            className="h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 w-full px-3 rounded-md"
           />
-          <div className="flex gap-3 justify-start">
+          <div className="relative flex items-center border-2 border-slate-200 rounded-md p-1 bg-slate-100">
+            <div
+              className={`
+                absolute top-1 left-1 h-[calc(100%-0.5rem)] w-1/2 bg-primary rounded-md shadow-sm transition-transform duration-300 ease-in-out
+                ${clientType === 'existing' ? 'translate-x-[95%]' : 'translate-x-0'}
+              `}
+            />
             {[
-              { value: 'new', label: 'New' },
-              { value: 'existing', label: 'Existing' }
+              { value: 'new', label: 'New Client' },
+              { value: 'existing', label: 'Existing Client' }
             ].map((option) => (
-              <label 
+              <button
                 key={option.value}
-                className="flex items-center gap-1 cursor-pointer"
+                type="button"
+                onClick={() => onFormUpdate({ clientType: option.value as 'new' | 'existing' })}
+                className={`
+                  flex-1 py-2 px-4 text-center text-sm font-semibold rounded-md transition-colors duration-200 cursor-pointer z-10
+                  ${clientType === option.value
+                    ? 'text-white'
+                    : 'text-slate-600 hover:text-primary'
+                  }
+                `}
               >
-                <input
-                  type="checkbox"
-                  checked={clientType === option.value}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      onFormUpdate({ clientType: option.value as 'new' | 'existing' })
-                    } else {
-                      onFormUpdate({ clientType: null })
-                    }
-                  }}
-                  className="w-3 h-3 text-primary border border-slate-300 rounded focus:ring-2 focus:ring-primary/20"
-                />
-                <span className="text-base font-semibold text-slate-700 uppercase tracking-wide">{option.label}</span>
-              </label>
+                {option.label}
+              </button>
             ))}
           </div>
         </div>

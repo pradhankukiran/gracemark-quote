@@ -3,23 +3,24 @@
 import React from "react"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Heart, Info } from "lucide-react"
-import { BenefitsAPIResponse, Benefit } from "@/lib/shared/types"
-import { FormSectionHeader } from "./shared/FormSectionHeader"
+import { Info, Gift, Loader2, ChevronUp } from "lucide-react"
+import { BenefitsAPIResponse, Benefit, SelectedBenefit } from "@/lib/shared/types"
 import { LoadingSpinner } from "./shared/LoadingSpinner"
 import { ErrorDisplay } from "./shared/ErrorDisplay"
+import { SmoothReveal } from "./shared/OptimizedReveal"
+import { FormSectionHeader } from "./shared/FormSectionHeader"
 
 interface BenefitsSelectionProps {
   benefitsData: BenefitsAPIResponse | null
   isLoadingBenefits: boolean
   benefitsError: string | null
   selectedBenefits: {
-    [key: string]: string | undefined
+    [key: string]: SelectedBenefit | undefined
   }
-  onBenefitChange: (benefitType: string, planId: string | undefined) => void
+  onBenefitChange: (benefitType: string, benefitData: SelectedBenefit | undefined) => void
 }
 
-export const BenefitsSelection = ({
+export const BenefitsSelection = React.memo(({
   benefitsData,
   isLoadingBenefits,
   benefitsError,
@@ -74,7 +75,8 @@ export const BenefitsSelection = ({
 
   const renderBenefit = React.useCallback((benefit: Benefit) => {
     const benefitKey = getBenefitKey(benefit.name)
-    const selectedPlanId = selectedBenefits[benefitKey]
+    const selectedBenefit = selectedBenefits[benefitKey]
+    const selectedPlanId = selectedBenefit?.planId
     const isPension = benefit.name.toLowerCase() === 'pension'
 
     const allPlans = benefit.providers.flatMap(provider => 
@@ -102,7 +104,24 @@ export const BenefitsSelection = ({
         <Select
           value={selectedPlanId || "none"}
           onValueChange={(value) => {
-            onBenefitChange(benefitKey, value === "none" ? undefined : value)
+            if (value === "none") {
+              onBenefitChange(benefitKey, undefined)
+            } else {
+              const selectedPlan = allPlans.find(p => p.id === value)
+              if (selectedPlan) {
+                const benefitData: SelectedBenefit = {
+                  planId: selectedPlan.id,
+                  planName: selectedPlan.name,
+                  providerId: selectedPlan.provider.id,
+                  providerName: selectedPlan.provider.name,
+                  price: selectedPlan.price,
+                  currency: selectedPlan.provider.currency,
+                  isMandatory: benefit.is_mandatory,
+                  benefitName: benefit.name
+                }
+                onBenefitChange(benefitKey, benefitData)
+              }
+            }
           }}
           disabled={benefit.is_mandatory && allPlans.length === 1}
         >
@@ -182,41 +201,39 @@ export const BenefitsSelection = ({
     )
   }, [getBenefitKey, onBenefitChange, openPDFInNewTab, selectedBenefits, loadingAttachments])
 
-  if (isLoadingBenefits) {
-    return (
-      <div>
-        <FormSectionHeader icon={Heart} title="Employee Benefits" />
-        <LoadingSpinner message="Loading country benefits data..." />
-      </div>
-    )
-  }
-
-  if (benefitsError) {
-    return (
-      <div>
-        <FormSectionHeader icon={Heart} title="Employee Benefits" />
-        <ErrorDisplay 
-          title="Benefits data unavailable" 
-          message={benefitsError} 
-        />
-      </div>
-    )
-  }
-
-  if (!benefitsData || !benefitsData.data || benefitsData.data.length === 0) {
-    return null
-  }
+  const [isExpanded, setIsExpanded] = React.useState(true)
+  const hasData = !!benefitsData?.data?.length
+  const showContent = isExpanded && !isLoadingBenefits && !benefitsError && hasData
+  const showError = isExpanded && !isLoadingBenefits && !!benefitsError
 
   return (
     <div>
-      <FormSectionHeader 
-        icon={Heart} 
-        title="Employee Benefits" 
-        subtitle="Select benefit plans for the employee. Mandatory benefits must have a selection."
-      />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {benefitsData.data.map(renderBenefit)}
+      <div
+        className="flex items-center justify-between cursor-pointer p-2 -m-2 rounded-md hover:bg-slate-50 transition-colors"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <FormSectionHeader icon={Gift} title="Benefits Package" />
+        <div className="flex items-center gap-4">
+          {isLoadingBenefits && <Loader2 className="h-5 w-5 animate-spin text-slate-400" />}
+          <ChevronUp className={`h-5 w-5 text-slate-500 transition-transform duration-200 ${!isExpanded && "rotate-180"}`} />
+        </div>
       </div>
+
+      <SmoothReveal isVisible={showContent}>
+        <div className="mt-4 p-4 bg-slate-50 border-2 border-slate-200 rounded-md">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {benefitsData?.data.map(renderBenefit)}
+          </div>
+        </div>
+      </SmoothReveal>
+
+      <SmoothReveal isVisible={showError}>
+        <div className="mt-4">
+          <ErrorDisplay title="Benefits data unavailable" message={benefitsError!} />
+        </div>
+      </SmoothReveal>
     </div>
   )
-}
+})
+
+BenefitsSelection.displayName = 'BenefitsSelection'

@@ -43,8 +43,7 @@ export const EmployeeHolidays = memo(({
       return
     }
 
-    const result = validateField('holidays', value, 'holiday', validationData, currency)
-    onValidationError('holidays', result.isValid ? null : result.errorMessage || 'Invalid holiday days')
+    validateField('holidays', value, 'holiday', validationData, currency, onValidationError)
   }, [isValidationReady, validateField, validationData, currency, onValidationError])
 
   return (
@@ -63,12 +62,12 @@ export const EmployeeHolidays = memo(({
             htmlFor="holidayDays"
             className={FORM_STYLES.LABEL_BASE}
           >
-            Holiday Days
+            Holiday Days <span className="text-slate-400 font-normal">(Optional)</span>
           </Label>
           <Input
             id="holidayDays"
             type="text"
-            placeholder="Enter number of holidays"
+            placeholder="Optional - leave empty for country default"
             value={holidaysInput.value}
             onChange={(e) => holidaysInput.handleChange(e.target.value)}
             onBlur={() => handleHolidaysValidation(holidaysInput.value)}

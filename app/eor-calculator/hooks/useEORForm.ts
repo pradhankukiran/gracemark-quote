@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react"
-import { EORFormData, ValidationErrors, LocalOfficeInfo } from "@/lib/shared/types"
+import { EORFormData, ValidationErrors, LocalOfficeInfo, SelectedBenefit } from "@/lib/shared/types"
 import { 
   getCountryByName, 
   getCurrencyForCountry,
@@ -30,7 +30,7 @@ const initialFormData: EORFormData = {
   isCurrencyManuallySet: false,
   originalCurrency: undefined,
   clientName: "",
-  clientType: null,
+  clientType: "new",
   clientCountry: "",
   baseSalary: "",
   holidayDays: "",
@@ -47,6 +47,8 @@ const initialFormData: EORFormData = {
   compareSalary: "",
   currentStep: "form",
   showProviderComparison: false,
+  showOptionalEmployeeData: false,
+  showBenefits: false,
   selectedBenefits: {
     healthcare: undefined,
     pension: undefined,
@@ -69,7 +71,6 @@ export const useEORForm = () => {
   const [currency, setCurrency] = useState("")
   const [clientCurrency, setClientCurrency] = useState("")
   const [compareCurrency, setCompareCurrency] = useState("")
-  const [compareCountry, setCompareCountry] = useState("")
   const [salaryConversionMessage, setSalaryConversionMessage] = useState<string | null>(null)
 
   const countries = useMemo(() => getAvailableCountries(), [])
@@ -131,8 +132,13 @@ export const useEORForm = () => {
     setFormData((prev) => ({ ...prev, ...updates }))
   }, [])
 
+  
+
   const updateValidationError = useCallback((field: keyof ValidationErrors, error: string | null) => {
-    setValidationErrors((prev) => ({ ...prev, [field]: error }))
+    setValidationErrors((prev) => ({
+      ...prev,
+      [field]: error
+    }))
   }, [])
 
   const clearValidationErrors = useCallback(() => {
@@ -144,12 +150,12 @@ export const useEORForm = () => {
     setValidationErrors(initialValidationErrors)
   }, [])
 
-  const updateBenefitSelection = useCallback((benefitType: string, planId: string | undefined) => {
+  const updateBenefitSelection = useCallback((benefitType: string, benefitData: SelectedBenefit | undefined) => {
     setFormData((prev) => ({
       ...prev,
       selectedBenefits: {
         ...prev.selectedBenefits,
-        [benefitType]: planId,
+        [benefitType]: benefitData,
       },
     }))
   }, [])
@@ -230,7 +236,7 @@ export const useEORForm = () => {
         }
       }
     }
-  }, [currency, formData.baseSalary, updateFormData])
+  }, [currency, formData.baseSalary])
 
   const resetToDefaultCurrency = useCallback(async () => {
     if (formData.originalCurrency) {
@@ -272,7 +278,7 @@ export const useEORForm = () => {
         }
       }
     }
-  }, [formData.originalCurrency, currency, formData.baseSalary, updateFormData])
+  }, [formData.originalCurrency, currency, formData.baseSalary])
 
   const isFormValid = useCallback(() => {
     return formData.country && formData.baseSalary && formData.clientCountry &&

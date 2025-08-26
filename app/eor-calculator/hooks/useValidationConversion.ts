@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { ValidationAPIResponse } from "@/lib/shared/types"
 import { convertCurrency } from "@/lib/currency-converter"
 
@@ -23,12 +23,15 @@ export const useValidationConversion = (
   const [convertedValidation, setConvertedValidation] = useState<ConvertedValidation>({})
   const [isConvertingValidation, setIsConvertingValidation] = useState(false)
   const conversionTimeoutRef = useRef<NodeJS.Timeout>()
+  
+  // Create stable empty object reference to prevent unnecessary rerenders
+  const stableEmptyValidation = useMemo(() => ({}), [])
 
   // Convert validation data when currency is overridden
   useEffect(() => {
     const convertValidationData = async () => {
       if (!validationData || !isCurrencyManuallySet || !originalCurrency) {
-        setConvertedValidation({})
+        setConvertedValidation(stableEmptyValidation)
         return
       }
 
@@ -36,7 +39,7 @@ export const useValidationConversion = (
       const targetCurrency = formCurrency
       
       if (originalCur === targetCurrency) {
-        setConvertedValidation({})
+        setConvertedValidation(stableEmptyValidation)
         return
       }
 
@@ -51,7 +54,7 @@ export const useValidationConversion = (
       conversionTimeoutRef.current = setTimeout(() => {
         console.warn('Validation conversion timeout - falling back to original data')
         setIsConvertingValidation(false)
-        setConvertedValidation({})
+        setConvertedValidation(stableEmptyValidation)
       }, 10000) // 10 second timeout
       
       try {
@@ -85,7 +88,7 @@ export const useValidationConversion = (
         })
       } catch (error) {
         console.warn('Failed to convert validation data:', error)
-        setConvertedValidation({})
+        setConvertedValidation(stableEmptyValidation)
       } finally {
         if (conversionTimeoutRef.current) {
           clearTimeout(conversionTimeoutRef.current)
@@ -101,12 +104,22 @@ export const useValidationConversion = (
         clearTimeout(conversionTimeoutRef.current)
       }
     }
-  }, [validationData, isCurrencyManuallySet, formCurrency, originalCurrency])
+  }, [validationData, isCurrencyManuallySet, formCurrency, originalCurrency, stableEmptyValidation])
 
   const isValidationReady = !isConvertingValidation
+  
+  // Memoize the returned convertedValidation to prevent unnecessary rerenders
+  const memoizedConvertedValidation = useMemo(() => {
+    // If it's the stable empty validation, return it directly
+    if (convertedValidation === stableEmptyValidation) {
+      return stableEmptyValidation
+    }
+    // Return the actual converted validation data
+    return convertedValidation
+  }, [convertedValidation, stableEmptyValidation])
 
   return {
-    convertedValidation,
+    convertedValidation: memoizedConvertedValidation,
     isConvertingValidation,
     isValidationReady,
   }

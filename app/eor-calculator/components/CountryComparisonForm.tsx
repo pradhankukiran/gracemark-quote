@@ -1,4 +1,4 @@
-import { useMemo, memo } from "react"
+import { useMemo, memo, useRef, useEffect } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MapPin, Loader2, RefreshCw } from "lucide-react"
 import { EORFormData } from "@/lib/shared/types"
 import { FormSectionHeader } from "./shared/FormSectionHeader"
-import { BounceReveal } from "./shared/AnimatedReveal"
+import { SmoothReveal } from "./shared/OptimizedReveal"
 import { FORM_STYLES } from "../styles/constants"
 
 interface CountryComparisonFormProps {
@@ -46,8 +46,18 @@ export const CountryComparisonForm = memo(({
     [countries, country]
   )
 
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (enableComparison) {
+      setTimeout(() => {
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 300) // Match animation duration
+    }
+  }, [enableComparison])
+
   return (
-    <div>
+    <div ref={scrollRef}>
       <FormSectionHeader icon={MapPin} title="Country Comparison (Optional)" />
 
       <div className="space-y-4">
@@ -81,7 +91,7 @@ export const CountryComparisonForm = memo(({
           </span>
         </Label>
 
-        <BounceReveal isVisible={enableComparison}>
+        <SmoothReveal isVisible={enableComparison}>
           <div className="p-4 bg-slate-50 border-2 border-slate-200 rounded-md">
             <div className={FORM_STYLES.GRID_3_COL}>
               {/* Comparison Country */}
@@ -155,7 +165,7 @@ export const CountryComparisonForm = memo(({
               </div>
             </div>
           </div>
-        </BounceReveal>
+        </SmoothReveal>
       </div>
     </div>
   )

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DollarSign, Loader2 } from "lucide-react";
@@ -8,7 +9,6 @@ import Image from "next/image";
 interface QuoteCardProps {
   quote?: Quote;
   title: string;
-  subtitle?: string;
   badgeText?: string;
   badgeColor?: string;
   usdConversions?: USDConversions["deel"] | USDConversions["compare"];
@@ -19,10 +19,9 @@ interface QuoteCardProps {
   dualCurrencyQuotes?: DualCurrencyQuotes;
 }
 
-export const QuoteCard = ({
+export const QuoteCard = memo(({
   quote,
   title,
-  subtitle,
   badgeText,
   badgeColor = "bg-green-100 text-green-800",
   usdConversions,
@@ -365,4 +364,6 @@ export const QuoteCard = ({
       </CardContent>
     </Card>
   );
-};
+});
+
+QuoteCard.displayName = "QuoteCard";
