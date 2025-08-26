@@ -326,9 +326,9 @@ const QuotePageContent = memo(() => {
             </div>
           )}
 
-          {/* Country Comparison - Dual Currency Mode (Both Deel and Remote) */}
-          {quoteData.status === "completed" && quoteData.dualCurrencyQuotes?.isDualCurrencyMode && quoteData.dualCurrencyQuotes?.hasComparison && 
-           quoteData.dualCurrencyQuotes?.selectedCurrencyQuote && quoteData.dualCurrencyQuotes?.compareSelectedCurrencyQuote && (
+          {/* Country Comparison - Dual Currency Mode (Deel) */}
+          {quoteData.status === "completed" && currentProvider === 'deel' && quoteData.dualCurrencyQuotes?.deel?.isDualCurrencyMode && quoteData.dualCurrencyQuotes?.deel?.hasComparison && 
+           quoteData.dualCurrencyQuotes?.deel?.selectedCurrencyQuote && quoteData.dualCurrencyQuotes?.deel?.compareSelectedCurrencyQuote && (
             <div className="max-w-7xl mx-auto">
               <QuoteComparison
                 primaryTitle={quoteData.formData.country}
@@ -337,7 +337,23 @@ const QuotePageContent = memo(() => {
                 isConvertingPrimaryToUSD={isConvertingDeelToUsd}
                 isConvertingComparisonToUSD={isConvertingCompareToUsd}
                 usdConversionError={usdConversionError}
-                dualCurrencyQuotes={quoteData.dualCurrencyQuotes}
+                dualCurrencyQuotes={{ ...quoteData.dualCurrencyQuotes, ...quoteData.dualCurrencyQuotes.deel }}
+              />
+            </div>
+          )}
+
+          {/* Country Comparison - Dual Currency Mode (Remote) */}
+          {quoteData.status === "completed" && currentProvider === 'remote' && quoteData.dualCurrencyQuotes?.remote?.isDualCurrencyMode && quoteData.dualCurrencyQuotes?.remote?.hasComparison && 
+           quoteData.dualCurrencyQuotes?.remote?.selectedCurrencyQuote && quoteData.dualCurrencyQuotes?.remote?.compareSelectedCurrencyQuote && (
+            <div className="max-w-7xl mx-auto">
+              <QuoteComparison
+                primaryTitle={quoteData.formData.country}
+                comparisonTitle={quoteData.formData.compareCountry}
+                usdConversions={usdConversions}
+                isConvertingPrimaryToUSD={isConvertingDeelToUsd}
+                isConvertingComparisonToUSD={isConvertingCompareToUsd}
+                usdConversionError={usdConversionError}
+                dualCurrencyQuotes={{ ...quoteData.dualCurrencyQuotes, ...quoteData.dualCurrencyQuotes.remote }}
               />
             </div>
           )}
