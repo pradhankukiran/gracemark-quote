@@ -27,11 +27,13 @@ const initialFormData: EORFormData = {
   workVisaRequired: false,
   country: "",
   state: "",
+  currency: "",
   isCurrencyManuallySet: false,
   originalCurrency: undefined,
   clientName: "",
   clientType: "new",
   clientCountry: "",
+  clientCurrency: "",
   baseSalary: "",
   holidayDays: "",
   probationPeriod: "",
@@ -44,6 +46,7 @@ const initialFormData: EORFormData = {
   enableComparison: false,
   compareCountry: "",
   compareState: "",
+  compareCurrency: "",
   compareSalary: "",
   currentStep: "form",
   showProviderComparison: false,
@@ -98,6 +101,10 @@ export const useEORForm = () => {
     if (formData.country && selectedCountryData && !formData.isCurrencyManuallySet) {
       const newCurrency = getCurrencyForCountry(selectedCountryData.code)
       setCurrency(newCurrency)
+      setFormData((prev) => ({
+        ...prev,
+        currency: newCurrency,
+      }))
     } else if (formData.country && selectedCountryData) {
       const originalCurrency = getCurrencyForCountry(selectedCountryData.code)
       if (formData.originalCurrency !== originalCurrency) {
@@ -114,6 +121,10 @@ export const useEORForm = () => {
     if (formData.clientCountry && clientCountryData) {
       const newClientCurrency = getCurrencyForCountry(clientCountryData.code)
       setClientCurrency(newClientCurrency)
+      setFormData((prev) => ({
+        ...prev,
+        clientCurrency: newClientCurrency,
+      }))
     }
   }, [formData.clientCountry, clientCountryData])
 
@@ -122,6 +133,10 @@ export const useEORForm = () => {
     if (formData.compareCountry && compareCountryData) {
       const newCurrency = getCurrencyForCountry(compareCountryData.code);
       setCompareCurrency(newCurrency)
+      setFormData((prev) => ({
+        ...prev,
+        compareCurrency: newCurrency,
+      }))
     }
   }, [
     formData.compareCountry, 
@@ -208,6 +223,7 @@ export const useEORForm = () => {
     setCurrency(newCurrency)
     setFormData((prev) => ({
       ...prev,
+      currency: newCurrency,
       isCurrencyManuallySet: true,
     }))
     
@@ -250,6 +266,7 @@ export const useEORForm = () => {
       setCurrency(targetCurrency)
       setFormData((prev) => ({
         ...prev,
+        currency: targetCurrency,
         isCurrencyManuallySet: false,
       }))
       

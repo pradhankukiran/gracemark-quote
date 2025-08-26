@@ -9,8 +9,11 @@ import Link from "next/link"
 import { useQuoteResults } from "./hooks/useQuoteResults"
 import { useUSDConversion } from "../eor-calculator/hooks/useUSDConversion"
 import { QuoteCard } from "@/lib/shared/components/QuoteCard"
+import { RemoteQuoteCard } from "@/lib/shared/components/RemoteQuoteCard"
 import { QuoteComparison } from "../eor-calculator/components/QuoteComparison"
 import { ErrorBoundary } from "@/lib/shared/components/ErrorBoundary"
+import { ProviderSelector } from "./components/ProviderSelector"
+import { RemoteAPIResponse } from "@/lib/shared/types"
 
 // QuoteData interface is now imported from useQuoteResults
 
@@ -22,7 +25,13 @@ const QuotePageContent = memo(() => {
   const searchParams = useSearchParams()
   const quoteId = searchParams.get('id')
   
-  const { quoteData, loading } = useQuoteResults(quoteId)
+  const { 
+    quoteData, 
+    loading, 
+    currentProvider, 
+    switchProvider, 
+    providerLoading 
+  } = useQuoteResults(quoteId)
   
   const {
     usdConversions,
@@ -159,7 +168,17 @@ const QuotePageContent = memo(() => {
         </div> */}
 
         <div className="space-y-8">
-          <div className="text-center space-y-3">
+          <div className="text-center space-y-3 relative">
+            {/* Provider Selector - Top Right */}
+            <div className="absolute top-0 right-0">
+              <ProviderSelector
+                currentProvider={currentProvider}
+                onProviderChange={switchProvider}
+                loading={providerLoading}
+                disabled={loading || quoteData?.status !== 'completed'}
+              />
+            </div>
+            
             <div className="flex items-center justify-center gap-2 mb-4">
               <CheckCircle className="h-8 w-8 text-green-500" />
               <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
@@ -173,25 +192,63 @@ const QuotePageContent = memo(() => {
 
           {/* Primary Quote Display */}
           {quoteData.status === "completed" && (
-            (quoteData.dualCurrencyQuotes?.isDualCurrencyMode && (quoteData.dualCurrencyQuotes?.selectedCurrencyQuote || quoteData.dualCurrencyQuotes?.localCurrencyQuote)) ||
-            (!quoteData.dualCurrencyQuotes?.isDualCurrencyMode && quoteData.quotes.deel)
-          ) && (!quoteData.formData.enableComparison || (quoteData.formData.enableComparison && !quoteData.quotes.comparison && !quoteData.dualCurrencyQuotes?.isDualCurrencyMode)) && (
             <div className="max-w-4xl mx-auto">
-              <QuoteCard
-                quote={quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? undefined : quoteData.quotes.deel || undefined}
-                title={`${quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? 
-                  (quoteData.dualCurrencyQuotes?.selectedCurrencyQuote?.country || quoteData.formData.country) : 
-                  quoteData.quotes.deel?.country || quoteData.formData.country} EOR Quote`}
-                usdConversions={quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? undefined : usdConversions.deel}
-                isConvertingToUSD={quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? false : isConvertingDeelToUsd}
-                usdConversionError={quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? null : usdConversionError}
-                dualCurrencyQuotes={quoteData.dualCurrencyQuotes}
-              />
+              {currentProvider === 'deel' && (
+                (quoteData.dualCurrencyQuotes?.isDualCurrencyMode && (quoteData.dualCurrencyQuotes?.selectedCurrencyQuote || quoteData.dualCurrencyQuotes?.localCurrencyQuote)) ||
+                (!quoteData.dualCurrencyQuotes?.isDualCurrencyMode && quoteData.quotes.deel)
+              ) && (!quoteData.formData.enableComparison || (quoteData.formData.enableComparison && !quoteData.quotes.comparison && !quoteData.dualCurrencyQuotes?.isDualCurrencyMode)) && (
+                <QuoteCard
+                  quote={quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? undefined : quoteData.quotes.deel || undefined}
+                  title={`${quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? 
+                    (quoteData.dualCurrencyQuotes?.selectedCurrencyQuote?.country || quoteData.formData.country) : 
+                    quoteData.quotes.deel?.country || quoteData.formData.country} EOR Quote`}
+                  usdConversions={quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? undefined : usdConversions.deel}
+                  isConvertingToUSD={quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? false : isConvertingDeelToUsd}
+                  usdConversionError={quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? null : usdConversionError}
+                  dualCurrencyQuotes={quoteData.dualCurrencyQuotes}
+                />
+              )}
+
+              {currentProvider === 'remote' && (
+                (quoteData.dualCurrencyQuotes?.isDualCurrencyMode && (quoteData.dualCurrencyQuotes?.selectedCurrencyQuote || quoteData.dualCurrencyQuotes?.localCurrencyQuote)) ||
+                (!quoteData.dualCurrencyQuotes?.isDualCurrencyMode && quoteData.quotes.remote)
+              ) && (!quoteData.formData.enableComparison || (quoteData.formData.enableComparison && !quoteData.quotes.comparison && !quoteData.dualCurrencyQuotes?.isDualCurrencyMode)) && (
+                <>
+                  {quoteData.dualCurrencyQuotes?.isDualCurrencyMode ? (
+                    <QuoteCard
+                      quote={undefined}
+                      title={`${quoteData.dualCurrencyQuotes?.selectedCurrencyQuote?.country || quoteData.formData.country} EOR Quote`}
+                      usdConversions={undefined}
+                      isConvertingToUSD={false}
+                      usdConversionError={null}
+                      dualCurrencyQuotes={quoteData.dualCurrencyQuotes}
+                    />
+                  ) : (
+                    <RemoteQuoteCard
+                      quote={quoteData.quotes.remote}
+                      title={`${quoteData.quotes.remote?.employment?.country?.name || quoteData.formData.country} EOR Quote`}
+                      usdConversions={usdConversions.remote}
+                      isConvertingToUSD={isConvertingDeelToUsd} // TODO: Add Remote-specific USD conversion
+                      usdConversionError={usdConversionError}
+                    />
+                  )}
+                </>
+              )}
+
+              {/* Loading state for provider switching */}
+              {providerLoading[currentProvider] && (
+                <div className="flex justify-center items-center h-40">
+                  <div className="text-center space-y-3">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                    <p className="text-slate-600">Loading {currentProvider === 'deel' ? 'Deel' : 'Remote'} quote...</p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Country Comparison - Single Currency Mode */}
-          {quoteData.status === "completed" && !quoteData.dualCurrencyQuotes?.isDualCurrencyMode && quoteData.quotes.deel && quoteData.formData.enableComparison && quoteData.quotes.comparison && (
+          {/* Country Comparison - Deel */}
+          {quoteData.status === "completed" && currentProvider === 'deel' && !quoteData.dualCurrencyQuotes?.isDualCurrencyMode && quoteData.quotes.deel && quoteData.formData.enableComparison && quoteData.quotes.comparison && (
             <div className="max-w-7xl mx-auto">
               <QuoteComparison
                 primaryQuote={quoteData.quotes.deel}
@@ -206,7 +263,39 @@ const QuotePageContent = memo(() => {
             </div>
           )}
 
-          {/* Country Comparison - Dual Currency Mode */}
+          {/* Country Comparison - Remote (Single Currency) */}
+          {quoteData.status === "completed" && currentProvider === 'remote' && !quoteData.dualCurrencyQuotes?.isDualCurrencyMode && quoteData.quotes.remote && quoteData.formData.enableComparison && quoteData.quotes.comparison && (
+            <div className="max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <RemoteQuoteCard
+                    quote={quoteData.quotes.remote}
+                    title={`${quoteData.formData.country} EOR Quote`}
+                    badgeText="Primary"
+                    badgeColor="bg-blue-100 text-blue-800"
+                    usdConversions={usdConversions.remote}
+                    isConvertingToUSD={isConvertingDeelToUsd}
+                    usdConversionError={usdConversionError}
+                    compact={true}
+                  />
+                </div>
+                <div>
+                  <RemoteQuoteCard
+                    quote={quoteData.quotes.comparison as RemoteAPIResponse}
+                    title={`${quoteData.formData.compareCountry} EOR Quote`}
+                    badgeText="Comparison"
+                    badgeColor="bg-green-100 text-green-800"
+                    usdConversions={usdConversions.remote}
+                    isConvertingToUSD={isConvertingCompareToUsd}
+                    usdConversionError={usdConversionError}
+                    compact={true}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Country Comparison - Dual Currency Mode (Both Deel and Remote) */}
           {quoteData.status === "completed" && quoteData.dualCurrencyQuotes?.isDualCurrencyMode && quoteData.dualCurrencyQuotes?.hasComparison && 
            quoteData.dualCurrencyQuotes?.selectedCurrencyQuote && quoteData.dualCurrencyQuotes?.compareSelectedCurrencyQuote && (
             <div className="max-w-7xl mx-auto">

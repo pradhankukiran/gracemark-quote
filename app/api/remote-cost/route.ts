@@ -1,31 +1,29 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getRemoteRegionSlug, getRemoteCurrencySlug } from "@/lib/remote-mapping"
 import { getCountryByName, getCurrencyForCountry } from "@/lib/country-data"
+import { RemoteRawAPIResponse, RemoteAPIResponse } from "@/lib/shared/types"
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { salary, salaryFrequency, country, currency, clientCountry, state } = body
+    const { salary, salaryFrequency = "annual", country, currency, clientCountry, state } = body
 
-    // Convert salary to annual if monthly
-    const annualSalary = salaryFrequency === "monthly" ? salary * 12 : salary
+    // Parse salary from string to number with validation
+    const salaryNumber = parseFloat(salary?.toString().replace(/[,\s]/g, '') || '0')
+    
+    if (!salaryNumber || salaryNumber <= 0 || isNaN(salaryNumber)) {
+      return NextResponse.json({ error: "Invalid salary amount. Please enter a valid positive number." }, { status: 400 })
+    }
+
+    // Convert salary to annual if monthly, otherwise assume annual - ensure result is integer
+    const annualSalary = Math.round(salaryFrequency === "monthly" ? salaryNumber * 12 : salaryNumber)
 
     // Get Remote region slug for employee location
     let regionSlug = getRemoteRegionSlug(country)
 
-    let employerCurrencySlug
-    if (clientCountry) {
-      const clientCountryData = getCountryByName(clientCountry)
-      if (clientCountryData) {
-        const clientCurrency = getCurrencyForCountry(clientCountryData.code)
-        employerCurrencySlug = getRemoteCurrencySlug(clientCurrency)
-      }
-    }
-
-    // Fallback to employee currency if no client country specified
-    if (!employerCurrencySlug) {
-      employerCurrencySlug = getRemoteCurrencySlug(currency)
-    }
+    // Use employee's currency for consistent salary and currency pairing
+    // Remote will handle conversions and provide both regional and employer currency costs
+    const employerCurrencySlug = getRemoteCurrencySlug(currency)
 
     if (state && country) {
       const { getRemoteCountryStates } = await import("@/lib/remote-mapping")
@@ -43,7 +41,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!employerCurrencySlug) {
-      return NextResponse.json({ error: `Client country currency not supported by Remote` }, { status: 400 })
+      return NextResponse.json({ error: `Employee currency "${currency}" not supported by Remote` }, { status: 400 })
     }
 
     const remoteOptions = {
@@ -54,7 +52,7 @@ export async function POST(request: NextRequest) {
         authorization: `Bearer ${process.env.REMOTE_API_TOKEN}`,
       },
       body: JSON.stringify({
-        employer_currency_slug: employerCurrencySlug, // Now uses client country's currency slug
+        employer_currency_slug: employerCurrencySlug, // Uses employee currency to match salary value
         employments: [
           {
             region_slug: regionSlug,
@@ -62,9 +60,10 @@ export async function POST(request: NextRequest) {
             employment_term: "fixed", // Default to fixed term as shown in UK sample
           },
         ],
-        include_premium_benefits: true,
+        include_premium_benefits: false,
         include_cost_breakdowns: true,
-        include_benefits: true,
+        include_benefits: false,
+        include_management_fee: false,
       }),
     }
 
@@ -76,48 +75,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to get quote from Remote API" }, { status: response.status })
     }
 
-    const data = await response.json()
+    const rawData: RemoteRawAPIResponse = await response.json()
 
-    // Transform Remote response to our standard format
-    const employment = data.data.employments[0]
-    const costs = employment.employer_currency_costs
+    // Validate response structure
+    if (!rawData.data?.employments?.[0]) {
+      console.error("Invalid Remote API response structure:", rawData)
+      return NextResponse.json({ error: "Invalid response from Remote API" }, { status: 500 })
+    }
 
-    const transformedResponse = {
+    const employment = rawData.data.employments[0]
+
+    // Transform Remote response while preserving detailed breakdown data
+    const transformedResponse: RemoteAPIResponse = {
       provider: "Remote",
-      country: employment.country.name,
-      currency: costs.currency.code,
-      salary: {
-        annual: costs.annual_gross_salary,
-        monthly: costs.monthly_gross_salary,
-      },
-      costs: {
-        annual_contributions: costs.annual_contributions_total,
-        monthly_contributions: costs.monthly_contributions_total,
-        annual_total: costs.annual_total,
-        monthly_total: costs.monthly_total,
-        monthly_tce: costs.monthly_tce,
-        extra_statutory_payments_total: costs.extra_statutory_payments_total,
-        extra_statutory_payments_monthly: costs.extra_statutory_payments_total / 12,
-      },
-      regional_costs: {
-        currency: employment.regional_currency_costs.currency.code,
-        annual_gross_salary: employment.regional_currency_costs.annual_gross_salary,
-        monthly_gross_salary: employment.regional_currency_costs.monthly_gross_salary,
-        annual_contributions: employment.regional_currency_costs.annual_contributions_total,
-        monthly_contributions: employment.regional_currency_costs.monthly_contributions_total,
-        annual_total: employment.regional_currency_costs.annual_total,
-        monthly_total: employment.regional_currency_costs.monthly_total,
-        monthly_tce: employment.regional_currency_costs.monthly_tce,
-        extra_statutory_payments_total: employment.regional_currency_costs.extra_statutory_payments_total,
-        extra_statutory_payments_monthly: employment.regional_currency_costs.extra_statutory_payments_total / 12,
-      },
-      details: {
-        minimum_onboarding_time: employment.minimum_onboarding_time,
-        has_extra_statutory_payment: employment.has_extra_statutory_payment,
-        country_benefits_url: employment.country_benefits_details_url,
-        country_guide_url: employment.country_guide_url,
-      },
-      raw_response: data,
+      employment: employment,
+      raw_response: rawData,
     }
 
     return NextResponse.json(transformedResponse)

@@ -97,42 +97,83 @@ export interface Quote {
 // Keep DeelAPIResponse as alias for backward compatibility
 export type DeelAPIResponse = Quote
 
-// Remote API Response (for Remote.com integration)
+// Remote API Response Types (matching actual API structure)
+
+export interface RemoteCurrency {
+  code: string
+  name: string
+  symbol: string
+  slug: string
+}
+
+export interface RemoteCountry {
+  code: string
+  name: string
+  slug: string
+  alpha_2_code: string
+  currency?: RemoteCurrency
+}
+
+export interface RemoteRegion {
+  code: string
+  name: string
+  status: string
+  country: RemoteCountry
+  slug: string
+  child_regions: unknown[]
+  parent_region: unknown | null
+}
+
+export interface RemoteBreakdownItem {
+  name: string
+  description: string
+  amount: number
+  zendesk_article_id: string | null
+  zendesk_article_url: string | null
+}
+
+export interface RemoteCurrencyCosts {
+  currency: RemoteCurrency
+  annual_gross_salary: number
+  annual_benefits_breakdown: RemoteBreakdownItem[]
+  annual_benefits_total: number
+  annual_contributions_breakdown: RemoteBreakdownItem[]
+  annual_contributions_total: number
+  annual_total: number
+  extra_statutory_payments_breakdown: RemoteBreakdownItem[]
+  extra_statutory_payments_total: number
+  monthly_benefits_breakdown: RemoteBreakdownItem[]
+  monthly_benefits_total: number
+  monthly_contributions_breakdown: RemoteBreakdownItem[]
+  monthly_contributions_total: number
+  monthly_gross_salary: number
+  monthly_tce: number
+  monthly_total: number
+}
+
+export interface RemoteEmployment {
+  country: RemoteCountry
+  region: RemoteRegion
+  country_benefits_details_url: string
+  country_guide_url: string | null
+  employer_currency_costs: RemoteCurrencyCosts
+  has_extra_statutory_payment: boolean
+  minimum_onboarding_time: number
+  regional_currency_costs: RemoteCurrencyCosts
+}
+
+export interface RemoteRawAPIResponse {
+  data: {
+    employments: RemoteEmployment[]
+  }
+}
+
+// Transformed Remote API Response (for our application)
 export interface RemoteAPIResponse {
   provider: string
-  country: string
-  currency: string
-  salary: {
-    annual: number
-    monthly: number
-  }
-  costs: {
-    annual_contributions: number
-    monthly_contributions: number
-    annual_total: number
-    monthly_total: number
-    monthly_tce: number
-    extra_statutory_payments_total: number
-    extra_statutory_payments_monthly: number
-  }
-  regional_costs: {
-    currency: string
-    annual_gross_salary: number
-    monthly_gross_salary: number
-    annual_contributions: number
-    monthly_contributions: number
-    annual_total: number
-    monthly_total: number
-    monthly_tce: number
-    extra_statutory_payments_total: number
-    extra_statutory_payments_monthly: number
-  }
-  details: {
-    minimum_onboarding_time: number
-    has_extra_statutory_payment: boolean
-    country_benefits_url: string
-    country_guide_url: string | null
-  }
+  employment: RemoteEmployment
+  // Keep raw response for debugging/future use
+  raw_response?: RemoteRawAPIResponse
 }
 
 // Validation API Response

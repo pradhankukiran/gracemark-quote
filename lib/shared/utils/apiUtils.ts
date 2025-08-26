@@ -33,6 +33,7 @@ export interface QuoteRequestData {
   clientCountry: string
   age: number
   state?: string
+  salaryFrequency?: string
 }
 
 // Benefits Request Parameters
@@ -56,6 +57,7 @@ export const createQuoteRequestData = (
     currency: useComparisonData ? formData.compareCurrency : formData.currency,
     clientCountry: formData.clientCountry,
     age: 30,
+    salaryFrequency: "annual", // Default to annual for consistency
   }
 
   const state = useComparisonData ? formData.compareState : formData.state
