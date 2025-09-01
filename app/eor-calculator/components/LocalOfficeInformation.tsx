@@ -94,17 +94,6 @@ export const LocalOfficeInformation = memo(({
   return (
     <div>
       <FormSectionHeader icon={Building2} title="Local Office Information" />
-
-      {isConvertingLocalOffice && (
-        <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-4">
-          <div className="flex items-center gap-2">
-            <LoadingSpinner className="h-4 w-4" />
-            <span className="text-blue-700 text-sm font-medium">
-              Converting USD values to {currency}...
-            </span>
-          </div>
-        </div>
-      )}
       <div className={FORM_STYLES.GRID_3_COL}>
         <div className="space-y-2">
           <Label

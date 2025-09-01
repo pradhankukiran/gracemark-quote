@@ -18,7 +18,7 @@ interface UseLocalOfficeConversionProps {
   countryCode: string | null
   formCurrency: string
   isCurrencyManuallySet: boolean
-  originalCurrency?: string
+  originalCurrency?: string | null
 }
 
 export const useLocalOfficeConversion = ({
@@ -30,7 +30,7 @@ export const useLocalOfficeConversion = ({
 }: UseLocalOfficeConversionProps): UseLocalOfficeConversionResult => {
   const [convertedLocalOffice, setConvertedLocalOffice] = useState<ConvertedLocalOfficeData>({})
   const [isConvertingLocalOffice, setIsConvertingLocalOffice] = useState(false)
-  const conversionTimeoutRef = useRef<NodeJS.Timeout>()
+  const conversionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Convert local office data when currency is overridden or when country changes
   useEffect(() => {

@@ -1,13 +1,7 @@
 import { memo } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { Provider } from "../hooks/useQuoteResults";
+import { ProviderLogo } from "./ProviderLogo";
 
 interface ProviderSelectorProps {
   currentProvider: Provider;
@@ -16,18 +10,7 @@ interface ProviderSelectorProps {
   disabled?: boolean;
 }
 
-const providerConfig = {
-  deel: {
-    label: "Deel",
-    description: "All-in-one global HR platform",
-    color: "text-emerald-600",
-  },
-  remote: {
-    label: "Remote",
-    description: "Global employment platform",
-    color: "text-blue-600",
-  },
-} as const;
+const providers: Provider[] = ['deel', 'remote'];
 
 export const ProviderSelector = memo(({
   currentProvider,
@@ -35,44 +18,42 @@ export const ProviderSelector = memo(({
   loading = { deel: false, remote: false },
   disabled = false,
 }: ProviderSelectorProps) => {
+  const selectedIndex = providers.indexOf(currentProvider);
+
   return (
-    <div className="flex flex-col items-end">
-      <label className="text-xs text-slate-500 mb-1 font-medium">
-        Cost Provider
-      </label>
-      <Select
-        value={currentProvider}
-        onValueChange={(value) => onProviderChange(value as Provider)}
-        disabled={disabled}
-      >
-        <SelectTrigger className="w-40 bg-white/90 backdrop-blur-sm border-slate-200 shadow-sm">
-          <div className="flex items-center gap-2">
-            {loading[currentProvider] && (
-              <Loader2 className="h-3 w-3 animate-spin" />
+    <div className="flex flex-col items-center">
+      {/* <h3 className="text-lg font-semibold text-slate-700 mb-3">Cost Provider</h3> */}
+      <div className="relative flex items-center border-2 border-slate-200 rounded-lg p-1 bg-slate-100">
+        <div
+          className="absolute top-1 left-1 h-[calc(100%-0.5rem)] bg-white rounded-md shadow-md transition-transform duration-300 ease-in-out"
+          style={{
+            width: `calc(100% / ${providers.length})`,
+            transform: `translateX(${selectedIndex * 100}%)`,
+          }}
+        />
+        {providers.map((provider) => (
+          <button
+            key={provider}
+            type="button"
+            onClick={() => onProviderChange(provider)}
+            disabled={disabled || loading[provider]}
+            className={`
+              flex-1 py-2 px-6 text-center text-sm font-semibold rounded-md transition-colors duration-200 cursor-pointer z-10
+              flex items-center justify-center gap-2 h-12 min-h-[3rem]
+              ${currentProvider === provider
+                ? 'text-primary'
+                : 'text-slate-600 hover:text-primary'
+              }
+            `}
+          >
+            {loading[provider] ? (
+              <Loader2 className="h-6 w-6 animate-spin" />
+            ) : (
+              <ProviderLogo provider={provider} />
             )}
-            <SelectValue />
-          </div>
-        </SelectTrigger>
-        <SelectContent>
-          {Object.entries(providerConfig).map(([key, config]) => (
-            <SelectItem key={key} value={key}>
-              <div className="flex items-center gap-2 py-1">
-                <div className="flex flex-col">
-                  <span className={`font-medium ${config.color}`}>
-                    {config.label}
-                  </span>
-                  <span className="text-xs text-slate-500">
-                    {config.description}
-                  </span>
-                </div>
-                {loading[key as Provider] && (
-                  <Loader2 className="h-3 w-3 animate-spin text-blue-500" />
-                )}
-              </div>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+          </button>
+        ))}
+      </div>
     </div>
   );
 });

@@ -34,7 +34,7 @@ export interface EORFormData {
   state: string
   currency: string
   isCurrencyManuallySet: boolean
-  originalCurrency?: string
+  originalCurrency: string | null
   clientName: string
   clientType: 'new' | 'existing' | null
   clientCountry: string
@@ -274,6 +274,12 @@ export interface USDConversions {
     totalCosts: number
   }
   remote?: {
+    monthlySalary: number
+    monthlyContributions: number
+    monthlyTotal: number
+    monthlyTce: number
+  }
+  compareRemote?: {
     monthlySalary: number
     monthlyContributions: number
     monthlyTotal: number

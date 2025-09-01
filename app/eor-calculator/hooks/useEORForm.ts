@@ -29,7 +29,7 @@ const initialFormData: EORFormData = {
   state: "",
   currency: "",
   isCurrencyManuallySet: false,
-  originalCurrency: undefined,
+  originalCurrency: null,
   clientName: "",
   clientType: "new",
   clientCountry: "",

@@ -16,7 +16,7 @@ export const useDebouncedInput = (
 ) => {
   const [value, setValue] = useState(initialValue)
   const [debouncedValue, setDebouncedValue] = useState(initialValue)
-  const debounceRef = useRef<NodeJS.Timeout>()
+  const debounceRef = useRef<NodeJS.Timeout | null>(null)
 
   // Update local value when external value changes
   useEffect(() => {
@@ -75,7 +75,7 @@ export const useDebouncedFormField = <T extends string | number | boolean>(
   debounceDelay = 300
 ) => {
   const [localValue, setLocalValue] = useState(initialValue)
-  const debounceRef = useRef<NodeJS.Timeout>()
+  const debounceRef = useRef<NodeJS.Timeout | null>(null)
 
   // Update local value when external value changes
   useEffect(() => {

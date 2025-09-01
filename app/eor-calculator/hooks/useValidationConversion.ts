@@ -18,11 +18,11 @@ export const useValidationConversion = (
   validationData: ValidationAPIResponse | null,
   formCurrency: string,
   isCurrencyManuallySet: boolean,
-  originalCurrency?: string
+  originalCurrency?: string | null
 ): UseValidationConversionResult => {
   const [convertedValidation, setConvertedValidation] = useState<ConvertedValidation>({})
   const [isConvertingValidation, setIsConvertingValidation] = useState(false)
-  const conversionTimeoutRef = useRef<NodeJS.Timeout>()
+  const conversionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   
   // Create stable empty object reference to prevent unnecessary rerenders
   const stableEmptyValidation = useMemo(() => ({}), [])

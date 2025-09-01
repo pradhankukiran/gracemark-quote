@@ -9,9 +9,9 @@ type ValidationFunctions = {
   validateHoursInput: (value: string, validationData: ValidationAPIResponse | null) => boolean
   validateDaysInput: (value: string, validationData: ValidationAPIResponse | null) => boolean
   generateValidationErrorMessage: (
-    validatorType: string, 
-    validationData: ValidationAPIResponse | null, 
-    currency: string
+    field: 'salary' | 'holiday' | 'probation' | 'hours' | 'days',
+    validationData: ValidationAPIResponse | null,
+    currency?: string
   ) => string
 }
 

@@ -9,6 +9,7 @@ interface FormActionsProps {
   usdConversionError: string | null
   onCalculate: () => void
   onClear: () => void
+  enableComparison: boolean
 }
 
 export const FormActions = memo(({
@@ -18,6 +19,7 @@ export const FormActions = memo(({
   usdConversionError,
   onCalculate,
   onClear,
+  enableComparison,
 }: FormActionsProps) => {
   return (
     <div className="space-y-4">
@@ -56,7 +58,7 @@ export const FormActions = memo(({
           ) : (
             <>
               <Calculator className="mr-2 h-5 w-5" />
-              Get Quote
+              {enableComparison ? "Compare Base Quote" : "Get Base Quote"}
             </>
           )}
         </Button>

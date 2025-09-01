@@ -144,7 +144,8 @@ export const validateQuoteData = (data: unknown): data is QuoteData => {
 
   // Check status
   const validStatuses = ['calculating', 'completed', 'error']
-  if (!validStatuses.includes(data.status)) {
+  const status = (data as Record<string, unknown>).status
+  if (!isString(status) || !validStatuses.includes(status)) {
     console.warn('Invalid QuoteData: status must be calculating, completed, or error')
     return false
   }

@@ -146,9 +146,13 @@ export default function EORCalculatorPage() {
         daysPerWeek: "",
         startDate: "",
       });
+
+      if (canFetchBenefits) {
+        fetchBenefitsManually();
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCountryData?.code]);
+  }, [selectedCountryData?.code, canFetchBenefits]);
 
   // Reset auto-selection flag when benefits data changes
   useEffect(() => {
@@ -340,9 +344,6 @@ export default function EORCalculatorPage() {
                     onCheckedChange={(checked) => {
                       const newShowBenefits = !!checked
                       updateFormData({ showBenefits: newShowBenefits })
-                      if (newShowBenefits && !benefitsFetched) {
-                        fetchBenefitsManually()
-                      }
                     }}
                     disabled={!canFetchBenefits}
                     className="h-5 w-5"
@@ -408,6 +409,7 @@ export default function EORCalculatorPage() {
                   usdConversionError={usdConversionError}
                   onCalculate={calculateQuote}
                   onClear={handleClearAll}
+                  enableComparison={formData.enableComparison}
                 />
               </CardContent>
             </Card>

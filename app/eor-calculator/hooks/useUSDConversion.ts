@@ -1,17 +1,21 @@
 import { useState, useEffect, useRef, useCallback } from "react"
-import { DeelAPIResponse, USDConversions } from "@/lib/shared/types"
-import { convertQuoteToUsd } from "@/lib/shared/utils/currencyUtils"
+import { DeelAPIResponse, RemoteAPIResponse, USDConversions } from "@/lib/shared/types"
+import { convertQuoteToUsd, convertRemoteQuoteToUsd } from "@/lib/shared/utils/currencyUtils"
 
 export const useUSDConversion = () => {
   const [usdConversions, setUsdConversions] = useState<USDConversions>({})
   const [isConvertingDeelToUsd, setIsConvertingDeelToUsd] = useState(false)
   const [isConvertingCompareToUsd, setIsConvertingCompareToUsd] = useState(false)
+  const [isConvertingRemoteToUsd, setIsConvertingRemoteToUsd] = useState(false)
+  const [isConvertingCompareRemoteToUsd, setIsConvertingCompareRemoteToUsd] = useState(false)
   const [usdConversionError, setUsdConversionError] = useState<string | null>(null)
   
   const conversionAbortControllerRef = useRef<{
     deel: AbortController | null,
-    compare: AbortController | null
-  }>({ deel: null, compare: null });
+    compare: AbortController | null,
+    remote: AbortController | null,
+    compareRemote: AbortController | null
+  }>({ deel: null, compare: null, remote: null, compareRemote: null });
   
   const convertedQuotesRef = useRef<Set<string>>(new Set())
 
@@ -36,39 +40,13 @@ export const useUSDConversion = () => {
     setUsdConversionError(null)
 
     try {
-      const progressCallback = {
-        onSalaryConverted: (amount: number) => {
-          if (!abortController.signal.aborted) {
-            setUsdConversions(prev => ({ ...prev, [quoteType]: { ...prev[quoteType], salary: amount } }))
-          }
-        },
-        onFeeConverted: (amount: number) => {
-          if (!abortController.signal.aborted) {
-            setUsdConversions(prev => ({ ...prev, [quoteType]: { ...prev[quoteType], deelFee: amount } }))
-          }
-        },
-        onCostConverted: (costIndex: number, amount: number) => {
-          if (!abortController.signal.aborted) {
-            setUsdConversions(prev => {
-              const currentData = prev[quoteType] || { costs: [] }
-              const updatedCosts = [...(currentData.costs || [])]
-              updatedCosts[costIndex] = amount
-              return { ...prev, [quoteType]: { ...currentData, costs: updatedCosts } }
-            })
-          }
-        },
-        onTotalConverted: (amount: number) => {
-          if (!abortController.signal.aborted) {
-            setUsdConversions(prev => ({ ...prev, [quoteType]: { ...prev[quoteType], totalCosts: amount } }))
-          }
-        }
-      }
-
-      const result = await convertQuoteToUsd(quote, progressCallback)
+      const result = await convertQuoteToUsd(quote, abortController.signal)
       
       if (abortController.signal.aborted) return
       
-      if (!result.success) {
+      if (result.success && result.data) {
+        setUsdConversions(prev => ({ ...prev, [quoteType]: result.data }))
+      } else {
         throw new Error(result.error || "Conversion failed")
       }
     } catch (error) {
@@ -89,10 +67,57 @@ export const useUSDConversion = () => {
     }
   }, [])
 
+  const convertRemoteQuoteToUSD = useCallback(async (
+    quote: RemoteAPIResponse, 
+    quoteType: "remote" | "compareRemote"
+  ) => {
+    if (!quote || quote.employment.employer_currency_costs.currency.code === "USD") return
+
+    if (conversionAbortControllerRef.current[quoteType]) {
+      conversionAbortControllerRef.current[quoteType]?.abort()
+    }
+
+    const abortController = new AbortController()
+    conversionAbortControllerRef.current[quoteType] = abortController
+
+    if (quoteType === "remote") {
+      setIsConvertingRemoteToUsd(true)
+    } else {
+      setIsConvertingCompareRemoteToUsd(true)
+    }
+    setUsdConversionError(null)
+
+    try {
+      const result = await convertRemoteQuoteToUsd(quote, abortController.signal)
+      
+      if (abortController.signal.aborted) return
+      
+      if (result.success && result.data) {
+        setUsdConversions(prev => ({ ...prev, [quoteType]: result.data }))
+      } else {
+        throw new Error(result.error || "Conversion failed")
+      }
+    } catch (error) {
+      if (!abortController.signal.aborted) {
+        setUsdConversionError(
+          "Failed to convert Remote quote to USD - " + (error instanceof Error ? error.message : "Unknown error")
+        )
+      }
+    } finally {
+      if (conversionAbortControllerRef.current[quoteType] === abortController) {
+        if (quoteType === "remote") {
+          setIsConvertingRemoteToUsd(false)
+        } else {
+          setIsConvertingCompareRemoteToUsd(false)
+        }
+        conversionAbortControllerRef.current[quoteType] = null
+      }
+    }
+  }, [])
+
   const clearUSDConversions = useCallback(() => {
-    conversionAbortControllerRef.current.deel?.abort()
-    conversionAbortControllerRef.current.compare?.abort()
-    conversionAbortControllerRef.current = { deel: null, compare: null }
+    Object.values(conversionAbortControllerRef.current).forEach(controller => controller?.abort());
+    conversionAbortControllerRef.current = { deel: null, compare: null, remote: null, compareRemote: null };
     
     convertedQuotesRef.current.clear()
     
@@ -100,6 +125,8 @@ export const useUSDConversion = () => {
     setUsdConversionError(null)
     setIsConvertingDeelToUsd(false)
     setIsConvertingCompareToUsd(false)
+    setIsConvertingRemoteToUsd(false)
+    setIsConvertingCompareRemoteToUsd(false)
   }, [])
 
   const autoConvertQuote = useCallback((quote: DeelAPIResponse | null, quoteType: "deel" | "compare") => {
@@ -110,17 +137,27 @@ export const useUSDConversion = () => {
     
     convertedQuotesRef.current.add(quoteId)
     
-    const timeoutId = setTimeout(() => {
-      convertQuoteToUSD(quote, quoteType)
-    }, 500)
+    convertQuoteToUSD(quote, quoteType)
 
-    return () => clearTimeout(timeoutId)
+    return () => {}
   }, [convertQuoteToUSD])
+
+  const autoConvertRemoteQuote = useCallback((quote: RemoteAPIResponse | null, quoteType: "remote" | "compareRemote") => {
+    if (!quote || quote.employment.employer_currency_costs.currency.code === "USD") return
+
+    const quoteId = `${quoteType}-${quote.employment.country.name}-${quote.employment.employer_currency_costs.currency.code}-${quote.employment.employer_currency_costs.monthly_total}`
+    if (convertedQuotesRef.current.has(quoteId)) return
+
+    convertedQuotesRef.current.add(quoteId)
+
+    convertRemoteQuoteToUSD(quote, quoteType)
+
+    return () => {}
+  }, [convertRemoteQuoteToUSD])
 
   useEffect(() => {
     return () => {
-      conversionAbortControllerRef.current.deel?.abort()
-      conversionAbortControllerRef.current.compare?.abort()
+      Object.values(conversionAbortControllerRef.current).forEach(controller => controller?.abort());
     }
   }, [])
 
@@ -128,9 +165,13 @@ export const useUSDConversion = () => {
     usdConversions,
     isConvertingDeelToUsd,
     isConvertingCompareToUsd,
+    isConvertingRemoteToUsd,
+    isConvertingCompareRemoteToUsd,
     usdConversionError,
     convertQuoteToUSD,
+    convertRemoteQuoteToUSD,
     clearUSDConversions,
     autoConvertQuote,
+    autoConvertRemoteQuote,
   }
 }

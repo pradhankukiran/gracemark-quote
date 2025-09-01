@@ -33,7 +33,8 @@ export interface CurrencyConversionResult {
 export async function convertCurrency(
   amount: number,
   sourceCurrency: string,
-  targetCurrency: string
+  targetCurrency: string,
+  signal?: AbortSignal
 ): Promise<CurrencyConversionResult> {
   try {
     const response = await fetch("/api/currency-converter", {
@@ -46,6 +47,7 @@ export async function convertCurrency(
         source_currency: sourceCurrency,
         target_currency: targetCurrency,
       }),
+      signal,
     })
 
     if (!response.ok) {

@@ -1,9 +1,9 @@
 // lib/shared/utils/apiUtils.ts - Shared API utilities
 
-import { DeelAPIResponse, RemoteAPIResponse, ValidationAPIResponse, BenefitsAPIResponse, EORFormData } from "@/lib/shared/types"
+import { DeelAPIResponse, RemoteAPIResponse, ValidationAPIResponse, BenefitsAPIResponse, EORFormData, Quote, QuoteCost } from "@/lib/shared/types"
 
-// Default values for optional fields
-export const getDefaultValues = () => ({
+// Default values for optional fields (optionally by country, reserved for future use)
+export const getDefaultValues = (_countryCode?: string) => ({
   hoursPerDay: "8",
   daysPerWeek: "5", 
   holidayDays: "25", // Common default, could be enhanced with country-specific data
@@ -103,6 +103,49 @@ export const fetchRemoteCost = async (requestData: QuoteRequestData): Promise<Re
 
   return response.json()
 }
+
+/**
+ * Transforms a Remote.com API response into a standardized Quote object
+ */
+export const transformRemoteResponseToQuote = (remoteResponse: RemoteAPIResponse): Quote => {
+  const employment = remoteResponse?.employment;
+  const costs = employment?.employer_currency_costs;
+
+  const quoteCosts: QuoteCost[] = [
+    ...(costs?.monthly_contributions_breakdown || []).map(item => ({
+      name: item.name,
+      amount: item.amount.toString(),
+      frequency: 'monthly',
+      country: employment?.country?.name || '',
+      country_code: employment?.country?.code || ''
+    })),
+    ...(costs?.extra_statutory_payments_breakdown || []).map(item => ({
+      name: item.name,
+      amount: item.amount.toString(),
+      frequency: 'monthly',
+      country: employment?.country?.name || '',
+      country_code: employment?.country?.code || ''
+    }))
+  ];
+
+  return {
+    provider: 'remote',
+    salary: costs?.monthly_gross_salary?.toString() || '0',
+    currency: costs?.currency?.code || '',
+    country: employment?.country?.name || '',
+    country_code: employment?.country?.code || '',
+    deel_fee: '0', // Remote doesn't have a separate fee like Deel
+    severance_accural: '0', // This would need to be extracted if Remote provides it
+    total_costs: costs?.monthly_total?.toString() || '0',
+    employer_costs: costs?.monthly_total?.toString() || '0',
+    costs: quoteCosts,
+    benefits_data: [],
+    additional_data: {
+      additional_notes: []
+    }
+  };
+};
+
 
 /**
  * Fetches validation data for a specific country

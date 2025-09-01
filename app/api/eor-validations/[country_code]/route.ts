@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-export async function GET(request: NextRequest, { params }: { params: { country_code: string } }) {
+// Next.js 15 passes params as an async value; type accordingly
+export async function GET(request: NextRequest, { params }: { params: Promise<{ country_code: string }> }) {
   try {
     const { country_code } = await params
 
