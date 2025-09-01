@@ -4,8 +4,9 @@ import { getJsonFromSessionStorage, setJsonInSessionStorage } from "@/lib/shared
 import { safeValidateQuoteData, validateQuoteId } from "@/lib/shared/utils/dataValidation";
 import { useDeelQuote } from "./useDeelQuote";
 import { useRemoteQuote } from "./useRemoteQuote";
+import { useRivermateQuote } from "./useRivermateQuote";
 
-export type Provider = 'deel' | 'remote';
+export type Provider = 'deel' | 'remote' | 'rivermate';
 
 interface UseQuoteResultsReturn {
   quoteData: QuoteData | null;
@@ -23,8 +24,9 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
 
   const { loading: deelLoading, error: deelError, calculateDeelQuote } = useDeelQuote();
   const { loading: remoteLoading, error: remoteError, calculateRemoteQuote } = useRemoteQuote();
+  const { loading: rivermateLoading, error: rivermateError, calculateRivermateQuote } = useRivermateQuote();
 
-  const providerLoading = { deel: deelLoading, remote: remoteLoading };
+  const providerLoading = { deel: deelLoading, remote: remoteLoading, rivermate: rivermateLoading } as const;
 
   const switchProvider = useCallback(async (newProvider: Provider) => {
     if (!quoteData || newProvider === currentProvider) {
@@ -33,12 +35,17 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
 
     setCurrentProvider(newProvider);
 
-    const hasExistingQuote = (newProvider === 'deel' && quoteData.quotes.deel) || (newProvider === 'remote' && quoteData.quotes.remote);
+    const hasExistingQuote =
+      (newProvider === 'deel' && quoteData.quotes.deel) ||
+      (newProvider === 'remote' && quoteData.quotes.remote) ||
+      (newProvider === 'rivermate' && quoteData.quotes.rivermate);
     const form = quoteData.formData as EORFormData;
     const needsDual = form.isCurrencyManuallySet && !!form.originalCurrency && form.originalCurrency !== form.currency;
     const hasDualForProvider = newProvider === 'deel'
       ? !!quoteData.dualCurrencyQuotes?.deel?.isDualCurrencyMode
-      : !!quoteData.dualCurrencyQuotes?.remote?.isDualCurrencyMode;
+      : newProvider === 'remote'
+        ? !!quoteData.dualCurrencyQuotes?.remote?.isDualCurrencyMode
+        : !!quoteData.dualCurrencyQuotes?.rivermate?.isDualCurrencyMode;
 
     if (quoteData.status === 'completed') {
       try {
@@ -46,8 +53,10 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         if (!hasExistingQuote || (needsDual && !hasDualForProvider)) {
           if (newProvider === 'deel') {
             calculatedQuote = await calculateDeelQuote(form, quoteData);
-          } else {
+          } else if (newProvider === 'remote') {
             calculatedQuote = await calculateRemoteQuote(form, quoteData);
+          } else {
+            calculatedQuote = await calculateRivermateQuote(form, quoteData);
           }
           setQuoteData(calculatedQuote);
           if (quoteId) {
@@ -59,7 +68,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         setCurrentProvider(currentProvider); // Revert provider switch on error
       }
     }
-  }, [quoteData, currentProvider, quoteId, calculateDeelQuote, calculateRemoteQuote]);
+  }, [quoteData, currentProvider, quoteId, calculateDeelQuote, calculateRemoteQuote, calculateRivermateQuote]);
 
   const refreshQuote = useCallback(() => {
     console.log("Refreshing quote...");

@@ -97,6 +97,35 @@ export interface Quote {
 // Keep DeelAPIResponse as alias for backward compatibility
 export type DeelAPIResponse = Quote
 
+// Provider-specific Quote Types (optimized for each provider's structure)
+export type DeelQuote = Quote // Deel uses the standard Quote structure
+
+export interface RemoteQuote {
+  provider: string
+  salary: number
+  currency: string
+  country: string
+  country_code: string
+  contributions: number
+  total: number
+  tce: number
+}
+
+export interface RivermateQuote {
+  provider: string
+  salary: number
+  currency: string
+  country: string
+  country_code: string
+  taxItems: Array<{
+    name: string
+    amount: number
+  }>
+  managementFee: number
+  accrualsProvision: number
+  total: number
+}
+
 // Remote API Response Types (matching actual API structure)
 
 export interface RemoteCurrency {
@@ -285,6 +314,18 @@ export interface USDConversions {
     monthlyTotal: number
     monthlyTce: number
   }
+  rivermate?: {
+    salary: number
+    deelFee: number
+    costs: number[]
+    totalCosts: number
+  }
+  compareRivermate?: {
+    salary: number
+    deelFee: number
+    costs: number[]
+    totalCosts: number
+  }
 }
 
 // Provider-specific dual currency data
@@ -305,6 +346,7 @@ export interface ProviderDualCurrencyQuotes {
 export interface DualCurrencyQuotes {
   deel?: ProviderDualCurrencyQuotes
   remote?: ProviderDualCurrencyQuotes
+  rivermate?: ProviderDualCurrencyQuotes
   // Legacy support - will be phased out
   selectedCurrencyQuote?: Quote | null
   localCurrencyQuote?: Quote | null
@@ -381,10 +423,12 @@ export interface QuoteData {
   formData: EORFormData | Record<string, unknown>
   quotes: {
     deel?: Quote
-    remote?: RemoteAPIResponse
+    remote?: RemoteAPIResponse | RemoteQuote
     comparison?: Quote | RemoteAPIResponse
     comparisonDeel?: Quote
-    comparisonRemote?: RemoteAPIResponse
+    comparisonRemote?: RemoteAPIResponse | RemoteQuote
+    rivermate?: Quote | RivermateQuote
+    comparisonRivermate?: Quote | RivermateQuote
   }
   metadata: {
     timestamp: number

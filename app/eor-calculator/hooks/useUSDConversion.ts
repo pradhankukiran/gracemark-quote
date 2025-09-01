@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react"
-import { DeelAPIResponse, RemoteAPIResponse, USDConversions } from "@/lib/shared/types"
-import { convertQuoteToUsd, convertRemoteQuoteToUsd } from "@/lib/shared/utils/currencyUtils"
+import { DeelQuote, RemoteQuote, RivermateQuote, USDConversions } from "@/lib/shared/types"
+import { convertDeelQuoteToUsd, convertRivermateQuoteToUsd, convertRemoteQuoteToUsd } from "@/lib/shared/utils/currencyUtils"
 
 export const useUSDConversion = () => {
   const [usdConversions, setUsdConversions] = useState<USDConversions>({})
@@ -8,20 +8,24 @@ export const useUSDConversion = () => {
   const [isConvertingCompareToUsd, setIsConvertingCompareToUsd] = useState(false)
   const [isConvertingRemoteToUsd, setIsConvertingRemoteToUsd] = useState(false)
   const [isConvertingCompareRemoteToUsd, setIsConvertingCompareRemoteToUsd] = useState(false)
+  const [isConvertingRivermateToUsd, setIsConvertingRivermateToUsd] = useState(false)
+  const [isConvertingCompareRivermateToUsd, setIsConvertingCompareRivermateToUsd] = useState(false)
   const [usdConversionError, setUsdConversionError] = useState<string | null>(null)
   
   const conversionAbortControllerRef = useRef<{
     deel: AbortController | null,
     compare: AbortController | null,
     remote: AbortController | null,
-    compareRemote: AbortController | null
-  }>({ deel: null, compare: null, remote: null, compareRemote: null });
+    compareRemote: AbortController | null,
+    rivermate: AbortController | null,
+    compareRivermate: AbortController | null
+  }>({ deel: null, compare: null, remote: null, compareRemote: null, rivermate: null, compareRivermate: null });
   
   const convertedQuotesRef = useRef<Set<string>>(new Set())
 
   const convertQuoteToUSD = useCallback(async (
-    quote: DeelAPIResponse, 
-    quoteType: "deel" | "compare"
+    quote: DeelQuote | RivermateQuote, 
+    quoteType: "deel" | "compare" | "rivermate" | "compareRivermate"
   ) => {
     if (!quote || quote.currency === "USD") return
 
@@ -32,15 +36,18 @@ export const useUSDConversion = () => {
     const abortController = new AbortController()
     conversionAbortControllerRef.current[quoteType] = abortController
 
-    if (quoteType === "deel") {
-      setIsConvertingDeelToUsd(true)
-    } else {
-      setIsConvertingCompareToUsd(true)
-    }
+      if (quoteType === "deel") setIsConvertingDeelToUsd(true)
+      if (quoteType === "compare") setIsConvertingCompareToUsd(true)
+      if (quoteType === "rivermate") setIsConvertingRivermateToUsd(true)
+      if (quoteType === "compareRivermate") setIsConvertingCompareRivermateToUsd(true)
     setUsdConversionError(null)
 
     try {
-      const result = await convertQuoteToUsd(quote, abortController.signal)
+      const result = await (
+        quoteType === 'deel' || quoteType === 'compare'
+          ? convertDeelQuoteToUsd(quote as DeelQuote, abortController.signal)
+          : convertRivermateQuoteToUsd(quote as RivermateQuote, abortController.signal)
+      )
       
       if (abortController.signal.aborted) return
       
@@ -57,21 +64,20 @@ export const useUSDConversion = () => {
       }
     } finally {
       if (conversionAbortControllerRef.current[quoteType] === abortController) {
-        if (quoteType === "deel") {
-          setIsConvertingDeelToUsd(false)
-        } else {
-          setIsConvertingCompareToUsd(false)
-        }
+        if (quoteType === "deel") setIsConvertingDeelToUsd(false)
+        if (quoteType === "compare") setIsConvertingCompareToUsd(false)
+        if (quoteType === "rivermate") setIsConvertingRivermateToUsd(false)
+        if (quoteType === "compareRivermate") setIsConvertingCompareRivermateToUsd(false)
         conversionAbortControllerRef.current[quoteType] = null
       }
     }
   }, [])
 
   const convertRemoteQuoteToUSD = useCallback(async (
-    quote: RemoteAPIResponse, 
+    quote: RemoteQuote, 
     quoteType: "remote" | "compareRemote"
   ) => {
-    if (!quote || quote.employment.employer_currency_costs.currency.code === "USD") return
+    if (!quote || quote.currency === "USD") return
 
     if (conversionAbortControllerRef.current[quoteType]) {
       conversionAbortControllerRef.current[quoteType]?.abort()
@@ -117,7 +123,7 @@ export const useUSDConversion = () => {
 
   const clearUSDConversions = useCallback(() => {
     Object.values(conversionAbortControllerRef.current).forEach(controller => controller?.abort());
-    conversionAbortControllerRef.current = { deel: null, compare: null, remote: null, compareRemote: null };
+    conversionAbortControllerRef.current = { deel: null, compare: null, remote: null, compareRemote: null, rivermate: null, compareRivermate: null };
     
     convertedQuotesRef.current.clear()
     
@@ -127,12 +133,15 @@ export const useUSDConversion = () => {
     setIsConvertingCompareToUsd(false)
     setIsConvertingRemoteToUsd(false)
     setIsConvertingCompareRemoteToUsd(false)
+    setIsConvertingRivermateToUsd(false)
+    setIsConvertingCompareRivermateToUsd(false)
   }, [])
 
-  const autoConvertQuote = useCallback((quote: DeelAPIResponse | null, quoteType: "deel" | "compare") => {
+  const autoConvertQuote = useCallback((quote: DeelQuote | RivermateQuote | null, quoteType: "deel" | "compare" | "rivermate" | "compareRivermate") => {
     if (!quote || quote.currency === "USD") return
     
-    const quoteId = `${quoteType}-${quote.country}-${quote.currency}-${quote.total_costs}`
+    const totalCosts = 'total_costs' in quote ? quote.total_costs : quote.total.toString()
+    const quoteId = `${quoteType}-${quote.country}-${quote.currency}-${totalCosts}`
     if (convertedQuotesRef.current.has(quoteId)) return
     
     convertedQuotesRef.current.add(quoteId)
@@ -142,10 +151,10 @@ export const useUSDConversion = () => {
     return () => {}
   }, [convertQuoteToUSD])
 
-  const autoConvertRemoteQuote = useCallback((quote: RemoteAPIResponse | null, quoteType: "remote" | "compareRemote") => {
-    if (!quote || quote.employment.employer_currency_costs.currency.code === "USD") return
+  const autoConvertRemoteQuote = useCallback((quote: RemoteQuote | null, quoteType: "remote" | "compareRemote") => {
+    if (!quote || quote.currency === "USD") return
 
-    const quoteId = `${quoteType}-${quote.employment.country.name}-${quote.employment.employer_currency_costs.currency.code}-${quote.employment.employer_currency_costs.monthly_total}`
+    const quoteId = `${quoteType}-${quote.country}-${quote.currency}-${quote.total}`
     if (convertedQuotesRef.current.has(quoteId)) return
 
     convertedQuotesRef.current.add(quoteId)
@@ -167,6 +176,8 @@ export const useUSDConversion = () => {
     isConvertingCompareToUsd,
     isConvertingRemoteToUsd,
     isConvertingCompareRemoteToUsd,
+    isConvertingRivermateToUsd,
+    isConvertingCompareRivermateToUsd,
     usdConversionError,
     convertQuoteToUSD,
     convertRemoteQuoteToUSD,

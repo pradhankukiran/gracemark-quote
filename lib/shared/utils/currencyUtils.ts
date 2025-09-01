@@ -1,7 +1,7 @@
 // lib/shared/utils/currencyUtils.ts - Consolidated currency utilities
 
 import { convertCurrency } from "@/lib/currency-converter"
-import { DeelAPIResponse, RemoteAPIResponse, USDConversions } from "@/lib/shared/types"
+import { Quote, DeelAPIResponse, RemoteAPIResponse, USDConversions, DeelQuote, RemoteQuote, RivermateQuote } from "@/lib/shared/types"
 
 /**
  * Formats a number as currency with the specified currency code
@@ -18,11 +18,12 @@ export const formatNumberWithCommas = (value: string): string => {
   return isNaN(num) ? value : num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
+
 /**
- * Converts a Deel quote to USD
+ * Converts a Deel quote to USD with dedicated implementation
  */
-export const convertQuoteToUsd = async (
-  quote: DeelAPIResponse,
+export const convertDeelQuoteToUsd = async (
+  quote: DeelQuote,
   signal?: AbortSignal
 ): Promise<{
   success: boolean
@@ -30,8 +31,10 @@ export const convertQuoteToUsd = async (
   error?: string
 }> => {
   if (!quote) {
-    return { success: false, error: "No quote provided" }
+    return { success: false, error: "No Deel quote provided" }
   }
+
+  console.log("=== DEEL USD CONVERSION ===", quote.currency, "->", "USD")
 
   const sourceCurrency = quote.currency
   if (sourceCurrency === "USD") {
@@ -39,13 +42,88 @@ export const convertQuoteToUsd = async (
   }
 
   try {
+    const clean = (v: string) => v?.toString().replace(/[\,\s]/g, '') || '0'
+    
+    // Prepare amounts for conversion
     const amountsToConvert = [
-      Number.parseFloat(quote.salary),
-      Number.parseFloat(quote.deel_fee),
-      ...quote.costs.map((cost) => Number.parseFloat(cost.amount)),
-      Number.parseFloat(quote.total_costs),
+      Number.parseFloat(clean(quote.salary)),
+      Number.parseFloat(clean(quote.deel_fee)),
+      ...quote.costs.map((cost) => Number.parseFloat(clean(cost.amount))),
+      Number.parseFloat(clean(quote.total_costs)),
     ]
 
+    // Convert all amounts to USD
+    const conversionPromises = amountsToConvert.map((amount) => 
+      convertCurrency(amount, sourceCurrency, "USD", signal)
+    )
+
+    const conversionResults = await Promise.all(conversionPromises)
+
+    if (signal?.aborted) {
+      return { success: false, error: "Deel conversion aborted" };
+    }
+
+    const failedConversion = conversionResults.find((r) => !r.success)
+    if (failedConversion) {
+      throw new Error(failedConversion.error || "A Deel currency conversion failed")
+    }
+
+    const convertedAmounts = conversionResults.map((r) => r.data!.target_amount)
+
+    const result = {
+      salary: convertedAmounts[0],
+      deelFee: convertedAmounts[1],
+      costs: convertedAmounts.slice(2, -1),
+      totalCosts: convertedAmounts[convertedAmounts.length - 1],
+    }
+
+    console.log("✅ Deel USD conversion successful")
+    return { success: true, data: result }
+  } catch (error) {
+    console.error("❌ Deel USD conversion failed:", error instanceof Error ? error.message : error)
+    if (error instanceof Error && error.name === 'AbortError') {
+      return { success: false, error: "Deel conversion aborted" };
+    }
+    return {
+      success: false,
+      error: "Failed to convert Deel quote to USD - " + (error instanceof Error ? error.message : "Unknown error"),
+    }
+  }
+}
+
+/**
+ * Converts a Rivermate quote to USD with dedicated implementation
+ */
+export const convertRivermateQuoteToUsd = async (
+  quote: RivermateQuote,
+  signal?: AbortSignal
+): Promise<{
+  success: boolean
+  data?: USDConversions["rivermate"]
+  error?: string
+}> => {
+  if (!quote) {
+    return { success: false, error: "No Rivermate quote provided" }
+  }
+
+  console.log("=== RIVERMATE USD CONVERSION ===", quote.currency, "->", "USD")
+
+  const sourceCurrency = quote.currency
+  if (sourceCurrency === "USD") {
+    return { success: true, data: undefined } // Already in USD
+  }
+
+  try {
+    // Prepare amounts for conversion using Rivermate's optimized structure
+    const amountsToConvert = [
+      quote.salary,
+      quote.managementFee,
+      ...quote.taxItems.map((item) => item.amount),
+      quote.accrualsProvision,
+      quote.total,
+    ]
+
+    // Convert all amounts to USD
     const conversionPromises = amountsToConvert.map((amount) =>
       convertCurrency(amount, sourceCurrency, "USD", signal)
     )
@@ -53,37 +131,33 @@ export const convertQuoteToUsd = async (
     const conversionResults = await Promise.all(conversionPromises)
 
     if (signal?.aborted) {
-      return { success: false, error: "Conversion aborted" };
+      return { success: false, error: "Rivermate conversion aborted" };
     }
 
     const failedConversion = conversionResults.find((r) => !r.success)
     if (failedConversion) {
-      throw new Error(failedConversion.error || "A currency conversion failed")
+      throw new Error(failedConversion.error || "A Rivermate currency conversion failed")
     }
 
-    const successfulResults = conversionResults.map((r) => r.data!)
+    const convertedAmounts = conversionResults.map((r) => r.data!.target_amount)
 
-    const salaryAmount = successfulResults[0].target_amount
-    const feeAmount = successfulResults[1].target_amount
-    const costAmounts = successfulResults.slice(2, -1).map((r) => r.target_amount)
-    const totalAmount = successfulResults[successfulResults.length - 1].target_amount
-
-    return {
-      success: true,
-      data: {
-        salary: salaryAmount,
-        deelFee: feeAmount,
-        costs: costAmounts,
-        totalCosts: totalAmount,
-      },
+    const result = {
+      salary: convertedAmounts[0],
+      deelFee: convertedAmounts[1], // Management fee maps to deelFee for compatibility
+      costs: convertedAmounts.slice(2, -2), // Tax items + accruals provision
+      totalCosts: convertedAmounts[convertedAmounts.length - 1],
     }
+
+    console.log("✅ Rivermate USD conversion successful")
+    return { success: true, data: result }
   } catch (error) {
+    console.error("❌ Rivermate USD conversion failed:", error instanceof Error ? error.message : error)
     if (error instanceof Error && error.name === 'AbortError') {
-      return { success: false, error: "Conversion aborted" };
+      return { success: false, error: "Rivermate conversion aborted" };
     }
     return {
       success: false,
-      error: "Failed to convert to USD - " + (error instanceof Error ? error.message : "Unknown error"),
+      error: "Failed to convert Rivermate quote to USD - " + (error instanceof Error ? error.message : "Unknown error"),
     }
   }
 }
@@ -92,29 +166,31 @@ export const convertQuoteToUsd = async (
  * Converts a Remote quote to USD
  */
 export const convertRemoteQuoteToUsd = async (
-  quote: RemoteAPIResponse,
+  quote: RemoteQuote,
   signal?: AbortSignal
 ): Promise<{
   success: boolean
   data?: USDConversions["remote"]
   error?: string
 }> => {
-  if (!quote?.employment) {
+  if (!quote) {
     return { success: false, error: "No Remote quote provided" }
   }
 
-  const costs = quote.employment.employer_currency_costs
-  const sourceCurrency = costs.currency.code
+  console.log("=== REMOTE USD CONVERSION ===", quote.currency, "->", "USD")
+
+  const sourceCurrency = quote.currency
   if (sourceCurrency === "USD") {
     return { success: true, data: undefined } // Already in USD
   }
 
   try {
+    // Prepare amounts for conversion using Remote's optimized structure
     const amountsToConvert = [
-      costs.monthly_gross_salary,
-      costs.monthly_contributions_total,
-      costs.monthly_total,
-      costs.monthly_tce,
+      quote.salary,
+      quote.contributions,
+      quote.total,
+      quote.tce,
     ]
 
     const conversionPromises = amountsToConvert.map((amount) =>
@@ -124,28 +200,29 @@ export const convertRemoteQuoteToUsd = async (
     const conversionResults = await Promise.all(conversionPromises)
 
     if (signal?.aborted) {
-      return { success: false, error: "Conversion aborted" };
+      return { success: false, error: "Remote conversion aborted" };
     }
 
     const failedConversion = conversionResults.find((r) => !r.success)
     if (failedConversion) {
-      throw new Error(failedConversion.error || "A currency conversion failed")
+      throw new Error(failedConversion.error || "A Remote currency conversion failed")
     }
 
-    const successfulResults = conversionResults.map((r) => r.data!)
+    const convertedAmounts = conversionResults.map((r) => r.data!.target_amount)
 
-    return {
-      success: true,
-      data: {
-        monthlySalary: successfulResults[0].target_amount,
-        monthlyContributions: successfulResults[1].target_amount,
-        monthlyTotal: successfulResults[2].target_amount,
-        monthlyTce: successfulResults[3].target_amount,
-      },
+    const result = {
+      monthlySalary: convertedAmounts[0],
+      monthlyContributions: convertedAmounts[1],
+      monthlyTotal: convertedAmounts[2],
+      monthlyTce: convertedAmounts[3],
     }
+
+    console.log("✅ Remote USD conversion successful")
+    return { success: true, data: result }
   } catch (error) {
+    console.error("❌ Remote USD conversion failed:", error instanceof Error ? error.message : error)
     if (error instanceof Error && error.name === 'AbortError') {
-      return { success: false, error: "Conversion aborted" };
+      return { success: false, error: "Remote conversion aborted" };
     }
     return {
       success: false,
@@ -153,3 +230,4 @@ export const convertRemoteQuoteToUsd = async (
     }
   }
 }
+

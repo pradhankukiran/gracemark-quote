@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { PapayaCurrencyProvider } from "@/lib/providers/papaya-currency-provider"
 import { RemoteCurrencyProvider } from "@/lib/providers/remote-currency-provider"
+import { ExchangerateCurrencyProvider } from "@/lib/providers/exchangerate-currency-provider"
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,17 +12,34 @@ export async function POST(request: NextRequest) {
     const { amount, source_currency, target_currency } = body
     console.log("Parsed values:", { amount, source_currency, target_currency })
 
-    if (!amount || !source_currency || !target_currency) {
-      console.log("Missing required fields!")
+    const numericAmount = Number(amount)
+    if (!source_currency || !target_currency || Number.isNaN(numericAmount)) {
+      console.log("Missing or invalid fields!")
       return NextResponse.json(
-        { error: "Missing required fields: amount, source_currency, target_currency" }, 
+        { error: "Missing or invalid fields: amount, source_currency, target_currency" }, 
         { status: 400 }
       )
+    }
+
+    // Fast-path zero amounts to avoid provider calls and 400s
+    if (numericAmount === 0) {
+      return NextResponse.json({
+        data: {
+          conversion_data: {
+            exchange_rate: "1",
+            target_currency: { code: target_currency, name: target_currency, symbol: target_currency },
+            source_currency: { code: source_currency, name: source_currency, symbol: source_currency },
+            source_amount: 0,
+            target_amount: 0,
+          }
+        }
+      })
     }
 
     // Initialize providers
     const papayaProvider = new PapayaCurrencyProvider()
     const remoteProvider = new RemoteCurrencyProvider()
+    const exchangerateProvider = new ExchangerateCurrencyProvider()
 
     // Always try Papaya Global first (primary provider)
     console.log("Trying Papaya Global provider...")
@@ -37,6 +55,13 @@ export async function POST(request: NextRequest) {
         console.log("Remote.com fallback successful")
       } else {
         console.log("Remote.com fallback also failed:", result.error)
+        console.log("Trying Exchangerate.host as last-resort provider...")
+        result = await exchangerateProvider.convertCurrency(amount, source_currency, target_currency)
+        if (result.success) {
+          console.log("Exchangerate.host fallback successful")
+        } else {
+          console.log("Exchangerate.host also failed:", result.error)
+        }
       }
     } else {
       console.log("Papaya Global conversion successful")

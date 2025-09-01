@@ -19,6 +19,10 @@ export const ProviderLogo = memo(({
     return <Image src="/remote_logo.png" alt="Remote Logo" width={size * 3} height={size} className="object-contain" priority />;
   }
 
+  if (provider === 'rivermate') {
+    return <Image src="/rivermate-logo.png" alt="Rivermate Logo" width={size * 4} height={size} className="object-contain" priority />;
+  }
+
   return null;
 });
 

@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
-import { fetchEORCost, createQuoteRequestData, ensureFormDefaults } from "@/lib/shared/utils/apiUtils";
-import { DeelAPIResponse, EORFormData, QuoteData } from "@/lib/shared/types";
+import { fetchEORCost, createQuoteRequestData, ensureFormDefaults, transformToDeelQuote } from "@/lib/shared/utils/apiUtils";
+import { DeelAPIResponse, EORFormData, QuoteData, DeelQuote } from "@/lib/shared/types";
 import { convertCurrency } from "@/lib/currency-converter";
 
 export const useDeelQuote = () => {
@@ -14,10 +14,11 @@ export const useDeelQuote = () => {
     try {
       const formDataWithDefaults = ensureFormDefaults(formData);
       const requestData = createQuoteRequestData(formDataWithDefaults);
-      const deelQuote = await fetchEORCost(requestData);
+      const rawDeelResponse = await fetchEORCost(requestData);
+      const deelQuote = transformToDeelQuote(rawDeelResponse);
 
       // If user changed currency, also compute a local currency quote
-      let localCurrencyQuote: DeelAPIResponse | null = null;
+      let localCurrencyQuote: DeelQuote | null = null;
       if (formDataWithDefaults.isCurrencyManuallySet && formDataWithDefaults.originalCurrency && formDataWithDefaults.originalCurrency !== formDataWithDefaults.currency) {
         const currentSalary = parseFloat((formDataWithDefaults.baseSalary || '').toString().replace(/[\,\s]/g, ''));
         if (!isNaN(currentSalary) && currentSalary > 0) {
@@ -25,7 +26,8 @@ export const useDeelQuote = () => {
             const conv = await convertCurrency(currentSalary, formDataWithDefaults.currency, formDataWithDefaults.originalCurrency);
             if (conv.success && conv.data) {
               const localRequest = { ...requestData, salary: conv.data.target_amount.toString(), currency: formDataWithDefaults.originalCurrency };
-              localCurrencyQuote = await fetchEORCost(localRequest);
+              const rawLocalResponse = await fetchEORCost(localRequest);
+              localCurrencyQuote = transformToDeelQuote(rawLocalResponse);
             }
           } catch (err) {
             console.warn('Dual-currency local quote conversion failed (Deel):', err);
@@ -33,12 +35,13 @@ export const useDeelQuote = () => {
         }
       }
 
-      let comparisonQuote: DeelAPIResponse | undefined;
-      let comparisonSelectedCurrencyQuote: DeelAPIResponse | null = null;
+      let comparisonQuote: DeelQuote | undefined;
+      let comparisonSelectedCurrencyQuote: DeelQuote | null = null;
       if (formData.enableComparison && formData.compareCountry) {
         try {
           const compareRequestData = createQuoteRequestData(formDataWithDefaults, true);
-          comparisonQuote = await fetchEORCost(compareRequestData);
+          const rawComparisonResponse = await fetchEORCost(compareRequestData);
+          comparisonQuote = transformToDeelQuote(rawComparisonResponse);
 
           // Build comparison quote in the selected (changed) currency as well
           if (
@@ -61,7 +64,8 @@ export const useDeelQuote = () => {
                     salary: compConv.data.target_amount.toString(),
                     currency: formDataWithDefaults.currency,
                   };
-                  comparisonSelectedCurrencyQuote = await fetchEORCost(compareChangedReq);
+                  const rawCompSelectedResponse = await fetchEORCost(compareChangedReq);
+                  comparisonSelectedCurrencyQuote = transformToDeelQuote(rawCompSelectedResponse);
                 }
               } catch (err) {
                 console.warn('Dual-currency comparison changed quote conversion failed (Deel):', err);

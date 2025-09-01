@@ -16,7 +16,7 @@ interface ProviderTheme {
 interface GenericQuoteCardProps {
   quote?: Quote;
   title: string;
-  provider: 'deel' | 'remote';
+  provider: 'deel' | 'remote' | 'rivermate';
   badgeText?: string;
   badgeColor?: string;
   usdConversions?: USDConversions[keyof USDConversions];
@@ -28,7 +28,7 @@ interface GenericQuoteCardProps {
   selectedCurrency?: string;
 }
 
-const providerThemes: { [key in 'deel' | 'remote']: ProviderTheme } = {
+const providerThemes: { [key in 'deel' | 'remote' | 'rivermate']: ProviderTheme } = {
   deel: {
     logo: <ProviderLogo provider="deel" />,
     brandColor: "text-primary",
@@ -40,6 +40,12 @@ const providerThemes: { [key in 'deel' | 'remote']: ProviderTheme } = {
     brandColor: "text-blue-600",
     gradientFrom: "from-blue-50",
     gradientTo: "to-blue-100",
+  },
+  rivermate: {
+    logo: <ProviderLogo provider="rivermate" />,
+    brandColor: "text-purple-700",
+    gradientFrom: "from-purple-50",
+    gradientTo: "to-purple-100",
   },
 };
 
@@ -191,11 +197,12 @@ export const GenericQuoteCard = memo(({
   }
 
   const getUSDCostAmount = (index: number) => {
-    if (provider === 'deel') {
+    if (provider === 'deel' || provider === 'rivermate') {
       return (usdConversions as USDConversions["deel"])?.costs?.[index];
     }
     if (provider === 'remote') {
-      const remoteCosts = (usdConversions as USDConversions["remote"])?.monthlyContributions;
+      // Approximate per-line USD values by distributing total across items
+      const remoteCosts = (usdConversions as USDConversions["remote"])?.monthlyTotal;
       if (remoteCosts && primaryQuote?.costs?.[index]) {
         const costPercentage = Number.parseFloat(primaryQuote.costs[index].amount) / Number.parseFloat(primaryQuote.total_costs);
         return remoteCosts * costPercentage;
