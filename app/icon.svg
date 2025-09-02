@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    text { font: 48px system-ui, -apple-system, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji, Apple Color Emoji, sans-serif; }
+  </style>
+  <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle">✅</text>
+</svg>
+
