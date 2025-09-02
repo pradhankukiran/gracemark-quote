@@ -14,6 +14,7 @@ interface QuoteComparisonProps {
   isConvertingComparisonToUSD: boolean
   usdConversionError?: string | null
   dualCurrencyQuotes?: DualCurrencyQuotes
+  provider?: 'deel' | 'remote' | 'rivermate'
 }
 
 export const QuoteComparison = memo(({
@@ -26,6 +27,7 @@ export const QuoteComparison = memo(({
   isConvertingComparisonToUSD,
   usdConversionError,
   dualCurrencyQuotes,
+  provider = 'deel',
 }: QuoteComparisonProps) => {
   const isDualMode = dualCurrencyQuotes?.isDualCurrencyMode && dualCurrencyQuotes?.hasComparison;
 
@@ -51,12 +53,12 @@ export const QuoteComparison = memo(({
     <div className="space-y-6">
       <div className="grid md:grid-cols-2 gap-6">
         <GenericQuoteCard
-          provider="deel"
+          provider={provider}
           quote={isDualMode ? undefined : primaryQuote}
           title={primaryTitle}
           badgeText="Main Quote"
           badgeColor="bg-green-100 text-green-800"
-          usdConversions={usdConversions?.deel}
+          usdConversions={provider === 'remote' ? (usdConversions as any)?.remote : provider === 'rivermate' ? (usdConversions as any)?.deel : provider === 'oyster' ? (usdConversions as any)?.deel : usdConversions?.deel}
           isConvertingToUSD={isConvertingPrimaryToUSD}
           usdConversionError={usdConversionError}
           compact={true}
@@ -64,12 +66,12 @@ export const QuoteComparison = memo(({
         />
 
         <GenericQuoteCard
-          provider="deel"
+          provider={provider}
           quote={isDualMode ? undefined : comparisonQuote}
           title={comparisonTitle}
           badgeText="Compare Quote"
           badgeColor="bg-blue-100 text-blue-800"
-          usdConversions={usdConversions?.compare}
+          usdConversions={provider === 'remote' ? (usdConversions as any)?.compareRemote : provider === 'rivermate' ? (usdConversions as any)?.compare : provider === 'oyster' ? (usdConversions as any)?.compare : usdConversions?.compare}
           isConvertingToUSD={isConvertingComparisonToUSD}
           usdConversionError={usdConversionError}
           compact={true}

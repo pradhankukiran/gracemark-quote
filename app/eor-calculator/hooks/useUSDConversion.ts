@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react"
-import { DeelQuote, RemoteQuote, RivermateQuote, USDConversions } from "@/lib/shared/types"
-import { convertDeelQuoteToUsd, convertRivermateQuoteToUsd, convertRemoteQuoteToUsd } from "@/lib/shared/utils/currencyUtils"
+import { DeelQuote, RemoteQuote, RivermateQuote, USDConversions, OysterQuote } from "@/lib/shared/types"
+import { convertDeelQuoteToUsd, convertRivermateQuoteToUsd, convertRemoteQuoteToUsd, convertOysterQuoteToUsd } from "@/lib/shared/utils/currencyUtils"
 
 export const useUSDConversion = () => {
   const [usdConversions, setUsdConversions] = useState<USDConversions>({})
@@ -10,6 +10,8 @@ export const useUSDConversion = () => {
   const [isConvertingCompareRemoteToUsd, setIsConvertingCompareRemoteToUsd] = useState(false)
   const [isConvertingRivermateToUsd, setIsConvertingRivermateToUsd] = useState(false)
   const [isConvertingCompareRivermateToUsd, setIsConvertingCompareRivermateToUsd] = useState(false)
+  const [isConvertingOysterToUsd, setIsConvertingOysterToUsd] = useState(false)
+  const [isConvertingCompareOysterToUsd, setIsConvertingCompareOysterToUsd] = useState(false)
   const [usdConversionError, setUsdConversionError] = useState<string | null>(null)
   
   const conversionAbortControllerRef = useRef<{
@@ -18,8 +20,10 @@ export const useUSDConversion = () => {
     remote: AbortController | null,
     compareRemote: AbortController | null,
     rivermate: AbortController | null,
-    compareRivermate: AbortController | null
-  }>({ deel: null, compare: null, remote: null, compareRemote: null, rivermate: null, compareRivermate: null });
+    compareRivermate: AbortController | null,
+    oyster: AbortController | null,
+    compareOyster: AbortController | null,
+  }>({ deel: null, compare: null, remote: null, compareRemote: null, rivermate: null, compareRivermate: null, oyster: null, compareOyster: null });
   
   const convertedQuotesRef = useRef<Set<string>>(new Set())
 
@@ -123,7 +127,7 @@ export const useUSDConversion = () => {
 
   const clearUSDConversions = useCallback(() => {
     Object.values(conversionAbortControllerRef.current).forEach(controller => controller?.abort());
-    conversionAbortControllerRef.current = { deel: null, compare: null, remote: null, compareRemote: null, rivermate: null, compareRivermate: null };
+    conversionAbortControllerRef.current = { deel: null, compare: null, remote: null, compareRemote: null, rivermate: null, compareRivermate: null, oyster: null, compareOyster: null };
     
     convertedQuotesRef.current.clear()
     
@@ -135,9 +139,11 @@ export const useUSDConversion = () => {
     setIsConvertingCompareRemoteToUsd(false)
     setIsConvertingRivermateToUsd(false)
     setIsConvertingCompareRivermateToUsd(false)
+    setIsConvertingOysterToUsd(false)
+    setIsConvertingCompareOysterToUsd(false)
   }, [])
 
-  const autoConvertQuote = useCallback((quote: DeelQuote | RivermateQuote | null, quoteType: "deel" | "compare" | "rivermate" | "compareRivermate") => {
+  const autoConvertQuote = useCallback((quote: DeelQuote | RivermateQuote | OysterQuote | null, quoteType: "deel" | "compare" | "rivermate" | "compareRivermate" | "oyster" | "compareOyster") => {
     if (!quote || quote.currency === "USD") return
     
     const totalCosts = 'total_costs' in quote ? quote.total_costs : quote.total.toString()
@@ -146,7 +152,33 @@ export const useUSDConversion = () => {
     
     convertedQuotesRef.current.add(quoteId)
     
-    convertQuoteToUSD(quote, quoteType)
+    if (quoteType === 'oyster' || quoteType === 'compareOyster') {
+      // Inline conversion for Oyster to reuse Remote path is separate helper below
+      // We keep same API by piggybacking convertQuoteToUSD with type cast
+      // but conversion function is handled in dedicated helper below
+      ;(async () => {
+        const abortController = new AbortController()
+        conversionAbortControllerRef.current[quoteType] = abortController
+        if (quoteType === 'oyster') setIsConvertingOysterToUsd(true)
+        else setIsConvertingCompareOysterToUsd(true)
+        try {
+          const res = await convertOysterQuoteToUsd(quote as unknown as OysterQuote, abortController.signal)
+          if (!abortController.signal.aborted && res.success && res.data) {
+            setUsdConversions(prev => ({ ...prev, [quoteType]: res.data }))
+          }
+        } catch (e) {
+          if (!abortController.signal.aborted) setUsdConversionError('Failed to convert Oyster quote to USD')
+        } finally {
+          if (conversionAbortControllerRef.current[quoteType] === abortController) {
+            if (quoteType === 'oyster') setIsConvertingOysterToUsd(false)
+            else setIsConvertingCompareOysterToUsd(false)
+            conversionAbortControllerRef.current[quoteType] = null
+          }
+        }
+      })()
+    } else {
+      convertQuoteToUSD(quote as DeelQuote | RivermateQuote, quoteType as any)
+    }
 
     return () => {}
   }, [convertQuoteToUSD])
@@ -178,6 +210,8 @@ export const useUSDConversion = () => {
     isConvertingCompareRemoteToUsd,
     isConvertingRivermateToUsd,
     isConvertingCompareRivermateToUsd,
+    isConvertingOysterToUsd,
+    isConvertingCompareOysterToUsd,
     usdConversionError,
     convertQuoteToUSD,
     convertRemoteQuoteToUSD,

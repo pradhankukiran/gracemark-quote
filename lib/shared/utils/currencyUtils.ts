@@ -1,7 +1,7 @@
 // lib/shared/utils/currencyUtils.ts - Consolidated currency utilities
 
 import { convertCurrency } from "@/lib/currency-converter"
-import { Quote, DeelAPIResponse, RemoteAPIResponse, USDConversions, DeelQuote, RemoteQuote, RivermateQuote } from "@/lib/shared/types"
+import { Quote, DeelAPIResponse, RemoteAPIResponse, USDConversions, DeelQuote, RemoteQuote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
 
 /**
  * Formats a number as currency with the specified currency code
@@ -44,10 +44,11 @@ export const convertDeelQuoteToUsd = async (
   try {
     const clean = (v: string) => v?.toString().replace(/[\,\s]/g, '') || '0'
     
-    // Prepare amounts for conversion
+    // Prepare amounts for conversion, including severance accrual so we can exclude it from totals later
     const amountsToConvert = [
       Number.parseFloat(clean(quote.salary)),
       Number.parseFloat(clean(quote.deel_fee)),
+      Number.parseFloat(clean(quote.severance_accural || '0')),
       ...quote.costs.map((cost) => Number.parseFloat(clean(cost.amount))),
       Number.parseFloat(clean(quote.total_costs)),
     ]
@@ -70,11 +71,18 @@ export const convertDeelQuoteToUsd = async (
 
     const convertedAmounts = conversionResults.map((r) => r.data!.target_amount)
 
+    // Exclude platform fee from totals (but keep individual conversion values)
+    const convertedSalary = convertedAmounts[0]
+    const convertedFee = convertedAmounts[1]
+    const convertedSeverance = convertedAmounts[2]
+    const convertedCosts = convertedAmounts.slice(3, -1)
+    const convertedTotal = convertedAmounts[convertedAmounts.length - 1]
+
     const result = {
-      salary: convertedAmounts[0],
-      deelFee: convertedAmounts[1],
-      costs: convertedAmounts.slice(2, -1),
-      totalCosts: convertedAmounts[convertedAmounts.length - 1],
+      salary: convertedSalary,
+      deelFee: convertedFee,
+      costs: convertedCosts,
+      totalCosts: convertedTotal - convertedFee - convertedSeverance,
     }
 
     console.log("✅ Deel USD conversion successful")
@@ -114,13 +122,10 @@ export const convertRivermateQuoteToUsd = async (
   }
 
   try {
-    // Prepare amounts for conversion using Rivermate's optimized structure
+    // Prepare amounts for conversion EXCLUDING management fee and accruals
     const amountsToConvert = [
       quote.salary,
-      quote.managementFee,
       ...quote.taxItems.map((item) => item.amount),
-      quote.accrualsProvision,
-      quote.total,
     ]
 
     // Convert all amounts to USD
@@ -140,12 +145,15 @@ export const convertRivermateQuoteToUsd = async (
     }
 
     const convertedAmounts = conversionResults.map((r) => r.data!.target_amount)
+    const convertedSalary = convertedAmounts[0]
+    const convertedTaxItems = convertedAmounts.slice(1)
+    const convertedTotal = convertedSalary + convertedTaxItems.reduce((sum, v) => sum + v, 0)
 
     const result = {
-      salary: convertedAmounts[0],
-      deelFee: convertedAmounts[1], // Management fee maps to deelFee for compatibility
-      costs: convertedAmounts.slice(2, -2), // Tax items + accruals provision
-      totalCosts: convertedAmounts[convertedAmounts.length - 1],
+      salary: convertedSalary,
+      deelFee: 0, // Excluded
+      costs: convertedTaxItems, // Only tax items
+      totalCosts: convertedTotal, // Salary + tax items only
     }
 
     console.log("✅ Rivermate USD conversion successful")
@@ -231,3 +239,45 @@ export const convertRemoteQuoteToUsd = async (
   }
 }
 
+/**
+ * Converts an Oyster quote to USD (salary + employer contributions only)
+ */
+export const convertOysterQuoteToUsd = async (
+  quote: OysterQuote,
+  signal?: AbortSignal
+): Promise<{ success: boolean; data?: USDConversions["oyster"]; error?: string }> => {
+  if (!quote) return { success: false, error: "No Oyster quote provided" }
+
+  const sourceCurrency = quote.currency
+  if (sourceCurrency === "USD") {
+    return { success: true, data: undefined }
+  }
+
+  try {
+    const amountsToConvert = [
+      quote.salary,
+      ...quote.contributions.map(c => c.amount),
+    ]
+
+    const results = await Promise.all(
+      amountsToConvert.map(a => convertCurrency(a, sourceCurrency, "USD", signal))
+    )
+
+    if (signal?.aborted) return { success: false, error: "Oyster conversion aborted" }
+
+    const failed = results.find(r => !r.success)
+    if (failed) throw new Error(failed.error || "A Oyster currency conversion failed")
+
+    const conv = results.map(r => r.data!.target_amount)
+    const salary = conv[0]
+    const costs = conv.slice(1)
+    const totalCosts = salary + costs.reduce((s, v) => s + v, 0)
+
+    return { success: true, data: { salary, costs, totalCosts } }
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return { success: false, error: "Oyster conversion aborted" }
+    }
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
+  }
+}

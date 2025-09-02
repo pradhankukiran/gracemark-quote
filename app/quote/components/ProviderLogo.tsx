@@ -12,7 +12,7 @@ export const ProviderLogo = memo(({
   size = 24,
 }: ProviderLogoProps) => {
   if (provider === 'deel') {
-    return <Image src="/deel_logo.png" alt="Deel Logo" width={size * 3} height={size} className="object-contain" priority />;
+    return <Image src="/deel_logo.png" alt="Deel Logo" width={size * 2} height={size} className="object-contain" priority />;
   }
 
   if (provider === 'remote') {
@@ -21,6 +21,10 @@ export const ProviderLogo = memo(({
 
   if (provider === 'rivermate') {
     return <Image src="/rivermate-logo.png" alt="Rivermate Logo" width={size * 4} height={size} className="object-contain" priority />;
+  }
+
+  if (provider === 'oyster') {
+    return <Image src="/oyster_logo.png" alt="Oyster Logo" width={size * 2.5} height={size} className="object-contain" priority />;
   }
 
   return null;

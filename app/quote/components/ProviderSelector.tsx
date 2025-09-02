@@ -10,12 +10,12 @@ interface ProviderSelectorProps {
   disabled?: boolean;
 }
 
-const providers: Provider[] = ['deel', 'remote', 'rivermate'];
+const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster'];
 
 export const ProviderSelector = memo(({
   currentProvider,
   onProviderChange,
-    loading = { deel: false, remote: false, rivermate: false },
+  loading = { deel: false, remote: false, rivermate: false, oyster: false },
   disabled = false,
 }: ProviderSelectorProps) => {
   const selectedIndex = providers.indexOf(currentProvider);

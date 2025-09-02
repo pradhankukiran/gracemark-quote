@@ -16,7 +16,7 @@ interface ProviderTheme {
 interface GenericQuoteCardProps {
   quote?: Quote;
   title: string;
-  provider: 'deel' | 'remote' | 'rivermate';
+  provider: 'deel' | 'remote' | 'rivermate' | 'oyster';
   badgeText?: string;
   badgeColor?: string;
   usdConversions?: USDConversions[keyof USDConversions];
@@ -28,7 +28,7 @@ interface GenericQuoteCardProps {
   selectedCurrency?: string;
 }
 
-const providerThemes: { [key in 'deel' | 'remote' | 'rivermate']: ProviderTheme } = {
+const providerThemes: { [key in 'deel' | 'remote' | 'rivermate' | 'oyster']: ProviderTheme } = {
   deel: {
     logo: <ProviderLogo provider="deel" />,
     brandColor: "text-primary",
@@ -46,6 +46,12 @@ const providerThemes: { [key in 'deel' | 'remote' | 'rivermate']: ProviderTheme 
     brandColor: "text-purple-700",
     gradientFrom: "from-purple-50",
     gradientTo: "to-purple-100",
+  },
+  oyster: {
+    logo: <ProviderLogo provider="oyster" />,
+    brandColor: "text-rose-700",
+    gradientFrom: "from-rose-50",
+    gradientTo: "to-rose-100",
   },
 };
 
@@ -197,7 +203,7 @@ export const GenericQuoteCard = memo(({
   }
 
   const getUSDCostAmount = (index: number) => {
-    if (provider === 'deel' || provider === 'rivermate') {
+    if (provider === 'deel' || provider === 'rivermate' || provider === 'oyster') {
       return (usdConversions as USDConversions["deel"])?.costs?.[index];
     }
     if (provider === 'remote') {
@@ -209,6 +215,23 @@ export const GenericQuoteCard = memo(({
       }
     }
     return undefined;
+  }
+
+  const parseNumber = (v?: string | number) => {
+    if (typeof v === 'number') return v;
+    const n = Number.parseFloat(v || '0');
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  const computeDisplayTotal = (q?: Quote | null) => {
+    if (!q) return undefined;
+    const total = parseNumber(q.total_costs);
+    if (provider === 'deel') {
+      const fee = parseNumber(q.deel_fee);
+      const accrual = parseNumber(q.severance_accural);
+      return total - fee - accrual;
+    }
+    return total;
   }
 
   return (
@@ -279,8 +302,8 @@ export const GenericQuoteCard = memo(({
               <span className="text-slate-700 font-semibold text-sm text-right">
                 {isDualCurrencyMode ? (
                   compact
-                    ? `${originalCurrency || originalQuote?.currency || "Local"}`
-                    : `Local (${originalCurrency || originalQuote?.currency || "Local"})`
+                    ? `${originalQuote?.currency || originalCurrency || "Local"}`
+                    : `Local (${originalQuote?.currency || originalCurrency || "Local"})`
                 ) : (
                   compact
                     ? `${quote?.currency || "Currency"}`
@@ -290,8 +313,8 @@ export const GenericQuoteCard = memo(({
               <span className="text-slate-700 font-semibold text-sm text-right">
                 {isDualCurrencyMode ? (
                   compact
-                    ? `${selectedCurrency || changedQuote?.currency || "Changed"}`
-                    : `Selected (${selectedCurrency || changedQuote?.currency || "Changed"})`
+                    ? `${changedQuote?.currency || selectedCurrency || "Changed"}`
+                    : `Selected (${changedQuote?.currency || selectedCurrency || "Changed"})`
                 ) : (
                   compact ? "USD" : "USD Equivalent"
                 )}
@@ -318,25 +341,12 @@ export const GenericQuoteCard = memo(({
               showUSDInDualMode 
                 ? (provider === 'remote' 
                     ? (usdConversions as USDConversions["remote"])?.monthlySalary 
-                    : (usdConversions as USDConversions["deel"])?.salary)
+                    : (usdConversions as any)?.salary)
                 : undefined, // Third: USD in dual mode
               isCalculatingSelected || isCalculatingLocal
             )}
 
-          {primaryQuote && provider === 'deel' &&
-            renderCostRow(
-              "Platform Fee",
-              Number.parseFloat(primaryQuote.deel_fee), // Primary: original currency amount
-              isDualCurrencyMode 
-                ? (changedQuote ? Number.parseFloat(changedQuote.deel_fee) : undefined) // Secondary: changed currency in dual mode
-                : (showUSDInSingleMode 
-                    ? (usdConversions as USDConversions["deel"])?.deelFee 
-                    : undefined), // Secondary: USD in single mode
-              showUSDInDualMode 
-                ? (usdConversions as USDConversions["deel"])?.deelFee
-                : undefined, // Third: USD in dual mode
-              isCalculatingSelected || isCalculatingLocal
-            )}
+          {/* Platform/management fees are excluded from display */}
 
           {primaryQuote?.costs?.map((cost, index) => {
             const primaryAmount = Number.parseFloat(cost.amount);
@@ -386,10 +396,10 @@ export const GenericQuoteCard = memo(({
                   {isCalculatingLocal ? (
                     <span className="text-blue-500 animate-pulse">Loading...</span>
                   ) : primaryQuote ? (
-                    formatCurrency(
-                      Number.parseFloat(primaryQuote.total_costs),
-                      primaryQuote.currency
-                    )
+                    (() => {
+                      const val = computeDisplayTotal(primaryQuote)
+                      return formatCurrency(val || 0, primaryQuote.currency)
+                    })()
                   ) : (
                     <span className="text-slate-400">Pending...</span>
                   )}
@@ -405,10 +415,10 @@ export const GenericQuoteCard = memo(({
                     isCalculatingSelected ? (
                       <span className="text-blue-500 animate-pulse">Loading...</span>
                     ) : changedQuote ? (
-                      formatCurrency(
-                        Number.parseFloat(changedQuote.total_costs),
-                        changedQuote.currency
-                      )
+                      (() => {
+                        const val = computeDisplayTotal(changedQuote)
+                        return formatCurrency(val || 0, changedQuote.currency)
+                      })()
                     ) : (
                       <span className="text-slate-400">Pending...</span>
                     )
@@ -416,7 +426,7 @@ export const GenericQuoteCard = memo(({
                     (() => {
                       const usdTotal = provider === 'remote'
                         ? (usdConversions as USDConversions["remote"])?.monthlyTotal
-                        : (usdConversions as USDConversions["deel"])?.totalCosts;
+                        : (usdConversions as any)?.totalCosts;
                       return usdTotal !== undefined
                         ? `${usdTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`
                         : isConvertingToUSD
@@ -438,7 +448,7 @@ export const GenericQuoteCard = memo(({
                     {(() => {
                       const usdTotal = provider === 'remote'
                         ? (usdConversions as USDConversions["remote"])?.monthlyTotal
-                        : (usdConversions as USDConversions["deel"])?.totalCosts;
+                        : (usdConversions as any)?.totalCosts;
                       return usdTotal !== undefined
                         ? `${usdTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`
                         : isConvertingToUSD
@@ -461,10 +471,10 @@ export const GenericQuoteCard = memo(({
                 </span>
                 <span className={`${theme.brandColor} ${textSizes.total} font-bold`}>
                   {primaryQuote ? (
-                    formatCurrency(
-                      Number.parseFloat(primaryQuote.total_costs),
-                      primaryQuote.currency
-                    )
+                    (() => {
+                      const val = computeDisplayTotal(primaryQuote)
+                      return formatCurrency(val || 0, primaryQuote.currency)
+                    })()
                   ) : (
                     <span className="text-slate-400">Pending...</span>
                   )}

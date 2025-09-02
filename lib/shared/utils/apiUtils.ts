@@ -1,6 +1,6 @@
 // lib/shared/utils/apiUtils.ts - Shared API utilities
 
-import { DeelAPIResponse, RemoteAPIResponse, ValidationAPIResponse, BenefitsAPIResponse, EORFormData, Quote, QuoteCost, DeelQuote, RemoteQuote, RivermateQuote } from "@/lib/shared/types"
+import { DeelAPIResponse, RemoteAPIResponse, ValidationAPIResponse, BenefitsAPIResponse, EORFormData, Quote, QuoteCost, DeelQuote, RemoteQuote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
 import { getCountryByName } from "@/lib/country-data"
 
 // Default values for optional fields (optionally by country, reserved for future use)
@@ -106,6 +106,40 @@ export const fetchRemoteCost = async (requestData: QuoteRequestData): Promise<Re
 }
 
 /**
+ * Fetches Oyster.com cost estimates via GraphQL proxy route
+ */
+export const fetchOysterCost = async (requestData: QuoteRequestData): Promise<any> => {
+  const response = await fetch("/api/oyster-cost", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      salary: (() => {
+        const raw = (requestData.salary || '').toString()
+        const cleaned = raw.replace(/[\,\s]/g, '')
+        const n = Number.parseFloat(cleaned)
+        return Number.isFinite(n) ? n : 0
+      })(),
+      country: ((): string => {
+        // Oyster expects ISO country code (e.g., NL). Map from name if needed.
+        const c = requestData.country
+        if (!c) return ''
+        if (c.length === 2) return c
+        const byName = getCountryByName(c)
+        return byName?.code || c
+      })(),
+      currency: requestData.currency,
+    }),
+  })
+
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(text || "Failed to fetch Oyster cost")
+  }
+
+  return response.json()
+}
+
+/**
  * Transforms a Remote.com API response into a standardized Quote object
  */
 export const transformRemoteResponseToQuote = (remoteResponse: RemoteAPIResponse): Quote => {
@@ -172,6 +206,26 @@ type RivermateAPIResponse = {
   gross_salary?: { annual?: number; monthly?: number; currency?: string }
   total_monthly_cost?: number
   total_employment_cost?: { annual?: number; monthly?: number; currency?: string }
+  currency_info?: {
+    requested_currency?: string
+    local_currency?: string
+    conversion_applied?: boolean
+  }
+}
+
+// Prefer requested currency (selected by user) when present; otherwise fall back sensibly
+const getRivermateCurrency = (response: RivermateAPIResponse): string => {
+  const requested = response?.currency_info?.requested_currency
+  if (requested) {
+    return requested
+  }
+  return (
+    response?.gross_salary?.currency ||
+    response?.total_employment_cost?.currency ||
+    response?.country_info?.currency ||
+    response?.country?.currency ||
+    ''
+  ).toString()
 }
 
 export const transformRivermateResponseToQuote = (response: RivermateAPIResponse): Quote => {
@@ -180,7 +234,7 @@ export const transformRivermateResponseToQuote = (response: RivermateAPIResponse
   const accruals = response?.accruals;
   const grossSalaryMonthly = response?.gross_salary?.monthly ?? 0;
   const totalMonthlyCost = response?.total_monthly_cost ?? response?.total_employment_cost?.monthly ?? 0;
-  const currency = (countryInfo?.currency || response?.gross_salary?.currency || response?.total_employment_cost?.currency || '').toString();
+  const currency = getRivermateCurrency(response);
 
   const costs: QuoteCost[] = [];
 
@@ -197,27 +251,10 @@ export const transformRivermateResponseToQuote = (response: RivermateAPIResponse
     });
   }
 
-  // Management fee as a cost item if present
-  if (typeof employerCosts?.management_fee === 'number') {
-    costs.push({
-      name: 'Management Fee',
-      amount: employerCosts.management_fee.toString(),
-      frequency: 'monthly',
-      country: countryInfo?.name || '',
-      country_code: countryInfo?.iso_code || '',
-    });
-  }
-
-  // Accruals monthly provision
-  if (typeof accruals?.monthly_provision === 'number') {
-    costs.push({
-      name: 'Accruals Provision',
-      amount: accruals.monthly_provision.toString(),
-      frequency: 'monthly',
-      country: countryInfo?.name || '',
-      country_code: countryInfo?.iso_code || '',
-    });
-  }
+  // Exclude management fee and accruals from displayed costs
+  // Compute total as salary + sum(tax items) only
+  const taxSum = costs.reduce((sum, c) => sum + Number.parseFloat(c.amount || '0'), 0);
+  const displayTotal = Number(grossSalaryMonthly) + taxSum;
 
   return {
     provider: 'rivermate',
@@ -227,8 +264,8 @@ export const transformRivermateResponseToQuote = (response: RivermateAPIResponse
     country_code: countryInfo?.iso_code || (getCountryByName(countryInfo?.name || '')?.code || ''),
     deel_fee: '0',
     severance_accural: '0',
-    total_costs: Number(totalMonthlyCost).toString(),
-    employer_costs: Number(totalMonthlyCost).toString(),
+    total_costs: displayTotal.toString(),
+    employer_costs: displayTotal.toString(),
     costs,
     benefits_data: [],
     additional_data: { additional_notes: [] },
@@ -253,27 +290,9 @@ export const transformRivermateQuoteToDisplayQuote = (rq: RivermateQuote): Quote
     })
   }
 
-  // Management fee
-  if (typeof rq.managementFee === 'number') {
-    costs.push({
-      name: 'Management Fee',
-      amount: rq.managementFee.toString(),
-      frequency: 'monthly',
-      country: rq.country,
-      country_code: rq.country_code,
-    })
-  }
-
-  // Accruals provision
-  if (typeof rq.accrualsProvision === 'number' && rq.accrualsProvision !== 0) {
-    costs.push({
-      name: 'Accruals Provision',
-      amount: rq.accrualsProvision.toString(),
-      frequency: 'monthly',
-      country: rq.country,
-      country_code: rq.country_code,
-    })
-  }
+  // Exclude management fee and accruals from displayed totals: compute salary + sum(tax items)
+  const taxSum = (rq.taxItems || []).reduce((sum, it) => sum + (it.amount ?? 0), 0)
+  const displayTotal = Number(rq.salary) + taxSum
 
   return {
     provider: 'rivermate',
@@ -283,8 +302,8 @@ export const transformRivermateQuoteToDisplayQuote = (rq: RivermateQuote): Quote
     country_code: rq.country_code,
     deel_fee: '0',
     severance_accural: '0',
-    total_costs: rq.total.toString(),
-    employer_costs: rq.total.toString(),
+    total_costs: displayTotal.toString(),
+    employer_costs: displayTotal.toString(),
     costs,
     benefits_data: [],
     additional_data: { additional_notes: [] },
@@ -379,7 +398,7 @@ export const transformToRivermateQuote = (response: RivermateAPIResponse): River
   const accruals = response?.accruals;
   const grossSalaryMonthly = response?.gross_salary?.monthly ?? 0;
   const totalMonthlyCost = response?.total_monthly_cost ?? response?.total_employment_cost?.monthly ?? 0;
-  const currency = (countryInfo?.currency || response?.gross_salary?.currency || response?.total_employment_cost?.currency || '').toString();
+  const currency = getRivermateCurrency(response);
 
   // Extract tax items
   const taxItems = [];
@@ -403,4 +422,93 @@ export const transformToRivermateQuote = (response: RivermateAPIResponse): River
     accrualsProvision: accruals?.monthly_provision ?? 0,
     total: totalMonthlyCost,
   };
+}
+/**
+ * Transforms an Oyster GraphQL response into a standardized Quote object
+ * We exclude Oyster fees and VAT; totals are monthly salary + employer contributions only.
+ */
+export const transformOysterResponseToQuote = (oysterResponse: any): Quote => {
+  const calc = oysterResponse?.data?.bulkSalaryCalculations?.[0]
+  const country = calc?.country
+  const currency = calc?.currency?.code || ''
+  const annualSalary = Number(calc?.annualGrossSalary || 0)
+  const monthlySalary = annualSalary / 12
+  const employerContribs = (calc?.taxes?.employer?.contributions || []) as Array<{ name: string; amount: number }>
+
+  const costs: QuoteCost[] = employerContribs.map((c) => ({
+    name: c.name,
+    amount: ((Number(c.amount || 0)) / 12).toString(),
+    frequency: 'monthly',
+    country: country?.name || '',
+    country_code: country?.code || '',
+  }))
+
+  const totalMonthlyCosts = monthlySalary + costs.reduce((sum, c) => sum + Number.parseFloat(c.amount || '0'), 0)
+
+  return {
+    provider: 'oyster',
+    salary: monthlySalary.toString(),
+    currency,
+    country: country?.name || '',
+    country_code: country?.code || '',
+    deel_fee: '0',
+    severance_accural: '0',
+    total_costs: totalMonthlyCosts.toString(),
+    employer_costs: totalMonthlyCosts.toString(),
+    costs,
+    benefits_data: [],
+    additional_data: { additional_notes: [] },
+  }
+}
+
+/**
+ * Transforms an Oyster GraphQL response into an optimized OysterQuote for USD conversion
+ */
+export const transformToOysterQuote = (oysterResponse: any): OysterQuote => {
+  const calc = oysterResponse?.data?.bulkSalaryCalculations?.[0]
+  const country = calc?.country
+  const currency = calc?.currency?.code || ''
+  const annualSalary = Number(calc?.annualGrossSalary || 0)
+  const monthlySalary = annualSalary / 12
+  const employerContribs = (calc?.taxes?.employer?.contributions || []) as Array<{ name: string; amount: number }>
+  const contributions = employerContribs.map((c) => ({ name: c.name, amount: (Number(c.amount || 0)) / 12 }))
+  const total = monthlySalary + contributions.reduce((s, v) => s + v.amount, 0)
+
+  return {
+    provider: 'oyster',
+    salary: monthlySalary,
+    currency,
+    country: country?.name || '',
+    country_code: country?.code || '',
+    contributions,
+    total,
+  }
+}
+
+/**
+ * Transforms an optimized OysterQuote into a display-ready Quote for UI rendering.
+ */
+export const transformOysterQuoteToDisplayQuote = (oq: OysterQuote): Quote => {
+  const costs: QuoteCost[] = (oq.contributions || []).map((c) => ({
+    name: c.name,
+    amount: (c.amount ?? 0).toString(),
+    frequency: 'monthly',
+    country: oq.country,
+    country_code: oq.country_code,
+  }))
+
+  return {
+    provider: 'oyster',
+    salary: oq.salary.toString(),
+    currency: oq.currency,
+    country: oq.country,
+    country_code: oq.country_code,
+    deel_fee: '0',
+    severance_accural: '0',
+    total_costs: oq.total.toString(),
+    employer_costs: oq.total.toString(),
+    costs,
+    benefits_data: [],
+    additional_data: { additional_notes: [] },
+  }
 }

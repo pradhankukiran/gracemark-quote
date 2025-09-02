@@ -12,7 +12,7 @@ import { GenericQuoteCard } from "@/lib/shared/components/GenericQuoteCard"
 import { QuoteComparison } from "../eor-calculator/components/QuoteComparison"
 import { ErrorBoundary } from "@/lib/shared/components/ErrorBoundary"
 import { ProviderSelector } from "./components/ProviderSelector"
-import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, transformToRemoteQuote } from "@/lib/shared/utils/apiUtils"
+import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, transformToRemoteQuote, transformOysterQuoteToDisplayQuote } from "@/lib/shared/utils/apiUtils"
 import { EORFormData, RemoteAPIResponse } from "@/lib/shared/types"
 
 const LoadingSpinner = () => (
@@ -39,6 +39,8 @@ const QuotePageContent = memo(() => {
     isConvertingCompareRemoteToUsd,
     isConvertingRivermateToUsd,
     isConvertingCompareRivermateToUsd,
+    isConvertingOysterToUsd,
+    isConvertingCompareOysterToUsd,
     usdConversionError,
     autoConvertQuote,
     autoConvertRemoteQuote,
@@ -103,6 +105,22 @@ const QuotePageContent = memo(() => {
       return cleanup
     }
   }, [quoteData?.status, quoteData?.quotes.comparisonRemote, currentProvider, autoConvertRemoteQuote])
+
+  // Auto-convert primary Oyster quote to USD
+  useEffect(() => {
+    if (quoteData?.status === 'completed' && currentProvider === 'oyster' && quoteData.quotes.oyster) {
+      const cleanup = autoConvertQuote(quoteData.quotes.oyster as any, "oyster")
+      return cleanup
+    }
+  }, [quoteData?.status, quoteData?.quotes.oyster, currentProvider, autoConvertQuote])
+
+  // Auto-convert comparison Oyster quote to USD
+  useEffect(() => {
+    if (quoteData?.status === 'completed' && currentProvider === 'oyster' && quoteData.quotes.comparisonOyster) {
+      const cleanup = autoConvertQuote(quoteData.quotes.comparisonOyster as any, "compareOyster")
+      return cleanup
+    }
+  }, [quoteData?.status, quoteData?.quotes.comparisonOyster, currentProvider, autoConvertQuote])
 
   if (loading) {
     return (
@@ -206,7 +224,7 @@ const QuotePageContent = memo(() => {
         <div className="flex justify-center items-center h-40">
           <div className="text-center space-y-3">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="text-slate-600">Loading {currentProvider === 'deel' ? 'Deel' : 'Remote'} quote...</p>
+            <p className="text-slate-600">Loading {currentProvider === 'deel' ? 'Deel' : currentProvider === 'remote' ? 'Remote' : currentProvider === 'rivermate' ? 'Rivermate' : 'Oyster'} quote...</p>
           </div>
         </div>
       );
@@ -221,27 +239,38 @@ const QuotePageContent = memo(() => {
                 ? transformRemoteResponseToQuote(quoteData.quotes.remote as any)
                 : undefined)
             : undefined)
-        : (
+        : currentProvider === 'rivermate' ? (
             // Rivermate: stored optimized quote for conversion; build display-friendly quote here
             quoteData.quotes.rivermate && ('taxItems' in (quoteData.quotes.rivermate as any))
               ? transformRivermateQuoteToDisplayQuote(quoteData.quotes.rivermate as any)
               : (quoteData.quotes.rivermate as any)
+          ) : (
+            // Oyster: stored optimized quote for conversion; build display-friendly quote here
+            quoteData.quotes.oyster && ('contributions' in (quoteData.quotes.oyster as any))
+              ? transformOysterQuoteToDisplayQuote(quoteData.quotes.oyster as any)
+              : (quoteData.quotes.oyster as any)
           );
     const dualCurrencyQuotes = currentProvider === 'deel'
       ? quoteData.dualCurrencyQuotes?.deel
       : currentProvider === 'remote'
         ? quoteData.dualCurrencyQuotes?.remote
-        : quoteData.dualCurrencyQuotes?.rivermate;
+        : currentProvider === 'rivermate'
+          ? quoteData.dualCurrencyQuotes?.rivermate
+          : quoteData.dualCurrencyQuotes?.oyster;
     const isConvertingToUSD = currentProvider === 'deel'
       ? isConvertingDeelToUsd
       : currentProvider === 'remote'
         ? isConvertingRemoteToUsd
-        : isConvertingRivermateToUsd;
+        : currentProvider === 'rivermate'
+          ? isConvertingRivermateToUsd
+          : isConvertingOysterToUsd;
     const conversions = currentProvider === 'deel'
       ? usdConversions.deel
       : currentProvider === 'remote'
         ? usdConversions.remote
-        : usdConversions.rivermate;
+        : currentProvider === 'rivermate'
+          ? usdConversions.rivermate
+          : usdConversions.oyster;
     const eorForm = quoteData.formData as EORFormData;
 
     if (!quote && !dualCurrencyQuotes) return null;
@@ -249,7 +278,7 @@ const QuotePageContent = memo(() => {
     return (
       <GenericQuoteCard
         quote={quote}
-        title={`${quote?.country || eorForm.country} EOR Quote`}
+        title={`${quote?.country || eorForm.country}`}
         provider={currentProvider}
         usdConversions={conversions}
         isConvertingToUSD={isConvertingToUSD}
@@ -269,6 +298,7 @@ const QuotePageContent = memo(() => {
       if (!quoteData.quotes.deel || !quoteData.quotes.comparisonDeel) return null;
       return (
         <QuoteComparison
+          provider="deel"
           primaryQuote={quoteData.quotes.deel}
           comparisonQuote={quoteData.quotes.comparisonDeel}
           primaryTitle={eorForm.country}
@@ -298,6 +328,7 @@ const QuotePageContent = memo(() => {
 
       return (
         <QuoteComparison
+          provider="rivermate"
           primaryQuote={primaryDisplay}
           comparisonQuote={compareDisplay}
           primaryTitle={eorForm.country}
@@ -307,6 +338,29 @@ const QuotePageContent = memo(() => {
           isConvertingComparisonToUSD={isConvertingCompareRivermateToUsd}
           usdConversionError={usdConversionError}
           dualCurrencyQuotes={quoteData.dualCurrencyQuotes?.rivermate}
+        />
+      );
+    }
+
+    if (currentProvider === 'oyster') {
+      if (!quoteData.quotes.oyster || !quoteData.quotes.comparisonOyster) return null;
+
+      return (
+        <QuoteComparison
+          provider="oyster"
+          primaryQuote={('contributions' in (quoteData.quotes.oyster as any))
+            ? transformOysterQuoteToDisplayQuote(quoteData.quotes.oyster as any)
+            : (quoteData.quotes.oyster as any)}
+          comparisonQuote={('contributions' in (quoteData.quotes.comparisonOyster as any))
+            ? transformOysterQuoteToDisplayQuote(quoteData.quotes.comparisonOyster as any)
+            : (quoteData.quotes.comparisonOyster as any)}
+          primaryTitle={eorForm.country}
+          comparisonTitle={eorForm.compareCountry}
+          usdConversions={{ deel: usdConversions.oyster, compare: usdConversions.compareOyster }}
+          isConvertingPrimaryToUSD={isConvertingOysterToUsd}
+          isConvertingComparisonToUSD={isConvertingCompareOysterToUsd}
+          usdConversionError={usdConversionError}
+          dualCurrencyQuotes={quoteData.dualCurrencyQuotes?.oyster}
         />
       );
     }
@@ -341,9 +395,9 @@ const QuotePageContent = memo(() => {
           <div>
             <GenericQuoteCard
               quote={hasDualCompare ? undefined : (('employment' in (quoteData.quotes.remote as any)) ? transformRemoteResponseToQuote(quoteData.quotes.remote as RemoteAPIResponse) : undefined)}
-              title={`${(quoteData.formData as EORFormData).country} EOR Quote`}
+              title={`${(quoteData.formData as EORFormData).country}`}
               provider="remote"
-              badgeText="Primary"
+              badgeText="Main Quote"
               badgeColor="bg-blue-100 text-blue-800"
               usdConversions={usdConversions.remote}
               isConvertingToUSD={isConvertingRemoteToUsd}
@@ -357,9 +411,9 @@ const QuotePageContent = memo(() => {
           <div>
             <GenericQuoteCard
               quote={hasDualCompare ? undefined : (('employment' in (quoteData.quotes.comparisonRemote as any)) ? transformRemoteResponseToQuote(quoteData.quotes.comparisonRemote as RemoteAPIResponse) : undefined)}
-              title={`${quoteData.formData.compareCountry} EOR Quote`}
+              title={`${quoteData.formData.compareCountry}`}
               provider="remote"
-              badgeText="Comparison"
+              badgeText="Compare Quote"
               badgeColor="bg-green-100 text-green-800"
               usdConversions={usdConversions.compareRemote}
               isConvertingToUSD={isConvertingCompareRemoteToUsd}
@@ -420,7 +474,6 @@ const QuotePageContent = memo(() => {
     </div>
   )
 });
-
 QuotePageContent.displayName = 'QuotePageContent';
 
 export default function QuotePage() {

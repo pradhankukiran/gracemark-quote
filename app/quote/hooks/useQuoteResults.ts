@@ -5,8 +5,9 @@ import { safeValidateQuoteData, validateQuoteId } from "@/lib/shared/utils/dataV
 import { useDeelQuote } from "./useDeelQuote";
 import { useRemoteQuote } from "./useRemoteQuote";
 import { useRivermateQuote } from "./useRivermateQuote";
+import { useOysterQuote } from "./useOysterQuote";
 
-export type Provider = 'deel' | 'remote' | 'rivermate';
+export type Provider = 'deel' | 'remote' | 'rivermate' | 'oyster';
 
 interface UseQuoteResultsReturn {
   quoteData: QuoteData | null;
@@ -25,8 +26,9 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   const { loading: deelLoading, error: deelError, calculateDeelQuote } = useDeelQuote();
   const { loading: remoteLoading, error: remoteError, calculateRemoteQuote } = useRemoteQuote();
   const { loading: rivermateLoading, error: rivermateError, calculateRivermateQuote } = useRivermateQuote();
+  const { loading: oysterLoading, error: oysterError, calculateOysterQuote } = useOysterQuote();
 
-  const providerLoading = { deel: deelLoading, remote: remoteLoading, rivermate: rivermateLoading } as const;
+  const providerLoading = { deel: deelLoading, remote: remoteLoading, rivermate: rivermateLoading, oyster: oysterLoading } as const;
 
   const switchProvider = useCallback(async (newProvider: Provider) => {
     if (!quoteData || newProvider === currentProvider) {
@@ -38,14 +40,17 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     const hasExistingQuote =
       (newProvider === 'deel' && quoteData.quotes.deel) ||
       (newProvider === 'remote' && quoteData.quotes.remote) ||
-      (newProvider === 'rivermate' && quoteData.quotes.rivermate);
+      (newProvider === 'rivermate' && quoteData.quotes.rivermate) ||
+      (newProvider === 'oyster' && quoteData.quotes.oyster);
     const form = quoteData.formData as EORFormData;
     const needsDual = form.isCurrencyManuallySet && !!form.originalCurrency && form.originalCurrency !== form.currency;
     const hasDualForProvider = newProvider === 'deel'
       ? !!quoteData.dualCurrencyQuotes?.deel?.isDualCurrencyMode
       : newProvider === 'remote'
         ? !!quoteData.dualCurrencyQuotes?.remote?.isDualCurrencyMode
-        : !!quoteData.dualCurrencyQuotes?.rivermate?.isDualCurrencyMode;
+        : newProvider === 'rivermate'
+          ? !!quoteData.dualCurrencyQuotes?.rivermate?.isDualCurrencyMode
+          : !!quoteData.dualCurrencyQuotes?.oyster?.isDualCurrencyMode;
 
     if (quoteData.status === 'completed') {
       try {
@@ -55,8 +60,10 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
             calculatedQuote = await calculateDeelQuote(form, quoteData);
           } else if (newProvider === 'remote') {
             calculatedQuote = await calculateRemoteQuote(form, quoteData);
-          } else {
+          } else if (newProvider === 'rivermate') {
             calculatedQuote = await calculateRivermateQuote(form, quoteData);
+          } else {
+            calculatedQuote = await calculateOysterQuote(form, quoteData);
           }
           setQuoteData(calculatedQuote);
           if (quoteId) {

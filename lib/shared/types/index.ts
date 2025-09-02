@@ -126,6 +126,19 @@ export interface RivermateQuote {
   total: number
 }
 
+export interface OysterQuote {
+  provider: string
+  salary: number // monthly
+  currency: string
+  country: string
+  country_code: string
+  contributions: Array<{
+    name: string
+    amount: number // monthly
+  }>
+  total: number // monthly (salary + contributions)
+}
+
 // Remote API Response Types (matching actual API structure)
 
 export interface RemoteCurrency {
@@ -326,6 +339,16 @@ export interface USDConversions {
     costs: number[]
     totalCosts: number
   }
+  oyster?: {
+    salary: number
+    costs: number[]
+    totalCosts: number
+  }
+  compareOyster?: {
+    salary: number
+    costs: number[]
+    totalCosts: number
+  }
 }
 
 // Provider-specific dual currency data
@@ -347,6 +370,7 @@ export interface DualCurrencyQuotes {
   deel?: ProviderDualCurrencyQuotes
   remote?: ProviderDualCurrencyQuotes
   rivermate?: ProviderDualCurrencyQuotes
+  oyster?: ProviderDualCurrencyQuotes
   // Legacy support - will be phased out
   selectedCurrencyQuote?: Quote | null
   localCurrencyQuote?: Quote | null
@@ -429,6 +453,8 @@ export interface QuoteData {
     comparisonRemote?: RemoteAPIResponse | RemoteQuote
     rivermate?: Quote | RivermateQuote
     comparisonRivermate?: Quote | RivermateQuote
+    oyster?: Quote | OysterQuote
+    comparisonOyster?: Quote | OysterQuote
   }
   metadata: {
     timestamp: number
