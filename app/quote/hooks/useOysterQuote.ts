@@ -30,6 +30,34 @@ export const useOysterQuote = () => {
           const compResp = await fetchOysterCost(compareReq)
           comparisonOptimized = transformToOysterQuote(compResp)
           comparisonQuote = transformOysterResponseToQuote(compResp)
+
+          // Build comparison quote in the selected (changed) currency as well
+          if (
+            withDefaults.isCurrencyManuallySet &&
+            withDefaults.currency &&
+            withDefaults.currency !== withDefaults.compareCurrency &&
+            withDefaults.compareSalary && withDefaults.compareCurrency
+          ) {
+            const compSalary = parseFloat((withDefaults.compareSalary || '').toString().replace(/[\,\s]/g, ''))
+            if (!isNaN(compSalary) && compSalary > 0) {
+              try {
+                const conv = await convertCurrency(
+                  compSalary,
+                  withDefaults.compareCurrency,
+                  withDefaults.currency
+                )
+                const compareChangedReq = {
+                  ...compareReq,
+                  salary: conv.success && conv.data ? conv.data.target_amount.toString() : withDefaults.compareSalary,
+                  currency: withDefaults.currency,
+                } as any
+                const compSelectedResp = await fetchOysterCost(compareChangedReq)
+                compareSelectedCurrencyQuote = transformOysterResponseToQuote(compSelectedResp)
+              } catch (err) {
+                console.warn('Oyster comparison (selected currency) fetch failed', err)
+              }
+            }
+          }
         } catch (e) {
           console.warn('Oyster comparison fetch failed', e)
         }

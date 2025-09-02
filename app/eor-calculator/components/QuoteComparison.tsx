@@ -2,19 +2,26 @@ import { memo } from "react"
 import { DeelAPIResponse, DualCurrencyQuotes, USDConversions } from "@/lib/shared/types"
 import { GenericQuoteCard } from "@/lib/shared/components/GenericQuoteCard"
 
+type CompatibleUsdConversions = USDConversions | {
+  deel?: USDConversions['deel'] | USDConversions['oyster']
+  compare?: USDConversions['compare'] | USDConversions['compareOyster']
+  remote?: USDConversions['remote']
+  compareRemote?: USDConversions['compareRemote']
+}
+
 interface QuoteComparisonProps {
   primaryQuote?: DeelAPIResponse
   comparisonQuote?: DeelAPIResponse
   primaryTitle: string
   comparisonTitle: string
-  usdConversions: USDConversions
+  usdConversions: CompatibleUsdConversions
   onConvertPrimaryToUSD?: () => void
   onConvertComparisonToUSD?: () => void
   isConvertingPrimaryToUSD: boolean
   isConvertingComparisonToUSD: boolean
   usdConversionError?: string | null
   dualCurrencyQuotes?: DualCurrencyQuotes
-  provider?: 'deel' | 'remote' | 'rivermate'
+  provider?: 'deel' | 'remote' | 'rivermate' | 'oyster'
 }
 
 export const QuoteComparison = memo(({
