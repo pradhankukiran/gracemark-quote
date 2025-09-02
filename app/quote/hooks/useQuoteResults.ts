@@ -6,8 +6,11 @@ import { useDeelQuote } from "./useDeelQuote";
 import { useRemoteQuote } from "./useRemoteQuote";
 import { useRivermateQuote } from "./useRivermateQuote";
 import { useOysterQuote } from "./useOysterQuote";
+import { useRipplingQuote } from "./useRipplingQuote";
+import { useSkuadQuote } from "./useSkuadQuote";
+import { useVelocityQuote } from "./useVelocityQuote";
 
-export type Provider = 'deel' | 'remote' | 'rivermate' | 'oyster';
+export type Provider = 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity';
 
 interface UseQuoteResultsReturn {
   quoteData: QuoteData | null;
@@ -27,8 +30,11 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   const { loading: remoteLoading, error: remoteError, calculateRemoteQuote } = useRemoteQuote();
   const { loading: rivermateLoading, error: rivermateError, calculateRivermateQuote } = useRivermateQuote();
   const { loading: oysterLoading, error: oysterError, calculateOysterQuote } = useOysterQuote();
+  const { loading: ripplingLoading, error: ripplingError, calculateRipplingQuote } = useRipplingQuote();
+  const { loading: skuadLoading, error: skuadError, calculateSkuadQuote } = useSkuadQuote();
+  const { loading: velocityLoading, error: velocityError, calculateVelocityQuote } = useVelocityQuote();
 
-  const providerLoading = { deel: deelLoading, remote: remoteLoading, rivermate: rivermateLoading, oyster: oysterLoading } as const;
+  const providerLoading = { deel: deelLoading, remote: remoteLoading, rivermate: rivermateLoading, oyster: oysterLoading, rippling: ripplingLoading, skuad: skuadLoading, velocity: velocityLoading } as const;
 
   const switchProvider = useCallback(async (newProvider: Provider) => {
     if (!quoteData || newProvider === currentProvider) {
@@ -41,7 +47,10 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       (newProvider === 'deel' && quoteData.quotes.deel) ||
       (newProvider === 'remote' && quoteData.quotes.remote) ||
       (newProvider === 'rivermate' && quoteData.quotes.rivermate) ||
-      (newProvider === 'oyster' && quoteData.quotes.oyster);
+      (newProvider === 'oyster' && quoteData.quotes.oyster) ||
+      (newProvider === 'rippling' && quoteData.quotes.rippling) ||
+      (newProvider === 'skuad' && (quoteData.quotes as any).skuad) ||
+      (newProvider === 'velocity' && (quoteData.quotes as any).velocity);
     const form = quoteData.formData as EORFormData;
     const needsDual = form.isCurrencyManuallySet && !!form.originalCurrency && form.originalCurrency !== form.currency;
     const hasDualForProvider = newProvider === 'deel'
@@ -50,7 +59,13 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         ? !!quoteData.dualCurrencyQuotes?.remote?.isDualCurrencyMode
         : newProvider === 'rivermate'
           ? !!quoteData.dualCurrencyQuotes?.rivermate?.isDualCurrencyMode
-          : !!quoteData.dualCurrencyQuotes?.oyster?.isDualCurrencyMode;
+          : newProvider === 'oyster'
+            ? !!quoteData.dualCurrencyQuotes?.oyster?.isDualCurrencyMode
+            : newProvider === 'rippling'
+              ? !!quoteData.dualCurrencyQuotes?.rippling?.isDualCurrencyMode
+              : newProvider === 'skuad'
+                ? !!(quoteData.dualCurrencyQuotes as any)?.skuad?.isDualCurrencyMode
+                : !!(quoteData.dualCurrencyQuotes as any)?.velocity?.isDualCurrencyMode;
 
     if (quoteData.status === 'completed') {
       try {
@@ -62,12 +77,20 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
             calculatedQuote = await calculateRemoteQuote(form, quoteData);
           } else if (newProvider === 'rivermate') {
             calculatedQuote = await calculateRivermateQuote(form, quoteData);
-          } else {
+          } else if (newProvider === 'oyster') {
             calculatedQuote = await calculateOysterQuote(form, quoteData);
+          } else if (newProvider === 'rippling') {
+            calculatedQuote = await calculateRipplingQuote(form, quoteData);
+          } else if (newProvider === 'skuad') {
+            calculatedQuote = await calculateSkuadQuote(form, quoteData);
+          } else if (newProvider === 'velocity') {
+            calculatedQuote = await calculateVelocityQuote(form, quoteData);
           }
-          setQuoteData(calculatedQuote);
-          if (quoteId) {
-            setJsonInSessionStorage(quoteId, calculatedQuote);
+          if (calculatedQuote) {
+            setQuoteData(calculatedQuote);
+            if (quoteId) {
+              setJsonInSessionStorage(quoteId, calculatedQuote);
+            }
           }
         }
       } catch (error) {
@@ -75,7 +98,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         setCurrentProvider(currentProvider); // Revert provider switch on error
       }
     }
-  }, [quoteData, currentProvider, quoteId, calculateDeelQuote, calculateRemoteQuote, calculateRivermateQuote]);
+  }, [quoteData, currentProvider, quoteId, calculateDeelQuote, calculateRemoteQuote, calculateRivermateQuote, calculateOysterQuote, calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote]);
 
   const refreshQuote = useCallback(() => {
     console.log("Refreshing quote...");

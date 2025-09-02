@@ -16,7 +16,7 @@ interface ProviderTheme {
 interface GenericQuoteCardProps {
   quote?: Quote;
   title: string;
-  provider: 'deel' | 'remote' | 'rivermate' | 'oyster';
+  provider: 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity';
   badgeText?: string;
   badgeColor?: string;
   usdConversions?: USDConversions[keyof USDConversions];
@@ -28,7 +28,7 @@ interface GenericQuoteCardProps {
   selectedCurrency?: string;
 }
 
-const providerThemes: { [key in 'deel' | 'remote' | 'rivermate' | 'oyster']: ProviderTheme } = {
+const providerThemes: { [key in 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity']: ProviderTheme } = {
   deel: {
     logo: <ProviderLogo provider="deel" />,
     brandColor: "text-primary",
@@ -52,6 +52,24 @@ const providerThemes: { [key in 'deel' | 'remote' | 'rivermate' | 'oyster']: Pro
     brandColor: "text-rose-700",
     gradientFrom: "from-rose-50",
     gradientTo: "to-rose-100",
+  },
+  rippling: {
+    logo: <ProviderLogo provider="rippling" />,
+    brandColor: "text-amber-700",
+    gradientFrom: "from-amber-50",
+    gradientTo: "to-amber-100",
+  },
+  skuad: {
+    logo: <ProviderLogo provider="skuad" />,
+    brandColor: "text-teal-700",
+    gradientFrom: "from-teal-50",
+    gradientTo: "to-teal-100",
+  },
+  velocity: {
+    logo: <ProviderLogo provider="velocity" />,
+    brandColor: "text-orange-700",
+    gradientFrom: "from-orange-50",
+    gradientTo: "to-orange-100",
   },
 };
 
@@ -203,9 +221,9 @@ export const GenericQuoteCard = memo(({
   }
 
   const getUSDCostAmount = (index: number) => {
-    if (provider === 'deel' || provider === 'rivermate' || provider === 'oyster') {
+  if (provider === 'deel' || provider === 'rivermate' || provider === 'oyster' || provider === 'rippling' || provider === 'skuad' || provider === 'velocity') {
       return (usdConversions as USDConversions["deel"])?.costs?.[index];
-    }
+  }
     if (provider === 'remote') {
       // Approximate per-line USD values by distributing total across items
       const remoteCosts = (usdConversions as USDConversions["remote"])?.monthlyTotal;

@@ -315,6 +315,42 @@ export interface USDConversions {
     costs: number[]
     totalCosts: number
   }
+  skuad?: {
+    salary: number
+    deelFee: number
+    costs: number[]
+    totalCosts: number
+  }
+  compareSkuad?: {
+    salary: number
+    deelFee: number
+    costs: number[]
+    totalCosts: number
+  }
+  velocity?: {
+    salary: number
+    deelFee: number
+    costs: number[]
+    totalCosts: number
+  }
+  compareVelocity?: {
+    salary: number
+    deelFee: number
+    costs: number[]
+    totalCosts: number
+  }
+  rippling?: {
+    salary: number
+    deelFee: number
+    costs: number[]
+    totalCosts: number
+  }
+  compareRippling?: {
+    salary: number
+    deelFee: number
+    costs: number[]
+    totalCosts: number
+  }
   remote?: {
     monthlySalary: number
     monthlyContributions: number
@@ -371,6 +407,9 @@ export interface DualCurrencyQuotes {
   remote?: ProviderDualCurrencyQuotes
   rivermate?: ProviderDualCurrencyQuotes
   oyster?: ProviderDualCurrencyQuotes
+  rippling?: ProviderDualCurrencyQuotes
+  skuad?: ProviderDualCurrencyQuotes
+  velocity?: ProviderDualCurrencyQuotes
   // Legacy support - will be phased out
   selectedCurrencyQuote?: Quote | null
   localCurrencyQuote?: Quote | null
@@ -455,6 +494,12 @@ export interface QuoteData {
     comparisonRivermate?: Quote | RivermateQuote
     oyster?: Quote | OysterQuote
     comparisonOyster?: Quote | OysterQuote
+    rippling?: Quote
+    comparisonRippling?: Quote
+    skuad?: Quote
+    comparisonSkuad?: Quote
+    velocity?: Quote
+    comparisonVelocity?: Quote
   }
   metadata: {
     timestamp: number

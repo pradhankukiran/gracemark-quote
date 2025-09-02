@@ -1,7 +1,7 @@
 // lib/shared/utils/apiUtils.ts - Shared API utilities
 
 import { DeelAPIResponse, RemoteAPIResponse, ValidationAPIResponse, BenefitsAPIResponse, EORFormData, Quote, QuoteCost, DeelQuote, RemoteQuote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
-import { getCountryByName } from "@/lib/country-data"
+import { getCountryByName, getCountryByCode } from "@/lib/country-data"
 
 // Default values for optional fields (optionally by country, reserved for future use)
 export const getDefaultValues = (_countryCode?: string) => ({
@@ -136,6 +136,86 @@ export const fetchOysterCost = async (requestData: QuoteRequestData): Promise<an
     throw new Error(text || "Failed to fetch Oyster cost")
   }
 
+  return response.json()
+}
+
+/**
+ * Fetches Rippling cost breakdown
+ */
+export const fetchRipplingCost = async (requestData: QuoteRequestData): Promise<any> => {
+  const response = await fetch("/api/rippling-cost", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      salary: (() => {
+        const raw = (requestData.salary || '').toString()
+        const cleaned = raw.replace(/[\,\s]/g, '')
+        const n = Number.parseFloat(cleaned)
+        return Number.isFinite(n) ? n : 0
+      })(),
+      country: requestData.country,
+      currency: requestData.currency,
+      state: requestData.state || null,
+    }),
+  })
+
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(text || "Failed to fetch Rippling cost")
+  }
+  return response.json()
+}
+
+/**
+ * Fetches Skuad cost estimates
+ */
+export const fetchSkuadCost = async (requestData: QuoteRequestData): Promise<any> => {
+  const response = await fetch("/api/skuad-cost", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      salary: (() => {
+        const raw = (requestData.salary || '').toString()
+        const cleaned = raw.replace(/[\,\s]/g, '')
+        const n = Number.parseFloat(cleaned)
+        return Number.isFinite(n) ? n : 0
+      })(),
+      country: requestData.country,
+      currency: requestData.currency,
+    }),
+  })
+
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(text || "Failed to fetch Skuad cost")
+  }
+  return response.json()
+}
+
+/**
+ * Fetches Velocity Global burden summary
+ */
+export const fetchVelocityGlobalCost = async (requestData: QuoteRequestData): Promise<any> => {
+  const response = await fetch("/api/velocity-cost", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      country: requestData.country,
+      salary: (() => {
+        const raw = (requestData.salary || '').toString();
+        const n = Number.parseFloat(raw.replace(/[\,\s]/g, ''));
+        return Number.isFinite(n) ? n : 0;
+      })(),
+      currency: requestData.currency,
+      markupPercentage: 4,
+      timePeriod: 'annual',
+    }),
+  })
+
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(text || "Failed to fetch Velocity Global burden")
+  }
   return response.json()
 }
 
@@ -455,6 +535,130 @@ export const transformOysterResponseToQuote = (oysterResponse: any): Quote => {
     severance_accural: '0',
     total_costs: totalMonthlyCosts.toString(),
     employer_costs: totalMonthlyCosts.toString(),
+    costs,
+    benefits_data: [],
+    additional_data: { additional_notes: [] },
+  }
+}
+
+/**
+ * Transforms a Rippling API response into a standardized Quote object
+ * Assumes monthly values are in response.costs[].monthly_value and gross/employer/total monthly fields
+ */
+export const transformRipplingResponseToQuote = (ripplingResponse: any): Quote => {
+  const costs = Array.isArray(ripplingResponse?.costs) ? ripplingResponse.costs : []
+  const gross = ripplingResponse?.gross_salary
+  const total = ripplingResponse?.total_cost
+  const employer = ripplingResponse?.employer_cost
+
+  const toStringNum = (v: any) => (v == null ? '0' : String(v))
+
+  const quoteCosts: QuoteCost[] = costs.map((item: any) => ({
+    name: String(item?.title || ''),
+    amount: toStringNum(item?.monthly_value || '0'),
+    frequency: 'monthly',
+    country: '',
+    country_code: '',
+  }))
+
+  return {
+    provider: 'rippling',
+    salary: toStringNum(gross?.monthly_value || '0'),
+    currency: '', // Filled by caller context; left empty as Rippling response lacks it
+    country: '',
+    country_code: '',
+    deel_fee: '0',
+    severance_accural: '0',
+    total_costs: toStringNum(total?.monthly_value || employer?.monthly_value || '0'),
+    employer_costs: toStringNum(total?.monthly_value || employer?.monthly_value || '0'),
+    costs: quoteCosts,
+    benefits_data: [],
+    additional_data: { additional_notes: [] },
+  }
+}
+
+/**
+ * Transforms a Skuad API response into a standardized Quote object (monthly)
+ * Excludes Skuad fee and fee discount from totals; uses billingAmounts totals.
+ */
+export const transformSkuadResponseToQuote = (resp: any): Quote => {
+  const data = resp?.data || {}
+  const monthly = data?.monthly || {}
+  const currency = data?.currencyCode || ''
+  const country = data?.country || ''
+  const country_code = getCountryByName(country)?.code || ''
+
+  const costs: QuoteCost[] = []
+  const employerBreakup = Array.isArray(monthly?.employerEstTaxBreakup) ? monthly.employerEstTaxBreakup : []
+  for (const item of employerBreakup) {
+    const [title, monthlyValue] = item
+    costs.push({ name: String(title || ''), amount: String(monthlyValue ?? '0'), frequency: 'monthly', country, country_code })
+  }
+  const accruals = Array.isArray(monthly?.employerMandatoryAccrualsEstCostBreakup) ? monthly.employerMandatoryAccrualsEstCostBreakup : []
+  for (const item of accruals) {
+    const [title, monthlyValue] = item
+    costs.push({ name: String(title || ''), amount: String(monthlyValue ?? '0'), frequency: 'monthly', country, country_code })
+  }
+
+  const totalBillingMonthly = data?.totalEmploymentCost?.billingAmounts?.monthlyValue
+  const totalLocalMonthly = data?.totalEmploymentCost?.localAmounts?.monthlyValue
+  const salaryMonthly = monthly?.grossSalary
+  const computedMonthly = (() => {
+    const base = Number(salaryMonthly) || 0
+    const sum = costs.reduce((s, c) => s + (Number.parseFloat(c.amount) || 0), 0)
+    return base + sum
+  })()
+
+  return {
+    provider: 'skuad',
+    salary: String(salaryMonthly ?? '0'),
+    currency,
+    country,
+    country_code,
+    deel_fee: '0',
+    severance_accural: '0',
+    total_costs: String(totalBillingMonthly ?? totalLocalMonthly ?? computedMonthly),
+    employer_costs: String(totalBillingMonthly ?? totalLocalMonthly ?? computedMonthly),
+    costs,
+    benefits_data: [],
+    additional_data: { additional_notes: [] },
+  }
+}
+
+/**
+ * Transforms a Velocity Global burden summary into a standardized Quote object (monthly)
+ */
+export const transformVelocityResponseToQuote = (resp: any): Quote => {
+  const meta = resp?.meta || {}
+  const attr = resp?.data?.attributes || {}
+  const iso2 = meta?.locationCode || ''
+  const countryInfo = iso2 ? getCountryByCode(iso2) : undefined
+  const country = countryInfo?.name || ''
+  const country_code = iso2
+  const currency = meta?.currencyCode || ''
+
+  const lineItems = Array.isArray(attr?.lineItems) ? attr.lineItems : []
+  const costs: QuoteCost[] = lineItems.map((li: any) => ({
+    name: String(li?.title || li?.name || ''),
+    amount: String(((Number(li?.amount) || 0) / 12).toFixed(2)),
+    frequency: 'monthly',
+    country,
+    country_code,
+  }))
+
+  const annualSalary = Number(attr?.remuneration?.baseSalary) || 0
+  const annualTotal = Number(attr?.total) || 0
+
+  return {
+    provider: 'velocity',
+    salary: String((annualSalary / 12).toFixed(2)),
+    currency,
+    country,
+    country_code,
+    deel_fee: '0',
+    severance_accural: '0',
+    total_costs: String((annualTotal / 12).toFixed(2)),
+    employer_costs: String((annualTotal / 12).toFixed(2)),
     costs,
     benefits_data: [],
     additional_data: { additional_notes: [] },

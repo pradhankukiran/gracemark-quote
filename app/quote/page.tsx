@@ -41,6 +41,12 @@ const QuotePageContent = memo(() => {
     isConvertingCompareRivermateToUsd,
     isConvertingOysterToUsd,
     isConvertingCompareOysterToUsd,
+    isConvertingRipplingToUsd,
+    isConvertingCompareRipplingToUsd,
+    isConvertingSkuadToUsd,
+    isConvertingCompareSkuadToUsd,
+    isConvertingVelocityToUsd,
+    isConvertingCompareVelocityToUsd,
     usdConversionError,
     autoConvertQuote,
     autoConvertRemoteQuote,
@@ -113,6 +119,54 @@ const QuotePageContent = memo(() => {
       return cleanup
     }
   }, [quoteData?.status, quoteData?.quotes.oyster, currentProvider, autoConvertQuote])
+
+  // Auto-convert primary Rippling quote to USD
+  useEffect(() => {
+    if (quoteData?.status === 'completed' && currentProvider === 'rippling' && quoteData.quotes.rippling) {
+      const cleanup = autoConvertQuote(quoteData.quotes.rippling as any, "rippling")
+      return cleanup
+    }
+  }, [quoteData?.status, quoteData?.quotes.rippling, currentProvider, autoConvertQuote])
+
+  // Auto-convert comparison Rippling quote to USD
+  useEffect(() => {
+    if (quoteData?.status === 'completed' && currentProvider === 'rippling' && (quoteData.quotes as any).comparisonRippling) {
+      const cleanup = autoConvertQuote((quoteData.quotes as any).comparisonRippling as any, "compareRippling")
+      return cleanup
+    }
+  }, [quoteData?.status, (quoteData?.quotes as any)?.comparisonRippling, currentProvider, autoConvertQuote])
+
+  // Auto-convert primary Skuad quote to USD
+  useEffect(() => {
+    if (quoteData?.status === 'completed' && currentProvider === 'skuad' && (quoteData.quotes as any).skuad) {
+      const cleanup = autoConvertQuote((quoteData.quotes as any).skuad as any, "skuad")
+      return cleanup
+    }
+  }, [quoteData?.status, (quoteData?.quotes as any)?.skuad, currentProvider, autoConvertQuote])
+
+  // Auto-convert comparison Skuad quote to USD
+  useEffect(() => {
+    if (quoteData?.status === 'completed' && currentProvider === 'skuad' && (quoteData.quotes as any).comparisonSkuad) {
+      const cleanup = autoConvertQuote((quoteData.quotes as any).comparisonSkuad as any, "compareSkuad")
+      return cleanup
+    }
+  }, [quoteData?.status, (quoteData?.quotes as any)?.comparisonSkuad, currentProvider, autoConvertQuote])
+
+  // Auto-convert primary Velocity quote to USD
+  useEffect(() => {
+    if (quoteData?.status === 'completed' && currentProvider === 'velocity' && (quoteData.quotes as any).velocity) {
+      const cleanup = autoConvertQuote((quoteData.quotes as any).velocity as any, "velocity")
+      return cleanup
+    }
+  }, [quoteData?.status, (quoteData?.quotes as any)?.velocity, currentProvider, autoConvertQuote])
+
+  // Auto-convert comparison Velocity quote to USD
+  useEffect(() => {
+    if (quoteData?.status === 'completed' && currentProvider === 'velocity' && (quoteData.quotes as any).comparisonVelocity) {
+      const cleanup = autoConvertQuote((quoteData.quotes as any).comparisonVelocity as any, "compareVelocity")
+      return cleanup
+    }
+  }, [quoteData?.status, (quoteData?.quotes as any)?.comparisonVelocity, currentProvider, autoConvertQuote])
 
   // Auto-convert comparison Oyster quote to USD
   useEffect(() => {
@@ -224,7 +278,7 @@ const QuotePageContent = memo(() => {
         <div className="flex justify-center items-center h-40">
           <div className="text-center space-y-3">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="text-slate-600">Loading {currentProvider === 'deel' ? 'Deel' : currentProvider === 'remote' ? 'Remote' : currentProvider === 'rivermate' ? 'Rivermate' : 'Oyster'} quote...</p>
+            <p className="text-slate-600">Loading {currentProvider === 'deel' ? 'Deel' : currentProvider === 'remote' ? 'Remote' : currentProvider === 'rivermate' ? 'Rivermate' : currentProvider === 'oyster' ? 'Oyster' : currentProvider === 'rippling' ? 'Rippling' : currentProvider === 'skuad' ? 'Skuad' : 'Velocity Global'} quote...</p>
           </div>
         </div>
       );
@@ -244,11 +298,18 @@ const QuotePageContent = memo(() => {
             quoteData.quotes.rivermate && ('taxItems' in (quoteData.quotes.rivermate as any))
               ? transformRivermateQuoteToDisplayQuote(quoteData.quotes.rivermate as any)
               : (quoteData.quotes.rivermate as any)
-          ) : (
+          ) : currentProvider === 'oyster' ? (
             // Oyster: stored optimized quote for conversion; build display-friendly quote here
             quoteData.quotes.oyster && ('contributions' in (quoteData.quotes.oyster as any))
               ? transformOysterQuoteToDisplayQuote(quoteData.quotes.oyster as any)
               : (quoteData.quotes.oyster as any)
+          ) : currentProvider === 'rippling' ? (
+            // Rippling: stored as display Quote
+            quoteData.quotes.rippling as any
+          ) : currentProvider === 'skuad' ? (
+            (quoteData.quotes as any).skuad as any
+          ) : (
+            (quoteData.quotes as any).velocity as any
           );
     const dualCurrencyQuotes = currentProvider === 'deel'
       ? quoteData.dualCurrencyQuotes?.deel
@@ -256,21 +317,39 @@ const QuotePageContent = memo(() => {
         ? quoteData.dualCurrencyQuotes?.remote
         : currentProvider === 'rivermate'
           ? quoteData.dualCurrencyQuotes?.rivermate
-          : quoteData.dualCurrencyQuotes?.oyster;
+          : currentProvider === 'oyster' 
+            ? quoteData.dualCurrencyQuotes?.oyster 
+            : currentProvider === 'rippling'
+              ? quoteData.dualCurrencyQuotes?.rippling
+              : currentProvider === 'skuad'
+                ? (quoteData.dualCurrencyQuotes as any)?.skuad
+                : (quoteData.dualCurrencyQuotes as any)?.velocity;
     const isConvertingToUSD = currentProvider === 'deel'
       ? isConvertingDeelToUsd
       : currentProvider === 'remote'
         ? isConvertingRemoteToUsd
         : currentProvider === 'rivermate'
           ? isConvertingRivermateToUsd
-          : isConvertingOysterToUsd;
+          : currentProvider === 'oyster' 
+            ? isConvertingOysterToUsd 
+            : currentProvider === 'rippling' 
+              ? isConvertingRipplingToUsd 
+              : currentProvider === 'skuad' 
+                ? isConvertingSkuadToUsd 
+                : isConvertingVelocityToUsd;
     const conversions = currentProvider === 'deel'
       ? usdConversions.deel
       : currentProvider === 'remote'
         ? usdConversions.remote
         : currentProvider === 'rivermate'
           ? usdConversions.rivermate
-          : usdConversions.oyster;
+          : currentProvider === 'oyster' 
+            ? usdConversions.oyster 
+            : currentProvider === 'rippling'
+              ? (usdConversions as any).rippling
+              : currentProvider === 'skuad'
+                ? (usdConversions as any).skuad
+                : (usdConversions as any).velocity;
     const eorForm = quoteData.formData as EORFormData;
 
     if (!quote && !dualCurrencyQuotes) return null;
@@ -423,6 +502,60 @@ const QuotePageContent = memo(() => {
             />
           </div>
         </div>
+      );
+    }
+
+    if (currentProvider === 'rippling') {
+      if (!quoteData.quotes.rippling || !(quoteData.quotes as any).comparisonRippling) return null;
+      return (
+        <QuoteComparison
+          provider="rippling"
+          primaryQuote={quoteData.quotes.rippling as any}
+          comparisonQuote={(quoteData.quotes as any).comparisonRippling as any}
+          primaryTitle={eorForm.country}
+          comparisonTitle={eorForm.compareCountry}
+          usdConversions={usdConversions}
+          isConvertingPrimaryToUSD={isConvertingRipplingToUsd}
+          isConvertingComparisonToUSD={isConvertingCompareRipplingToUsd}
+          usdConversionError={usdConversionError}
+          dualCurrencyQuotes={(quoteData.dualCurrencyQuotes as any)?.rippling}
+        />
+      );
+    }
+
+    if (currentProvider === 'skuad') {
+      if (!((quoteData.quotes as any).skuad) || !((quoteData.quotes as any).comparisonSkuad)) return null;
+      return (
+        <QuoteComparison
+          provider="skuad"
+          primaryQuote={(quoteData.quotes as any).skuad as any}
+          comparisonQuote={(quoteData.quotes as any).comparisonSkuad as any}
+          primaryTitle={eorForm.country}
+          comparisonTitle={eorForm.compareCountry}
+          usdConversions={usdConversions}
+          isConvertingPrimaryToUSD={isConvertingSkuadToUsd}
+          isConvertingComparisonToUSD={isConvertingCompareSkuadToUsd}
+          usdConversionError={usdConversionError}
+          dualCurrencyQuotes={(quoteData.dualCurrencyQuotes as any)?.skuad}
+        />
+      );
+    }
+
+    if (currentProvider === 'velocity') {
+      if (!((quoteData.quotes as any).velocity) || !((quoteData.quotes as any).comparisonVelocity)) return null;
+      return (
+        <QuoteComparison
+          provider="velocity"
+          primaryQuote={(quoteData.quotes as any).velocity as any}
+          comparisonQuote={(quoteData.quotes as any).comparisonVelocity as any}
+          primaryTitle={eorForm.country}
+          comparisonTitle={eorForm.compareCountry}
+          usdConversions={usdConversions}
+          isConvertingPrimaryToUSD={isConvertingVelocityToUsd}
+          isConvertingComparisonToUSD={isConvertingCompareVelocityToUsd}
+          usdConversionError={usdConversionError}
+          dualCurrencyQuotes={(quoteData.dualCurrencyQuotes as any)?.velocity}
+        />
       );
     }
 

@@ -27,6 +27,18 @@ export const ProviderLogo = memo(({
     return <Image src="/oyster_logo.png" alt="Oyster Logo" width={size * 2.5} height={size} className="object-contain" priority />;
   }
 
+  if (provider === 'rippling') {
+    return <Image src="/rippling_logo.png" alt="Rippling Logo" width={size * 4} height={size} className="object-contain" priority />;
+  }
+
+  if (provider === 'skuad') {
+    return <Image src="/skuad_logo.png" alt="Skuad Logo" width={size * 3} height={size} className="object-contain" priority />;
+  }
+
+  if (provider === 'velocity') {
+    return <Image src="/velocity_logo.png" alt="Velocity Global Logo" width={size * 5} height={size} className="object-contain" priority />;
+  }
+
   return null;
 });
 
