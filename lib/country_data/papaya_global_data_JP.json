@@ -1,0 +1,161 @@
+{
+  "scraped_at": "2025-08-24T18:17:32.389Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Japan",
+      "url": "https://www.papayaglobal.com/countrypedia/country/japan/",
+      "scraped_at": "2025-08-24T18:17:32.365Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "9.15%",
+              "description": "Pension (applied on salary up to 650,000 JPY  per month)"
+            },
+            {
+              "rate": "4.99% – 6.57%",
+              "description": "Health Insurance (applied on salary up to  1,390,000 JPY per month). Each region has its own health insurance rate, and rates are slightly higher for individuals between the ages of 40 and 65 (generally 1.57%)."
+            },
+            {
+              "rate": "0.8%",
+              "description": "Nursing Care Insurance (applied on salary up to 1,390,000 JPY per month)"
+            },
+            {
+              "rate": "0.95%",
+              "description": "Unemployment Insurance"
+            },
+            {
+              "rate": "0.204% – 8.8%",
+              "description": "Work Injury"
+            },
+            {
+              "rate": "0.36%",
+              "description": "Family Allowance (applied on salary up to 650,000 JPY  per month)"
+            },
+            {
+              "rate": "16.5% – 26.63%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "9.15%",
+              "description": "Pension"
+            },
+            {
+              "rate": "4.99%",
+              "description": "Health Insurance (applied on salary up to  1,390,000 JPY per month). Each region has its own health insurance rate, and rates are slightly higher for individuals between the ages of 40 and 65."
+            },
+            {
+              "rate": "0.6%",
+              "description": "Unemployment Insurance"
+            },
+            {
+              "rate": "0.8%",
+              "description": "Nursing Care Insurance (applied on salary up to 1,390,000 JPY per month)"
+            },
+            {
+              "rate": "15.54%",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": [
+            {
+              "rate": "5.00%",
+              "description": "Up to 1.95M JPY"
+            },
+            {
+              "rate": "10.00%",
+              "description": "1.95M – 3.3M JPY"
+            },
+            {
+              "rate": "20.00%",
+              "description": "3.3M – 6.95M JPY"
+            },
+            {
+              "rate": "23.00%",
+              "description": "6.95M – 9M JPY"
+            },
+            {
+              "rate": "33.00%",
+              "description": "9M – 18M JPY"
+            },
+            {
+              "rate": "40.00%",
+              "description": "18M – 40M JPY"
+            },
+            {
+              "rate": "45.00%",
+              "description": "Over 40M JPY"
+            },
+            {
+              "rate": "10.00%",
+              "description": "Local Income Tax (calculated based on prior year income)"
+            },
+            {
+              "rate": "20.42% (flat rate)",
+              "description": "Non-residents are subject to a national income tax on gross compensation with no deductions available. A non-resident taxpayer may be subject to the local inhabitant’s tax at a rate of 10% if they are registered as a resident as of January 1st of the current year."
+            }
+          ]
+        },
+        "minimum_wage": "The national minimum wage in Japan is based on prefecture with the hourly minimum wage ranging from  ¥792 to  ¥1,163.\nAmongst the major locations, the minimum wages are set at:\nAichi: ¥1,077 per hour.\nChiba: ¥1,076 per hour\nKanagawa: ¥1,162 per hour.\nOsaka: ¥1,114 per hour.\nSaitama: ¥1,078 per hour.\nTokyo: ¥1,163 per hour.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Japan is generally monthly.",
+          "13th_salary": "In Japan, it is customary to pay a “13th month,” or even “14th month” salary as a summer bonus paid in June and as a winter bonus paid in December. However, more international companies today are adopting a straightforward 12 month pay period setup."
+        },
+        "working_hours": {
+          "general": "The standard working hours in Japan are 8 hours per day, 40 hours per week.",
+          "overtime": "All work above the standard weekly working hours is paid as overtime and regulated by employment contract/collective agreements. In general, if an employee is expected to work overtime regularly, a written agreement must be filed with the Labour Inspection Office.\nWhen an employee is requested to work overtime or work on holidays, the maximums are 5 hours per day, 45 hours per month, and 365 hours per year.\nOvertime work of up to 60 hours per month must be at least 25% of the normal hourly wage and overtime work that exceeds 60 hours per month must be at least 50% of the normal.\nEmployees in managerial and supervisory positions as defined under the Labour Standards Act are exempt from the aforementioned, however, the late-night work allowance is still applicable.\nOvertime payment is calculated as an additional payment to the hourly base salary as follows:\nOvertime (typically over 8 hours a day): additional 25.00%\nNights (22:00 – 05:00): additional 25.00%\nWeekends and Holidays: an additional 35.00%\nNights (continuing from overtime): additional 50.00%\nHolidays (continuing from night-time): additional 60.00%"
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Paid leave in Japan is set in the employment contract as dependent upon the years of employment. This paid leave is in addition to any public holidays.\nEmployees with up to six months of service are entitled to 10 days of paid leave\nEmployees with up to one and a half years of service are entitled to 11 days of paid leave\nEmployees with up to two and a half years of services are entitled to 12 days of paid leave\nEmployees with up to three and a half years of services are entitled to 14 days of paid leave\nEmployees with up to four and a half years of services are entitled to 16 days of paid leave\nEmployees with up to five and a half years of services are entitled to 18 days of paid leave\nEmployees with up to six and a half years of services are entitled to 20 days of paid leave\nUnused days expire after two years.",
+          "public_holidays": "They are 16 public holidays in Japan. While there are no legal requirements to pay for public holidays, it is common to grant those days as paid days off.\nIf a national holiday falls on a Sunday, the next working day will become a public holiday. In addition, companies are usually closed from December 29th to January 3rd.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n13 Jan 2025\tMonday\tComing of Age Day\t\n11 Feb 2025\tTuesday\tNational Foundation Day\t\n23 Feb 2025\tSunday\tEmperor’s Birthday\t\n24 Feb 2025\tMonday\tEmperor’s Birthday\tDay off in Lieu\n20 Mar 2025\tThursday\tVernal Equinox Day\t\n29 Apr 2025\tTuesday\tShowa Day\t\n3 May 2025\tSaturday\tConstitutional Memorial Day\t\n4 May 2025\tSunday\tGreenery Day\t\n5 May 2025\tMonday\tChildren’s Day\t\n6 May 2025\tTuesday\tGreenery Day\tDay off in Lieu\n21 Jul 2025\tMonday\tMarine Day\t\n11 Aug 2025\tMonday\tMountain Day\t\n15 Sep 2025\tMonday\tRespect for the Aged Day\t\n23 Sep 2025\tTuesday\tAutumnal Equinox Day\t\n13 Oct 2025\tMonday\tSports Day\t\n3 Nov 2025\tMonday\tCulture Day\t\n23 Nov 2025\tSunday\tLabor Thanksgiving Day\t\n24 Nov 2025\tMonday\tLabor Thanksgiving Day\tDay off in Lieu",
+          "sick_days": "Sick leave is not mandatory. Some companies may introduce their own sick leave policies, and employees often use their holiday to cover sick leave or claim social insurance.",
+          "maternity_leave": "All female employees are eligible for maternity benefits consisting of 14 weeks paid leave, six weeks before the due date, and eight weeks after.\nThe maternity payment is made by the Social Insurance based on the National Health Insurance rates, which are currently 420,000 JPY per child.\nHowever, if the employee is enrolled in the employees’ health insurance, they may receive a maternity allowance of 2/3 of the regular salary rate from 42 days before birth until 56 days after delivery.",
+          "paternity_leave": "The father is entitled to paid paternity leave for up to one year after the birth as childcare leave. Paternity leave is referred to as ‘childcare leave’ in Japan, and new father employees are entitled to this benefit. However, the employee does not receive a salary while on leave unless stated in the employment contract. They are entitled to a partial allowance from social security.\nMale employees are entitled to four weeks’ leave, in one or two installments, within eight weeks after birth (Childcare at Birth Leave). Benefits will be payable by social security at the same rate as maternity leave (67% of covered pay). This new Childcare at Birth Leave is in addition to the existing government-paid childcare leave entitlements for both parents, which may also now be taken in one or two separate installments (previously only one).",
+          "childcare_leave": "Childcare leave can be taken by the mother or the father and starts from the day after the maternity leave ends. Labor insurance covers childcare leave, and an employee can take childcare leave until the child is one year old. If both parents take childcare leave, the leave is then extended to when the child is one year and two months old.\nCompanies with 1,000 or more employees are required to publicly disclose annually the rate at which their staff take childcare leave.",
+          "other_leave": "In Japan, in the event of the death of an immediate family member, an employee is entitled to bereavement leave. For the death of a father, mother, spouse, or child, an employee is entitled to five days of leave and three days of leave for the death of a grandparent, grandchild, sibling, child’s spouse, or spouse’s parent.\nIn addition, when the employee is the person in charge of funeral arrangements, they can request an additional two days’ leave.\nEmployees can also take family care leave, which is an unpaid leave to care for a spouse, child, parent, or grandparent for up to 93 days per family member concerned.\nEmployees with a child under three years old have certain rights. If they ask to be excused from unscheduled work, they should not be required to work beyond their regular hours. If they wish to adopt a reduced working hour system, their request should be granted. Furthermore, if an employee has a preschool-aged child and asks to be excused from unscheduled work, they should not be required to work more than 24 hours of overtime in a month or 150 hours in a year."
+        },
+        "termination": {
+          "termination_process": "Termination in Japan is highly complex and in practice dismissals are often reached by mutual agreement of the parties. Termination is only valid if it is objectively reasonable and valid reasons include serious breach of duty, clear performance failure (with documentary evidence), structural redundancy or violation of clear internal policies.",
+          "notice_period": "After the first 14 days of employment, the law requires 30 days’ notice or pay in lieu unless there is proven serious misconduct. Although a contract may stipulate one month notice, the company must still have due cause to terminate.",
+          "severance_pay": "There are no statutory requirements for severance payments in Japan. Given the severe limitations on the employer’s right to terminate an employee, most employees are offered a severance payment in exchange for a waiver and voluntary resignation. Typically, employers resolve such cases with 2–4-months’ salary. However, this figure is on a case-by-case basis depending on seniority, tenure, and reasonableness of the worker.",
+          "probation_period": "The probation period in Japan for permanent employees is generally between 3 and 6 months."
+        },
+        "visa": {
+          "general_info": "Before arriving in Japan, foreign nationals who want to work in Japan need a work visa from their local Japanese embassy or consulate. There are many different statutes for residence visas allowing the holder to only work in the specified industry.\n\nIt is expected that a university degree or extensive professional experience in the specialist field is needed to qualify for a working visa, which usually requires an employer to sponsor.\n\nAll foreign workers need an ‘Individual Number’ for administrative procedures for social security, taxation, and disaster response."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Japan is 10.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Tokyo Tax Office",
+            "due_date": "Monthly; 10th of next month",
+            "method": "Pay-easy"
+          },
+          {
+            "authority_payment": "Local Ward Office",
+            "due_date": "Monthly; 10th of next month",
+            "method": "E-banking (local payment)"
+          },
+          {
+            "authority_payment": "Pension Office",
+            "due_date": "Monthly; last day of next month",
+            "method": "Pay-easy (local payment)"
+          },
+          {
+            "authority_payment": "Tokyo Labor Bureau",
+            "due_date": "Annually; 31st August (once a year).\n\nNormally the payment deadline is on July 10th",
+            "method": "Pay-easy (local payment)"
+          }
+        ]
+      }
+    }
+  ]
+}

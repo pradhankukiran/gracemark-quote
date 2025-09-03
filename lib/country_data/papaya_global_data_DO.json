@@ -1,0 +1,110 @@
+{
+  "scraped_at": "2025-08-24T18:01:34.692Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Dominican Republic",
+      "url": "https://www.papayaglobal.com/countrypedia/country/dominican-republic/",
+      "scraped_at": "2025-08-24T18:01:34.683Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "7.10%",
+              "description": "Pension and Disability (Maximum contribution 269,640.00 DOP)"
+            },
+            {
+              "rate": "7.09%",
+              "description": "Health Insurance (Maximum contribution 134,820.00 DOP) DOP)"
+            },
+            {
+              "rate": "1.20%",
+              "description": "Labor Risk (Maximum contribution 53,928.00 DOP)"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Instituto Nacional de Formación Técnico Profesional (INFOTEP)"
+            },
+            {
+              "rate": "16.39%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "2.87%",
+              "description": "Pension and Disability"
+            },
+            {
+              "rate": "3.04%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Technical Education (INFOTEP)"
+            },
+            {
+              "rate": "6.41",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "Up to 416,220.00 DOP"
+            },
+            {
+              "rate": "15.00%",
+              "description": "416,220.00 DOP – 624,329.00 DOP"
+            },
+            {
+              "rate": "20.00%",
+              "description": "624,329.00 DOP – 867,123.00 DOP"
+            },
+            {
+              "rate": "25.00%",
+              "description": "867,123.00 DOP and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The monthly minimum wage is based on the size of the company:\n25,116 DOP in large companies (more than 151 workers)\n23,023 DOP in medium-sized companies (51-151 workers)\n15,428 DOP in small companies (11-50 workers)\n14,232 DOP in micro-enterprises (up to ten employees)",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle is monthly or bi-weekly or semi-monthly.",
+          "13th_salary": "Workers are eligible for one additional monthly salary as a Christmas bonus, it must be paid before December 20th. It is exempt from income tax."
+        },
+        "working_hours": {
+          "general": "The standard workweek in the Dominican Republic consists of 44 hours per week or 8 hours per day.\nPart-time employees can’t work over 29 hours in a single week.",
+          "overtime": "Work in excess of the standard weekly working hours is considered overtime and is regulated by the employment contract or collective bargaining agreements.\nOvertime hours in excess of 44-68 hours per week are paid at the rate of 135% of the regular pay.\nOvertime above 68 hours per week is paid at the rate of 200% of the regular pay.\nOvertime hours during a night shift (9pm – 7am) are paid at the rate of 115% of regular pay.\nOvertime hours performed on a weekend or public holiday are paid at 200% of the employee’s regular pay rate.\nManagers are exempt from overtime pay (up to 50 overtime hours per week)."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Full-time employees who have been employed for at least one year are entitled to 14 working days paid annual leave. After five years of employment, this increases to 18 days.\nAnnual leave should be taken in periods of no less than 7 days.\nThe vacation accrual period is based on each worker’s start date, not on the specific calendar year.\nSalary for the vacation period must be paid in advance, no later than the day prior to the beginning of the vacation.\nUnused leave is generally not permitted to be carried over. All leave should be used within the allotted year.",
+          "public_holidays": "Public holidays falling on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n6 Jan 2025\tMonday\tDay of the Holy Kings\t\n21 Jan 2025\tTuesday\tAltagracia Day\t\n26 Jan 2025\tSunday\tDuarte Day\t\n27 Feb 2025\tThursday\tIndependence Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n5 May 2025\tMonday\tLabor Day\t\n19 Jun 2025\tThursday\tCorpus Christi\t\n16 Aug 2025\tSaturday\tRestoration Day\t\n24 Sep 2025\tWednesday\tDay of the Mercedes\t\n10 Nov 2025\tMonday\tConstitution Day\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "Employees can receive up to 26 weeks (182 days) of sick leave per year if they are unable to work due to illness or injury.\nDuring this period, compensation is given from the Social Security system, which typically covers 60% of their regular wage. To be eligible for these benefits, employees must have contributed to the Social Security system for at least 12 months.",
+          "maternity_leave": "Female employees are entitled to receive 14 weeks of paid maternity leave, generally split as seven weeks before the due date and seven weeks after. Maternity leave pay is shared equally between the Employer and Social Security.\nEmployers cannot terminate employees on the grounds of pregnancy, including for up to three months after they have given birth.\nMothers also have the right to a rest period of 20 minutes for each workday so they may breast feed.",
+          "paternity_leave": "Fathers are entitled to 2 days of paid paternity leave.",
+          "parental_leave": "Father can share the last 6 weeks of the mothers 18 weeks of maternity leave, provided there is mutual agreement between the parents.",
+          "other_leave": "Employees receive paid leave for:\nBereavement Leave – For the death of family member (including grandparents), 3 days leave is given.\nMarriage Leave – workers are entitled to 5 days leave in the event of their marriage."
+        },
+        "termination": {
+          "termination_process": "Termination can fall into the category of ‘termination with just cause’ or ‘termination without just cause’. Just cause includes incidents of serious misconduct or poor performance. When dismissal is just and can be proven by the employer, no severance payment is required. When a termination is made without just cause, severance is required to be paid.\nNotice must be given in writing.",
+          "notice_period": "The length of notice depends on the employee’s seniority:\nLess than 3 months of employment: No notice required\n3 to 6 months of employment: 7 days’ notice\n6 months-1 year of employment: 14 days’ notice\nOver 1 year of employment: 28 days’ notice",
+          "severance_pay": "Severance is required upon termination without just cause. Severance payments are calculated in accordance with the length of service as follows:\n3 to 6 months of employment: 6 days’ salary at the regular rate of pay\n6 months to 1 year of employment: 13 days’ salary at the regular rate of pay\n1 year to 5 years of employment: 21 days’ salary at the regular rate of pay\nOver 5 years of employment: 23 days’ salary at the regular rate of pay\nAll payments of severance pay must be made within ten days of notification of termination.\nSeverance does not need to be given if a worker resigns.",
+          "probation_period": "There is no formal trial period set out in law, however, during the first 3 months of employment the contract can be terminated without having to pay additional compensation."
+        },
+        "visa": {
+          "general_info": "Foreign nationals require a business visa to conduct business activities in the Dominican Republic. Business visas are either issued for 60 days for a single entry or multiple entries, valid for 1 year. The authorized period of stay is granted at the discretion of the admitting officer and corresponds to the duration of the activity, but typically does not exceed 30 consecutive days. Business visa holders may apply for an extension of stay, usually granted for a maximum of 30 additional days.\nForeign nationals who intend to work in the Dominican Republic require either a business visa for employment purposes for assignments of one year or less (issued by consular post with authorization from the Ministry of Foreign Affairs), or a Temporary Residence Permit for assignments exceeding one year.\n\nForeign nationals in the Dominican Republic generally are subject to fines for each month they remain in the country beyond the authorized period of stay of their residence permit."
+        },
+        "vat": {
+          "general": "18% standard rate."
+        }
+      }
+    }
+  ]
+}

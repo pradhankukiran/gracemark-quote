@@ -1,0 +1,102 @@
+{
+  "scraped_at": "2025-08-24T18:16:47.894Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Jamaica",
+      "url": "https://www.papayaglobal.com/countrypedia/country/jamaica/",
+      "scraped_at": "2025-08-24T18:16:47.887Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "3.00%",
+              "description": "National Insurance Scheme (NIS) (on maximum remuneration of 5 million JMD per year)"
+            },
+            {
+              "rate": "3.00%",
+              "description": "National Housing Trust (NHT)"
+            },
+            {
+              "rate": "3.50%",
+              "description": "Education Tax"
+            },
+            {
+              "rate": "3.00%",
+              "description": "Human Employment & Resources Training (HEART)"
+            },
+            {
+              "rate": "12.50%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "3.00%",
+              "description": "(on maximum remuneration of 5 million JMD per year) National Insurance Scheme (NIS)"
+            },
+            {
+              "rate": "2.00%",
+              "description": "National Housing Trust (NHT)"
+            },
+            {
+              "rate": "2.25%",
+              "description": "Education Tax"
+            },
+            {
+              "rate": "7.25%",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": [
+            {
+              "rate": "0.00%",
+              "description": "Up to 1,700,088 JMD"
+            },
+            {
+              "rate": "25.00%",
+              "description": "1,700,088 JMD to 6,000,000 JMD (applicable Jamaican residents)"
+            },
+            {
+              "rate": "30.00%",
+              "description": "Above 6,000,000 JMD"
+            }
+          ]
+        },
+        "minimum_wage": "The weekly minimum wage in Jamaica is JMD 375 per hour, JMD 15,000 JMD 60,000 per month (based on a 40  hour week).",
+        "payroll": {
+          "payroll_cycle": "Salaries are paid on either a monthly or semi-monthly basis.",
+          "13th_salary": "There is no statutory requirement for a 13th-month salary in Jamaica."
+        },
+        "working_hours": {
+          "general": "Full-time employment is considered 40 hours weekly and is generally eight hours per day.\nSeven days a week including Sunday, are now considered working days in Jamaica, with work shifts up to 12 hours in 24 hours.",
+          "overtime": "Overtime is defined as work exceeding 40 weekly hours, work on a rest day, or work on a holiday.\nAll work above 40 weekly hours must be paid at a rate of 150% salary. Work on Sundays and public holidays are paid at a rate of 200%."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are granted two weeks of paid leave per year. Three weeks of paid leave are given to employees with over ten years of continuous service.",
+          "public_holidays": "The government decides each year if public holidays falling on a weekend will be moved to a working day in lieu.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n5 Mar 2025\tWednesday\tAsh Wednesday\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n23 May 2025\tFriday\tLabour Day\t\n1 Aug 2025\tFriday\tEmancipation Day\t\n6 Aug 2025\tWednesday\tIndependence Day\t\n20 Oct 2025\tMonday\tNational Heroes’ Day\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day",
+          "sick_days": "Employees are granted two weeks (10 working days) of paid leave per year. Three weeks (15 working days) of paid leave is given to employees with over ten years of continuous service.",
+          "maternity_leave": "Pregnant employees are entitled to 12 weeks of maternity leave once one year of service has been completed.\nThe maternity pay is paid for a period of eight weeks at the regular salary rate.",
+          "paternity_leave": "Newborns’ biological fathers are allowed 20 paid workdays for paternity and adoption leave.\nThis benefit can be used three times in each government entity. It’s available to male employees, 18 or older, with at least a year of continuous service. The leave must be taken within six months of the child’s birth. For subsequent pregnancies, a gap of six months is required between leaves. The leave is also applicable in the unfortunate event of a stillbirth or if the infant passes away within six months of birth.",
+          "adoption_leave": "New adoptive parents are granted 20 paid workdays for paternity and adoption leave.\nThis benefit can be used three times in each government entity. It’s open to employees, 18 or older, with at least a year of continuous service. Adoption leave can be taken all at once or in two parts, as per the employee’s request. The application must be backed by documents from the Child Protection and Family Services Agency (CPFSA) or the courts. Adoption leave can be taken once a year, only after a child has been placed with the family."
+        },
+        "termination": {
+          "termination_process": "Employers can terminate a fix term contract by giving the following reasons – business, personal, or worker’s misconduct. It requires notice and a written explanation for the termination. If the reason is misconduct, a warning needs to be given and the employee gets a chance to explain actions.",
+          "notice_period": "The minimum amount of working notice or termination pay in lieu of notice required under Section 63 is determined by the length of employment as follows:\nUp to 5 years of employment entitles workers to 2 weeks’ notice\n5-10 years of service entitles workers to four weeks’ notice\n10-15 years of service entitles workers to 6 weeks’ notice\n15-20 years of service workers to 8 weeks’ notice\n20 + years of service workers to 12 weeks’ notice",
+          "severance_pay": "Severance pay is only required for cases of redundancy. Severance pay for redundancy is calculated at two weeks’ pay per year for the first ten years of service and after that, increases to three weeks’ pay per year.\nTo qualify for redundancy payment, the worker must be working at least 104 weeks or 2 calendar years continuously (uninterrupted service).",
+          "probation_period": "There is no statutory requirement for a probationary period in Jamacia. However, collective agreements generally stipulate a 3 to 6-month probation period."
+        },
+        "visa": {
+          "general_info": "Persons seeking to obtain a work permit are required to apply to the Work Permit Department of the Ministry of Labor and Social Security (MLSS) through their prospective employer, contractor, or legal representative.\n\nEmployers submitting work permit applications on behalf of prospective employees are required to submit a cover letter to the permanent secretary of the MLSS, outlining:\n\nThe reasons for the application\nThe duration of the work being undertaken\nAny efforts to recruit local persons to carry out the work stipulated\n\nApplications for work permits on behalf of self-employed persons must also be submitted with a cover letter outlining:\n\nThe nature and duration of the work stipulated\nCertified copies of the credentials of the applicant\nTwo (2) passport photographs\nThe individual’s resume\nThe individual’s police record\n\nA non-refundable processing fee of 14,400 JMD must be submitted with the application. If the MLSS approves the grant, the applicant must pay a work permit fee before the permit can be issued.\nThe duration of  work permit fees (JMD) are as follows:\nUp to 3 months  -      27,000 JMD\n3 – 6 months  - 54,000 JMD\n6 – 9 months  - 81,000 JMD\n9 – 12 months   -1 08,000 JMD\nThe turnaround time for the approval of a work permit is approximately 4 – 6 weeks."
+        },
+        "vat": {
+          "general": "The standard rate of GCT in Jamaica is 15%."
+        }
+      }
+    }
+  ]
+}

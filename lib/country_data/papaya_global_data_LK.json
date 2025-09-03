@@ -1,0 +1,105 @@
+{
+  "scraped_at": "2025-08-24T18:19:15.699Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Sri Lanka",
+      "url": "https://www.papayaglobal.com/countrypedia/country/sri-lanka/",
+      "scraped_at": "2025-08-24T18:19:15.690Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5.75%",
+              "description": "Social Security Family Allowance"
+            },
+            {
+              "rate": "2.00% – 5.00%",
+              "description": "Social Security (CNSS) Work Injury"
+            },
+            {
+              "rate": "12.00%",
+              "description": "Employees Provident Fund (EPF)"
+            },
+            {
+              "rate": "3.00%",
+              "description": "Employees Trust Fund"
+            },
+            {
+              "rate": "22.75% – 25.75%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "8.00%",
+              "description": "Employees Provident Fund (EPF)"
+            },
+            {
+              "rate": "8.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": "Monthly"
+            },
+            {
+              "rate": "0%",
+              "description": "First 150, 000 LKR of gross salary"
+            },
+            {
+              "rate": "6.00%",
+              "description": "LKR 150,001- LKR 233,333"
+            },
+            {
+              "rate": "18.00%",
+              "description": "LKR 233,334- LKR 275,000"
+            },
+            {
+              "rate": "24.00%",
+              "description": "LKR 275,001-LKR 316,667"
+            },
+            {
+              "rate": "36.00%",
+              "description": "Above LKR 316,668"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage in Sri Lanka is 21,000 LKR per month. In April 2025 it is expected to rise to LKR 27,000 per month.",
+        "payroll": {
+          "payroll_cycle": "The typical payroll cycle in Sri Lanka can be daily, weekly, fortnightly, or on a monthly basis.",
+          "13th_salary": "There is no statutory requirement to provide a 13th salary."
+        },
+        "working_hours": {
+          "general": "Standard working hours within Sri Lanka are 8 hours per day, 45 hours per week\nThere are some industry-specific regulations, for example, according to Section 73 of the Factories Ordinance, a young person shall not be employed in a factory on a Sunday.",
+          "overtime": "Overtime is paid at 150.00% of the standard salary rate. A maximum of 12 overtime hours can be worked in a week. Executive/professional positions might be exempt from overtime restrictions."
+        },
+        "leave": {
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n13 Jan 2025\tMonday\tDuruthu Full Moon Poya Day\t\n14 Jan 2025\tTuesday\tTamil Thai Pongal Day\t\n4 Feb 2025\tTuesday\tNational Day\t\n12 Feb 2025\tWednesday\tNavam Full Moon Poya Day\t\n26 Feb 2025\tWednesday\tMahasivarathri Day\t\n13 Mar 2025\tThursday\tMadin Full Moon Poya Day\t\n31 Mar 2025\tMonday\tId Ul-Fitr\t\n12 Apr 2025\tSaturday\tBak Full Moon Poya Day\t\n13 Apr 2025\tSunday\tDay prior to Sinhala & Tamil New Year Day\t\n14 Apr 2025\tMonday\tSinhala & Tamil New Year Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n1 May 2025\tThursday\tMay Day\t\n12 May 2025\tMonday\tVesak Full Moon Poya Day\t\n13 May 2025\tTuesday\tDay following Vesak Full Moon Poya Day\t\n7 Jun 2025\tSaturday\tId Ul-Alha\t\n10 Jun 2025\tTuesday\tPoson Full Moon Poya Day\t\n10 Jul 2025\tThursday\tEsala Full Moon Poya Day\t\n8 Aug 2025\tFriday\tNikini Full Moon Poya Day\t\n5 Sep 2025\tFriday\tMilad un-Nabi\t\n7 Sep 2025\tSunday\tBinara Full Moon Poya Day\t\n6 Oct 2025\tMonday\tVap Full Moon Poya Day\t\n20 Oct 2025\tMonday\tDeepavali\t\n5 Nov 2025\tWednesday\tIll Full Moon Poya Day\t\n4 Dec 2025\tThursday\tUnduvap Full Moon Poya Day\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "In all cases, sick leave applications must be supported by a medical certificate issued by a registered medical practitioner. In general, an employee who has completed a year of continuous service in the public or private sector is entitled to 100% paid sick leave of no more than seven days per year.",
+          "maternity_leave": "All female employees are entitled to a maternity leave of 12 weeks (84 days) excluding weekly holidays, Poya days, and statutory holidays for the birth of the first and second children. This is based on 14 days prior to the birth and 70 days after the birth. This is reduced to 6 weeks (42 days) for the third and any subsequent children, based on 14 days prior to the birth and 28 days after the birth.",
+          "paternity_leave": "The father is entitled to mandatory paid paternity leave of a total of 3 days for the state sector only and the leave must be taken within 3 months of the birth.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "In Sri Lanka an employee can be granted duty leave to:\nTake part in the reserve list of a volunteer unit of the armed forces\nAttend exams for language proficiency\nAttend medical examinations\nVote for elections"
+        },
+        "termination": {
+          "termination_process": "Employers can terminate a fix-term contract by giving the following reasons – business, personal, or employees misconduct. It requires notice and a written explanation for the termination.\nEmployers are required to pay a half month’s salary for each year of completion if the employee’s service period exceeds five years at the time of retirement, resignation, or retrenchment.\nConcessionary tax rates apply to sums paid to an employee on cessation of employment when the scheme is uniformly applicable to all employees by way of compensation, commuted pension, retirement gratuity, and contributions to the Employees’ Trust Fund. Accumulated employer’s contribution to an approved or regulated provident fund when withdrawn, is exempt from tax.",
+          "notice_period": "The minimum statutory notice period is determined within the job role and respective contract/agreement, however, general notice periods are for a maximum of six months.",
+          "severance_pay": "Employers are required to pay a half month’s salary for each year of completion if the employee’s service exceeds 5 years at the time of retirement, resignation, or dismissal.",
+          "probation_period": "There is no clear provision in labor laws on the duration of the probation period in Sri Lanka. Generally, the probation period is six months, however, it cannot be for longer than one year for senior employees or six months for other employees (in some cases the maximum limit on a probationary period is three months)."
+        },
+        "visa": {
+          "general_info": "All foreign nationals must obtain visas to enter Sri Lanka. Foreign nationals intending to work in Sri Lanka should obtain residence visas and work permits. Residence visas are issued for one year and renewable annually. Applicants for residence visas should obtain entry permits from Sri Lankan missions in their home countries and submit applications within one month after arrival in Sri Lanka under entry visas. The approval of the relevant ministry that governs a particular activity or the BOI, as applicable, is critical in obtaining a residence visa.\n\nEmployers are responsible for applying for residence visas for expatriate staff. The Resident Guest Scheme is open to any foreign investor or foreign professional who wishes to contribute to the economic and sociocultural enrichment of Sri Lanka. Five-year visas are issued to individuals qualifying under the scheme. Individuals applying for visas under the Resident Guest Scheme must undergo a medical examination prior to the visas’ confirmation."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Sri Lanka is 8% (with a current proposal to increase to 12%)."
+        }
+      }
+    }
+  ]
+}

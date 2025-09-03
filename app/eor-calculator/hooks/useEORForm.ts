@@ -68,8 +68,58 @@ const initialValidationErrors: ValidationErrors = {
   days: null,
 }
 
+const EOR_FORM_STORAGE_KEY = "eor-calculator-form-data"
+const STORAGE_EXPIRY_HOURS = 24
+
 export const useEORForm = () => {
-  const [formData, setFormData] = useState<EORFormData>(initialFormData)
+  // Initialize formData with localStorage
+  const [formData, setFormData] = useState<EORFormData>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem(EOR_FORM_STORAGE_KEY)
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          // Basic expiry check (24 hours)
+          if (parsed.timestamp && Date.now() - parsed.timestamp < STORAGE_EXPIRY_HOURS * 60 * 60 * 1000) {
+            return parsed.data
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to load EOR form data:', error)
+        // Clear corrupted data
+        localStorage.removeItem(EOR_FORM_STORAGE_KEY)
+      }
+    }
+    return initialFormData
+  })
+  
+  // Ensure persisted data is also loaded post-mount (avoids SSR hydration pitfalls)
+  useEffect(() => {
+    try {
+      const saved = typeof window !== 'undefined' ? localStorage.getItem(EOR_FORM_STORAGE_KEY) : null
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (parsed?.timestamp && Date.now() - parsed.timestamp < STORAGE_EXPIRY_HOURS * 60 * 60 * 1000) {
+          // Only update if it looks like a valid object with basic expected keys
+          if (parsed.data && typeof parsed.data === 'object') {
+            setFormData((prev) => {
+              // Avoid needless rerender if same reference/shape
+              try {
+                const prevJson = JSON.stringify(prev)
+                const nextJson = JSON.stringify(parsed.data)
+                return prevJson === nextJson ? prev : parsed.data
+              } catch {
+                return parsed.data
+              }
+            })
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Post-mount EOR form load failed:', error)
+    }
+  }, [])
+  
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(initialValidationErrors)
   const [currency, setCurrency] = useState("")
   const [clientCurrency, setClientCurrency] = useState("")
@@ -95,6 +145,21 @@ export const useEORForm = () => {
   )
   const compareAvailableStates = compareCountryData ? getStatesForCountry(compareCountryData.code) : []
   const showCompareStateDropdown = compareCountryData && hasStates(compareCountryData.code)
+
+  // Auto-save to localStorage whenever formData changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const dataToSave = {
+          data: formData,
+          timestamp: Date.now()
+        }
+        localStorage.setItem(EOR_FORM_STORAGE_KEY, JSON.stringify(dataToSave))
+      } catch (error) {
+        console.warn('Failed to save EOR form data:', error)
+      }
+    }
+  }, [formData])
 
   // Auto-update currency and local office data when country changes
   useEffect(() => {
@@ -160,10 +225,21 @@ export const useEORForm = () => {
     setValidationErrors(initialValidationErrors)
   }, [])
 
+  const clearStoredData = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem(EOR_FORM_STORAGE_KEY)
+      } catch (error) {
+        console.warn('Failed to clear stored EOR form data:', error)
+      }
+    }
+  }, [])
+
   const clearAllData = useCallback(() => {
     setFormData(initialFormData)
     setValidationErrors(initialValidationErrors)
-  }, [])
+    clearStoredData()
+  }, [clearStoredData])
 
   const updateBenefitSelection = useCallback((benefitType: string, benefitData: SelectedBenefit | undefined) => {
     setFormData((prev) => ({
@@ -320,6 +396,7 @@ export const useEORForm = () => {
     updateValidationError,
     clearValidationErrors,
     clearAllData,
+    clearStoredData,
     isFormValid,
     updateBenefitSelection,
     clearBenefitsSelection,

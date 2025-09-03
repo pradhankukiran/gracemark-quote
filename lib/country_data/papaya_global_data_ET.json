@@ -1,0 +1,114 @@
+{
+  "scraped_at": "2025-08-24T18:04:18.193Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Ethiopia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/ethiopia/",
+      "scraped_at": "2025-08-24T18:04:18.183Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "11.00%",
+              "description": "Public/Private Sector Pension Fund\n(contributions are only required for local workers)"
+            },
+            {
+              "rate": "11.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "7.00%",
+              "description": "Public/Private Sector Pension Fund or Military and Police Service Pension Fund"
+            },
+            {
+              "rate": "7.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "Up to 600 ETB"
+            },
+            {
+              "rate": "10.00%",
+              "description": "601 ETB – 1,650 ETB"
+            },
+            {
+              "rate": "15.00%",
+              "description": "1,651 ETB – 3,200 ETB"
+            },
+            {
+              "rate": "20.00%",
+              "description": "3,201 ETB – 5,250 ETB"
+            },
+            {
+              "rate": "25.00%",
+              "description": "5,251 ETB – 7,800 ETB"
+            },
+            {
+              "rate": "30.00%",
+              "description": "7,801 ETB – 10,900 ETB"
+            },
+            {
+              "rate": "35.00%",
+              "description": "10,901 ETB and above"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "There is no national minimum wage in Ethiopia, however for the public sector there is a recommended 420 ETB per month.",
+        "payroll": {
+          "payroll_cycle": "The typical payroll cycle in Ethiopia is a monthly basis.",
+          "13th_salary": "There is no statutory requirement to provide a 13th salary, however bonuses are common in Ethiopia."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Ethiopian Revenues and Customs Authoirity",
+            "due_date": "25th of the following month",
+            "method": "Bank transfer"
+          },
+          {
+            "authority_payment": "Ethiopian Revenues and Customs Authoirity Taxes",
+            "due_date": "25th of the following month",
+            "method": "Bank transfer"
+          }
+        ],
+        "working_hours": {
+          "general": "The standard workweek in Ethiopia consists of 8 hours per day and 48 hours maximum per week.\nThe Ethiopian government introduced Public Servants’ Pension (Amendment) Proclamation 907/2015. This was in contrast to Proclamation 714/2011, which defines a public servant as a ‘monthly salaried person employed permanently or for a definite period or piece of work in a public office, public enterprise, or project or program carried out by government’ (Proclamation 907/2015: 8287). The main purpose of the Amendment was to recognize temporary government employees (those employed for at least 45 days) as public servants.",
+          "overtime": "All work exceeding the standard working hours a week is to be paid as overtime and is regulated by a collective labor convention/agreement. Overtime is only permissible for a maximum of:\n2 hours in any one day\n20 hours in any one month\n100 hours in any one year\nEmployers compensate the employees for overtime as follows:\nOvertime is paid at 125% of the basic salary rate unless the overtime takes place between 10 p.m. and 6 a.m. when it is 150%\nWeekend overtime is paid at 200% of the basic salary rate\nOvertime worked on a public holiday is paid at a rate of 250%"
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to a minimum of 16 working days of paid annual leave following the completion of one year of service. The number of days increases by 1 additional day per year for every two years’ service thereafter.\nUpon request, unused leave can be carried over for a period of up to 2 years.",
+          "public_holidays": "Certain religious holidays are determined by the lunar cycle and will show as tentative until the exact date is confirmed nearer the holiday.\nDate\tDay\tHoliday\tNotes\n7 Jan 2025\tTuesday\tEthiopian Christmas Day\t\n19 Jan 2025\tSunday\tTimket\t\n2 Mar 2025\tSunday\tAdwa Victory Day\t\n31 Mar 2025\tMonday\tEid al-Fitr\t\n1 Apr 2025\tTuesday\tEid al-Fitr\t\n2 Apr 2025\tWednesday\tEid al-Fitr\t\n18 Apr 2025\tFriday\tEthiopian Good Friday (Siklet)\t\n31 May 2025\tThursday\tInternational Labor Day\t\n5 May 2025\tMonday\tPatriots’ Day\t\n28 May 2025\tWednesday\tDerg Downfall Day\t\n7 Jun 2025\tSaturday\tEid al-Adha\tTentative\n5 Sep 2025\tFriday\tThe Prophet’s Birthday\t\n11 Sep 2025\tThursday\tEthiopian New Year\t\n27 Sep 2025\tSaturday\tMeskel",
+          "sick_days": "An employee is entitled to up to six months of sickness absence per year, with the first month paid at 100% of the regular pay, the second and third months at 50% of the regular salary rate, and the remaining three months unpaid.\nA medical certificate should be provided for sick leave above 1 to 3 days.",
+          "maternity_leave": "Female employees are entitled to 120 working days of paid maternity leave in Ethiopia, with no less than 30 consecutive days of leave prior to the due date and 60 days following the birth.\nMaternity confirmation certificates must be provided before any maternity leave can commence.",
+          "paternity_leave": "A father is entitled to paid paternity leave of up to three working days.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "Marriage Leave – Employees are entitled to 3 days of paid leave in the event of their marriage\nSpecial Leave – Employees are entitled to 5 days unpaid leave for exceptional circumstances e.g. bereavement"
+        },
+        "termination": {
+          "termination_process": "The contract of employment may not be terminated in the absence of a justified reason. Justified grounds for termination include the expiration of the agreed period of employment, completion of the specified task, insolvency of the employer, if the worker becomes partially or permanently unable to perform his or her contractual obligations, or by mutual agreement.",
+          "notice_period": "The statutory notice period given by the employer must be:\nOne month for an employee who has completed the probation period and has a period of service not exceeding one year.\nTwo months for an employee who has a period of service above one year but fewer than nine years.\nThree months for an employee who has a period of service of more than nine years.\nTwo months for an employee who has completed the probation period and whose contract of employment is terminated due to a reduction of workforce.\nNo notice is required during the probation period.\nWorkers can generally terminate the contract of employment giving prior notice of 15 days).",
+          "severance_pay": "The amount of severance pay depends on the length of service and is payable at the following rates:\n30 days at the regular salary rate for one year of service (pro-rated)\n10 days at the regular salary rate for every additional year of service after the first year (however, the total severance pay must not exceed 12 months’ wages)\nIn addition to the above, 60 days at the regular salary rate are paid in cases of termination on grounds of redundancy.",
+          "probation_period": "Probationary periods are 60 working days."
+        },
+        "visa": {
+          "general_info": "A foreign national must have a work permit to undertake any type of work in Ethiopia. A work permit for employees of foreign investors is issued for a specific type of work by the Ethiopian Investment Commission (EIC). The work permit is subject to renewal every year. One of the grounds considered by the EIC in determining whether to grant a work permit or to renew the same is the unavailability of the workforce locally having the required skill and experience for the position.\n\nResidence permits are issued by the Ethiopian Immigration, Nationality and Vital Events Agents. A work permit is one of the mandatory requirements for applying to get a temporary residence permit. Residence permits are typically issued within two business days after the application is submitted and can take up to five days in exceptional cases."
+        },
+        "vat": {
+          "general": "The Standard rate of VAT in Ethiopia is 15%."
+        }
+      }
+    }
+  ]
+}

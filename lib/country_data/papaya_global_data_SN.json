@@ -1,0 +1,126 @@
+{
+  "scraped_at": "2025-08-24T18:45:57.110Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Senegal",
+      "url": "https://www.papayaglobal.com/countrypedia/country/senegal/",
+      "scraped_at": "2025-08-24T18:45:57.100Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "7.00%",
+              "description": "Social Security (CSS) – Family allowance: monthly salary cap set at 63,000 XOF per month"
+            },
+            {
+              "rate": "1% – 5%",
+              "description": "Social Security (CSS):  Work Injury & Disability: depending on the type of activity and level of risk with a monthly salary cap set at 63,000 XOF"
+            },
+            {
+              "rate": "2% – 7.50%",
+              "description": "Social Security (CSS) – Health Contribution: between 2% and 7.5% with a monthly salary cap set at 250,000 XOF"
+            },
+            {
+              "rate": "8.4% – 12.00%",
+              "description": "Pension Contribution – with a monthly salary cap set at 432,000 XOF and an additional rate of 3.6% for executives with a monthly salary cap set at 1,296,000 XOF"
+            },
+            {
+              "rate": "6.00%",
+              "description": "Medical Coverage: generally, the employee is reimbursed for 80% of medical expenses even though the law provides a range between 50% and 80%.  The monthly rate is 6% to be levied on a contribution rate between 60,000 XOF and 250,000 XOF."
+            },
+            {
+              "rate": "18.40% – 31.50%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "2% – 7.50%",
+              "description": "Social Security (CSS) – Health contribution: between 2% and 7.5%, with a monthly salary cap set at 250 000 XOF"
+            },
+            {
+              "rate": "5.6% – 9.00%",
+              "description": "Pension Contribution: with a monthly salary cap set at 432,000 XOF and an additional rate of 2.4% for executives with a monthly salary cap set at 1,296,000 XOF"
+            },
+            {
+              "rate": "6.00%",
+              "description": "Medical Coverage: generally, the employee is reimbursed for 80% of medical expenses, even though the law provides a range between 50% and 80%.  The monthly rate is 6% to be levied on a contribution rate between 60,000 XOF and 250,000 XOF."
+            },
+            {
+              "rate": "8.00% – 13.50%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "Up to 630,000 XOF"
+            },
+            {
+              "rate": "20.00%",
+              "description": "630,000 XOF – 1,500,000 XOF"
+            },
+            {
+              "rate": "30.00%",
+              "description": "1,500,001 XOF – 4,000,000 XOF"
+            },
+            {
+              "rate": "35.00%",
+              "description": "4,000,001 XOF – 8,000,000 XOF"
+            },
+            {
+              "rate": "37.00%",
+              "description": "8,000,001 XOF – 13,500,000 XOF"
+            },
+            {
+              "rate": "40.00%",
+              "description": "13,500,001 XOF – 50,000.00 XOF"
+            },
+            {
+              "rate": "43.00%",
+              "description": "50,000,001 XOF and above"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum daily wage for full-time employees in Senegal is 370.52 XOF per hour for general employees with a lower minimum wage of 236.86 XOF per hour for employees within the agricultural industry.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Senegal can be either hourly, daily, weekly, or monthly, with all payments made within 8 days.",
+          "13th_salary": "The 13th Salary in Senegal is customary and generally paid at the end of the year."
+        },
+        "working_hours": {
+          "general": "The standard work week consists of 40 hours over a maximum of 6 days per week.",
+          "overtime": "All work exceeding the standard working hours per week is to be paid as overtime and is regulated by the employment contract/collective agreements. When an employee is requested to work overtime or work on holidays, there is a maximum number of hours allowed, being 100 hours per year. The overtime pay is calculated by multiplying the hourly salary by the following rate:\nDay Hours – Overtime is paid at 110% of the employee’s standard hourly rate for the first eight hours and 135% for additional hours.\nNight Hours – Night work (between 10 p.m. and 5 a.m.) is paid at 150% of the employee’s basic hourly rate or 200% for night work on Sundays or holidays. Night work (between 10 p.m. and 5 a.m.) is paid at 150% of the employee’s basic hourly rate or 200% for night work on Sundays or holidays.\nWeekends or public holidays – The rate for work during the day on a weekend or holiday is 150% of the employee’s standard hourly rate."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to 24 working days of paid annual leave.",
+          "public_holidays": "Public holidays falling on weekends are usually lost unless decreed otherwise by the local government.\nReligious holidays are determined by the lunar cycle and will show as tentative until they are confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n30 Mar 2025\tSunday\tEid al-Fitr\t\n31 Mar 2025\tMonday\tEid al-Fitr Holiday\t\n4 Apr 2025\tFriday\tIndependence Day\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n29 May 2025\tThursday\tAscension Day\t\n6 Jun 2025\tFriday\tTabaski\t\n9 Jun 2025\tMonday\tWhit Monday\t\n5 Jul 2025\tSaturday\tAshura\tTentative\n12 Aug 2025\tTuesday\tMagal de Touba\t\n15 Aug 2025\tFriday\tAssumption Day\t\n4 Sep 2025\tThursday\tProphet Muhammad’s Birthday\tTentative\n1 Nov 2025\tSaturday\tAll Saints’ Day\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "Employees who have completed six months of service within an organization are entitled to five days of paid sickness per year.",
+          "maternity_leave": "Employees are entitled to 14 weeks of 100% paid maternity leave compensated by Senegal’s Social Security/government. Maternity leave can begin six weeks before the expected due date and lasts for eight weeks following the birth.",
+          "paternity_leave": "Fathers are entitled to one day of paid paternity leave for the birth of a child if they are covered by the interprofessional collective agreement.",
+          "parental_leave": "There is no other parental leave in Senegal.",
+          "other_leave": "There is no other leave in Senegal."
+        },
+        "termination": {
+          "termination_process": "Employers can terminate a fix term contract by giving the following reasons – business, personal, or workers misconduct. It requires notice and a written explanation for the termination. If the reason is misconduct, a warning needs to be given and the employee gets a chance to explain actions.",
+          "notice_period": "The statutory notice period is dependent upon the job role and industry.\nEmployers may terminate employees for just cause with eight days to one month notice depending on the length of service for white-collar workers, blue-collar workers, and permanent hourly, daily, or weekly employees. Three months written notice is given to executives.\nEmployees can terminate a contract with 15 days’ written notice, although technicians and supervisors must provide two months notice.",
+          "severance_pay": "Severance pay is 25-40% of the average wages over the past 12 months for each year of service depending on the length of service and the collective bargaining agreement.",
+          "probation_period": "Typically, the probation period is three months for executives and 1 month for non-executives."
+        },
+        "visa": {
+          "general_info": "Work permits are required for foreign individuals wishing to take up employment and residence in Senegal. The type of required work permit depends on the employee’s qualifications and duration of work.\n\nVisas are compulsory for all foreign nationals traveling to Senegal, except nationals from ECOWAS, Mauritania, and Morocco."
+        },
+        "vat": {
+          "general": "The Standard rate of VAT in Senegal is 18%."
+        }
+      }
+    }
+  ]
+}

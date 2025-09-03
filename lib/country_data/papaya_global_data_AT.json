@@ -1,0 +1,183 @@
+{
+  "scraped_at": "2025-08-24T17:22:45.788Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Austria",
+      "url": "https://www.papayaglobal.com/countrypedia/country/austria/",
+      "scraped_at": "2025-08-24T17:22:45.772Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "3.78%",
+              "description": "Health Insurance, a maximum contribution threshold applies at 6,450 EUR per month."
+            },
+            {
+              "rate": "1.10%",
+              "description": "Accident Insurance, a maximum contribution threshold applies at 6,450 EUR per month."
+            },
+            {
+              "rate": "12.55%",
+              "description": "Old-Age Pension Insurance, a maximum contribution threshold applies at 6,450 EUR per month."
+            },
+            {
+              "rate": "2.95%",
+              "description": "Unemployment Insurance, a maximum contribution threshold applies at 6,450 EUR per month."
+            },
+            {
+              "rate": "0.55%",
+              "description": "Insolvency Guarantee Funds Contribution, a maximum contribution threshold applies at 6,450 EUR per month."
+            },
+            {
+              "rate": "3.90%",
+              "description": "Family Burdens Equalization Levy, a maximum contribution threshold applies at 6,450 EUR per month."
+            },
+            {
+              "rate": "3.00%",
+              "description": "Municipal tax"
+            },
+            {
+              "rate": "0.34% to 0.42% (Varies by province)",
+              "description": "Chamber of Commerce"
+            },
+            {
+              "rate": "1.53%",
+              "description": "Austrian law contribution to the mandatory employee severance fund"
+            },
+            {
+              "rate": "29.70% – 29.78%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "3.87%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "10.25%",
+              "description": "Old-Age Pension Insurance"
+            },
+            {
+              "rate": "2.95%",
+              "description": "Unemployment Insurance"
+            },
+            {
+              "rate": "17.07%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "Up to 13,308 EUR annually"
+            },
+            {
+              "rate": "20.00%",
+              "description": "13,309 EUR – 21,617 EUR annually"
+            },
+            {
+              "rate": "30.00%",
+              "description": "21,6178 EUR – 35,836 EUR annually"
+            },
+            {
+              "rate": "40.00%",
+              "description": "35,837 EUR – 69,166 EUR annually"
+            },
+            {
+              "rate": "48.00%",
+              "description": "69,167 EUR – 103,072 EUR annually"
+            },
+            {
+              "rate": "50.00%",
+              "description": "103,073 EUR-1,000,000 EUR annually"
+            },
+            {
+              "rate": "55.00%",
+              "description": "Over 1,000,000 EUR annually"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "Austria does not have a statutory minimum wage. However, the Austrian law against wage and social dumping (Lohnund Sozialdumping-Bekämpfungsgesetz) regulates that similar wage conditions must apply to those working in Austria in the same branch. This is currently 1,700 EUR per month for a full-time employee.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle is monthly and the employer must pay wages by the last working day of each month unless stipulated otherwise in a collective bargaining agreement or employment contract.",
+          "13th_salary": "It is customary to pay 13th and 14th salaries in Austria. The annual salary is paid in 14 equal payments. The 13th and 14th payments are paid out in June and November."
+        },
+        "working_hours": {
+          "general": "Working hours are regulated by the Austrian Working Hours Act, the Working Hours Rest Act, and collective bargaining agreements. The standard workweek is eight hours per day and 38.5 or 40 hours per week, depending on the collective bargaining agreement in place, with a maximum of 12 hours per day (including overtime). In addition, the average weekly working hours must not exceed 48 hours for 17 consecutive weeks.",
+          "overtime": "Work in excess of 40 hours per week is paid at the rate of 150% of the regular pay. On Sundays & public holidays employees will be compensated at a rate of 200% salary. Overtime can also be given as time off in lieu at a ratio of 1 to 1.5 days.\nOvertime can be included in the gross salary. However, collective bargaining agreements often present higher figures for overtime payment or time off in lieu."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The statutory holiday entitlement in Austria is five weeks (25 working days) per year for an employee who has completed six months of employment. Employees with less than six months of service accrue two working days per month. Once an employee completes 25 years or longer for the same employer, the entitlement increases to six weeks (30 working days).\nUp to 12 years of prior employment in other jobs and periods of education can also be credited to an employee, whereby the required number of years of service with the same employer is reduced to 13 years. There can also be deviations from this rule in different collective agreements. Employees accrue leave based on the service commencement date. Unused leave can be carried over to the following year.",
+          "public_holidays": "Public Holidays falling on weekends are usually lost.\nDate\tDay\tHoliday\tNote\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n6 Jan 2025\tMonday\tEpiphany\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n29 May 2025\tThursday\tAscension Day\t\n9 Jun 2025\tMonday\tWhit Monday\t\n19 Jun 2025\tThursday\tCorpus Christi\t\n15 Aug 2025\tFriday\tAssumption Day\t\n26 Oct 2025\tSunday\tNational Day\t\n1 Nov 2025\tSaturday\tAll Saints’ Day\t\n8 Dec 2025\tMonday\tImmaculate Conception\t\n24 Dec 2025\tWednesday\tChristmas Eve\tHalf Day (Afternoon Off)\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tSt Stephen’s Day\t\n31 Dec 2025\tWednesday\tNew Year’s Eve\tHalf Day (Afternoon Off)",
+          "sick_days": "Sick leave entitlement varies based on the length of employment:\nOne year of employment: Six weeks at full pay and four weeks at half pay covered by the employer\nTwo-15 years of employment: Eight weeks at full pay and four weeks at half pay covered by the employer\n16-25 years of employment: 10 weeks and four weeks at half pay covered by the employer\n26+ years of employment: 12 weeks and four weeks at half pay covered by the employer\nAny sick leave beyond the above entitlement is covered by social security.\nA medical certificate must be provided.",
+          "maternity_leave": "Maternity leave in Austria is 16 weeks. Expectant mothers are prohibited from working eight weeks before the child’s expected due date and for eight weeks (12 weeks in the case of a Caesarean section or high-risk delivery) after the child’s birth.\nMaternity leave is paid by a weekly allowance through the Social Security provider. This allowance is based on the average earnings of the last three months before the maternity leave began. After 16 weeks, the mother is entitled to unpaid maternity leave until the child is two-years-old (during this period, the mother receives childcare pay under the Child Care Payment Act).",
+          "paternity_leave": "Fathers are entitled to one month of unpaid paternity leave which may begin any time after the child’s birth up until the child turns two. This month of leave is often referred to as ‘Daddy Month.’ The new father must notify his employer three months before the estimated date of birth to be granted this leave.",
+          "parental_leave": "In Austria, parental leave starts when maternity leave finishes.\nParents can take parental leave until the child reaches the age of 24 months and are entitled to payment under the Child Care Payment Act from social security during their parental leave.\nFathers can share maternity leave with mothers. They can switch ‘leave periods’ between the two parents twice throughout the parental leave period, although these must be at least two months apart. Mother and father are prohibited from taking parental leave at the same time.",
+          "other_leave": "There are various additional leave periods to which employees are entitled:\nTwo weeks of paid leave to care for a sick child under the age of 12\nAn employee can also request up to six months of unpaid leave to care for an immediate family member\nOne to three days paid leave for marriage or bereavement (the exact days leave will be outlined in the employee’s collective bargaining agreement or employment contract)"
+        },
+        "termination": {
+          "termination_process": "Upon termination of employment and depending on the reason for termination, the employee may be entitled to severance pay. Austria has two schemes linked to the employment contract start date.\nFor all employees who started their employment after 01.01.2003, they are in the “Abfertigung neu” severance new system. This means that, instead of paying a severance payment at the end of employment, companies regularly pay into a company pension fund (Betriebliche Vorsorgekassa) and thus save the severance pay contributions for their employees.\nAfter at least 3 years of payment from the company pension fund, no matter where the employee was working, the EE can request payment of the severance pay from the company pension fund in these cases:\nThe employer terminates the employment relationship\nThe employment relationship ends due to expiry of the notice period\nEmployee and their employer terminate the employment relationship by mutual agreement\nEmployees are dismissed through no fault of their own\nEmployees resign with good cause\nEmployees resign during part-time parental leave, i.e. during part-time employment under the Maternity Protection Act or the Paternity Leave Act",
+          "notice_period": "The notice period varies based on the length of employment:\nUp to 2 years of employment: 6 weeks’ notice\n2-5 years of employment: 2 months’ notice\n5-15 years of employment: 3 months’ notice\n15-25 years of employment: 4 months’ notice\n25+ years of employment: 5 months’ notice\nThe notice period can be increased by up to six months subject to a contractual agreement as long as it is the same notice period for both employee and employer.",
+          "severance_pay": "Two systems of statutory severance pay exist in Austria. One applies to employment contracts commenced before January 1, 2003 (old severance pay). The other system is applicable for employees with a starting date after January 1, 2003 (new severance pay).\nThe difference between the two systems is that within the old regime of statutory severance pay, the employee has a direct claim against the employer unless an employee terminates the employment relationship or is dismissed for cause. Within the new severance pay, every month during employment, the employer is obliged to pay 1.53% of the gross salary to an external company pension fund (Betriebliche Vorsorgekasse). The employee then has a severance right against that fund, but there is no additional severance payable by the employer.",
+          "probation_period": "The standard probation period in Austria must not exceed one month, except for apprenticeships whose probation period is typically three months."
+        },
+        "common_benefits": [
+          "Meal vouchers, approximately 50 – 100 EUR per month",
+          "Gym/wellness 50 – 100 EUR per month",
+          "Transportation allowance approximately 30 EUR per month",
+          "Private health insurance approximately 50-100 EUR per month",
+          "Private pension 10% of the annual salary",
+          "Additional leave, five extras days for a total of 30 days",
+          "Home office/Teleworking allowance, approximately 300 EUR per year (Home allowance is Tax-free)."
+        ],
+        "visa": {
+          "visa": "Non-EU/EEA/Swiss citizens must apply for a Schengen visa to enter Austria. In contrast, citizens from the European Union (EU), European Economic Area (EEA), or Switzerland can work in Austria without a visa for up to 90 days as Austria is part of the Schengen Area of Europe.\nLonger-term visas, work permits, and residence permits are approved based on a point criteria system.\nIn summary, the type of work visa one needs depends on the length of stay and the applicant’s qualifications.\nFor example, as a highly qualified worker from a third country:\nAn applicant must reach a minimum of 70 points according to the list of criteria as a prerequisite in both cases.\nAlternatively, as a third-country citizen, one may be granted an EU Blue Card (for which there is no link to the points system), if one:\nHas completed a course of study at a university or other tertiary educational institution with a minimum duration of three years\nHas received a binding job offer for at least one year in Austria, and the employment corresponds to the applicant’s education\nWill earn a gross annual income of at least one and a half times the average yearly gross income of full-time employees\nIs qualified for the position and the labor market test (Arbeitsmarktprüfung) shows no equally qualified worker registered as a job seeker with the Public Employment Service (AMS) available for the job\nIndividuals who are not EEA citizens or Swiss nationals may apply for a Red-White-Red Card (combined residence and work permit) as skilled workers in a shortage occupation, valid for 24 months if they can:\nProvide proof of completed training in a shortage occupation under the regulation\nShow evidence of a binding job offer in Austria and the prospective employer is willing to pay the minimum stipulated by law, regulation, or collective agreement.\nReach a minimum of 55 points\nOnce the initial term with the Red-White-Red or EU Blue Card has been completed (or is due to be completed), one may apply for a Red-White-Red Card Plus. The Red-White-Red Card entitles you as a non-EEA citizen or Swiss national to a fixed-term settlement and unlimited labor market access (as a self-employed or an employed person, not limited to a specific employer)."
+        },
+        "vat": {
+          "general": "The standard VAT rate in Austria is 20%.\nA reduced rate of 13% and 10% is applied to some products, reduced rates are applied to services. Products with a reduced rate include for example, solid mineral fuel, heating oil, and gas oil."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Graz taxes",
+            "paid_to": "FA Graz-Stadt",
+            "due_date": "Monthly, by the 30th",
+            "method": "eCheck (Local)"
+          },
+          {
+            "authority_payment": "Regional Austria taxes",
+            "paid_to": "GKK Niederoesterreich",
+            "due_date": "Monthly, by the 30th",
+            "method": "eCheck (Local)"
+          },
+          {
+            "authority_payment": "Regional Austria taxes",
+            "paid_to": "GKK Oberoesterreich",
+            "due_date": "Monthly, by the 30th",
+            "method": "eCheck (Local)"
+          },
+          {
+            "authority_payment": "Vienna taxes",
+            "paid_to": "GKK Wien",
+            "due_date": "Monthly, by the 30th",
+            "method": "eCheck (Local)"
+          },
+          {
+            "authority_payment": "Payroll Tax",
+            "paid_to": "Stadt Wien Buchhaltungsabt.33",
+            "due_date": "Monthly, by the 30th",
+            "method": "eCheck (Local)"
+          }
+        ]
+      }
+    }
+  ]
+}

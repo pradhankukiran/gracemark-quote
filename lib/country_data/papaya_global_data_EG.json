@@ -1,0 +1,74 @@
+{
+  "scraped_at": "2025-08-24T18:02:54.867Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Egypt",
+      "url": "https://www.papayaglobal.com/countrypedia/country/egypt/",
+      "scraped_at": "2025-08-24T18:02:54.859Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "18.75%\n(21% for Members of the Board of Directors)",
+              "description": "Social Security (Minimum taxable wages is 2,300 EGP and maximum is 14,500 EGP annually )"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Emergency Relief (ER) Fund- 1.00% of the basic social insurance salary (2,540 EGP)"
+            },
+            {
+              "rate": "19.75%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "11.00%",
+              "description": "Social Security (Minimum taxable wages is 2,300 EGP and maximum is 14,500 EGP annually)"
+            },
+            {
+              "rate": "11.00%",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage in Egypt is currently set at  7,000 EGP per month.\nThe minimum hourly wage for part-time workers has been set at 28 EGP",
+        "payroll": {
+          "payroll_cycle": "In Egypt, the common payroll frequency is monthly, it is possible to offer a bi-monthly payroll schedule as well.",
+          "13th_salary": "In Egypt, there is no legal requirement for 13th-month payments."
+        },
+        "working_hours": {
+          "general": "The standard working week in Egypt consists of 8 hours a day and 40 hours per week.\nDuring the period of Ramadan, the working day should be reduced made accommodate fasting hours, with usually 6 daily hours in total or less being worked. Many companies will also allow remote working during this period.",
+          "overtime": "All working hours above 48 hours per week are subject to overtime pay at a rate of 135.00% of their regular salary rate of pay during daylight hours and 170.00% of their regular salary rate of pay for work at night. For work performed on non regular working days, the rate is twice the daily wage plus another day off during the following week; working on days off must be mutually agreed upon in advance."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In Egypt, employees are entitled to 21 working days of paid annual leave per year if employed for at least six consecutive months.\nIt increases to 30 days of paid annual leave for employees who have completed ten years of consecutive employment or employees over 50 years of age.\nUnused vacation days carry over into the next year.",
+          "public_holidays": "Each year the government may decide if public holidays falling on weekends will be moved to a weekday or will be lost.\nCertain religious holidays are determined by the lunar cycle and will be confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNotes\n7 Jan 2025\tTuesday\tCoptic Christmas Day\t\n25 Jan 2025\tSaturday\tRevolution Day\tPrime Minister might move this to 23rd or 26th Jan.\n29 Mar 2025\tSaturday\tEid al-Fitr\t\n30 Mar 2025\tSunday\tEid al-Fitr\t\n31 Mar 2025\tMonday\tEid al-Fitr\t\n1 Apr 2025\tTuesday\tEid al-Fitr\t\n21 Apr 2025\tMonday\tSpring Festival\t\n25 Apr 2025\tFriday\tSinai Liberation Day\t\n1 May 2025\tThursday\tLabour Day\t\n6 Jun 2025\tFriday\tArafat Day\tTentative\n7 Jun 2025\tSaturday\tEid al-Adha\tTentative\n8 Jun 2025\tSunday\tEid al-Adha\tTentative\n9 Jun 2025\tMonday\tEid al-Adha\tTentative\n27 Jun 2025\tFriday\tMuharram\tTentative\n30 Jun 2025\tMonday\tJune 30 Revolution Day\tPrime Minister might move this day to 3rd July.\n23 Jul 2025\tWednesday\tJuly Revolution Day\tPrime Minister might move this day to 24th July.\n6 Sep 2025\tSaturday\tProphet Muhammad’s Birthday\tTentative\n6 Oct 2025\tMonday\tArmed Forces Day\tPrime Minister might move this day to 9th October.",
+          "sick_days": "An employee is entitled to up to 6 months of paid sick leave covered by social security. The employee must provide a professional medical certificate confirming the sickness.\nFor the first 90 days of sick leave, the employee is entitled to 75% of the regular salary rate. After that, this increases to 85% of the normal rate of pay for 90 days.",
+          "maternity_leave": "Female employees who have been employed for ten consecutive months are entitled to 90 days of paid maternity leave. Maternity leave pay is 100% of salary, covered by Egyptian social security at 75% of the social insurance salary (10,900*75%)  and by the employer for  25% of the salary . It is common for the employer to cover the whole 100% for the entire 3 months.\nEmployees are entitled to take three periods of maternity leave during their total employment service.\nUpon return to the workplace, the woman is entitled to two thirty-minute nursing breaks or a combined one-hour nursing break each day for up to two years after the date of birth.",
+          "paternity_leave": "There are no provisions in the law regarding paternity leave.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "Depending on the collective agreement/employment contract terms, an employee may be allowed additional leave types, on approval of the employer and employee for the following:\nCasual leave – Employees are entitled to up to six days off from work per year and are not required to state a reason for taking the leave. Employees are allowed to take a maximum of two days per leave. Casual leave counts as part of annual leave."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to how the employment agreement and collective agreement are in place and is based on the type of contract and reason for termination.\nOne Project Base contract: Can be ended by the end of the project, the employee will get paid for his last month salary & PTO & Notice period (if mentioned in the contract)\nDefinite Contract: The rest of the contract & PTO & Notice period (if mentioned in the contract).\nIndefinite Contract: Severance Pay, 2 Months notice period, PTO.\nAn employer who wishes to terminate an employee must go before a committee with judicial powers at the Ministry of Manpower and Migration. The committee has 15 days to decide whether to grant the request. The employer may then dismiss the employee, who retains the right to challenge the dismissal in court.\nThe court can be involved if the employee doesn’t agree on the Indefinite contract cancellation and the compensation package, or if the employer terminated the employee without giving him his rights.",
+          "notice_period": "In Egypt, the periods of notice are determined according to the employment agreement/contract and collective agreement in place and the length of service by the employee. If the employee has completed less than ten years of service, the notice period is two months increasing to three months for employees with more than ten years of service. No notice is required during the probation period.",
+          "severance_pay": "For a definite or indefinite contact type, there is no statutory severance pay unless the employee’s termination is unjustified or the employer has voluntarily provided it. For a project-based contract, there is no statutory severance pay unless the employer voluntarily provided it.",
+          "probation_period": "In Egypt, the probation period is fixed by the employment contract and by law, cannot exceed three months."
+        },
+        "visa": {
+          "general_info": "Foreigners are strictly prohibited from carrying on any work in Egypt without a valid work permit. A work permit for Egypt is granted by the Ministry of Manpower in Egypt and is usually for one year.\nBefore the authority issues a work permit for foreigners, a labor market test must prove that there are no local residents eligible for that position. When a work permit is finally granted, the applicant must train at least two local Egyptian nationals to work in the same position. Applying for a work permit in Egypt typically takes one to three months until the applicant can enter Egypt. It may take a further two to four months before the process is completed.\nEgypt offers several types of visas, including the following:\n\nWork visa: Once a foreign national gets a work permit, their visa, such as a temporary/tourist visa, will be converted into a work visa.\nTemporary/tourist visa: This option is a renewable single-entry 30-day tourist visa that individuals can get when arriving at Egyptian airports. It’s also the visa individuals obtain for a job.\nOrdinary visa: An ordinary visa is valid for three to five years and allows an employee’s spouse to have a resident permit for the amount of time identified on their work permit.\nSpecial visa: The special visa is for expats born in Egypt before May 26, 1952, or individuals who have lived in Egypt for more than 20 years from that date. It’s valid for ten years and can be renewed."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Egypt is 14.00%."
+        }
+      }
+    }
+  ]
+}

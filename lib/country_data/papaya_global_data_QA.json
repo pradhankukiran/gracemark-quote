@@ -1,0 +1,73 @@
+{
+  "scraped_at": "2025-08-24T18:39:27.258Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Qatar",
+      "url": "https://www.papayaglobal.com/countrypedia/country/qatar/",
+      "scraped_at": "2025-08-24T18:39:27.249Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "14.00%",
+              "description": "Qatar Labor Law Monthly Contribution/QFC Employment Regulation Monthly Contribution (capped at 100,000 QAR annually) applied to Qatari nationals only."
+            },
+            {
+              "rate": "5.00%",
+              "description": "Nationalization Fee- Applied only when hiring expat workers (instead of Qatari nationals)."
+            },
+            {
+              "rate": "5.00% – 14.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "7.00%",
+              "description": "Qatar Labor Law Monthly Contribution/QFC Employment Regulation Monthly Contribution (capped at 100,000 QAR annually) applied to Qatari nationals only."
+            },
+            {
+              "rate": "7.00%",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The monthly minimum wage in Qatar is 1,800 QAR. Employers must also pay allowances of at least 300 QAR for Food and 500 QAR for Housing if they do not provide employees with these directly.",
+        "payroll": {
+          "payroll_cycle": "In Qatar, the payroll frequency is typically monthly. The employer must make salary payments at least once a month.",
+          "13th_salary": "There is no legal requirement for 13-month payments. Employers may issue bonuses at their discretion."
+        },
+        "working_hours": {
+          "general": "The working week in Qatar is typically up to 48 hours, 8 hours per day, and five to six days a week. The working day may decrease to 6 hours a day during the time of Ramadan. Typically, Fridays are a rest day.",
+          "overtime": "All work above the standard working week is paid as overtime and regulated by employment contracts/collective agreements etc. When an employee is requested to work overtime or work on holidays, there are maximums in the number of hours allowed.\nAll overtime hours in excess of 48 hours a week are paid at an overtime compensation rate; this rate is typically 125% of the employee’s average salary rate. For overtime hours performed at night, the overtime is 150% of the employee’s standard rate."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In Qatar, the annual leave entitlement is dependent on the employee’s seniority:\nFor employees with less than one year of service, the employee receives a percentage of annual leave determined by the employer.\nFor employees with one year of service, the employee receives three calendar weeks of annual leave.\nEmployees with more than five years of service are entitled to four calendar weeks of annual leave.\nAn employee can take annual leave for a maximum of two different periods. Any untaken leave can be carried over to the next vacation year following the employer’s agreement.",
+          "public_holidays": "The local government decides each year if holidays falling on the weekend are lost or moved to a working day in lieu.\nReligious holidays are determined by the lunar cycle and will show as tentative until they are confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNotes\n11 Feb 2025\tTuesday\tNational Sports Day\t\n30 Mar 2025\tSunday\tEid al-Fitr\t\n31 Mar 2025\tMonday\tEid al-Fitr\t\n1 Apr 2025\tTuesday\tEid al-Fitr\t\n2 Apr 2025\tWednesday\tEid al-Fitr\t\n3 Apr 2025\tThursday\tEid al-Fitr\t\n4 Apr 2025\tFriday\tEid al-Fitr\t\n5 Apr 2025\tSaturday\tEid al-Fitr\t\n6 Apr 2025\tSunday\tEid al-Fitr\t\n7 Apr 2025\tMonday\tEid al-Fitr\t\n5 Jun 2025\tThursday\tEid al-Adha\t\n6 Jun 2025\tFriday\tEid al-Adha\t\n7 Jun 2025\tSaturday\tEid al-Adha\t\n8 Jun 2025\tSunday\tEid al-Adha\t\n9 Jun 2025\tMonday\tEid al-Adha\t\n18 Dec 2025\tThursday\tNational Day",
+          "sick_days": "An employee is entitled to two weeks of paid sickness compensated at 100% of the employee’s salary following the completion of three months of service with a single employer. After the initial 14 days of sickness, an employee can receive another four weeks of paid leave at the rate of 50% of the employee’s salary. Any sickness beyond that is unpaid. The sick leave is covered by the employer.",
+          "maternity_leave": "Female employees are entitled to 50 days of paid maternity leave in Qatar; the employee must take no fewer than 35 days of leave following the child’s birth. In the case of a complicated birth, an employee can extend her maternity leave by an additional 60 days of unpaid leave providing the employee can provide a medical certificate. To be eligible for the maternity entitlement, an employee must have worked for their employer for a minimum of one year.",
+          "paternity_leave": "There is no legal requirement for an employer to provide paternity leave to their employees. However, it is typical for an employer to offer five days’ leave to fathers following the birth of their child.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "In Qatar, Muslim employees may be entitled to a one-time pilgrimage leave of 20 days if they wish to make a pilgrimage to Mecca."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment agreement and collective agreement in place and based on the type of contract and reason for termination. An employment contract can be terminated by either the employer or an employee; in both cases, a termination notice is mandatory to initiate the process of dismissal.",
+          "notice_period": "In Qatar, notice periods are dependent on an employee’s seniority:\nIf an employee has less than two years of service, a notice of one month is required.\nIf an employee has more than two years of service, a notice of two months is required.",
+          "probation_period": "In Qatar, the probation periods may vary depending on the employment contract in place. However, the probation period cannot be more than six months."
+        },
+        "visa": {
+          "general_info": "When an employee only needs to work in Qatar for a short period of time, work permits are required depending on the type of work to be carried out.\nQatar has implemented the “Qatarization,” a strategic initiative introduced by the government to provide employment for its citizens in the private and public sectors and prioritize Qatari nationals over foreign employees when it comes to job opportunities.\n\nShould a Qatar-based employer wish to hire an employee from abroad, they must first obtain permission from the government.\nFor a foreigner to legally work and reside in Qatar, all employees except Qatari and GCC nationals (who require a work permit only) must have a residence visa and work permit under the sponsorship of their employer (which must have an entity established in Qatar).\n\nThe 2022 UAE Labour Law will implement flexible working and shared jobs as well as shorter, fixed-term contracts. Moreover, private sector employees will now be allowed to stay in the UAE for 180 days after leaving their jobs."
+        },
+        "vat": {
+          "general": "Currently, there is no VAT. There are plans to introduce it in the near future."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "scraped_at": "2025-08-24T17:57:44.753Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Cyprus",
+      "url": "https://www.papayaglobal.com/countrypedia/country/cyprus/",
+      "scraped_at": "2025-08-24T17:57:44.744Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "8.80%",
+              "description": "Social Insurance (applied on salary up to 66,612 EUR annually)"
+            },
+            {
+              "rate": "2.00%",
+              "description": "Social Cohesion Fund"
+            },
+            {
+              "rate": "1.20%",
+              "description": "Severance Fund (applied on salary up to 66,612 EUR annually)"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Training and Development (applied on salary up to 66,612 EUR annually)"
+            },
+            {
+              "rate": "2.90%",
+              "description": "National Health System (GESY) (applied on salary up to 180,000 EUR annually)"
+            },
+            {
+              "rate": "15.40%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "8.80%",
+              "description": "Social Insurance (applied on salary up to 66,612 EUR annually)"
+            },
+            {
+              "rate": "2.65%",
+              "description": "National Health System (GESY) (applied on salary up to 180,000 EUR annually)"
+            },
+            {
+              "rate": "11.45%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "Up to 19,500 EUR"
+            },
+            {
+              "rate": "20.00%",
+              "description": "19,500 – 28,000 EUR"
+            },
+            {
+              "rate": "25.00%",
+              "description": "28,000 EUR – 36,300 EUR"
+            },
+            {
+              "rate": "30.00%",
+              "description": "36,300 EUR – 60,000 EUR"
+            },
+            {
+              "rate": "35.00%",
+              "description": "60,000 EUR and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The National Minimum Wage is set at 1,000 EUR per month.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Cyprus is generally monthly and payments are to be made no later than the last working day of the month.",
+          "13th_salary": "Whilst not mandatory, it is customary to pay employees a 13th salary in December."
+        },
+        "working_hours": {
+          "general": "The standard workweek in Cyprus consists of 40 hours across five days (8 hours per day), although a six-day week is possible.",
+          "overtime": "All hours worked in excess of 40 hours per week are paid at an overtime compensation rate. Overtime pay rates should be stipulated in the Employment Contract or applied in accordance with any applicable Collective Bargaining Agreement. 48 hours per week is the maximum number of hours permitted to work during a week, averaged over a 4-month period."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The standard leave entitlement for employees who work a five-day week is 20 working days per year and for employees who work a six-day week is 24 working days per year. Additional annual leave days might be mandated within the Employment Contract or applicable Collective Bargaining Agreement. Entitlement for annual leave is once 48 weeks have been worked with a single employer.\nIt is permitted to carryover unused leave days providing there is mutual agreement to do so from both the employer and employee, capped at the maximum number of days of leave that an employee can accrue over 2 year period (i.e. 40 or 48 days).\nAn employee’s wages during the annual leave period is paid either by the employer directly or by the Central Holiday Fund.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n6 Jan 2025\tMonday\tEpiphany\t\n3 Mar 2025\tMonday\tGreen Monday\t\n25 Mar 2025\tTuesday\tGreek Independence Day\t\n1 Apr 2025\tTuesday\tNational Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n22 Apr 2025\tTuesday\tEaster Tuesday\t\n1 May 2025\tThursday\tLabour Day\t\n9 Jun 2025\tMonday\tWhit Monday (Pentecost)\t\n15 Aug 2025\tFriday\tAssumption Day\t\n1 Oct 2025\tWednesday\tCyprus Independence Day\t\n28 Oct 2025\tTuesday\tOchi Day\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day",
+          "sick_days": "Employees are entitled to paid sick leave from the fourth day of sickness, paid for by Social Security. The employee must submit a medical certificate to the Social Security Administration within 48 hours of the start of the sick leave. The  social insurance covers sick pay up to a period of 312 days at 60% of salary (the % of salary might increase where there is a dependent spouse and children).",
+          "maternity_leave": "Female employees are entitled to 18 weeks of maternity leave for the birth of their first child, 22 weeks maternity leave for the birth of their second child and 26 weeks maternity leave for the birth of all subsequent children. It is compulsory to take 11 weeks of maternity leave and are generally taken 2 weeks before the due date and the remainder after.\nThe amount of the maternity allowance is determined based on the weekly average of actual and simulated insurable earnings of the insured within relevant tax year. The maternity allowance includes a basic allowance and a supplementary allowance. The weekly amount of the basic allowance is equal to 72% of her salary, rising to 80%, 90% or 100%, when the beneficiary has one, two or three dependents, respectively. If the beneficiary receives part of her earnings from her employer for the period she is entitled to maternity benefit, the benefit is reduced so that the sum of the allowance and emoluments she receives not to exceed her full emoluments.\nThe application for maternity benefit must be submitted within 21 days of the day from which the allowance is required. Submitting the application for maternity allowance takes place immediately after completing the twenty-fifth (25th) week of pregnancy. Workers must also inform their employers of pregnancy in advance and provide a medical certificate which indicates the expected due date.",
+          "paternity_leave": "Fathers are entitled to 2 consecutive weeks of paid paternity leave within the 16 weeks following the birth of a child, paid by the Social Insurance Fund at 75.20% of the employee’s regular salary.",
+          "parental_leave": "The right to parental leave covers all employees who have children under the age of 8. According to the law, every eligible employee can take unpaid parental leave of up to eighteen weeks for each child.",
+          "other_leave": "Depending on collective bargaining agreements or the employment contract, an employee may be allowed additional leave types.\nBereavement: Employees are entitled to up to 5 days of paid leave due to a death of a direct family member.\nAdoption: Employees who want to adopt a child under the age of twelve years are entitled to up to 16 continuous weeks’ leave starting from the date they begin to take care of the adopted child.\nMilitary: Employees called to perform military service are covered by assimilated insurance (Social Insurance Services)."
+        },
+        "termination": {
+          "termination_process": "Employers can terminate employment according to lawful justified reasons including unsatisfactory performance, redundancy, force majeure, termination at the end of a fixed period, commission of a serious disciplinary or criminal offence, indecent behavior, or repeated violation of employment rules.\nEmployers can terminate a fixed-term contract for reasons related to business needs, personal reasons or worker misconduct.\nNotice and a written explanation for the termination are required. If the reason is misconduct, a warning needs to be given and the employee gets a chance to explain their actions.\nSeverance is paid and all statutory obligations such as paid time off are compensated.\n*Redundancy is not permissible under the EOR model",
+          "notice_period": "The notice period for a temporary or permanent employee is dependent on the employee’s length of employment:\n26-51 weeks of employment: 1 week’s notice\n52-103 weeks of employment: 2 weeks’ notice\n104-155 weeks of employment: 4 weeks’ notice\n156-207 weeks of employment: 5 weeks’ notice\n208- 259 weeks of employment: 6 weeks’ notice\n260- 311 weeks of employment: 7 weeks’ notice\n312 weeks or more: 8 weeks’ notice\nNo notice is required during the probation period or when the employee has committed a serious offense.",
+          "severance_pay": "The severance pay varies based on the length of employment:\n2 weeks’ severance for each year of employment up to 4 years\n2.5 weeks of wages for each year between 5-10 years of employment\n3 weeks of wages for each year between 11-15 years of employment\n3.5 weeks of wages for each year between 16-20 years of employment\n4 weeks of wages for each year over 20 years of employment",
+          "probation_period": "The probationary period in Cyprus is dependent on the type of role and is stipulated within the employment agreement. In general, probation periods are between six months and two years."
+        },
+        "visa": {
+          "general_info": "The Cyprus immigration system provides several options for employers of foreign nationals. Cyprus is a member of the European Union. Requirements, processing times, employment eligibility, and benefits for accompanying family members vary by permit type.\nBusiness visitors obtain a business visa to travel to Cyprus if they are not visa-exempt based on their nationality. Business visits are limited to 90 days within 180 days and require a detailed support or invitation letter outlining the nature and duration of activities.\nThe main work authorization categories are the EU Intracompany Transferee (ICT) Permit suitable for the intracompany transfer of managers, specialists, and trainees from outside the EU, and the Employment Permit for Local Hires, suitable for locally hired employees and intracompany transfers who do not qualify for an EU ICT Permit."
+        },
+        "vat": {
+          "general": "The standard rate is 19%."
+        }
+      }
+    }
+  ]
+}

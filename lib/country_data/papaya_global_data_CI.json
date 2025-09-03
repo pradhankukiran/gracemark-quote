@@ -1,0 +1,17 @@
+{
+  "scraped_at": "2025-08-24T17:47:36.227Z",
+  "summary": {
+    "total": 1,
+    "success": 0,
+    "failed": 1
+  },
+  "results": [
+    {
+      "country": "Cote D'Ivoire",
+      "url": "https://www.papayaglobal.com/countrypedia/country/cote-divoire/",
+      "scraped_at": "2025-08-24T17:47:36.224Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    }
+  ]
+}

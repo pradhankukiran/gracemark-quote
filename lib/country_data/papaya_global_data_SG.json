@@ -1,0 +1,156 @@
+{
+  "scraped_at": "2025-08-24T18:43:17.942Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Singapore",
+      "url": "https://www.papayaglobal.com/countrypedia/country/singapore/",
+      "scraped_at": "2025-08-24T18:43:17.930Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "17.00%",
+              "description": "Central Provident Fund – CPF * (Pension for employees aged 55 and below, reduces progressively to 12% as age increases) this applies to Singapore Citizens or Permanent Resident employees earning total wages of more than $50 per month. Capped at  a salary of SGD 7,400 monthly."
+            },
+            {
+              "rate": "0.25%",
+              "description": "Skills Development Levy (SDL) (capped at a contributions of 11.25 SGD per month)"
+            },
+            {
+              "rate": "350 USD/month",
+              "description": "Foreign worker surcharge (may vary depending on sector, worker skill and local/expat ratio employed in the company)"
+            },
+            {
+              "rate": "450 SGD/month",
+              "description": "For S PASS holders (mid-skilled foreign employees performing specialized roles.)"
+            },
+            {
+              "rate": "Amount varies based on company specifics",
+              "description": "Work Injury Compensation Act insurance- Required for employees doing manual work, as well as all employees earning $2,600 or less a month, in accordance with to Ministry of Manpower."
+            },
+            {
+              "rate": "17.25%+350USD/month+450 SGD/Month",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "20.00%",
+              "description": "Central Provident Fund – CPF (Pension for employees aged 55 and below, reduces progressively to 11.5% as age increases) this applies to Singapore Citizens or Permanent Resident employees earning total wages of more than $50 per month. Capped at  a salary of SGD 7,400 monthly."
+            },
+            {
+              "rate": "20.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0%",
+              "description": "Up to 20,000 SGD Annually"
+            },
+            {
+              "rate": "2%",
+              "description": "20,000-30,000 SGD Annually"
+            },
+            {
+              "rate": "3.5%",
+              "description": "30,000-40,000 SGD Annually"
+            },
+            {
+              "rate": "7%",
+              "description": "40,000-80,000 SGD Annually"
+            },
+            {
+              "rate": "11.5%",
+              "description": "80,000-120,000 SGD Annually"
+            },
+            {
+              "rate": "15%",
+              "description": "120,000-160,000 SGD Annually"
+            },
+            {
+              "rate": "18%",
+              "description": "160,000-200,000 SGD Annually"
+            },
+            {
+              "rate": "19%",
+              "description": "200,000-240,000 SGD Annually"
+            },
+            {
+              "rate": "19.5%",
+              "description": "240,000-280,000 SGD Annually"
+            },
+            {
+              "rate": "20%",
+              "description": "280,000-320,000 SGD Annually"
+            },
+            {
+              "rate": "22%",
+              "description": "320,000-500,000 SGD Annually"
+            },
+            {
+              "rate": "23%",
+              "description": "500,000-1,000,000 SGD Annually"
+            },
+            {
+              "rate": "24%",
+              "description": "above 1,000,000 SGD Annually"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "Singapore does not have a national minimum wage. Instead, it uses a Progressive Wage Model (PWM), which sets minimum wage floors for specific sectors such as cleaning, security, and food services. These wages vary based on skills and experience within each sector.\nSingapore does have a scheme called Workfare that supports low wage workers (Singapore citizens) aged 35 and above who earn a gross monthly income of not more than 2,300.00 SGD.",
+        "payroll": {
+          "13th_salary": "It is customary to pay a 13th month salary at the end of the year in Singapore."
+        },
+        "working_hours": {
+          "general": "Part IV of the Singapore Employment Act states that the standard maximum number of working hours in Singapore are 44 hours per week.",
+          "overtime": "For employees covered by the Employment Act, overtime work is paid at a rate of at least 150% of the basic hourly rate of pay for eligible employees, with a maximum of 12 hours worked in any one day and 72 hours in a month. The maximum monthly overtime pay for an employee classified as a white collar worker is f 4,500 SGD and 2,600 SGD for a blue collar worker.\nThe employer must pay overtime within 14 days of the last day of the salary period."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Annual Leave is stipulated for employees covered by the Employment Act who have completed at least three months service. They’re entitled to paid annual leave of at least 7 days in their first year, increasing by one day for each year of service thereafter, capping at 14 days leave. However, it is common practice for employers to grant 14–20 days after the completion of the first year.",
+          "public_holidays": "Public holidays falling on a Sunday are moved to the next working day as a day off in lieu. Public holidays falling on a Saturday should either be paid out or an extra day off should be given in lieu.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n29 Jan 2025\tWednesday\tChinese New Year\t\n30 Jan 2025\tThursday\tChinese New Year\t\n31 Mar 2025\tMonday\tHari Raya Puasa\t\n18 Apr 2025\tFriday\tGood Friday\t\n1 May 2025\tThursday\tLabour Day\t\n3 May 2025\tSaturday\tPolling Day\t\n12 May 2025\tMonday\tVesak Day\t\n7 Jun 2025\tSaturday\tHari Raya Haji\t\n9 Aug 2025\tSaturday\tNational Day\t\n20 Oct 2025\tMonday\tDeepavali\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "Once an employee has completed six months of service, the employee is entitled to paid sick leave (at regular gross salary) of 14 days per year if no hospitalization is necessary, or 60 days per year if hospitalization is necessary; this leave includes 14 days as outpatient care.\nBefore completing six months of employment, an employee is entitled to a number of paid sick days depending on the length of employment at the time.\nUp to three months – five days per year, 15 days if hospitalization is necessary\nFour months – eight days per year, 45 days in the case of hospitalization\nFive months – 11 days per year, 45 days in the case of hospitalization\nSix months – 14 days per year, 60 days in the case of hospitalization\nThe employee must inform their employer within 48 hours of any inability to work and provide a certificate from a medical professional upon returning to work, for any period of sickness.",
+          "maternity_leave": "A pregnant employee, employed for at least three months before the due date and the child being a Singaporean citizen, is entitled to 16 weeks of paid maternity leave. The maternity leave consists of two periods: the woman may take up to 8 weeks before the expected due date but no less than 28 days and the remaining weeks after the baby’s birth.\nIf the child is not a Singaporean citizen, the maternity leave period is reduced to 12 weeks.\nFor the first and second child, the first eight weeks are paid by the employer (at regular gross salary). The additional eight weeks can be reimbursed by the Government capped at 10,000 SGD per 4 weeks or a total of 20,000 SGD per child.\nHowever, from the birth of the third child, all 16 weeks of maternity leave are reimbursed directly by the Government, capped at 10,000 SGD per 4 weeks or a total of 20,000 SGD per child.",
+          "paternity_leave": "The father/partner is entitled to 2 weeks of paid paternity leave after the baby is born, following three months of service, and within 16 weeks after the baby’s birth. This leave is funded by the Government-Paid Paternity Leave (GPPL), capped at 2,500 SGD per week or a total of 5,000 SGD.\nAdoptive fathers are also eligible for government-paid paternity leave if they meet the eligibility criteria.",
+          "parental_leave": "Shared Parental Leave –\nWorking parents can enjoy SPL, to be shared between parents and taken within 12 months from the child’s date of birth (inclusive of date of birth).\nFrom 1 April 2025 to 31 March 2026: 6 weeks of SPL\nFrom 1 April 2026 onwards: 10 weeks of SPL\nThe Government will pay up to $2,500 per week of SPL taken, based on the sharing arrangement. The daily rate is capped at: $2,500 / working days a week.\nChildcare Leave – Each parent who has at least 3 months service is eligible for 6 days per year of Childcare Leave until the year the child turns 7 years old, regardless of the number of children they have. Childcare leave is capped at 42 days for each parent.\nThe employees need to consume their yearly childcare leave entitlement by the end of that year. They cannot carry forward childcare leave meant for one year to the next.\nThe leave is paid as follows:\nThe first 3 days will be paid by the employer.\nThe remaining 3 days will be paid by the Government.\nPayments are capped at 500 SGD per day, including CPF contributions, or a total of 1,500 SGD in any calendar year.\nExtended Childcare Leave – Employees are eligible for 2 days of Extended Childcare Leave per year if their youngest child, which is a Singapore citizen is between 7 and 12 years old (inclusive). These days are reimbursed by the Government, capped at 500 SGD per day.",
+          "bereavement_leave": "In the event of the death of an immediate family member, although this is not a statutory entitlement, many Singaporean employers allow employees two or three days of paid leave.",
+          "marriage_leave": "In the event of an employee’s marriage, the employee may take up to five days of leave.",
+          "voting_leave": "In Singapore, voting/polling day is a public holiday.",
+          "military": "Employees are entitled to receive paid reservist leave on an annual basis when they receive the official Notification of National Service Call Up –SAF 100 issued by the government."
+        },
+        "termination": {
+          "termination_process": "The employer or the employee may end the employment relationship by providing the legally required notice, provided it is not for an illegal reason such as discrimination of a group protected by law, etc., and it is in accordance with the contract of employment.\nLeavers should be paid all outstanding holiday entitlement, assuming the reason for termination is not misconduct. The employer must seek appropriate tax clearance from IRAS before making the final payment.\nIf the employer terminates the contract or the employee resigns and works the full notice period, payment is made on the last day of employment or within three days if this is not possible.\nIf an employee resigns without notice and does not work during the notice period, the payment is made within seven days of the last day of employment.",
+          "notice_period": "Less than 26 weeks of service – 1 day notice\nMore than 26 weeks but less than 2 years of service – 1 week notice\nMore than 2 years but less than 5 years of service – 2 weeks notice\nMore than 5 years of service – 4 weeks notice\nDuring the probation period, employment can be terminated by either the employer or the employee with five days of notice.",
+          "severance_pay": "In Singapore, employment contracts/collective agreements contain “retrenchment benefit” payments due upon termination once an employee has completed two years of service. It is common practice for this to be 2–4 weeks’ pay for each year in employment.",
+          "probation_period": "The probation period in Singapore is set within the employment contract/collective agreement and is generally 3-6 months."
+        },
+        "visa": {
+          "general_info": "Work permits are required in Singapore; however, the type of permit required is based on the person’s skills. A person with a degree, professional qualifications, or specialist skill will need an employment pass to work in Singapore.\nIn contrast, a work permit is required for other skilled or unskilled foreign workers. The Singapore Ministry of Manpower (MOM) is responsible for issuing of all types of employment passes.\nDifferent types of employment passes may be issued depending on the applicant’s salary, but the basic procedures remain the same. An employment pass is set by the individual and the company they work for. If an employment pass holder wants to change jobs, the employer must cancel the existing EP, and the new employer will have to apply for a new one. The employment pass must also be cancelled if the holder ceases employment in Singapore or obtains permanent resident status."
+        },
+        "vat": {
+          "general": "The GST rate will increase from 8% to 9% with effect from 1 Jan 2024."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Central Provident Fund Board (CPFB)",
+            "dates": "Monthly; 14th of every month (working days). It may differ if 14th fall on weekends.",
+            "methods": "Giro payment,\n\nCheque payment,\n\nDirect Debit Authorisation, (DDA) Standing Instructions, eNETS"
+          },
+          {
+            "authority_payment": "Inland Revenue Authority of Singapore (IRAS)",
+            "dates": "Monthly; 14th of every month (working days). It may differ if 14th fall on weekends.",
+            "methods": "Giro payment, Electronic payment, Telegraphic Transfer"
+          }
+        ]
+      }
+    }
+  ]
+}

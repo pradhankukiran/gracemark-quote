@@ -1,0 +1,101 @@
+{
+  "scraped_at": "2025-08-24T18:31:46.353Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Panama",
+      "url": "https://www.papayaglobal.com/countrypedia/country/panama/",
+      "scraped_at": "2025-08-24T18:31:46.344Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "12.25%",
+              "description": "Social security"
+            },
+            {
+              "rate": "1.92",
+              "description": "Unemployment"
+            },
+            {
+              "rate": "1.50%",
+              "description": "Education Tax"
+            },
+            {
+              "rate": "0.98-5.67%",
+              "description": "Accident"
+            },
+            {
+              "rate": "up to 21.34%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "9.75%",
+              "description": "Social security"
+            },
+            {
+              "rate": "1.25%",
+              "description": "Education contribution"
+            },
+            {
+              "rate": "11.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0%",
+              "description": "0 – 11,000 US$"
+            },
+            {
+              "rate": "15%",
+              "description": "11,000 – 50,000 US$"
+            },
+            {
+              "rate": "25%",
+              "description": "50,000 US$ +"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "In Panama, minimum wages are dependent on the economic activity, specific occupation, and size of the establishment. Minimum wages typically range from 326.56 USD to 971.35 USD per month.",
+        "payroll": {
+          "payroll_cycle": "In Panama, the payroll frequency is stipulated in the employment contract and paid on a monthly, semi-monthly, or weekly basis.",
+          "13th_salary": "In Panama, 13th-month payments are mandatory and the amount of an additional month’s salary is paid in three equal installments on 15th April, 15th  August, and 15th December."
+        },
+        "working_hours": {
+          "general": "The standard workday consists of eight hours per day, and a full-time work week is up to 48 hours. Employees under the age of 16 are limited to a 36-hour working week.",
+          "overtime": "Overtime work is limited to three additional hours per day, nine hours per week and if the work is deemed hazardous to one’s health, an employee should not perform overtime at all.\nAll overtime hours in excess of 48 hours a week are to be paid at an overtime compensation rate; this rate is dependent on the hours in which the overtime is carried out.\nHours performed between 6.00 am and 6.00 pm are paid at 125.00% of the employee’s regular wage\nHours performed between 6.00 pm and 6.00 am or on a rest day or holiday are paid at a rate of 150.00% of the employee’s regular income.\nHours carried over from working during night hours increased to 175.00% of the employee’s standard rate pay"
+        },
+        "leave": {
+          "annual_leave_(vacation)": "An employee in Panama is entitled to 30 calendar days of paid annual leave following the commencement of 12 months of employment (accrued at 1 day for every 11 days worked). Employers must provide the payment of annual leave three days before the vacation and cannot be compensated in lieu of payment.",
+          "public_holidays": "Public holidays that fall on a Sunday are moved to the following working day.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n9 Jan 2025\tThursday\tMartyrs’ Day\t\n3 Mar 2025\tMonday\tCarnival\t\n4 Mar 2025\tTuesday\tCarnival\t\n17 Apr 2025\tThursday\tGood Thursday\t\n18 Apr 2025\tFriday\tGood Friday\t\n1 May 2025\tThursday\tLabor Day\t\n15 Aug 2025\tFriday\tMartyrs’ Day\t\n3 Nov 2025\tMonday\tSeparation of Panama and Colombia\t\n4 Nov 2025\tTuesday\tFlag Day\t\n5 Nov 2025\tWednesday\tPatriotic Commemoration in the City of Colon\t\n10 Nov 2025\tMonday\tFirst Cry of Independence\t\n28 Nov 2025\tFriday\tIndependence Day\t\n1 Dec 2025\tMonday\tIndependence Day\t\n8 Dec 2025\tMonday\tMother’s Day\t\n20 Dec 2025\tSaturday\tMourning Day\t\n24 Dec 2025\tTuesday\tChristmas Day\t\n25 Dec 2025\tWednesday\tChristmas Day",
+          "sick_days": "The first 3 days of sick leave are paid by the employer. From the 4th day Social Security pays sick leave at a rate of 70% of salary, for a period of up to 26 weeks.",
+          "maternity_leave": "Maternity leave starts six weeks before the expected date of delivery and ends eight weeks after delivery for a total of 14 weeks.\nMaternity pay is paid by the Social Security system (provided that the employee has accrued a total of nine monthly Social Security quotas before the seventh month of pregnancy). If the employee has not accrued the minimum, the payment will be made by the employer (calculated as the greater of the last salary or average of the last 180 workdays).\nIn the case of multiple, difficult birth, or pregnancy-related illness, the leave can be extended upon the presentation of a medical certificate.\nFemale employees are protected during their maternity leave and cannot work any rest days or overtime hours.\nAdoptive mothers are entitled to 28 days of paid leave.",
+          "paternity_leave": "Employees are entitled to three days of fully compensated paternity leave following the birth of their child. The employer compensates this leave.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "There are no provisions in the law regarding any additional leave."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment agreement and collective agreement in place and is based on the type of contract and reason for termination. All termination must be provided in writing and must follow the laws outlined in the Panama Labor Law; unjustified dismissals may be trialed in labor court. If the court cannot resolve the claim within 60 days, the employer may dismiss the employee.\nEmployees cannot be dismissed when pregnant or for their involvement in trade union activities, strikes, or complaining about their employer.\nHowever, there are certain classifications of employees that may be dismissed without just cause (domestic workers, fishing or agricultural workers, and retail workers)",
+          "notice_period": "In general, notice periods cannot exceed three months and are commonly 30 days or pay in lieu when workers are dismissed ‘without just cause’. No notice is required when workers are dismissed with ‘just cause’ or during the probation period.",
+          "probation_period": "In Panama, probation periods are outlined in the employee’s employment contract/collective agreement. The probation period is up to three months."
+        },
+        "visa": {
+          "general_info": "As a general rule, employers/companies must make up 90% of their workforce via Panamanian citizens or foreigners who are either married to a Panamanian citizen or who have resided in the country for at least ten years. They can engage an expert or foreign technical personnel, but this must not exceed 15% of the total number of workers.\n\nEmployers who need to contract foreign personnel must obtain authorization issued by the Ministry of Labor. This authorization or work permit is valid for renewable one-year periods, except for citizens of certain specific countries who may obtain a permanent work permit. Employees under the Marrakech Treaty may renew their resident permits and work permits, but only for a maximum of six years.\n\nThe Ministry of Labor has published a decree which restructures Panama’s work permit categories and implements numerous other changes to work permit regulations. Under the decree, there are overall stricter quota requirements for employers in Panama but relaxed quota requirements for short-term technicians; stricter work permit rules for SEM and EMMA visa holders, stricter documentary requirements for certain employers, and new work permit options for self-employed foreign nationals and students, among numerous other changes.\n\nThe Ministry has granted a grace period until March 31, 2023, so that foreign nationals who already hold a valid work permit in Panama or submit their work permit application on or before that date are unaffected by the changes."
+        },
+        "vat": {
+          "general": "The standard rate of movable goods and service transfer tax is 7%."
+        }
+      }
+    }
+  ]
+}

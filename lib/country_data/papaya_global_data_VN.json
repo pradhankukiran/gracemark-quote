@@ -1,0 +1,105 @@
+{
+  "scraped_at": "2025-08-24T18:58:42.033Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Vietnam",
+      "url": "https://www.papayaglobal.com/countrypedia/country/vietnam/",
+      "scraped_at": "2025-08-24T18:58:42.024Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "0.50%",
+              "description": "Social Insurance * (Labor, Accident, and Occupational Disease Fund) applied on income up to  46,800,000 VND monthly"
+            },
+            {
+              "rate": "14.00%",
+              "description": "Social Insurance * (Retirement & Death Gratuity Fund) applied on income up to 46,800,000 VND monthly"
+            },
+            {
+              "rate": "3.00%",
+              "description": "Social Insurance * (Sickness & Maternity Fund) applied on income up to 46,800,000 VND monthly"
+            },
+            {
+              "rate": "3.00%",
+              "description": "Health Insurance, applied on income up to 46,800,000 VND monthly"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Unemployment Insurance applied on income up to 99,200,000 VND monthly.)"
+            },
+            {
+              "rate": "2.00%",
+              "description": "Trade Union Fee applied on income up to 46,800,000 VND monthly"
+            },
+            {
+              "rate": "21.50%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "8.00%",
+              "description": "Social Insurance*"
+            },
+            {
+              "rate": "1.50%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Unemployment Insurance (the maximum salary for Unemployment insurance is 99,200,000 VND.)"
+            },
+            {
+              "rate": "10.50%",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "In Vietnam, the statutory minimum wage is set per zone as designated by the government.\nThe monthly minimum wages is:\nThe hourly minimum wage is:\nWages for employees that are paid daily or on a weekly basis must not be lower than the minimum wage when converted to monthly or hourly rates.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Vietnam is generally monthly and is usually paid on the last working day or as agreed within the employment contract.",
+          "13th_salary": "In Vietnam, it is customary to pay a 13th-month salary at the Lunar New Year or the end of the year."
+        },
+        "working_hours": {
+          "general": "Working hours must not exceed 8 hours a day or 48 hours per week.",
+          "overtime": "Work that exceeds the standard weekly working hours is deemed as overtime and workers consent is needed for overtime working.\nOvertime is paid at a rate of 150% salary on weekdays, 200% salary on weekends and 300% salary on holidays.\nOvertime working should not exceed 50% of the normal working hours in a day, up to 60 hours in a month and a total 0f 200 overtime hours per year.\nBy exception, in certain scenarios it is possible to work overtime of up to 300 hours per year, for which the employer must notify in writing the specialized labor agency under the provincial People’s Committee.\nExceptional circumstances include certain industries such as producing, agriculture, telecommunications, problem solving jobs that require highly qualified professional and technical workers, but the labor market cannot supply them adequately and promptly, cases of urgent work that cannot be delayed due to seasonality or to deal with work arising due to unforeseen objective factors such as consequences of weather and natural disasters and other cases prescribed by the Government of Vietnam."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Annual leave is a minimum of 12 working days per year. This increases by one day for every five years of consecutive service.",
+          "public_holidays": "Public holidays falling on weekends are moved to the next working day in lieu.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n25 Jan 2025\tSaturday\tLunar New Year (Tet)\t\n26 Jan 2025\tSunday\tLunar New Year\t\n27 Jan 2025\tMonday\tLunar New Year\t\n28 Jan 2025\tTuesday\tLunar New Year\t\n29 Jan 2025\tWednesday\tLunar New Year\t\n30 Jan 2025\tThursday\tLunar New Year\t\n31 Jan 2025\tFriday\tLunar New Year\t\n1 Feb 2025\tSaturday\tLunar New Year\t\n2 Feb 2025\tSunday\tLunar New Year\t\n7 Apr 2025\tMonday\tHung Kings Commemoration Day\t\n30 Apr 2025\tWednesday\tReunification Day\t\n1 May 2025\tThursday\tLabor Day\t\n1 Sep 2025\tMonday\tNational Day\t\n2 Sep 2025\tTuesday\tNational Day\nIn addition to these public holidays, an expatriate employee is also entitled to 1 day off for the traditional new year and 1 day off for the national day of their home country.",
+          "sick_days": "As of 1 July 2025, Vietnam’s updated Social Insurance Law has taken effect. Under these regulations, workers are entitled to sick leave at a duration between 30 to 70 days paid by the Social Insurance Authority at a rate equal to 75% salary, depending on the employee’s social insurance contribution history and working conditions, regardless of illness type.\nAfter the maximum entitlement period ends, additional sick leave can be taken with a reduced rate of payment of 65% salary for those with over 30 years of SI contributions, 55% salary for those with 15 to 30 years of SI contributions or 50% salary for those with less than 15 years of SI contributions).\nIt is permitted to take half day sickness leave which will be compensated a half the standard daily rate. Leave exceeding half a day but less than a full day will be compensated at the full daily rate.\nEmployees who take sick leave for 14 days or more in their first month or initial month return after long-term sick leave are still required to pay their monthly social insurance contributions.\nEmployees must provide a medical certificate for sickness which employers will need to send to Social Insurance.",
+          "maternity_leave": "Female employees are entitled to a total of 6 months maternity leave – a maximum of 2 months can be taken as prenatal leave and the remainder as postnatal leave. An additional 1 month leave is given where there are multiple births.\nAdditionally, female employees are entitled to up to 5 prenatal check-up leaves, with a maximum of 2 paid days per check-up.\nMaternity leave is paid by the Social Insurance Authority at a rate of 100% of the average monthly salary on which Social Insurance premiums are based on the six months preceding their leave, capped at a maximum salary during maternity of 20 times the minimum common salary.\nTo initiate the Social Insurance subsidies, within 30 days after giving birth, the mother must submit the hospital discharge papers, birth certificate of the newborn baby and an application to receive maternal subsidies.\nEmployees who miscarry or lose a baby from 22 weeks onward are entitled to full 6-month maternity leave if they have contributed to compulsory social insurance for at least 6 months within the 12 months prior to the expected date of childbirth. If not, they are entitled to 50 days of leave",
+          "paternity_leave": "Fathers are entitled to leave of:\nFor natural births: 5 working days\nFor birth by cesarean, premature, other complications: 7 working days\nFor natural birth twins: 10 working days\nFor the birth of triplets or more more:  10 days + 3 days per additional child.\nLeave must be taken within 60 days of the child’s birth.\nLeave is paid by the Social Insurance Authority at a rate of 100% of the salary received in the month preceding the start of the paternity absence.",
+          "parental_leave": "Parental leave in Vietnam is available for childcare and entitles employees to up to 20 working days of parental leave per year until the child reaches the age of 3 and thereafter up to 15 working days per year until the child reaches the age of 7.\nVietnamese nationals will have this leave paid by the Social Insurance Authority at the rate of 75% of the salary in the month preceding the start of the leave.",
+          "other_leave": "Depending on the contract, employees may be allowed additional leave types, once approved between the employer and employee for the following:\nBereavement: Employees are entitled to 3 days of paid leave for the death of a spouse, biological or adoptive parent; spouse’s biological or adoptive parent, biological or adopted child. 1 day of unpaid leave should be given for the death of a grandparent or biological sibling.\nMarriage: Employees are entitled to up to 3 days in case of marriage and one day for a child’s marriage. 1 day of unpaid leave should be given for the marriage of a parent or sibling."
+        },
+        "termination": {
+          "termination_process": "Termination justification is based on the criteria outlined in the labor law regulations, including repeated failure to perform work to the required standard or misconduct.\nDue to the nature of termination in Vietnam, it is very common to end an employment relationship through using a Mutual Termination Agreement.\nIt is not permitted to terminate a worker whilst they are on paid time off.",
+          "notice_period": "Notice of termination must be in writing and the length of the notice period varies based on the type of contract:\n45 days for an indefinite labor contract by the employee and the employer\n30 days for a definite labor contract (between 1-3 years)\n3 working days for the seasonal contract (contract of less than one year)\nNo notice is required during the probation period",
+          "severance_pay": "Vietnamese labor law requires employers to provide severance payments to terminated employees who have been regularly working for the employer for a period of 12 months or more.\nThe severance payment is equal to half a month’s wages for each year of employment.",
+          "probation_period": "For permanent employees, the probation period in Vietnam is generally based on the complexity and skill required to do the role and varies between 6 to 60 days; for managerial roles up to 180 days might be used.\nThe wage for an employee during the probation period must be agreed upon in writing but cannot be less than 85% of the full-time permanent salary for the role."
+        },
+        "common_benefits": [
+          "Meal allowance per month: CAP 730,000 VND (nontaxable)",
+          "Commuting expenses (from and to the office e.g., train tickets/bus, average petrol) per month and in practice, companies will pay 50 USD per month in Vietnam (taxable)",
+          "Gym membership per month: Fees cost about 60 USD/per month for good service (taxable)",
+          "Internet coverage per month: In practice, the company will pay 50 USD per month in Vietnam (taxable)",
+          "Customary to provide 13th salary bonus across all sectors."
+        ],
+        "visa": {
+          "general_info": "Foreign nationals typically require a work permit before entering Vietnam to take up employment.\n\nThe Vietnamese work permit is a legal document authorizing the person to engage in employment and receive compensation from a company in Vietnam.\n\nHowever, a foreigner may work in Vietnam without a work permit with a work permit exemption certificate in certain circumstances.\n\nThis certificate is equivalent to the work permit, valid for up to two years, and serves as a basis for applying for a temporary residence card."
+        },
+        "vat": {
+          "general": "The VAT rate in Vietnam is 8% (temporarily reduced from the regular rate of 10%). The reduction has been extended until the 31 December 2026."
+        }
+      }
+    }
+  ]
+}

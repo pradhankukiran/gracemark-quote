@@ -1,0 +1,121 @@
+{
+  "scraped_at": "2025-08-24T18:47:40.479Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Turkey",
+      "url": "https://www.papayaglobal.com/countrypedia/country/turkey/",
+      "scraped_at": "2025-08-24T18:47:40.469Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "2.25%",
+              "description": "Short-Term Insurance Branch Premium, applied on income 195,041.40 TRY monthly"
+            },
+            {
+              "rate": "11%",
+              "description": "Pension & Disability, applied on income 195,041.40 TRY monthly"
+            },
+            {
+              "rate": "7.5%",
+              "description": "General Health Insurance, applied on income 195,041.40 TRY monthly"
+            },
+            {
+              "rate": "2%",
+              "description": "Unemployment Insurance, applied on income 195,041.40 TRY monthly"
+            },
+            {
+              "rate": "22.75%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "9.00%",
+              "description": "Pension & Disability, applied on income 195,041.40 TRY monthly"
+            },
+            {
+              "rate": "5.00%",
+              "description": "General Health Insurance, applied on income 195,041.40 TRY monthly"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Unemployment Insurance, applied on income 195,041.40 TRY monthly"
+            },
+            {
+              "rate": "15%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "15.00%",
+              "description": "0-158,000 TRY annually"
+            },
+            {
+              "rate": "20.00%",
+              "description": "158,000 TRY- 330,000 TRY annually"
+            },
+            {
+              "rate": "27.00%",
+              "description": "330,000 TRY -1,200,000 TRY annually"
+            },
+            {
+              "rate": "35.00%",
+              "description": "1,200,000 TRY -4,3000,000 TRY annually"
+            },
+            {
+              "rate": "40.00%",
+              "description": "4,3,000,000 TRY and above annually"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The Gross minimum wage in Turkey is  26,005.50 TRY a month (22,104.67 TRY net minimum wage).",
+        "payroll": {
+          "payroll_cycle": "In Turkey, the payroll frequency is monthly. Work between the first and last day of the month is typically paid on the last day of the month.",
+          "13th_salary": "In Turkey, there is no legal requirement for 13th-month payments."
+        },
+        "working_hours": {
+          "general": "The standard working week in Turkey consists of 45 working hours. These hours can be distributed in any way over the week, provided an employee does not work for more than 11 hours in one single day.\nThe average working day can be 7.5 hours for 6 days a week or 9 hours for 5 days a week.",
+          "overtime": "If work time limits are passed, overtime compensation is compulsory. The maximum number of overtime hours is 48 hours per working week.\nOvertime is due after working the maximum 45 hours in one week and is paid at the statutory rate of 150% of the employee’s regular pay if the overtime is worked on a weekday and 200% of the employee’s standard pay rate if the work is carried out on the weekend.\nOvertime can also be given as time off in lieu.\nThere is an overtime limit of up to 270 hours per year, along with the requirement to obtain employees’ consent for overtime work.\nFor certain jobs, a clause can be included in the Employment contract that overtime work is included as part of the agreed salary."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Paid leave in Turkey is set in the employment contract as a minimum of 14 working days of paid leave a year (following completion of 1-year service) in addition to public holidays.\nThis increases to 20 working days of paid leave when the employee has completed between five- and fifteen years of service, and subsequently, employees with fifteen or more years of service are entitled to 26 working days of paid leave per year.\nThe length of annual leave with pay may be increased by employment contracts and collective agreements, except for employees below the age of eighteen and above the age of fifty, where the length of paid annual leave must not be fewer than twenty days.\nRegular salary is paid during the vacation period. The employer must pay the annual leave entitlement as a lump sum or as an advance payment before the beginning of the leave.\nAnnual Leave allowance is accrued from each worker’s individual service date,  not according to calendar year.\nIt is permitted for unused leave to be carried over into the next leave year.",
+          "public_holidays": "Public holidays falling on weekends are lost.\nReligious holidays are determined by the lunar cycle and will show as ‘tentative’ until they are confirmed nearer the date of the holiday.\nWritten consent from the employee is required to request the employee work on public holidays. Employees shall be entitled to the full day’s wage of the holiday day, without any work obligation in return.\nIf they work instead of observing the holiday, regardless of how many hours they worked, they shall be paid an additional full day’s wage for each day worked.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n30 Mar 2025\tSunday\tEid al-Fitr\t\n31 Mar 2025\tMonday\tEid al-Fitr\t\n1 Apr 2025\tTuesday\tEid al-Fitr\t\n23 Apr 2025\tWednesday\tNational Sovereignty & Children’s Day\t\n1 May 2025\tThursday\tLabor & Solidarity Day\t\n19 May 2025\tMonday\tCommemoration of Atatürk, Youth and Sports Day\t\n5 Jun 2025\tThursday\tEid al-Adha\tHalf Day Working\n6 Jun 2025\tFriday\tEid al-Adha\t\n7 Jun 2025\tSaturday\tEid al-Adha\t\n8 Jun 2025\tSunday\tEid al-Adha\t\n9 Jun 2025\tMonday\tEid al-Adha\t\n15 Jul 2025\tTuesday\tDemocracy & National Unity Day\t\n30 Aug 2025\tSaturday\tVictory Day\t\n28 Oct 2025\tTuesday\tRepublic Holiday\tFrom the afternoon.\n29 Oct 2025\tWednesday\tRepublic Holiday",
+          "sick_days": "There is no mandatory obligation for the employer to pay the employee during sick leave, however, in general, employees are paid by Social Security after 3 days of sickness and upon production of the confirmative medical reports.\nIn practice, many employers pay regular salary for the first 2 days (which are not covered by Social Security) or for the entire period of sick leave (and get a partial refund when paid by Social Security).\nIf sick leave exceeds six weeks beyond the notice periods determined in labor law. In that case, an employment contract may be terminated without notice, as in accordance with Article 46(c) of the Turkish Labor Code.",
+          "maternity_leave": "Working mothers are entitled to 16 weeks (extended to 18 weeks in cases of multiple/complicated pregnancies) of maternity leave at full pay, usually taken eight weeks before the due date and eight weeks after.\nEmployees can request to work up until three weeks before the due date with all remaining leave moved to post-delivery.\nPayment during maternity leave comes from social security, according to the regular contributions of the employee.\nAlso, employees may be allowed to work part-time following the birth of the child, with the amount of leave dependent on how many children the employee has (in total):\nOne child – 60 days of leave\nTwo children – 120 days of leave\nMore than two children – 180 days of leave\nIn case of disability or adoption, the leave period is up to 360 days.",
+          "paternity_leave": "The father/partner is entitled to 5 calendar days of paid leave from the day the child is born (includes weekends and national holidays).",
+          "parental_leave": "If both parents are employed, they are entitled to work part-time until the child starts primary school. The employee is required to provide an employer with written notice of the request at least a month in advance.\nParents are also entitled to up to 10 days of leave to attend treatment/medical appointments for a child with a disability or chronic disease.",
+          "other_leave": "Depending on the collective agreement/employment contract terms, an employee may be allowed additional leave, once approved between the employer and employee, for the following:\nBereavement Leave: Employees are entitled to 3 days of paid leave in the event of the death of an immediate family member\nMarriage Leave: Employees are entitled to 3 days of paid leave in the event of their wedding.\nMilitary Leave: Employees are entitled to up to 90 days of paid leave per year when called up for military exercises or the performance of a statutory obligation, other than compulsory military service"
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to how the employment agreement and collective agreement are in place and is based on the type of contract and reason for termination.",
+          "notice_period": "In Turkey, the notice period is dependent on the employee’s length of service as below:\nDuring Probation – no notice required\n0 – 6 months of service – 2 weeks’ notice\n6 – 18 months of service – 4 weeks’ notice\n18 – 36 months of service – 6 weeks’ notice\nMore than 36 months – 8 weeks’ notice",
+          "severance_pay": "Generally, employees who worked more than one year with the same employer and were unfairly dismissed (or resigned due to just cause) are entitled to severance pay.\nSeverance pay is calculated as the monthly wage multiplied by each completed year of employment. Any remaining months and days are also included in the severance pay calculation.\nThe wage considered in this calculation is the gross wage. A ceiling amount has been determined for the gross wage, including the seniority basis wages.\nThe severance pay ceiling, which is determined as the retirement bonus of the highest civil servant, is updated every year with the salary hike of civil servants twice a year.\nSeverance pay for the employees who have been terminated and deserved severance pay should be calculated considering the seniority ceiling determined as gross 46,655.43 TRY (effective from 01.01.2025 – 30.06.2025).",
+          "probation_period": "Probation or trial periods are generally set within the employee’s employment contract, however, standard practice in Turkey is two months. During probation, no notice is required.\nDuring the probationary period, either party can terminate the employment contract without a notice period and shall not pay compensation."
+        },
+        "common_benefits": [
+          "Pension Allowance",
+          "Health Insurance Allowance (annual private health insurance estimated cost 600-1,000 USD)",
+          "Meal Allowance – the income exempt amount starts from net 240 TL (alternatively it is popular to provide meal vouchers through a vendor).",
+          "Transportation Allowance – 2,120 TL per month (which covers the cost of a monthly Multi-Pass)"
+        ],
+        "visa": {
+          "general_info": "A Turkish Work Visa provides authorization for foreigners to move to Turkey for employment purposes.\n\nA work visa must be obtained alongside a work permit, without which foreigners cannot work in Turkey. Aside from nationals of the Turkish Republic of Northern Cyprus, all citizens need a work visa and a work permit to work in Turkey.\n\nApplications cannot start without having a definite job offer in Turkey.\nThe application needs to be filed to the Turkish embassy or consulate in the foreigner’s country of residence.\n\nWithin ten days of the application, the new employer should submit additional documentation to the Turkish Ministry of Labour and Social Security (MLSS).\nDepending on the field of employment in Turkey, a different type of work visa is required:\n\nEmployment Purpose/Special Employment Purpose\nAssigned Lecturers/Academics\nAssigned Sportsperson\nAssigned Artists\nAssigned Free Zone Workers\nAssigned Journalists\nMontage and Repairman Purposes"
+        },
+        "remote_work": "The Turkish Remote work legislation defines this as work performed outside the employer’s workplace using technology.\nThere is an obligation to establish a written remote work agreement including the location where the job will be performed, the working hours, the communication methods between the employer and the employee, any additional compensation related to the telework, the equipment that will be provided, etc.\nThe employer is required to provide teleworkers with the necessary tools and equipment to perform the job. Expenses related to telework should be reimbursed by the employer to the employee.\nCompensation for such expenses should be agreed upon between the employee and reflected in the employment contract.\nEmployees can start working remotely upon hiring or may be hired to work on-site and agree with the employer to be converted to remote work at a later date and the employment contract should reflect this change when applicable.\nMutual consent of both the employee and the employer is needed to switch from on-site work to remote work unless unforeseen circumstances.\nIn such cases, employers can unilaterally decide that employee should work remotely.",
+        "vat": {
+          "general": "The standard rate of VAT in Turkey is 18%."
+        }
+      }
+    }
+  ]
+}

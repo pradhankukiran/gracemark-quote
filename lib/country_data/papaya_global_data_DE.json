@@ -1,0 +1,112 @@
+{
+  "scraped_at": "2025-08-24T18:00:41.441Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Germany",
+      "url": "https://www.papayaglobal.com/countrypedia/country/germany/",
+      "scraped_at": "2025-08-24T18:00:41.430Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "7.30%+0.85%*",
+              "description": "Health insurance (KV), applied on salary up to 5,512.50 EUR per month (an additional percentage can apply depending on employee’s chosen insurance)."
+            },
+            {
+              "rate": "9.30%",
+              "description": "Pension Insurance (RV), applied on salary up to 8,050 EUR monthly in all Federal States."
+            },
+            {
+              "rate": "1.30%",
+              "description": "Unemployment Insurance (AV), applied on salary up to 8,050 EUR monthly in all Federal States."
+            },
+            {
+              "rate": "1.80%",
+              "description": "Long-Term Nursing Care Insurance (PV), applied on salary up to 5,512.50 EUR per month (for employees with one child)"
+            },
+            {
+              "rate": "0.64%",
+              "description": "Disability insurance (U1), Maternity insurance (U2), and Insolvency insurance (U3). The percentage is subject to change depending on the employing entity.\n* (effective once the employee reaches 23 years of age and is increased to 1.775% for employees with no children)"
+            },
+            {
+              "rate": "1.50%",
+              "description": "Accident Insurance"
+            },
+            {
+              "rate": "21.84%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "7.30%+ 0.80%*",
+              "description": "Health insurance (KV) Health insurance (KV), applied on salary up to 5,512.50 EUR per month (an additional percentage can apply depending on employee’s chosen insurance)."
+            },
+            {
+              "rate": "2.40-3.40%",
+              "description": "Long-Term Nursing Care Insurance (PV), applied on salary up to 5,512.50 EUR per month. The % varies with the number of children:\n\n– For Employees without children – 2.40% (2.9% in Saxony)\n– For employees with 1 child the rate is – 1.80% (2.3% in Saxony)\n– For employees with 2 children the rate is – 1.55% (2.05% in Saxony)\n– For employees with 3 children the rate is – 1.30% (1.8% in Saxony)\n– For employees with 4 children the rate is – 1.05% (1.55% in Saxony)\n– For employees with 5 children the rate is – 0.80% (1.3% in Saxony)\nSelf employed workers must pay – 3.40%"
+            },
+            {
+              "rate": "9.30%",
+              "description": "Pension Insurance (RV), applied on salary up to 8,050 EUR monthly in all Federal States."
+            },
+            {
+              "rate": "1.30%",
+              "description": "Unemployment Insurance (AV), applied on salary up to 8,050 EUR monthly in all Federal States."
+            },
+            {
+              "rate": "20.30%",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The Minimum Wage Act (Mindestlohngesetz- MiLoG) set the national hourly minimum wage as 12.82 EUR on 1 January 2025.\nHowever, many different minimum rates are depicted in industry-specific Collective Bargaining Agreements.",
+        "payroll": {
+          "payroll_cycle": "In Germany the payroll frequency is monthly and paid typically on or around the 25th of the month.",
+          "13th_salary": "13th-month salary payments are customary in Germany and are paid on the December pay date."
+        },
+        "working_hours": {
+          "general": "The standard working week in Germany is 40 hours per week, 8 hours per day. The work week can be no longer than 48 hours, 10 hours per day if, within six months or 24 weeks, the overall average working time does not exceed eight hours per day.",
+          "overtime": "Overtime work must conform to the maximum working hours stipulated within the employee contract/collective agreement.\nThere are two common types of overtime: Mehrarbeit, which refers to working time that exceeds the maximum limit of 48 hours per week (8 hours per day across a 6-day working week), as set out in the Working Hours Act. This may be extended up to 10 hours per day if the employee’s total working hours average 8 hours per day over six months.\nThe second, Überstunden, which is defined as any hours worked on top of one’s contractually agreed hours, is legally permissible and must normally be compensated."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The statutory minimum entitlement of annual leave is 20 working days per year for employees working a regular 5-day week, and 24 working days per year for those working a regular 6 day week, as set by the Bundesurlaubsgesetz – the Federal Holidays Act.\nEntitlement for paid vacation is called Urlaubsanspruch. The Urlaubstage number is listed in the employment contract or collective agreement (Tarifvertrag), depending on the type of industry.\nMany collective agreements increase this entitlement to 30 working days, and employees that work in dangerous or high-risk environments are often entitled to additional leave.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n6 Jan 2025\tMonday\tEpiphany\tBaden-Württemberg, Bavaria, Saxony-Anhalt\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabor Day\t\n29 May 2025\tThursday\tAscension Day\t\n9 Jun 2025\tMonday\tWhit Monday\t\n19 Jun 2025\tThursday\tCorpus Christi\tBaden-Württemberg, Bavaria, Hesse, North Rhine-Westphalia, Rhineland-Palatinate, Saarland, parts of Saxony and Thuringia\n15 Aug 2025\tFriday\tAssumption Day\tBavaria [in predominantly Catholic areas], Saarland\n3 Oct 2025\tFriday\tGerman Unity Day\t\n31 Oct 2025\tFriday\tReformation Day\tBrandenburg, Mecklenburg-Vorpommern, Saxony, Saxony-Anhalt, Thuringia, Schleswig-Holstein, Hamburg, Bremen, Lower Saxony\n1 Nov 2025\tSaturday\tAll Saint’s Day\tBaden-Württemberg, Bavaria, North Rhine-Westphalia, Rhineland-Palatinate, Saarland\n19 Nov 2025\tWednesday\tRepentance Day\tSaxony\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day",
+          "sick_days": "Eligible employees (those who have been employed for four weeks before starting sick leave) are entitled to sick pay of 100% of the regular income for up to six weeks (Entgeltfortzahlung bei Krankheit oder Kur). After six weeks, the health insurance fund (Krankengeld) pays between 70% and 90% of the regular salary, based on the insured employee’s fund level, for up to 78 weeks in three years for incapacity caused by the same illness, calculated from the first day of sickness.\nThe employee must inform the employer of their incapacity for work and the anticipated duration of the incapacity as soon as possible. If an illness lasts longer than three days, an employee must submit a doctor’s certificate no later than the following working day. From 2023 onwards, working incapacity certificates will be digital and transmitted electronically by the doctor.",
+          "maternity_leave": "A pregnant employee is entitled to 14 weeks of paid maternity leave (Mutterschutzgesetz – MuSchG), which can increase to 18 weeks with complicated/multiple births.\nMaternity leave consists of two periods: Prenatal leave, which requires the employee to take a minimum of 6 weeks before the expected due date, and Postnatal leave, which requires an employee to take the remaining eight weeks of leave starting from the date of the birth of the child.\nThe public health insurance fund pays the maternity payment. The payment is equivalent to the average sum of the net wages for the three months before the pregnancy paid by the employee’s public health insurance (or the state in the case of private health insured employees, maximum 210 EUR) and the employer.  The public health insurance pays the maternity benefit (Mutterschaftsgeld) only up to a maximum of 13 EUR a day. If the daily net wage of the last three months is higher, the employer must pay a grant (Zuschuss Zum Mutterschaftsgeld) for the difference.",
+          "paternity_leave": "Paternity leave falls under the parental leave.",
+          "parental_leave": "New parents are legally entitled to unpaid parental leave (Elternzeit) and must request the leave in writing at least seven weeks before the start date.\nParental leave is 36 months (including the eight weeks of postnatal leave) and can be shared between the parents. However, the parents must take at least 12 months of parental leave within the first three years; the remainder, with permission from the employer, can be used at any point between the child’s second and seventh birthday. Parents can also choose to work part-time up to 30 hours per week with prior permission from the employer during parental leave.",
+          "other_leave": "Child Sick Leave Day – parents are eligible for up to 15 fully paid sick days per child to care for a sick child. This benefit is available to both parents, with single parents receiving 30 days per child.\nFamily Care Time (Pflegezeitgesetz) – this leave entitles employees to up to 10 days unpaid leave to assist a seriously ill family member or family emergency.\nWhere a Collective Agreement is in place, employees might be entitled to additional leave types."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment agreement and collective agreement, and is based on the type of contract and reason for termination. After the first six months of employment, employees are protected by the German Termination Protection Act.",
+          "notice_period": "In general, notice periods in Germany are four weeks but are stipulated within the employment contract/collective agreement and are linked to the employee’s length of service as below:\nUp to 2 years\t4 weeks (per the 15th or last day of the month)\n2 to 4 years\t1 month\n5 to 7 years\t2 months\n8 to 9 years\t3 months\n10 to 11 years\t4 months\n12 to 14 years\t5 months",
+          "severance_pay": "Severance pay is only applicable when an employer terminates an employment agreement without notice; in this case, the severance pay is the same amount the employee would earn if given notice.\nShould the reason for termination be caused by company operational changes, the employer must give severance payment, generally being two weeks regular salary payment for each year of service.",
+          "probation_period": "Probation or trial periods are generally set within the collective agreements. The common practice in Germany is up to 6 months."
+        },
+        "common_benefits": [
+          "Transportation/commuter allowance",
+          "Wellness allowance",
+          "Phone and internet allowance",
+          "Vacation and Christmas bonus, performance bonuses",
+          "Car allowance",
+          "Travel insurance",
+          "Edenred Card: a tax-free benefits card that employees can use at shops, supermarkets, and gas stations",
+          "House cleaning allowance"
+        ],
+        "visa": {
+          "general_info": "A long-term (national) German visa type D is required to work in Germany as it allows a foreigner to stay in the country for more than three months. In 2020 the German legislation changed in terms of the required minimum level of skills of the applicant; this is now diploma level, together with being competent in the use of the German language.\n\nThe different types of Visas are as follows:\n\nEU Blue Card allows an employee to work in all European countries. To be granted an EU Blue Card, the applicant must have graduated from a university, have an employment contract with the employing company, and a lower salary threshold than 39,600 EUR for IT specialists, mathematicians, and representatives of the engineering field, and 50,800 EUR for other applicants.\nPermanent residence for valuable personnel. This condition applies to scientists known for their work, researchers, and professors.\nPermission for highly qualified specialists. Obtaining a work visa to Germany is possible if you have the appropriate skills and a salary of 86,400 EUR annually.\nGeneral employment. This is the most demanded type of German work permit. There are no strict requirements for education and specialty. Also, the profession must be in demand at the time of the request. To apply for a visa, you must confirm your qualifications and have an employment contract on hand.\nFor job search. This is for the option of obtaining a work visa to Germany for future employment. If approved, a person can stay in the country for six months, after which it is necessary to re-register or obtain a residence permit."
+        },
+        "vat": {
+          "general": "The standard VAT rate in Germany is 19.00%."
+        }
+      }
+    }
+  ]
+}

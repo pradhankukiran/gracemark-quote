@@ -1,0 +1,118 @@
+{
+  "scraped_at": "2025-08-24T18:26:09.643Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Nicaragua",
+      "url": "https://www.papayaglobal.com/countrypedia/country/nicaragua/",
+      "scraped_at": "2025-08-24T18:26:09.634Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "12.50%",
+              "description": "Pension and Disability (fewer than 50 employees)"
+            },
+            {
+              "rate": "13.50%",
+              "description": "Pension and Disability (more than 50 employees)"
+            },
+            {
+              "rate": "6.00%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "1.50%",
+              "description": "Labor Healthcare"
+            },
+            {
+              "rate": "1.50%",
+              "description": "War Victims"
+            },
+            {
+              "rate": "2.00%",
+              "description": "Training Fund (INATEC)"
+            },
+            {
+              "rate": "up to 24.50%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "4.75%",
+              "description": "Pension & Disability"
+            },
+            {
+              "rate": "2.25%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "7.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0-100,000 NIO",
+              "description": "0%"
+            },
+            {
+              "rate": "100,001 NIO – 200,000 NIO",
+              "description": "15%"
+            },
+            {
+              "rate": "200,001 NIO – 350,000 NIO",
+              "description": "20%"
+            },
+            {
+              "rate": "350,001 NIO – 500,000 NIO",
+              "description": "25%"
+            },
+            {
+              "rate": "500,001 NIO +",
+              "description": "30%"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The national minimum wage in Nicaragua is dependent on the employee’s industry. The national minimum wage ranges from 5,196.34 NIO per month for the agriculture industry and 11,628.95 NIO per month for construction, financial institutions, and insurance.",
+        "payroll": {
+          "payroll_cycle": "In Nicaragua, the payroll frequency is stipulated in the employment contract. Employees are typically paid on a weekly or monthly basis. Those paid monthly receive payment on the 15th day of the cycle.",
+          "13th_salary": "In Nicaragua, 13th-month payments are mandatory and the employer must pay an additional month’s salary within the first 10 days of December."
+        },
+        "working_hours": {
+          "general": "The standard working week in Nicaragua consists of 48 hours per week 8 hours per day, except in the case of night-time work, which drops to 45 hours per week, 7.5 hours per day.",
+          "overtime": "All work above the standard working hours is paid as overtime and regulated by employment contracts/collective agreements. When an employee is requested to work overtime or work on holidays, there is a limit of 9 hours per week.\nAll overtime hours in excess of 48 hours a week are paid at an overtime compensation rate of 200% of the employee’s regular salary.\nFor work performed on a weekend or holiday, employees are entitled to a 24-hour rest period in lieu. Overtime must not exceed 3 hours per day and 9 hours per week."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to 15 days of paid leave following six months of consecutive employment. After one year of work, an employee is entitled to 30 days of vacation leave. Employees receive 15 days of leave for every six months in service.",
+          "public_holidays": "Date\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n17 Apr 2025\tThursday\tMaundy Thursday\t\n18 Apr 2025\tFriday\tGood Friday\t\n1 May 2025\tThursday\tLabour Day\t\n19 Jul 2025\tSaturday\tLiberation Day\t\n14 Sep 2025\tSunday\tBattle of San Jacinto\t\n15 Sep 2025\tMonday\tIndependence Day\t\n8 Dec 2025\tMonday\tImmaculate Conception\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "Employees are entitled to up to 26 weeks of sick leave paid at 60% of the regular wages by Social Security from the 4th day of sickness. The first three days of sick leave are unpaid (unless the company has established a practice of paying for those days and it is stipulated within the employment contract).\nHowever, if the employee is hospitalized or it is a work-related illness or injury, the three-day waiting period/unpaid leave is waived.",
+          "maternity_leave": "Maternity leave in Nicaragua is 12 weeks of paid leave. An employee must take four weeks of leave before the birth of the child and eight weeks following the birth. In the case of multiple births, an employee is entitled to 14 weeks of paid leave, four weeks of leave to be taken before the child’s birth and ten weeks following the birth.\nSocial Security compensates all maternity leave at 60% of the employee’s regular salary and 40% from the employer resulting in a fully paid maternity leave. Employees who have contributed to Social Security for a minimum of 16 weeks preceding childbirth receive a maternity leave benefit of 12 weeks at 100% of the employee’s average weekly income. If an employee has not contributed to social security, then the compensation falls to the employer.",
+          "paternity_leave": "The father/partner is entitled to five business days of paid paternity leave after the child’s birth.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "There are no provisions in the law regarding other leave."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment agreement and collective agreement in place and is based on the type of contract and reason for termination. To dismiss an employee, an employer must request permission from the labor inspection department. Following termination, an employee is entitled to any remaining vacation pay and their annual bonus.",
+          "notice_period": "Employees in Nicaragua must provide employers with 15 days’ notice. During the probation period, no notice is required to terminate.",
+          "severance_pay": "Severance pay is according to the length of employment:\nUp to 3 years of service, 1 month’s salary per year worked is required\n4 to 6 years of service, 20 days’ salary per year worked is required\n7+ years of service, 5 months of salary is required",
+          "probation_period": "The probation period is 30 days, during which either party can terminate the employment agreement for any reason."
+        },
+        "visa": {
+          "general_info": "Nicaragua’s immigration system provides several options for employers of foreign nationals. Requirements, processing times, employment eligibility, and benefits for accompanying family members vary by permit type.\n\nVisa-exempt nationals (also referred to as Category A nationals) can travel to Nicaragua without an entry visa and stay for a period of up to 90 days, extendable in the country for an additional 90 days at the discretion of immigration authorities.\n\nCategory B visa nationals can secure a visa at a Nicaraguan consular post or on arrival at the Nicaraguan port of entry.\n\nCategory C visa nationals must obtain a Consulted Visa from a Nicaraguan consular post with prior authorization from the Immigration Department of Nicaragua. These visas typically involve an extended processing time.\n\nForeign nationals who will engage in work or remunerated activities in Nicaragua for less than one year can obtain a work permit. The work permit’s validity usually corresponds to the length of time the foreign national will perform work activities in Nicaragua. Foreign nationals who will engage in work or remunerated activities in Nicaragua for more than one year either hired by a company in Nicaragua or independent workers who wish to perform a paid activity in Nicaragua, must obtain temporary residence.\n\nTemporary residence can be issued for up to one year, renewable for the period of the original issuance. After three years in Nicaragua, the foreign national may apply for a permanent resident status that can be issued for up to five years."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Nicaragua is 15%."
+        }
+      }
+    }
+  ]
+}

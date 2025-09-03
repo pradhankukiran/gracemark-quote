@@ -1,0 +1,105 @@
+{
+  "scraped_at": "2025-08-24T18:07:24.704Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Ghana",
+      "url": "https://www.papayaglobal.com/countrypedia/country/ghana/",
+      "scraped_at": "2025-08-24T18:07:24.696Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "13.00%",
+              "description": "Social Security & National Insurance Trust (SSNIT) and National Pension (NPRA). The minimum insurable earnings is 490.05 GHS and the maximum is 61,000 GHS. The maximum contribution is 8,235 GHS."
+            },
+            {
+              "rate": "13.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "5.50%",
+              "description": "Social Security & National Insurance Trust (SSNIT) and National Pension (NPRA). The minimum insurable earnings is 490.05 GHS and the maximum is 61,000 GHS. The maximum contribution is 8,235 GHS."
+            },
+            {
+              "rate": "5.50%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": "Annual"
+            },
+            {
+              "rate": "0.00%",
+              "description": "On the first 5,880 GHS"
+            },
+            {
+              "rate": "5.00%",
+              "description": "On the next 1,320 GHS"
+            },
+            {
+              "rate": "10.00%",
+              "description": "On the next 1,560 GHS"
+            },
+            {
+              "rate": "17.50%",
+              "description": "On the next 38,000 GHS"
+            },
+            {
+              "rate": "25.00%",
+              "description": "On the next 192,000 GHS"
+            },
+            {
+              "rate": "30.00%",
+              "description": "On the next 366,240 GHS"
+            },
+            {
+              "rate": "35.00%",
+              "description": "On income exceeding 600,000 GHS"
+            },
+            {
+              "rate": "25.00%",
+              "description": "Non-resident individuals are taxed at a flat rate on Ghanaian-sourced income."
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The daily minimum wage (NDMW) in Ghana is 19.97 GHS.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Ghana is monthly and payments must be made on the same day of each month and no later than the last working day of each month. However, some employers choose to pay their employees on a bi-weekly basis.",
+          "13th_salary": "There are no provisions in the law regarding 13th salaries."
+        },
+        "working_hours": {
+          "general": "The standard workweek in Ghana consists of 40 hours a week and typically is broken down to 8 hours per day for a five-day workweek. The workweek can be increased to 48 hours per week in specific sectors.",
+          "overtime": "Work in excess of the standard weekly work hours is considered overtime and is regulated by the employment contract or collective agreements. When an employee is requested to work overtime or work on holidays, there are maximums in relation to the number of hours allowed. These maximums are 48 hours per week.\nOvertime hours in excess of 40 hours a week are paid at 150% of the regular pay rate."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "After one year of employment for a full-time employee, the annual paid leave entitlement is 15 working days.",
+          "public_holidays": "Public holidays that fall on the weekend are moved to a weekday as a day off in lieu.\nThe religious holidays are determined by the lunar cycle and will be confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n7 Jan 2025\tTuesday\tConstitution Day\t\n6 Mar 2025\tThursday\tIndependence Day\t\n31 Mar 2025\tMonday\tEid ul-Fitr\t\n1 Apr 2025\tTuesday\tEid ul-Fitr\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tMay Day\t\n25 May 2025\tSunday\tAfrica Unity Day\t\n6 Jun 2025\tFriday\tEid al-Adha\t\n1 Jul 2025\tTuesday\tRepublic Day\tTentative\n4 Aug 2025\tMonday\tFounders’ Day\t\n21 Sep 2025\tSunday\tKwame Nkrumah Memorial Day\t\n22 Sep 2025\tMonday\tKwame Nkrumah Memorial Day Holiday\tDay Off in Lieu\n5 Dec 2025\tFriday\tFarmers Day\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day",
+          "sick_days": "No provision within the law to provide paid sick leave. However, any sick leave must be certified by a doctor.",
+          "maternity_leave": "Pregnant employees are entitled to 12 weeks (increasing to 14 weeks in the case of multiple or complicated births) of paid maternity leave at 100% of the employee’s regular pay rate. Maternity leave is paid by the employer.\nAfter returning from maternity leave, the woman is entitled to one hour’s leave during the workday to nurse the child until the child reaches the age of one.",
+          "paternity_leave": "There are no statutory laws regarding paternity leave.",
+          "parental_leave": "There are no statutory laws regarding parental leave."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment agreement or collective bargaining agreement and is based on the type of contract and reason for termination.\nEither the employee or employer can terminate the employment contract at any time. Notice in writing is required.\nIf the termination is deemed unfair, the employee may make a claim with the labor court and in some cases, have their employment re-instated.\nIf the employment is considered ‘at-will,’ either the employer or employee may terminate the employment at the end of the day without notice.\nWhen there is no ‘at will’ clause in the employment contract, it is possible to pay the employee in lieu of notice.",
+          "notice_period": "Notice period in Ghana is as follows:\nFor a contract of 3 or more years, one month’s notice or one-month pay in lieu of notice\nFor an employment contract of fewer than three years, two weeks’ notice or two weeks’ pay in lieu of notice\nIn the case of a contract from week to week, seven days’ notice\nA contract determinable at will by either party may be terminated at the end of the day without any notice",
+          "severance_pay": "There is no severance pay in the case of individual dismissals (for non-economic reasons).\nWhen the termination is due to redundancy, compensation is subject to negotiation between the employer and the employee.",
+          "probation_period": "Probation in Ghana is generally outlined in the employment agreement or collective bargaining agreement."
+        },
+        "visa": {
+          "general_info": "Ghana is part of the Economic Community of West African States (ECOWAS) and other regional treaties that provides a specific framework for member states. ​\nMost business visitors to Ghana require a Business Visa (B-1). Some foreign nationals are visa-exempt based on their citizenship. B-1 visas allow for single or multiple entries. B-1 visa applicants may request an initial stay of 30 to 60 days. Business visas may be extended once for 60 days for a total maximum stay of 120 days.\nThe three main types of work authorization in Ghana which can be granted for up to 12 months are:\n\n​The In Quota Work Permit for companies with a pre-approved quota\nThe Standard Work Permit for all other foreign national workers (no quota but longer processing time)\nThe PC (Petroleum Commission) Work Permit for companies active in the oil and gas sector\n\nAll travelers coming into or transiting through Ghana are required to have been vaccinated against yellow fever at least 10 days from the proposed date of travel and where already vaccinated, provide evidence (certificate) indicating the duration of the vaccination status of not more than 10 years before entering Ghana."
+        },
+        "vat": {
+          "general": "The standard VAT rate is 15%."
+        }
+      }
+    }
+  ]
+}

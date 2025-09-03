@@ -1,0 +1,101 @@
+{
+  "scraped_at": "2025-08-24T18:19:30.838Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Lithuania",
+      "url": "https://www.papayaglobal.com/countrypedia/country/lithuania/",
+      "scraped_at": "2025-08-24T18:19:30.829Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "1.77%",
+              "description": "Social Insurance (Indefinite term contracts)"
+            },
+            {
+              "rate": "2.49%",
+              "description": "Social Insurance (Fixed term contracts)"
+            },
+            {
+              "rate": "1.77% -2.49%",
+              "description": "Total Employer Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "19.5%",
+              "description": "Social Insurance (applied on salary up to 126,532 EUR per year)"
+            },
+            {
+              "rate": "6.98%",
+              "description": "Social Insurance (applied on salary above 126,532 EUR per year)"
+            },
+            {
+              "rate": "19.5%",
+              "description": "Total Employment Cost"
+            },
+            {
+              "rate": "Employee Income Tax (progressive Income Tax)",
+              "description": ""
+            },
+            {
+              "rate": "20%",
+              "description": "up to 126,532 EUR"
+            },
+            {
+              "rate": "32%",
+              "description": "above 126,532 EUR"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "In Lithuania, the national minimum wage is 1,038 EUR per month.",
+        "payroll": {
+          "payroll_cycle": "The payroll frequency in Lithuania is typically monthly. An employer must make the payment of salaries by the 10th of the following month.",
+          "13th_salary": "13th-month payments are not required by law in Lithuania; however, it is common for employers to pay a performance-based bonus."
+        },
+        "working_hours": {
+          "general": "The standard working week in Lithuania consists of 40 hours, 8 hours per day.",
+          "overtime": "All work above the standard 40 working hours per week is paid as overtime and regulated by the employment contract/collective agreement. An employee can work a maximum of 8 overtime hours over seven consecutive days. With written employee consent,  the maximum can rise to 12 hours per seven consecutive days.\nAll overtime hours are paid at an overtime compensation rate: 150.00% of the employee’s regular pay rate. If the overtime is performed at night between 10:00 pm and 6:00 am, the employee should receive compensation of 200.00%."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The annual leave entitlement in Lithuania is dependent on the employee’s years of service; standard entitlement is 20 working days of paid annual leave. One installment of leave must be at least 10 working days. Unused leave can be carried over.\nFollowing the completion of 10 years of service with a single employer, the employee is entitled to an additional three days of paid leave. An additional day’s leave is accrued every five years after that.",
+          "public_holidays": "There are 16 public holidays in Lithuania. The day before the public holiday, working hours are reduced by one hour (paid, but one hour shorter is indicated in the timesheet). Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n16 Feb 2025\tSunday\tIndependence Day\t\n11 Mar 2025\tTuesday\tIndependence Restoration Day\t\n20 Apr 2025\tSunday\tEaster Sunday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n4 May 2025\tSunday\tMother’s Day\t\n1 Jun 2025\tSunday\tFather’s Day\t\n24 Jun 2025\tTuesday\tSt John’s Day\t\n6 Jul 2025\tSunday\tKing Mindaugas’ Day\t\n15 Aug 2025\tFriday\tAssumption Day\t\n1 Nov 2025\tSaturday\tAll Saints’ Day\t\n2 Nov 2025\tSunday\tAll Souls’ Day\t\n24 Dec 2025\tWednesday\tChristmas Eve\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\t2nd Day of Christmas",
+          "sick_days": "In Lithuania, the employer is responsible for paying the first two days of illness at a benefit rate of between 62.06% to 100% at their own discretion and as specified in the employment contract. From the third day of illness, the employee will receive 62.06% of their regular salary figure paid by the National Social Insurance Fund (SODRA).\nSick pay is paid only for the working days.\nShould an employee take incapacity for work absence to care for a patient, they will be entitled to a payment of 65.94% paid directly by SODRA.",
+          "maternity_leave": "Employees are entitled to 126 days of paid maternity leave, which is compensated by the social security if the employee is eligible. The maternity benefit is the equivalent of 77.58% of the employee’s standard rate of pay.\nThe minimum maternity benefit per month cannot be less than 242 EUR (calculation based on six basic social insurance benefits valid for the last quarter before the right to maternity benefit commenced). In the case of multiple or complicated births, an additional two weeks of leave is granted.",
+          "paternity_leave": "Fathers/parents are entitled to 30 days of paid paternity leave which they must take in the first three months of the child’s birth, and can be split into up to two parts. If he is eligible, the father will receive the same social security benefits as the mother at 77.58% of their regular earnings.",
+          "parental_leave": "Each parent will be able to take a two-month non-transferrable period of paid childcare (parental) leave. The remaining part of childcare (parental) leave can be shared among the parents according to the family’s needs. The non-transferable part of childcare leave can be taken either all at once or in parts, however, it cannot be taken by both parents at the same time.\nParental leave starts at the end of maternity leave, continues until the child turns one, and is paid at 77.58% of the employee’s salary. Parental leave can also be extended until the child turns two, at a pay rate of 54.31% for the first year and 31.02% for the second year. The third year is unpaid leave. Parental leave is paid by SODRA. The partner of the birth mother in a same-sex couple is not eligible for parental leave. In the case of adoption, the maximum duration of parental leave is two years.\nMother & Father Childcare Leave\nParents are entitled to the following additional childcare leave:\nEmployees raising one child under the age of 12 are entitled to 1 additional day off every 3 months or a reduction of 8 hours working time over three months.\nEmployees raising a disabled child under the age of 18 are granted 1 additional day off per month or a reduction of 2 hours per week working time.\nEmployees raising two children under the age of 12 are entitled to 1 additional day off per month or a reduction of 2 hours per week working time.\nEmployees raising two children under the age of twelve, where one or both are disabled, are entitled to 2 additional days off per month or a reduction of 4 hours per week working time.\nEmployees raising three or more children under 12 years of age are entitled to 2 additional days off per month or a reduction of 4 hours per week working time.\nEmployees who do not have the right to the above additional days off, but who are raising a child under the age of fourteen, who is studying according to pre-school education, primary education or basic education programs, are entitled to at least half of the employees’ working days off work per year in the first academic year day of the year.\nA request for leave must be submitted each time a worker intends to use the above leave. The first time this leave is occurring the employee must also submit the children’s birth certificates. If these days are not used within the allotted time period they are lost.\nThe above leave is paid based on the average salary.",
+          "other_leave": "Bereavement leave – employers must give employees three days of unpaid leave upon the death of a family member."
+        },
+        "termination": {
+          "probation_period": "Probation periods are not mandatory in Lithuania; however, standard practice is a probation period of 3 months."
+        },
+        "visa": {
+          "general_info": "Lithuania’s immigration system provides several options for employers of foreign nationals. Lithuania is a member of the European Union (EU) and the Schengen Area. Requirements, processing times, employment eligibility, and benefits for accompanying family members vary by permit type.\n\nBusiness visitors to Lithuania typically use a local version of the Schengen C Visa, unless they are visa-exempt based on their nationality. The stay under Schengen Visa is limited to 90 days over a period of 180 days, counted cumulatively across the entire Schengen Area.\n\nThe main work authorization categories are the EU Intra-Company Transferee (ICT) Permit, suitable for transfers of managers, specialists, and trainees and issued for up to three years; and the EU Blue Card, ideal for highly skilled local hires and issued for up to three years."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Lithuania is 21.00%; there are exemptions with VAT reductions to 9.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Income tax",
+            "paid_to": "Valstybinė mokesčių inspekcija prie LR FM, ref # 1311",
+            "due_date": "15th if salary paid from 1st till 15th of current month.\n\n31th if salary paid from 16th till 31th of current month.",
+            "method": "SEPA /Wire"
+          },
+          {
+            "authority_payment": "Social security tax",
+            "paid_to": "Valstybinio socialinio draudimo fondo valdyba prie SADM ref # 252",
+            "due_date": "15th of the current month for previous month",
+            "method": "SEPA /Wire"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "scraped_at": "2025-08-24T18:45:13.531Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Slovakia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/slovakia/",
+      "scraped_at": "2025-08-24T18:45:13.510Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "14.00%",
+              "description": "Old Age Pension (maximum monthly assessment base 15,730 EUR)"
+            },
+            {
+              "rate": "1.40%",
+              "description": "Sickness Insurance (maximum monthly assessment base 15,730 EUR)"
+            },
+            {
+              "rate": "3.00%",
+              "description": "Disability Insurance (maximum monthly assessment base 15,730 EUR)"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Unemployment Insurance (maximum monthly assessment base 15,730 EUR)"
+            },
+            {
+              "rate": "0.25%",
+              "description": "Guarantee Insurance (maximum monthly assessment base 15,730 EUR)"
+            },
+            {
+              "rate": "0.80%",
+              "description": "Accident Insurance"
+            },
+            {
+              "rate": "4.75%",
+              "description": "Solidarity Reserve Fund (maximum monthly assessment base 15,730 EUR)"
+            },
+            {
+              "rate": "11.00%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "€3.43 per day",
+              "description": "Meal vouchers"
+            },
+            {
+              "rate": "€275 per year",
+              "description": "Recreation vouchers – for workers with 2 years service and above."
+            },
+            {
+              "rate": "35.20% + €3.43 per day + €275 per year",
+              "description": "Total Employer Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "4.00%",
+              "description": "Old Age Pension (maximum monthly assessment base 15,730 EUR)"
+            },
+            {
+              "rate": "1.40%",
+              "description": "Sickness Insurance (maximum monthly assessment base 15,730 EUR)"
+            },
+            {
+              "rate": "3.00%",
+              "description": "Disability Insurance (maximum monthly assessment base 15,730 EUR)"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Unemployment Insurance (maximum monthly assessment base 15,730 EUR)"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "13.40%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "19.00%",
+              "description": "Up to 47,537.98 EUR annually"
+            },
+            {
+              "rate": "25.00%",
+              "description": "47,537.98 EUR and above annually"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The national monthly minimum wage is based on degrees of difficulty of a job, as follows:",
+        "payroll": {
+          "payroll_cycle": "The payroll frequency is typically month. The employer must make salary payments at least once a month.",
+          "13th_salary": "There is no legal requirement for 13-month payments. Employers may issue bonuses at their discretion."
+        },
+        "working_hours": {
+          "general": "A standard work week is 40 hours, at 8 hours per day.",
+          "overtime": "All work over the standard working hours a week is to be paid as overtime and is regulated by employment contract/collective agreements. When an employee is requested to work overtime or work on holidays, there are maximums in relation to the number of hours allowed.\nHours in excess of 40 hours a week are paid at an overtime compensation rate of 125% of the employee’s average salary rate.\nHours performed at night, the overtime is paid at 140% of the employee’s standard salary rate.\nHours completed on a Saturday are compensated at 150% of the employee’s standard salary rate.\nOvertime worked on a Sunday is paid at 200% of the employee’s standard salary rate.\nExecutive and C-level workers are exempt from overtime regulations."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The annual leave entitlement differs depending on the employees’ time in service and the job sector.\n4 weeks of annual leave (20 working days) for workers below 33 years of age.\n5 weeks of annual leave (25 working days) for workers above 33 years of age.\n5 weeks of annual leave (25 working days) for workers with children.\n8 weeks of annual leave for specific professions e.g. teachers.\nUnused leave can be carried over into the following year, but it must be used within that year or it will be forfeited. Employees may take additional leave, resulting in a negative leave balance, but this requires the employer’s permission. While the law does not prohibit unlimited leave, it is rarely practiced. Annual leave is accrued on an annual bases at the beginning of the year, if the employment begins or ends during the year the entitlement will be prorated.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tDay of the establishment of the Slovak Republic / New Year\t\n6 Jan 2025\tMonday\tThe Revelation of the Lord\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n8 May 2025\tThursday\tVictory over Fascism Day\t\n29 Aug 2025\tFriday\tAnniversary of the Slovak National Uprising\t\n15 Sep 2025\tMonday\tOur Lady of the Seven Sorrows\t\n17 Nov 2025\tMonday\tDay of Struggle for Freedom and Democracy\t\n24 Dec 2025\tWednesday\tChristmas Day\t\n25 Dec 2025\tThursday\t1st Christmas Day\t\n26 Dec 2025\tFriday\t2nd Christmas Day",
+          "sick_days": "The Employer pays for the first 3 days of sickness at 25% of the employees’ standard pay rate and from the 4th to 10th day of sickness at 55% of the employee’s standard salary. From the 11th day onwards sick leave is compensated by the Social Insurance Agency at 55% of the employee’s standard salary.\nSickness absence must be authorized by a doctor.",
+          "maternity_leave": "A female employee is entitled to 34 weeks of paid maternity leave. An employee expecting multiple births is entitled to 43 weeks of maternity leave, and a single mother is entitled to 37 weeks of paid maternity leave. Commonly, an employee would begin their maternity leave between six and eight weeks before the expected delivery date, and the leave cannot be less than 14 weeks by law.\nThe Social Security agency pays maternity leave at 75.00% of the employee’s daily salary.",
+          "paternity_leave": "If a mother is not receiving maternity or parental benefits, the child’s father may take leave beginning when the child is six weeks old for 28 weeks.\nSingle fathers are entitled to 31 weeks of paternity leave paid by the Social Security agency.",
+          "parental_leave": "A parent or guardian can request parental leave until the child reaches three years of age. In the unfortunate case that the child has a long-term health condition, an employee can request parental leave until the child is six years of age.\nThe parental allowance is paid by the Central Office of Labor Social Affairs and family.",
+          "other_leave": "Civic Duty leave – an employer must provide unpaid leave to enable an employee to fulfil their civic duties.\nMilitary Leave – an employee must be granted paid military service leave, compensated by the military authority directly."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the Employment Agreement or Collective Agreement in place and is based on the type of contract and reason for termination. The employer may dismiss an employee with notice for statutory reasons, including the winding-up or relocation of the employer, redundancy, inability to perform work due to health reasons, unsatisfactory performance, or disciplinary breaches.",
+          "notice_period": "The notice period is dependent on the employees’ time of service as follows:\nWorkers must be given a minimum of 1 months’ notice\nWorkers with 1 to 5 years of service must be given 2 months’ notice\nWorkers with 5+ years of service must be given 3 months’ notice\nDuring the Probation period, written notification of termination should be given within a minimum of 3 days prior to the exit date.",
+          "severance_pay": "Employees are entitled to severance pay if they have been terminated due to:\nCompany being dissolved or moved, and the employee not wanting to move\nEmployee is made redundant\nEmployee is no longer able to perform the job for health reasons\nAn employee’s length of service and the reason and type of termination determines the severance pay rate. If employment relationship is terminated with notice for the reasons mentioned above the employee shall be entitled to a severance allowance at termination of employment relationship equal to at least",
+          "probation_period": "The length of Probation periods is limited to 3 months for Operational positions and 6 months for Managerial positions."
+        },
+        "visa": {
+          "general_info": "Slovakia’s immigration system provides several options for employers of foreign nationals. Slovakia is a member of the European Union (EU) and the Schengen Area. Requirements, processing times, employment eligibility, and benefits for accompanying family members vary by permit type.\n\nBusiness visitors to Slovakia typically use a local version of the Schengen C Visa, which foreign nationals must obtain before travel unless they are visa exempt based on their nationality. The Schengen Area generally limits stays to 90 days in any 180 days.\n\nThe main work authorization categories are:\n\nThe EU Intra-Company Transferee Permit, suitable for the intracompany transfer of managers, specialists, and graduate trainees from outside the European Union\nThe Single Permit for Local Hires, suitable for locally hiring experienced foreign workers where no local staff is available\nThe EU Blue Card, suitable for local hiring of highly skilled, highly paid workers. EU/European Economic Area (EEA)/Swiss nationals do not require work or residence permits, but they must report their stay and register their residence if their stay exceeds three months."
+        },
+        "remote_work": "The Slovak Labor Code legislates that working from home must be agreed upon between the employer and the employee in writing in an employment contract. Teleworking may be performed anywhere outside the employer’s premises, it is not required to be only performed from the home of the employee.\nEmployees and employers may agree that employees will determine their own working hours for more flexibility. In that case, the employee may lose its entitlement to certain salary premiums.\nEmployees’ right to disconnect outside working hours must be agreed upon between the parties.\nEmployers are required to reimburse employees for increased expenses related to telework as agreed upon in the Collective Agreement or negotiated in the employment contract.\nTeleworkers should enjoy the same rights as on-site employees.",
+        "vat": {
+          "general": "The standard VAT rate is 20%."
+        }
+      }
+    }
+  ]
+}

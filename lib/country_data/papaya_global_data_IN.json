@@ -1,0 +1,142 @@
+{
+  "scraped_at": "2025-08-24T18:15:32.618Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "India",
+      "url": "https://www.papayaglobal.com/countrypedia/country/india/",
+      "scraped_at": "2025-08-24T18:15:32.608Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "12.00%",
+              "description": "Employee’s Provident Fund (EPF) and Employee’s Pension Scheme (EPS) (Compulsory for employers with more than 20 employees & a maximum monthly salary of 15,000.00 INR) applied on basic salary."
+            },
+            {
+              "rate": "3.25%",
+              "description": "Employee’s State Insurance (ESI) for employees with salaries of up to 21,000 INR per month"
+            },
+            {
+              "rate": "16.75%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "12.00%",
+              "description": "Employee’s Provident Fund (EPF) and Employee’s Pension Scheme (EPS) (Compulsory for employers with more than 20 employees & a maximum monthly salary of 15,000.00 INR)"
+            },
+            {
+              "rate": "0.75%",
+              "description": "Employee’s State Insurance (ESI) for employees with salaries of up to 21,000 INR per month"
+            },
+            {
+              "rate": "Varies",
+              "description": "Professional tax, maximum limit of  2500 INR/annum"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Health and Education Cess (levied at the rate of 4.00% on the amount of income-tax plus surcharge)"
+            },
+            {
+              "rate": "18.08%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": "Annual"
+            },
+            {
+              "rate": "0.00%",
+              "description": "Up to 400,000 INR"
+            },
+            {
+              "rate": "5.00 %",
+              "description": "400,001 – 800,000 INR"
+            },
+            {
+              "rate": "10.00%",
+              "description": "800,001 – 1,200,000 INR"
+            },
+            {
+              "rate": "15.00%",
+              "description": "1,200,001 – 1,600,000 INR"
+            },
+            {
+              "rate": "20.00%",
+              "description": "1,600,001 – 2,000,000 INR"
+            },
+            {
+              "rate": "25.00%",
+              "description": "2,000,001 – 2,400,00o INR"
+            },
+            {
+              "rate": "30.00%",
+              "description": "Over 2,400,001 INR"
+            },
+            {
+              "rate": "In case the income exceeds a certain threshold, surcharge will be applicable:",
+              "description": ""
+            },
+            {
+              "rate": "10.00%",
+              "description": "For total taxable income of above 5,000,000 INR"
+            },
+            {
+              "rate": "15.00%",
+              "description": "For total taxable income of above 10,000,000 INR"
+            },
+            {
+              "rate": "25.00%",
+              "description": "For total taxable income of above 20,000,000 INR"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The National Floor Level Minimum Wage is Rs. 178 per day and Rs. 5,340 per month.\nHowever, the applicable minimum wage is fixed by the respective State governments by setting minimum wages that defines thousands of different jobs for unskilled workers and over 400 categories of employment, with a minimum daily wage for each type of job.\n",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in India is generally monthly, with wages paid on or after the 28th of each month.",
+          "13th_salary": "The 13th salary in India is mandatory for low income workers, paid as a percentage of the annual salary and within eight months of the end of the financial year."
+        },
+        "working_hours": {
+          "general": "The standard working hours in India are 40 hours weekly at 8 hours a day. This can also be 48 hours including breaks, only as per client’s discretion.\nThe employees are allowed to work for 8-9 hours in a day. The standard practice followed by a majority of organizations in India is 8 hours a day of working.",
+          "overtime": "All work in excess of the standard 48 hours a week is to be paid as overtime and is regulated by employment contracts, generally calculated at 200% of the regular pay rate."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The regulations regarding paid leave in India are set in the employment contract as a minimum of 15 days paid holiday a year (following completion of 240 days of employment). However, it is common practice for additional leave days to be included in the contract, together with rules on how many days can be carried over to the following year.\nAll PTO requests must be applied for at least 15 days prior to the start of the leave and approved by the employer, works committee, and the manager to ensure continuity of work.",
+          "public_holidays": "Workers are entitled to 12 public holidays per year. The country wide holidays listed below are the default days to give off, however, workers can choose to swap these days out in order to take off their Regional or Religious holidays instead.\nPublic holidays that fall on Saturday are observed on the Friday before and public holidays falling on a Sunday are observed on the following Monday.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n14 Jan 2025\tTuesday\tLohri\t\n26 Feb 2025\tWednesday\tMaha Shivaratri\t\n14 Mar 2025\tFriday\tHoli\t\n31 Mar 2025\tMonday\tEid al Fitr\t\n18 Apr 2025\tFriday\tGood Friday\t\n12 May 2025\tMonday\tBuddha Purnima\t\n15 Aug 2025\tFriday\tIndependence Day\t\n2 Oct 2025\tThursday\tGandhi Jayanti\t\n20 Oct 2025\tMonday\tDiwali\t\n5 Nov 2025\tWednesday\tGuru Nanak’s Birthday\t\n25 Dec 2025\tThursday\tChristmas",
+          "sick_days": "In India, the law mandates a combined 12 days of sick and casual leave for employees. These 12 days can be used for sickness or non-medical emergencies, with the stipulation that medical emergencies are marked as sick leave and other emergencies as casual leave. The distribution of these 12 days between sick and casual leave can vary based on the employee’s needs, for example, 7 casual and 5 sick, or 8 sick and 4 casual. Casual leaves are intended for unplanned situations, while sick leaves are specifically for health-related issues.",
+          "maternity_leave": "Eligible expectant mothers are entitled to 100% of their regular salary rate for 26 weeks for their first two children, decreasing to 12 weeks for any subsequent children. No woman is allowed to work during the six weeks immediately following the day of the delivery or of her miscarriage.\nTo be eligible, the employee must have been employed for at least 80 days of the preceding 12 months before the expected due date.\nAdoptive Mothers and Commissioning Mothers\nA woman who legally adopts a child below the age of 3 months or a commissioning mother (a biological mother who uses her egg to create an embryo that is implanted in any other woman), shall be entitled to maternity benefits for a period of 12 weeks from the date the child is handed over.\nEvery company with 50 or more employees shall have the facility of creche within the prescribed distance either separately or along with other common facilities.\nThe employer shall allow 4 visits a day to the creche by the woman, which shall also include the interval of rest allowed to her.",
+          "paternity_leave": "While government employees are entitled to 15 days of paternity leave, there are no statutory paternity leave laws for the private sector.",
+          "parental_leave": "There are no statutory laws on parental leave.",
+          "other_leave": "Each state generally sets other leave entitlements and policies."
+        },
+        "termination": {
+          "termination_process": "The termination process is standard in India, with notice periods required unless an employer can provide sufficient cause for dismissal without notice due to misconduct, disobedience, lack of skill, neglect of duties, or absence without permission.",
+          "notice_period": "The notice period required is at least 30 days.",
+          "severance_pay": "In case of a termination due to redundancy, employers are required to pay retrenchment compensation. Severance or retrenchment compensation equal to 15 days’ average pay for every completed year of continuous service or part thereof in excess of 6 months must be paid to a workman on termination of employment.\nThe provisions of the IR Code pertaining to retrenchment are aligned with the provisions under the ID Act. However, for the purposes of retrenchment compensation, the same will be calculated at the rate of 15 days’ average pay or average pay of such number of days as may be notified by the appropriate government, for every completed year of continuous service or any part thereof in excess of 6 months.\nAdditionally, as mentioned above, the IR Code also requires employers to contribute an amount equal to 15 days’ wages or such amount as may be notified by the government for every retrenched worker to a “worker re-skilling fund.” In addition, the employer must pay certain termination benefits to employees who are dismissed, including leave encashment, gratuity payment (for employees, whether workmen or not, with 5 years or more of continuous service), payment in lieu of notice (if no notice is given), statutory bonus payment, and any other amounts due under the employment contract.\nEmployees who are being terminated on account of misconduct are not entitled to notice pay or retrenchment compensation.",
+          "probation_period": "Probation periods in India are generally between 3 and 6 months, based on the employee’s role and seniority."
+        },
+        "common_benefits": [
+          "Wellness allowance – between USD 175 to 250 per month.",
+          "Work from home allowance – between USD 150 to 200 per month.",
+          "Meal allowance – between USD 75 to 150 per month.",
+          "Private pension – employer contribution of 10%. Additional paternity leave of 10-15 days.",
+          "Additional 5-9 days of annual leave.",
+          "Paternity Leave of 1-2 weeks."
+        ],
+        "visa": {
+          "general_info": "There are two main types of visas in India: a business visa (visits to India of up to 6 months to conduct business for a non-Indian company) and an employment visa.\nAn employment visa is required for foreigners going to India for employment. The maximum length for this type of visa is 5 years, however, if the employment contract is longer than five years, an extension will need to be sought before the end of the visa.\nThis visa also offers the possibility to live and work in India on a more permanent basis.\nVisa applications must be made in the applicant’s country of residence."
+        },
+        "vat": {
+          "general": "The standard rates of VAT in India are 18.00% and 12.00%, with other primary rates of 28%, 5%, 3%, 1% & 0.25%"
+        }
+      }
+    }
+  ]
+}

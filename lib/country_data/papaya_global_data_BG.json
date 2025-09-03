@@ -1,0 +1,90 @@
+{
+  "scraped_at": "2025-08-24T17:39:21.434Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Bulgaria",
+      "url": "https://www.papayaglobal.com/countrypedia/country/bulgaria/",
+      "scraped_at": "2025-08-24T17:39:21.425Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "13.72%",
+              "description": "Social Security, applied on salary between 1,077 to 4,130 BGN monthly."
+            },
+            {
+              "rate": "4.80%",
+              "description": "Health Insurance, applied on salary between 1,077 to 4,130 BGN monthly."
+            },
+            {
+              "rate": "0.40% – 1.10%",
+              "description": "Accident at Work & Occupational Illness Fund"
+            },
+            {
+              "rate": "18.92% – 19.62%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "10.58%",
+              "description": "Social Security applied on salary between 1,077 to 4,130 BGN monthly."
+            },
+            {
+              "rate": "3.20%",
+              "description": "Health Insurance applied on salary between 1,077 to 4,130 BGN monthly."
+            },
+            {
+              "rate": "13.78%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "10.00%",
+              "description": "Flat Rate"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage is 1,077 BGN per month.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Bulgaria is generally monthly with payment being made on the last working day.",
+          "13th_salary": "There are no provisions in the law regarding 13th salaries."
+        },
+        "working_hours": {
+          "general": "The standard working hours in Bulgaria are 8 hours per day, 40 hours per week.",
+          "overtime": "Work in excess of the standard workweek of 40 hours is to be paid as overtime and is regulated by employment contracts or collective agreements. In general, overtime maximum limits are set at three hours per day (across two consecutive days), six hours a week, 30 hours a month, and 150 hours per year.\nOvertime hours are paid at 150% of the standard salary rate for working day hours, 175% for weekend hours overtime, and 200% for working on public holidays. Overtime pay cannot be included in the gross annual salary regardless of the employee’s level or seniority."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Paid leave in Bulgaria is set in the employment contract as a minimum of 20 working days paid leave a year, following the completion of four months of service.",
+          "public_holidays": "Public holidays that fall on the weekend are moved to the first or the first two business days following that holiday as time off in lieu.\nDate\tDay\tHoliday\tNote\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n3 Mar 2025\tMonday\tLiberation Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n6 May 2025\tTuesday\tSt. George’s Day\t\n24 May 2025\tSaturday\tCulture & Literacy Day\t\n26 May 2025\tMonday\t Culture & Literacy Day Holiday\tDay Off in Lieu\n6 Sep 2025\tSaturday\tUnification Day\t\n8 Sep 2025\tMonday\tUnification Day Holiday\tDay Off in Lieu\n22 Sep 2025\tMonday\tIndependence Day\t\n24 Dec 2025\tWednesday\tChristmas Eve\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tSecond Day of Christmas",
+          "sick_days": "The first three days of sickness are paid for by the employer at a rate of 70% of the regular salary. From the fourth day of sickness, The National Social Security Fund takes over the payment at 80% of the regular salary rate or 90% for work-related sick leave or injury (providing the employee has completed at least six months of service or Social Security payments). All employees are entitled to claim up to 18 months of paid sick leave.\nEmployees must provide a medical certificate within 48 hours of the first day of sickness.",
+          "maternity_leave": "All female employees are eligible for paid maternity leave of 410 days. Typically, 45 days must be taken before the due date with the remaining days used after the birth. After the sixth month of leave, the mother can choose to transfer the remaining leave days over to the father to use instead.\nWorkers with at least 12 months of insurance contributions will be paid for maternity leave (temporary incapacity for work) by the National Social Insurance Institution at the rate of 90% of the average daily gross wage.\nTo cover the period of maternity leave and Parental leave, sick leave certificates must be provided. The first certificate is to be issued 45 days before the due date by the doctor who monitors pregnant women. A second certificate is to be issued 42 days after the birth in the hospital by the doctor who delivered the baby. A third sick note is issued for the leave period up to the 135th day by the child’s or mother’s GP. For the remaining leave entitlement period (up to a total of 410 days), the worker must request this leave from the employer. After each sickness certificate/request for leave has been submitted, the employer must submit it to the National Social Insurance Institute.\nFollowing the end of the 410 days maternity leave, additional paid leave can be taken by the mother, or can be transferred to the father, until the child reaches the age of 2 years old. This leave can be utilized for the parents first, second and third child only. This is paid at a rate of 780 BGN per month providing the child is not in childcare such as nursery and the mother has not consented to the transfer her maternity entitlement to another eligible family member. If the child goes to a nursery during any of the Parental Leave period, the cash benefit will not be paid.",
+          "paternity_leave": "Fathers are entitled to Paternity Leave of 15 calendar days, fixed to be taken from the day the baby is discharged from the maternity hospital (of this day is a non-working day, vacation or public holiday, paternity leave still applies and no additional day off in lieu is given).\nPaternity Leave is paid at a rate of 90% of the average daily gross remuneration or the average daily insurance income, on which insurance contributions have been paid or due for the period of 24 calendar months preceding the month of the start of the leave upon the birth of a child.\nFathers are eligible for this Paternity Leave once they have completed at least 1 year of employment. To claim this leave the father must submit a declaration form to the employer with a copy of the hospital discharge certificate.\nOnce the child reaches at least six months of age, the mother can choose to transfer any of her unused maternity leave entitlement to be used by the father.\nA further 2 months of leave, paid by the National Social Security Institute, to raise a child under the age of 8 is available to the father providing he has not already taken leave to raise a child younger than two and has not used maternity leave transferred from the mother. To use this leave, the employer must be notified at least 10 days in advance.",
+          "parental_leave": "Once the child has reached the age of 2 years old, unpaid Parental Leave of up to 6 months is available to be used by each parent until the child reaches the age of 8 years old, providing the child is not in a state-maintained institution. Each parent may take up to 5 months of the other parent’s leave with his/her consent. Leave can be taken all at once or in installments of not less than 5 working days per leave period. Parents must notify their employer at least 10 working days in advance of taking this leave.",
+          "other_leave": "Marriage Leave – Employees are entitled to two days of paid leave in the event of their marriage.\nBereavement Leave – Employees are also entitled to two days of leave to attend the funeral of a family member."
+        },
+        "termination": {
+          "termination_process": "The termination process is standard in Bulgaria based on termination reasons contained within the Bulgarian Labor Law, unless an employer can provide sufficient cause for dismissal without notice (i.e. due to misconduct).\nSpecific justified causes for termination with prior notice by the employer include the closure of the employer’s enterprise, staff reduction due to change in the employment grid, a decrease in the volume of work, the employee’s lack of ability to effectively perform the required work, and changes in a job position’s requirements which the existing worker’s skills are not aligned with.\nThe employer may terminate the employment contract without notice when the worker or employee is deprived by a sentence or by administrative order of the right to exercise a profession or hold the position to which he was appointed, etc. In all other cases, the employer must provide notice to the employee.The process is initiated by a formal written notice to the employee (except where a disciplinary dismissal applies). Regardless of the cause for termination, the employer must notify the territorial direction of the National Revenue Agency within seven days of the effective termination date.",
+          "notice_period": "The notice period is a minimum of 30 and a maximum of 90 days, depending on what is agreed in the employment contract. The common practice is a 30 days notice.",
+          "severance_pay": "Severance is a minimum of 1 month (gross salary). The maximum is not defined by law, and the parties can agree to additional severance, between 6 to 10 months depending on termination grounds e.g. office closure, redundancy or staff reductions.",
+          "probation_period": "The maximum duration of the trial period is 6 months, but it can be shorter than 6 months. It is also possible for the employer and the employee to agree to cancel a trial period that was agreed upon in the employment agreement before the trial period ends if the trial period has been successfully completed. For this purpose, an additional agreement on the cancellation of the remaining trial period should be concluded."
+        },
+        "visa": {
+          "general_info": "Any foreigner coming to work in Bulgaria will need to apply for a Bulgaria residence permit. The main legislation governing the issuance of residence permits for foreign citizens is the Foreign Nationals in the Republic of Bulgaria Act.\n\nThe legislation establishes that foreigners may apply for one of the three types of Bulgarian residence permits; Bulgarian residence visas, residence visas for foreign employees, and long-term or extended residence visas."
+        },
+        "vat": {
+          "general": "The standard rate in Bulgaria is 20%."
+        }
+      }
+    }
+  ]
+}

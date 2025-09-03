@@ -1,0 +1,129 @@
+{
+  "scraped_at": "2025-08-24T18:06:45.099Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "United Kingdom",
+      "url": "https://www.papayaglobal.com/countrypedia/country/united-kingdom/",
+      "scraped_at": "2025-08-24T18:06:45.080Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "3.00%",
+              "description": "Workplace Pension (applied on income between £520 and £4,189 per month)"
+            },
+            {
+              "rate": "0.5%",
+              "description": "Apprenticeship Levy (applied on large enterprises)"
+            },
+            {
+              "rate": "15.00%",
+              "description": "National Insurance (NI) (for income above £417 per month)"
+            },
+            {
+              "rate": "18.50%",
+              "description": "Total Employers Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "5.00%",
+              "description": "Workplace pension (applied on income between £520 and £4,189 per month)"
+            },
+            {
+              "rate": "8.00%",
+              "description": "National Insurance (NI) (for income between £1,408 and £4,189 per month)"
+            },
+            {
+              "rate": "2.00%",
+              "description": "National Insurance (NI) (for income above £4,189 per month)"
+            },
+            {
+              "rate": "13.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Income Tax",
+              "description": "Annual"
+            },
+            {
+              "rate": "0%",
+              "description": "Up to 12,571 GBP"
+            },
+            {
+              "rate": "20%",
+              "description": "12,571 to 50,270 GBP"
+            },
+            {
+              "rate": "40%",
+              "description": "50,270 to 125,140 GBP"
+            },
+            {
+              "rate": "45%",
+              "description": "Over 125,140 GBP"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The national minimum wage in the United Kingdom is dependent on the age of the employee, and effective from 1st April 2025:",
+        "payroll": {
+          "payroll_cycle": "In the United Kingdom, the payroll frequency is typically monthly, with salary payments made between the 25th and 30th of each month.",
+          "13th_salary": "In the United Kingdom, there are no statutory provisions for 13th-month salary payments."
+        },
+        "working_hours": {
+          "general": "The standard working week consists of 40 hours and cannot exceed a maximum of 48 hours averaged over 17 weeks. Employers can ask workers to opt out of the 48 hour limit.",
+          "overtime": "All work above the standard working hours per week is to be paid as overtime and is regulated by employment contract/collective agreements etc.\nIn the UK, most white collar workers are asked to waive the limit of working 48 hours which means they can work more hours with no limit or additional pay given.\nThe exception where overtime is paid is if this waiver is not signed, in industries with CBAs, or if specific overtime payment is outlined in the contract. For additional information visit here."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The annual leave entitlement is 20 working days of paid leave per year for full-time employees, this is in addition to 8 days of Public Holiday.\nThe annual leave cycle is 1st January – 31st December .\nCarryover of unused vacation days is per employer discretion and should be included in the employment agreement and set as a custom policy. Employers are obligated to ensure the employees take their holiday entitlement in one year.\nIf the employee receives more than 28 days’ leave, the employer may allow to carry over of any additional untaken leave. The employer must allow the worker to carry over a maximum of 20 of the 28 days’ leave entitlement if the worker could not have taken the annual leave because he was off sick.\nThe employee will be only allowed to carry over 4 weeks annual leave for the next two years. If the worker chooses not to take their holiday entitlement and the employer’s policy states they cannot carry over annual leave until the next year, then vacation days will be deleted. This is subject to client’s discretion. An employer can choose when an employee/worker can take annual leave, however sufficient notice needs to be given.\nGoing into a negative leave balance is allowed. If the worker leaves before the balance has been accrued, the negative leave will be deducted from the final salary.\nAn unlimited leave policy is permitted by law and is subject to employer’s discretion and approval.\nUpon Termination – All unused leave days will be paid out.",
+          "public_holidays": "When a holiday falls on a weekend, workers must be given a day off in lieu – it is common to give off the next working day.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n2 Jan 2025\tThursday\tNew Year’s Day Holiday\tScotland\n17 Mar 2025\tMonday\tSaint Patrick’s Day\tNorthern Ireland\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\tEngland, Northern Ireland & Wales\n5 May 2025\tMonday\tMay Bank Holiday\t\n26 May 2025\tMonday\tLate May Bank Holiday\t\n12 Jul 2025\tSaturday\tBattle of the Boyne\tNorthern Ireland\n14 Jul 2025\tMonday\tBattle of the Boyne Holiday\tNorthern Ireland – Day Off in Lieu\n4 Aug 2025\tMonday\tAugust Bank Holiday\tScotland\n25 Aug 2025\tMonday\tSummer Bank Holiday\tEngland, Northern Ireland & Wales\n30 Nov 2025\tSunday\tSt Andrew’s Day\tScotland\n1 Dec 2025\tMonday\tSt Andrew’s Day Holiday\tScotland – Day Off in Lieu\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day",
+          "sick_days": "Employees can receive up to 28 weeks of paid sick leave; this is compensated at 118.75 GBP per week Statutory Sick Pay (SSP) as a minimum, this is not payable for the first three days of any sickness absence.\nIf the employee’s sick leave exceeds seven days, including weekends and bank holidays, the employee must provide a professional medical doctor certificate.\nAn employee may also be entitled to contractual sick pay (that is, pay during sick leave at a higher rate than SSP) if the employer offers this benefit. Once SSP ends, a worker signed off on long term illness might be able to claim Disability Benefits from the Government.",
+          "maternity_leave": "In the United Kingdom, female employees receive 52 weeks of statutory maternity leave with the first 26 weeks set as ordinary leave followed by 26 weeks of additional maternity leave.\nAn employee is not required to use the full 52 weeks of leave; however, the employee must take at least two weeks following the child’s birth; this may vary depending on the employee’s sector.\nMothers are compensated by Statutory Maternity Pay (SMP) for up to 39 weeks at the rate of 90.00% of the employees average weekly earnings for the first 6 weeks, and 187.18 GBP or 90.00% of the employee’s average weekly earnings, whichever is lower) for the remaining 33 weeks.",
+          "paternity_leave": "Employees are entitled to up to 2 weeks of paid paternity leave, which can begin after the child’s birth, and must end within the 52 weeks since birth. Leave must be used as one week blocks; where 2 weeks are taken they can be used either together or separately. This leave cannot be used before the child is born.\nEmployees receive statutory paternity pay of 187.18 GBP , or 90.00% of the employee’s average weekly earnings, whichever is lower, per week of leave. The employee is entitled to this leave if they have been continuously employed by their employer for at least 26 weeks up to any day in the ‘qualifying week’.\nIf adopting as a couple, the second adopter may be entitled to up to 2 weeks of statutory paternity leave and pay. Couples can choose which of them takes statutory adoption leave and which takes statutory paternity leave. To be eligible for statutory paternity leave, they must have worked for their employer for a minimum of 26 weeks.\nTaking adoption leave at the later date (on matching) may affect statutory adoption pay. This is based on the final 8 weeks’ salary before taking leave, so a fostering or adoption carer who takes unpaid leave while fostering will be eligible for statutory adoption leave but not statutory adoption pay.",
+          "adoption_leave": "Employed adopters are usually entitled to adoption leave and may be entitled to adoption pay. Some employers may offer a more generous scheme than the statutory one, but they cannot offer less.\nAdopters who are employed (or one of a couple) may be entitled to up to 52 weeks of statutory adoption leave. Prospective adopters are also entitled to time off on 5 occasions (main adopter) or 2 occasions (secondary adopter) for adoption appointments. Adoption leave can start either from the day a child starts to live with the adopter, or up to 14 days before the child starts living with them. Adoption leave has no qualifying period in employment, although proof of adoption is required.\nA prospective adopter should inform their employer within seven days of being notified that they are matched with a child or expecting a fostering for adoption placement. If this is not possible, the employer should be informed as soon as possible. Adopters can return to their previous job if they take up to 26 weeks’ adoption leave and must be offered a suitable alternative job if they return after 26 weeks, or at the end of 52 weeks’ leave.\nStatutory Adoption Pay (SAP) is a weekly payment made by employers to their employees who adopt a baby and are on adoption leave. The employee must have been employed for a continuous period of at least 26 weeks before the week of notification.\nSAP is paid for 39 weeks, at a rate of 90% of the average salary figure for the first 6 weeks (based on earnings during the eight weeks or two months before the qualifying week (the ‘relevant period’). Increasing to the flat rate 187.18 GBP per week or 90%  of the average earnings (whichever is lower) for the remaining 33 weeks.\nIf adopting as a couple, SAP is only available to the nominated adopter who is taking adoption leave. The other partner may be entitled to Statutory Paternity Pay (Adoption).",
+          "shared_parental_leave": "Shared Parental Leave (SPL)- Parents may be entitled to Shared Parental Leave when adopting a child or following the birth of a child. Shared Parental Leave allows parents up to 50 weeks of leave that they can share; 37 weeks of pay is possible at a rate of 187.18 GBP or 90.00% of the employee’s average weekly earnings, whichever is lower, per week of leave. Employees must take leave within the first year of the child’s birth.",
+          "unpaid_parental_leave": "Parents may be entitled to unpaid parental leave for each child (including adopted child) up to their 18th birthday. Each year, each parent can take up to 4 weeks per child (with employer agreement). Leave must be taken as full weeks rather than individual days unless agreed otherwise with the employer or if the child is disabled.",
+          "other_leave": "Depending on the employment contract, an employee may be allowed additional leave, as approved between the employer and employee, for the following:\nCarer’s Leave: Employees have the right to take 1 week of unpaid carer’s leave in a year, by giving at least 3-day notice. This leave is available so that care can be arranged for a ‘dependent’ who has a physical or mental illness or injury that is expected to require more than 3 months of care, a disability (as defined in the Equality Act 2010), or care due to old age. The dependent does not have to be a family member, it can be anyone who relies on them for care.\nJury Service Leave: Employers to provide their full-time regularly employed employees, job-protected, unpaid leave for their duty as jurors or as a witness in a case, or acting as a plaintiff or defendant in the courts. Employees must provide a copy of the jury summons to the employer as evidence of requirement. The court will provide a specific amount of payment and the employer can choose to provide any additional payment.\nPublic Duties Leave: Employees are entitled to a reasonable unpaid amount of time off to perform public duties, for example, if they are a justice of the peace, a local councilor, a school governor, etc.\nParental Bereavement Leave: Parents who lose a child under the age of 18, or due to stillbirth after 24 weeks of pregnancy, are entitled to 2 weeks of bereavement leave. Those who meet the eligibility requirements will be paid during this leave at 187.18 GBP per week or 90% of the average weekly earnings (whichever is lower).\nBereavement Leave: The UK law does not establish any statutory bereavement leave outside of the Parental Bereavement leave entitlement. In the event of a death of a person close to the worker each employer can decide their own policy based on how long is perceived as a reasonable length of time to give off and if it should be paid or unpaid.\nStudy/Exam Leave: Time off to study is usually unpaid unless the employer agrees to pay it and eligibility for statutory study leave is based on very specific criteria including that the training must be to help them do their job better and at least 250 people are employed in the organization.\nMarriage Leave: The UK law does not establish any statutory right to this leave, each employer can decide their own policy.\nHome Moving Leave: The UK law does not establish any statutory right to this leave, each employer can decide their own policy."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment agreement and collective agreement in place and is based on the type of contract and reason for termination. Dismissals can be deemed fair or unfair depending on the reasoning and conduct of the termination.",
+          "notice_period": "In the United Kingdom, notice periods are outlined with the employment contract or the statutory minimum, whichever is longer.\nFor redundancy the statutory notice period is at least 1 week’s notice if an employee has been employed for between one month and 2 years, and 1 week’s notice for each year of service above 2 years up to a limit of 12 weeks’ notice.\nIn the case of gross misconduct, a dismissal without notice is possible. Employers can pay in lieu of notice.",
+          "severance_pay": "Severance pay is only required in the case of redundancy. The amount of severance is dependent on the age of the employee, if they have served at least two years of service:\nHalf a week’s pay for each full year for employees under the age of 22\nOne week’s pay for each full year for employees between the ages of 22 to 41\nOne and half weeks’ pay for each full year for employees over the age of 41\nLength of service is capped at 20 years\nWeekly pay is capped at 719 GBP and the maximum statutory redundancy pay one can receive is 21,570 GBP.\nSeverance is not required in regular termination cases.",
+          "probation_period": "There are no statutory provisions for probation periods in the United Kingdom; these are outlined in the employee’s employment contract. Commonly, probation periods last between three and six months."
+        },
+        "common_benefits": [
+          "Annual Leave – common to give at least 25 working days off per year.",
+          "Sick pay – pay regular salary during the first three days of sickness and pay above the SSP rate for further sickness.",
+          "Paternity Leave – Full payment for the two week leave period or additional paid leave (some companies even offer up to 3-6 months paid paternity).",
+          "Special Leave – additional leave policies for:\nMarriage Leave – 1 to 2 weeks paid is common\nStudy/Exam Leave – 1 week paid per exam period is common\nHouse Moving leave – 1 to 2 days paid is common\nBereavement Leave  – 3 to 5 days paid is common for close family with additional unpaid leave if needed, 1 day paid to attend the funeral of non immediate family.",
+          "Marriage Leave – 1 to 2 weeks paid is common",
+          "Study/Exam Leave – 1 week paid per exam period is common",
+          "House Moving leave – 1 to 2 days paid is common",
+          "Bereavement Leave  – 3 to 5 days paid is common for close family with additional unpaid leave if needed, 1 day paid to attend the funeral of non immediate family.",
+          "Sabbatical/Career break – 6 months to 1 year unpaid is common after a certain length of service has passed.\nPension – enhanced contribution to NEST pension e.g. 4 or 5% contribution instead of 3%. Some companies might also choose to offer a private pension plan.",
+          "Healthcare – private insurance is common. Costs can vary with a common range between 700 to 1,500 GBP per year for individual cover and 2,500 per year for family cover. Some employers will offer plans in which the worker can include their spouse/partner/children at their own expense (deducted through payroll).",
+          "Dental Insurance – 70%-100% paid by the company.",
+          "Vision Insurance – 70%-100% paid by the company.",
+          "Interest Free Loans – Provide employees with an interest free loan of up to £10,000 in any tax year – a benefit often used to allow employees to buy an annual or seasonal travel card (usually cheaper than buying daily, weekly, or monthly tickets).",
+          "Life insurance – Life insurance cost varies depending on the worker and scope of insurance.",
+          "Meal allowance: 5 to 10 GBP per day.",
+          "Work-from-home allowance, 50 to 100 GBP monthly.",
+          "Cycle to Work Scheme – Government initiative in which employers must sign up to a provider for that offers employees an opportunity to obtain bikes and accessories tax free.",
+          "Car Benefits – companies might offer Electric Car or Company Car Schemes or a fixed monthly Car Allowance (600 to 800 GBP per month is common).",
+          "Wellness Benefits – such as gym memberships or fitness products. Around 70 GBP per month is common."
+        ],
+        "visa": {
+          "general_info": "If employers want to recruit from outside the UK, workers need to meet certain requirements and apply for the appropriate visa first; each visa has different requirements. Employers need to have a sponsor license to hire most workers outside the UK – which can take several weeks to process.\n\nFollowing the end of the Brexit transition period, from 1 January 2021, the free movement of persons between the UK and EU has ended. The UK has introduced an immigration system that treats all applicants equally, regardless of their country. Also effective from this date, citizens of the European Union, Switzerland, Norway, Iceland, and Liechtenstein can apply for the EU Settlement Scheme.\n\nForeigners can visit the UK for up to 6 months without a visa to travel, visit family and friends, undertake short-term studies, attend job interviews, etc.\n\nFor longer stays, foreigners need to apply through the UK immigration points-based system via the UK government to score the necessary points for entry eligibility criteria must be met. This system aims to prioritize skills and talent over where someone comes from.\n\nIrish citizens need not apply for a work permit to live and work in the UK, as free movement, rights, and privileges between these countries continue to be protected by the Common Travel Area arrangements. In most cases, to be eligible to come and work in the UK, a confirmed job offer is required or written confirmation of transferring to the employer’s UK office.\n\nThere are many types of work visas for the UK, for both short- and long-term stays. All require different information regarding the foreigners’ skills and qualifications depending on the job being offered/sponsorship, the type of work involved, and whether there will be a requirement to bring the family.\nThe most requested long-term work visas in the UK include:\n\nSkilled Worker – allows holders of this visa to live or stay in the UK and work in a qualifying role with an approved employer. The visa is valid for up to 5 years before renewal is needed. To be able to get this type of visa, a confirmed job offer is essential. The role must also be in a reported list of eligible occupations on the government website.\nIntra-company – Transfer or Graduate Trainee – these are the visas for foreigners being transferred to the UK. There’s also an intra-company visa specifically designed for graduate trainees being transferred as part of a program for managerial or specialist roles.\nThe role must also be in a reported list of eligible occupations on the government website. The amount of time allowed to stay depends on many factors, as detailed on the government website.\nHealth and Care Worker – a long-term visa designed for medical professionals coming to the UK for an eligible job with the NHS, an NHS supplier, or adult social care. There are minimum criteria that an employee must meet to be eligible, together with a confirmed job offer. This role is valid for five years before renewal.\n\nA ‘certificate of sponsorship’ from the Home Office, approved by an employer, is also a prerequisite for all these visas. The process takes between 3-8 weeks, and the costs associated with applying for the right to work in the UK differs depending on the type of visa or permit but are usually made up of an application fee, a healthcare surcharge, and a minimum amount of money as initial settlement/support.\n\nThe UK government has announced the implementation of a new visa scheme for ‘high potential individuals’ to allow people from top universities to work in the UK for 2 years – or 3 years if they hold a PhD – and to switch to other long-term employment visas at the end of this period if they meet certain requirements. The scheme is open to all eligible graduates, regardless of nationality, and a prior job offer is not required.\n\nIf you are looking to hire in the UK, check out the employer of record in the UK."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in the United Kingdom is 20.00%."
+        }
+      }
+    }
+  ]
+}

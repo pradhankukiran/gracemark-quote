@@ -1,0 +1,124 @@
+{
+  "scraped_at": "2025-08-24T18:46:38.078Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Thailand",
+      "url": "https://www.papayaglobal.com/countrypedia/country/thailand/",
+      "scraped_at": "2025-08-24T18:46:38.068Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "3.00%",
+              "description": "Pension, applied on income between 1650-17,500 THB monthly"
+            },
+            {
+              "rate": "1.50%",
+              "description": "Health Insurance, applied on income between 1650-17,500 THB monthly\n* Expatriate workers will require private health cover"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Unemployment, applied on income between 1650-17,500 THB monthly"
+            },
+            {
+              "rate": "0.20%-1.00%",
+              "description": "Work Injury, applied on income up to 20,000 THB monthly"
+            },
+            {
+              "rate": "5.20% – 6.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "3.00%",
+              "description": "Pension, applied on income between 1650-17,500 THB monthly"
+            },
+            {
+              "rate": "1.50%",
+              "description": "Health Insurance, applied on income between 1650-17,500 THB monthly"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Unemployment, applied on income between 1650-17,500 THB monthly"
+            },
+            {
+              "rate": "5.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "0 to 150,000 THB"
+            },
+            {
+              "rate": "5.00%",
+              "description": "150,001 to 300,000 THB"
+            },
+            {
+              "rate": "10.00%",
+              "description": "300,001 to 500,000 THB"
+            },
+            {
+              "rate": "15.00%",
+              "description": "500,001 – 750,000 THB"
+            },
+            {
+              "rate": "20.00%",
+              "description": "750,001 – 1,000,000 THB"
+            },
+            {
+              "rate": "25.00%",
+              "description": "1,000,001 – 2,000,000 THB"
+            },
+            {
+              "rate": "30.00%",
+              "description": "2,000,001 – 4,000,000 THB"
+            },
+            {
+              "rate": "35.00%",
+              "description": "4,000,000 THB and above"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The national minimum daily wage in Thailand varies by region within Thailand, ranging from 337 THB per day to 400 THB per day. Here are the rates across the major provinces:\nTHB 400 per day in Chachoengsao, Chonburi, Phuket, Rayong and Koh Samui District in Surat Thani.\nTHB 380 per day in Muang District in Chiang Mai and Hat Yai District in Songkhla.\nTHB 372 per day in Bangkok and surrounding provinces including Nakhon Pathom, Nonthaburi, Pathum Thani, Samut Prakan and Samut Sakhon.\nTHB 337 per day in southern provinces including Narathiwat, Pattani and Yala.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Thailand is generally monthly and is usually paid on the last working day as agreed within the employment contract.",
+          "13th_salary": "There is no statutory requirement for a 13th-month salary payment in Thailand."
+        },
+        "working_hours": {
+          "general": "By law in Thailand, the maximum number of working hours is 8 hours per day, 48 hours per week.\nOn working days, an employer shall arrange a rest period during work for its employees of not less than one hour per day after the employee has been working for no more than five consecutive hours.",
+          "overtime": "A total of 36 overtime hours can be worked in a week. Overtime on regular working days is paid at a rate of 150% of the salary. Working normal work hours on a holiday are paid at a rate of 200% salary. Working overtime hours on a holiday are paid at 300% salary.\nManagement roles are generally exempt from overtime requirements."
+        },
+        "leave": {
+          "sick_days": "All employees are entitled to unlimited sick leave, but the number of days paid sick leave shall not exceed 30 days per year covered by the employer. The employer may require an employee to produce a certificate from a qualified medical professional for a sick leave of 2 days or more.",
+          "maternity_leave": "Employees are entitled to 98 days of maternity leave, paid by Social Security at 100% of the regular salary rate for the first 45 days, followed by 50% of the regular salary rate for the remaining days.",
+          "paternity_leave": "An employee’s entitlement to paternity leave is dependent on the sector in which they work. The private sector has no statutory paternity leave, however, employees in the public sector are entitled to 15 days of paternity leave.",
+          "parental_leave": "There is no statutory parental leave in Thailand.",
+          "other_leave": "Military Leave – Male employees are entitled to leave for military service, during which the employer must continue to give basic pay at a rate equal to normal working days during the leave but not exceed 60 days per year.\nPersonal Business Leave – Employees are entitled leave of 3 working days per year to attend to personal matters.\nTraining Leave – Employees are entitled to take leave for training or skill development where it relates to acquiring skills to improve labour and job effectiveness or testing of educational level as required by the government."
+        },
+        "termination": {
+          "termination_process": "Employment can be terminated in Thailand where their is ‘just cause’, which includes reasons of criminal offence, employee caused willful damage, negligence causing serious damage to employer/put others at risk, employee violated work rules, regulations or orders even with written warning from employer, employee was absent for 3 consecutive days without notice or any justifiable reason or the employee is sentenced to imprisonment.\nFor termination without ‘just cause’, there is a high likelihood of the terminated worker filing a claim of unfair dismissal with the labour court and the Thai law tends to be more favorable to the worker’s claim.\nOnce employment has been terminated, the employer must notify the Social Security Office. When the termination concerns a foreign worker, the employer must notify the Immigration Bureau and The Department of Employment of the Ministry of Labour.\nTermination payments, including current month salary, unused annual leave and severance pay must be paid to the employee within three days of the date of termination.",
+          "notice_period": "Notice periods in Thailand must be given in advance and in writing. The notice must be given on or before the date wages are due in order to take effect the following wages due date. The length of notice is generally for a period of 30 days, although employers can specify longer notice periods within the employment contract. Payment in lieu of notice is also possible",
+          "severance_pay": "In Thailand, severance pay is mandatory if applicable and determined by the employee’s length of service. Severance is mandated by law for employment on 120 days onwards. Employees working for fewer than 120 days for the same employer are not eligible to receive any severance payment.\nEmployees with less than 120 days of service are not entitled to severance pay.\nEmployees with more than 120 days of service but fewer than one year are entitled to 30 days of severance pay.\nEmployees with service of one year but fewer than three years are entitled to 90 days of severance pay.\nEmployees with three years but fewer than six years are entitled to 180 days of severance pay.\nEmployees with six years but fewer than ten years are entitled to 240 days of severance pay.\nEmployees with service of 10 years but fewer than 20 years are entitled to 300 days of severance pay.\nEmployees with 20 years or more are entitled to 400 days of severance pay.\nSeverance does not need to be paid when a worker is terminated for cause.",
+          "probation_period": "There is no mandatory requirement to include a probation period, however it is common to include a period of up to 119 days."
+        },
+        "visa": {
+          "general_info": "For short-term work activities conducted for up to 15 days, the appropriate work authorization is the Urgent Work Permit (UWP). The UWP may be extended for another 15 days if the urgent work is not completed during the initial 15-day period. Except for visa-exempt nationals, foreign nationals seeking a UWP must obtain a Non-Immigrant B visa before entry.\nFor work activities that exceed 30 days, a work permit is required. The work permit can be granted for one to four years, depending on the company’s status in Thailand. All foreign nationals intending to obtain a work permit, including visa-exempt nationals who must obtain a Non-Immigrant B visa before entry."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Thailand is 7% until 30 September 2025."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "scraped_at": "2025-08-24T18:28:00.072Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Nepal",
+      "url": "https://www.papayaglobal.com/countrypedia/country/nepal/",
+      "scraped_at": "2025-08-24T18:28:00.065Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "10.00%",
+              "description": "Provident Fund"
+            },
+            {
+              "rate": "8.33%",
+              "description": "Social Security Gratuity Fund"
+            },
+            {
+              "rate": "1.67%",
+              "description": "Social Security Additional Insurance"
+            },
+            {
+              "rate": "20.00%",
+              "description": "Total Employers Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "10.00%",
+              "description": "Provident Fund"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Social Security Tax"
+            },
+            {
+              "rate": "11.00%",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": [
+            {
+              "rate": "1%",
+              "description": "Up to 500,000 NPR Annually"
+            },
+            {
+              "rate": "10%",
+              "description": "500,001-700,000 NPR Annually"
+            },
+            {
+              "rate": "20%",
+              "description": "700,001 – 2,00,000 NPR Annually"
+            },
+            {
+              "rate": "30%",
+              "description": "Over 2,000,000 NPR Annually"
+            }
+          ]
+        },
+        "working_hours": {
+          "general": "The standard workweek is typically spread over six days, with a working time 0f 8 hours per day and 48 hours per week. Employees are entitled to a 30-minute break after every five hours of work.",
+          "overtime": "Employees can work a maximum of 4 hours overtime per day and a total of 24 hours of overtime per week. Overtime is paid at a rate of 1.5 times regular salary for each hour of overtime worked.\nManager position might be exempt from overtime regulations where alternative compensation agreements are outlined in their employment contracts."
+        },
+        "payroll": {
+          "payroll_cycle": "The payroll frequency is typically monthly, with salary payments made on the 7th of the following month.",
+          "13th_salary": "An additional salary is paid around the Dashain Festival, based on the monthly basic salary.  The payment will be pro rated for workers with less than 1 year of service."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In Nepal, workers are entitled to 18 days of paid annual leave (Home Leave) per year, which is calculated at a rate of 1 day for every 20 working days.\nUnused annual leave can be carried over for up to one fiscal year but cannot exceed 90 days accumulated in total.",
+          "public_holidays": "Workers are typically entitled to 13 yearly public holidays, though exact entitlement can vary in the Private sector depending on company policy. Female employees are entitled to additional days off on Women’s Day and Teejfor.\nIf a public holiday falls on a weekend it is typically lost.\nDate\tDay\tHoliday\tNotes\n14 Jan 2025\tTuesday\tMaghe Sankranti\t\n30 Jan 2025\tThursday\tSonam Lhosar\t\n19 Feb 2025\tWednesday\tNational Democracy Day\t\n26 Feb 2025\tWednesday\tMaha Shivaratri\t\n8 Mar 2025\tSaturday\tInternational Women’s Day\tDay off for female employees only.\n13 Mar 2025\tThursday\tFagu Purnima (Holi)\t\n30 Mar 2025\tSunday\tRamjan Edul Fikra (Eid al-Fitr)\t\n31 Mar 2025\tMonday\tRamjan Edul Fikra (Eid al-Fitr)\t\n14 Apr 2025\tMonday\tNepali New Year\t\n12 May 2025\tMonday\tBuddha Jayanti\t\n7 Jun 2025\tSaturday\tEdul Aajaha (Eid al-Adha)\t\n9 Jun 2025\tMonday\tEdul Aajaha (Eid al-Adha) Holiday\t\n26 Aug 2025\tTuesday\tHaritalika Teej\tDay off for female employees only.\n19 Sep 2025\tFriday\tConstitution Day\t\n2 Oct 2025\tThursday\tVijaya Dashami\t\n20 Oct 2025\tMonday\tLaxmi Puja",
+          "sick_days": "Workers are entitled to 12 paid sick days per year. For sick leave exceeding three days, a medical certificate is typically required\nUnused sick leave can be accumulated up to 45 days.",
+          "maternity_leave": "Female employees are entitled to 14 weeks (98 days) of maternity leave. Of which, 60 days are fully paid and the remaining 38 days can be unpaid unless the employer chooses to pay.  Employees must take at least two weeks of leave before the expected delivery date and at least six weeks after childbirth.  If medically advised, an additional one month of unpaid leave can be granted.\nEmployees are entitled to the same maternity leave benefits if a pregnancy ends in a stillbirth or miscarriage in the seventh month or later.",
+          "paternity_leave": "Male employees are entitled to take 15 days of paid paternity leave.",
+          "parental_leave": "There is no statutory parental leave in Nepal.",
+          "other_leave": "Bereavement Leave – also known as mourning leave, entitles employees to 13 days of paid leave in the event of the death of a family member, to observe the funeral rites or last rituals."
+        },
+        "termination": {
+          "termination_process": "Employment can be terminated in Nepal for reasons including serious negligence of duties, poor performance, absenteeism, insubordination, misconduct, revealing confidential information of the client or the employer, Physical and Sexual Harassment, Involvement in Physical Actions and any legal or police case against the employee.\nEmployers must provide a written notice stating the reasons for termination and allow the employee to explain themselves. Employees can contest termination by filing a complaint with the Labor Office within 45 days.\nAn employee can resign by submitting a written resignation letter to the employer. The employer must accept this within 15 days, or it is deemed accepted.",
+          "notice_period": "The notice period for employment termination varies based on the duration of employment:\nDuring Probation Period = Immediate termination is usually possible.\n\nUp to 4 weeks of service = A minimum of 1 day’s notice is required.\n\n4 weeks to 1 years of service = A minimum of 7 days’ notice is required.\n\nAbove 1 year of service = A notice period of 30 days is required.\nBoth employers and employees must adhere to these notice periods unless termination is due to misconduct, in which case immediate termination is possible. If either party fails to provide the required notice, they must pay the equivalent remuneration for the notice period to the other party.\nThe employer can choose to pay in lieu of the notice period.",
+          "severance_pay": "Employees are entitled to severance pay unless they are eligible for unemployment benefits under the Social Security Act. The severance pay is calculated as 1 month’s salary for each year of service. For employees with less than one year of service, the severance pay is proportional to their length of service.\nSeverance must be paid as a lump sum upon termination of employment to avoid penalties and legal complications.\nGenerally, workers who resign voluntarily will not be entitled to severance payout.",
+          "probation_period": "A trial period of 6 months is in place. It might be permitted to extend a probation period by an additional six months if the employee’s performance is unsatisfactory."
+        },
+        "minimum_wage": "The minimum wage in Nepal is  17,300 NPR per month. Those based in tea estates are subject to a lower minimum wage of 13,893 NPR per month.",
+        "vat": {
+          "general_info": "The standard rate of VAT in Nepal is 13%."
+        }
+      }
+    }
+  ]
+}

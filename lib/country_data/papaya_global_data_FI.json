@@ -1,0 +1,137 @@
+{
+  "scraped_at": "2025-08-24T18:04:55.848Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Finland",
+      "url": "https://www.papayaglobal.com/countrypedia/country/finland/",
+      "scraped_at": "2025-08-24T18:04:55.838Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "25.55%",
+              "description": "Pension Insurance- TyEL contribution (varies by company and contract type)"
+            },
+            {
+              "rate": "1.53%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "0.20%",
+              "description": "Unemployment Insurance, applied as 0.20% up to €2,455,500 of wages and 0.80% on the exceeding amount."
+            },
+            {
+              "rate": "Based on salary and job risk",
+              "description": "Accident insurance premium"
+            },
+            {
+              "rate": "Varies by industry and company",
+              "description": "Group life insurance premium (if it is so agreed in the collective labor agreement )"
+            },
+            {
+              "rate": "27.28%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "7.15%\n(8.65% of employees aged between 53-62)",
+              "description": "Pension Insurance (average)"
+            },
+            {
+              "rate": "1.96% (inclusive of daily allowance – which is zero for earnings below €15,703 annually, and medical care contribution)",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "4.36%-10.86%",
+              "description": "Municipal Tax"
+            },
+            {
+              "rate": "1.00%-2.20%",
+              "description": "Church Tax"
+            },
+            {
+              "rate": "1.50%",
+              "description": "Unemployment Insurance"
+            },
+            {
+              "rate": "15.97% to 23.67%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "12.64%",
+              "description": "Up to 21,200 EUR"
+            },
+            {
+              "rate": "19.00%",
+              "description": "21,200 – 31,500 EUR"
+            },
+            {
+              "rate": "30.25%",
+              "description": "31,500 – 52,100 EUR"
+            },
+            {
+              "rate": "34.00%",
+              "description": "52,100 – 88,200 EUR"
+            },
+            {
+              "rate": "41.75%",
+              "description": "88,200 – 150,000 EUR"
+            },
+            {
+              "rate": "44.25%",
+              "description": "Over 150,000 EUR"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "There is no statutory minimum wage in Finland, however, most employees are covered by Collective Agreements specifying minimum pay rates. The average minimum monthly salary across CBAs in Finland is approximately €1,370 EUR per month.",
+        "payroll": {
+          "payroll_cycle": "In Finland, the payroll frequency is monthly, typically paid on the last day of the month.",
+          "13th_salary": "13th-month salary payments are customary in Finland and are usually paid before the employee’s holiday."
+        },
+        "working_hours": {
+          "general": "Working hours between 37.5-40 per week depending on the position and CBA.",
+          "overtime": "All working hours of more than the standard working hours per week are to be paid as overtime and are regulated by the employment contract/collective agreements etc. It must also be mutually agreed upon before the commencement of any overtime working hours.\nIn general, maximum overtime limits must not exceed 138 hours over four months and 250 hours annually.\nOvertime hours are paid at 150.00% of the regular salary rate of pay for the first two hours and 200.00% for any subsequent hours. Any overtime work required on a weekend/rest day/Sunday is compensated at 200.00% of the regular salary rate of pay."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Annual leave is calculated from April 1 to March 31 and vacation is typically taken between May 2 -September 30. Employees earn two vacation days per month or 2.5 days per month for continuous employment of up to one year of employment; after that, the entitlement is four weeks’ leave per year. Upon completing 15 years of service, the annual leave entitlement increases to 3 days per month.\nThe annual holiday is earned and taken on working days. Saturday is also considered a working day even if the employee did not work on Saturdays ( i.e. a full week of vacation is equal to the use of 6 days of the annual leave entitlement). At least two weeks of the annual holiday must be taken as an uninterrupted period, however, the employer and the employee may agree on taking the holiday outside the holiday seasons and they may also convert part of the holiday into shorter working hours.\nThe rules concerning the calculation of the holiday pay depend on the pay system and holiday accrual rules applying to the employee. The holiday pay must be paid before the start of the holiday. However, for a holiday not exceeding six days, the holiday pay may be paid on the employee’s normal payday.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n6 Jan 2025\tMonday\tEpiphany\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tMay Day\t\n29 May 2025\tThursday\tAscension Day\t\n8 Jun 2025\tSunday\tWhit Sunday\t\n20 Jun 2025\tFriday\tMidsummer’s Eve\t\n21 Jun 2025\tSaturday\tMidsummer Day\t\n1 Nov 2025\tSaturday\tAll Saints’ Day\t\n6 Dec 2025\tSaturday\tIndependence Day\t\n24 Dec 2025\tWednesday\tChristmas Eve\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\t2nd Day of Christmas",
+          "maternity_leave": "Maternity leave in Finland is referred to as family leave and incorporates maternity leave, paternity leave, parental leave, and childcare leave. Generally, family leave is unpaid, but this is stipulated within the employment contract/collective agreement.\nSpecific elements of family leave have an allowance paid for by Kela, e.g., parental and home care allowances.\nA pregnant employee is entitled to 105 days of maternity leave. Working is allowed during maternity leave if it can occur without endangering the safety of the mother, fetus, or child. However, the mother cannot work while on maternity leave two weeks before the due date and two weeks after giving birth.",
+          "paternity_leave": "In Finland, paternity leave can last up to 54 days. Fathers can choose to stay at home for up to 18 days at the same time as the child’s mother and then decide when to take the remaining 36 days. Fathers can use their paternity leave after maternity and parental leave. However, whenever the leave is taken, the employer must take the paternity leave before the child reaches two years old.\nNew reforms are expected in summer 2022.",
+          "parental_leave": "Parental leave is 158 days. Both parents can take full-time parental leave for a maximum of two leave periods, with a minimum length of leave of 12 working days. Parental leave may be taken part-time, with each of the parents agreeing with their employer to shorten their working hours and reduce their pay accordingly for at least two months.",
+          "other_leave": "Depending on the Collective Agreement/Employment Contract terms, an employee may be allowed additional leave types, following the approval of the employer, for the following leave types:\nChildcare leave: employees are entitled to take unpaid childcare leave for the full-time care of a child under the age of 3 or the care of an adoptive child for two years after adoption. The employer must take the leave before the child enters the school."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to how the employment agreement and collective agreement are in place and is based on the type of contract and reason for termination.\nWith effect from January 1, 2023, non-compete compensation clauses mean that employers will be obliged to pay compensation to any resigning employees or employees dismissed for cause, for the period of the noncompetition restriction after the employment.",
+          "notice_period": "The period of notice is determined following the Employment Contracts Act, which stipulates that the employer and the employee may agree on the periods of notice no longer than six months. Collective agreements may contain provisions on periods of notice. Suppose the periods of notice laid down in the collective agreement differ from the statutory periods of notice. In that case, the employer and the employee must observe the periods of notice laid down in the collective agreement.\nThe amount of notice is dependent on the length of service and reason for termination. If the employer terminates the contract, the notice period is as follows:\nUp to one year employment – 14 days’ notice\nOne to four years of employment – one month’s notice\nFour to eight years of employment – two months’ notice\nEight to 12 years of employment – four months’ notice\nOver 12 years of employment – six months’ notice\nIf the employee terminates the contract, the notice period is as follows:\nUp to 5 years of employment – 14 days’ notice\nMore than five years of employment – 1-month notice",
+          "severance_pay": "There is no statutory severance pay in Finland, although severance may be agreed upon in the employment contract. See EoR page for specific regulations under this employment model.",
+          "probation_period": "In Finland, the probationary period cannot exceed six months."
+        },
+        "common_benefits": [
+          "Mobile allowance – approx. 20-50 Euro/month",
+          "Internet allowance -20-50 Euro/month",
+          "Fitness and wellness allowance – approx. 40 Euro/month",
+          "Car allowance – 600-900 Euro/month",
+          "Housing allowance – between 1500 – 3000 Euro/month",
+          "Meal vouchers"
+        ],
+        "visa": {
+          "general_info": "Citizens of the Nordic countries (Sweden, Norway, Denmark, and Iceland) may freely enter Finland and reside without a residence permit. They can also take up paid employment without a residence permit for an employed person.\nEU citizens and citizens of Iceland, Liechtenstein, Norway, and Switzerland have the right to enter, reside, study, seek work, or practice a profession in Finland for three months without a residence permit. If the stay lasts longer, they must register their right to reside in Finland at a police department.\nPersons from outside EU Area require a work permit and residence permit. Several categories depend on job grade and status. Highly skilled professionals with a job offer in Finland must apply for a specialist permit. Persons residing outside the European Economic Area (EEA) may also need a permit from the National Board of Patents and Registration to serve in a managerial position or carry out other responsibilities in a business.\n\nWhen an EU citizen visits another member state on business they are required to prove where they pay their social security contributions.   An A1 certificate issued by the employee’s home country is used to verify this. The regulations don’t set a threshold for when an A1 is required, and the guidelines issued previously by the EU have stated ‘the obligation covers any economic activity, even if only of short duration”.  Finland had previously advised that an A1 certificate would be required from the first day of an outbound or inbound trip but has since updated its guidance advising that a certificate is not required for short trips unless the destination country requires it."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Finland is 24.00%."
+        }
+      }
+    }
+  ]
+}

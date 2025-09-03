@@ -1,0 +1,166 @@
+{
+  "scraped_at": "2025-08-24T17:36:52.413Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Azerbaijan",
+      "url": "https://www.papayaglobal.com/countrypedia/country/azerbaijan/",
+      "scraped_at": "2025-08-24T17:36:52.399Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "Oil and Gas Industry:",
+              "description": ""
+            },
+            {
+              "rate": "22.00%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Unemployment"
+            },
+            {
+              "rate": "2.00%",
+              "description": "Mandatory Medical Insurance"
+            },
+            {
+              "rate": "*Private Sector:",
+              "description": ""
+            },
+            {
+              "rate": "2.00% up to 200 AZN;\n15% above 200 AZN + 44 AZN",
+              "description": "Social Security"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Unemployment"
+            },
+            {
+              "rate": "1.00% up to 8,000 AZN; 0.5% above AZN 8000 + 160 AZN",
+              "description": "Mandatory Medical Insurance*"
+            },
+            {
+              "rate": "*A 50% discount has been applied to the non-state and non-oil sector’s mandatory medical insurance; both the employee and the employer contributions will be 1% for the income earned up to AZN 8,000.\n*Rate for private sector employees lasts for 7 years, after which it is the same as for oil and gas industry employees.",
+              "description": ""
+            },
+            {
+              "rate": "22.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "Oil and Gas Industry:",
+              "description": ""
+            },
+            {
+              "rate": "3.00%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Unemployment"
+            },
+            {
+              "rate": "2.00%",
+              "description": "Mandatory Medical Insurance"
+            },
+            {
+              "rate": "*Private Sector:",
+              "description": ""
+            },
+            {
+              "rate": "3.00% under 200 and 10% in excess of 200 AZN + 6 AZN",
+              "description": "Social Security"
+            },
+            {
+              "rate": "0.5%",
+              "description": "Unemployment"
+            },
+            {
+              "rate": "1% up to 8,000 AZN; 0.5% above AZN 8000 + 160 AZN",
+              "description": "Mandatory Medical Insurance*"
+            },
+            {
+              "rate": "*A 50% discount has been applied to the non-state and non-oil sector’s mandatory medical insurance; both the employee and the employer contributions will be 1% for the income earned up to AZN 8,000.\n*Rate for private sector employees lasts for 7 years, after which it is the same as for oil and gas industry employees.",
+              "description": ""
+            },
+            {
+              "rate": "5.50%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "Oil and Gas Industry employees:",
+              "description": ""
+            },
+            {
+              "rate": "14.00%",
+              "description": "Wage Tax for monthly salaries below 2,500 AZN"
+            },
+            {
+              "rate": "350 AZN + 25% of anything above 2,500 AZN",
+              "description": "Wage tax for monthly salaries above 2,500 AZN"
+            },
+            {
+              "rate": "*Private Sector employees:",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "Wage Tax for monthly salaries up to 8,000 AZN"
+            },
+            {
+              "rate": "14.00% of the amount exceeding 8,000 AZN",
+              "description": "Wage Tax for monthly salaries above 8,000 AZN"
+            },
+            {
+              "rate": "*Rate for private sector employees lasts for 7 years, after which it is the same as for oil and gas Industry employees.",
+              "description": ""
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The monthly minimum wage is 400 AZN.",
+        "payroll": {
+          "payroll_cycle": "In accordance with the Labor Code of Azerbaijan (LCA), monthly salaries should be divided into two parts (advance and remaining portions of the wage) and paid to employees twice a month with an interval not exceeding 16 days. Annual salaries should be paid not less than once a month, which is now becoming the normal practice.",
+          "13th_salary": "There is no requirement for the 13th salary payment in Azerbaijan."
+        },
+        "working_hours": {
+          "general": "Standard working hours are set for employees over the age of 18 at no more than 8 hours a day and 40 hours per week, with a working week set at five working days and two days off.\nIn accordance with the Azerbaijan Resolution, working days for 2022 are set at 241 days. The annual rate of working time in 2022 will constitute 1921 hours for 40 hours of weekly work and will be applicable to both five-day and six-day working weeks.\nIn certain industries, the employer may impose a six-day working week; in such situations, the daily working time limits may not exceed 7 hours (if the weekly total is 40 hours), 6 hours (if the weekly total is 36 hours), or 4 hours (if the weekly total is 24 hours) a day.",
+          "overtime": "Overtime is any additional time to the employee’s contracted standard working hours. No employee should be assigned to work overtime hours for more than two consecutive working days of more than four additional hours. In workplaces with difficult and harmful working conditions, there should be no more than 2 hours of overtime.\nThe general calculation of overtime is based on the following criteria:\nIf the salary is based on time worked, the amount paid per hour shall be calculated at 200% of the regular salary.\nIf the salary is based on the production of piecework, overtime hours must be paid at an amount no less than the regular hourly wage of employees within the same pay scale.\nDiffering payment calculation methods for overtime work may be stipulated in employment contracts and collective agreements. Overtime hours cannot be substituted as time off in lieu/additional days’ leave."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In Azerbaijan, the Minimum Annual Leave entitlement is 21 days for employees over the age of 18. This entitlement increases in line with the number of years of employment within a single company, as follows:\n5-10 years of service – Additional 2 days of leave per annum\n10-15 years of service – Additional 4 days of leave per annum\n15 or more years of service – Additional 6 days of leave per annum\nAnnual leave can be broken down into multiple leave periods, however, one of the leave periods must be 2 weeks in length.\nIf weekly days off and non-working days coincide, that day off shall be transferred to the working day immediately after the holiday. When the holidays of Eid al-Adha (Gurban) and Ramadan coincide with a non-working day, the next working day shall be considered a day off.",
+          "public_holidays": "There are 24 public holidays in Azerbaijan. In accordance with the resolution, the following days will be considered rest days due to the coincidence of holidays with the weekends:\n3, 4 January, 25 March, 30 May, 27 June, 11, and 12 July with respect to a five-day working week\n3 January, 25 March, 27 June, and 11 July with respect to the six-day working week\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n2 Jan 2025\tThursday\tNew Year’s Holiday\t\n20 Jan 2025\tMonday\tMartyrs’ Day\t\n8 Mar 2025\tSaturday\tInternational Women’s Day\t\n10 Mar 2025\tMonday\tInternational Women’s Day Holiday\t\n20 Mar 2025\tThursday\tNowruz\t\n21 Mar 2025\tFriday\tNowruz/Spring Holiday\t\n22 Mar 2025\tSaturday\tNowruz/Spring Holiday\t\n23 Mar 2025\tSunday\tNowruz/Spring Holiday\t\n24 Mar 2025\tMonday\tNowruz/Spring Holiday\t\n30 Mar 2025\tSunday\tRamazan Bayram Holiday\t\n31 Mar 2025\tMonday\tRamazan Bayram Holiday\t\n9 May 2025\tFriday\tVictory Day\t\n28 May 2025\tWednesday\tRepublic Day\t\n6 Jun 2025\tFriday\tGurban Bayram Holiday (Tentative)\tTentative\n7 Jun 2025\tSaturday\tGurban Bayram Holiday (Tentative)\tTentative\n8 Jun 2025\tSunday\tGurban Bayram Holiday (Tentative)\tTentative\n15 Jun 2025\tSunday\tSalvation Day\t\n16 Jun 2025\tMonday\tSalvation Day Holiday\t\n26 Jun 2025\tThursday\tArmed Forces Day\t\n8 Nov 2025\tSaturday\tVictory Day (Zəfər Günü)\t\n9 Nov 2025\tSunday\tFlag Day\t\n10 Nov 2025\tMonday\tFlag Day Holiday\t\n31 Dec 2025\tWednesday\tSolidarity Day of Azerbaijanis",
+          "sick_days": "Employees unable to work due to sickness will be paid in full for the first 14 days by the employer; thereafter, the payments will be made by the State Social Protection Fund. In order to receive the sick pay benefit, the employee must provide a medical certificate.",
+          "maternity_leave": "Women are entitled to a total of 126 days of maternity leave, of which 70 days are to be taken prior to the expected due date of the child and 56 days after the birth. Should it be a difficult birth or multiple births, the maternity leave can be extended for an additional 14 days.\nMaternity pay is calculated at 100% of the average of the mother’s previous 12 months’ salary payments and is to be paid by the State Social Protection Fund.\nPregnant women or women with young children are also covered under special circumstances in relation to employment law, the main clauses include:\nA pregnant woman or a woman with a child under the age of 3 years old cannot be terminated.\nA pregnant woman or woman with a child under the age of 18 months old is entitled to a reduced workweek. The maximum number of hours permitted is 36 hours a week.\nA pregnant woman or woman with a child under the age of 3 years old cannot be asked to work night shifts.",
+          "paternity_leave": "Fathers can take 14 days of unpaid paternity leave following the birth of a child.",
+          "parental_leave": "In Azerbaijan, there are various stipulations for parental rights, inclusive of additional time off should it be required; the main clauses are:\nA woman with two children under the age of 16 is entitled to 2 additional days of paid leave; a woman with 3 or more children under the age of 16 is entitled to 5 days of additional paid leave.\nA woman or single father with children under the age of 16 is entitled to 14 days of unpaid leave per year.\nFemale employees adopting children under 2 months of age are entitled to 56 calendar days of social leave.",
+          "other_leave": "In Azerbaijan, employees studying in addition to work are provided study leave in order to participate in training sessions in the relevant academic season to take state exams, prepare a diploma project, etc. During the period of paid educational leave, an employee shall be paid an average salary. However, the number of days varies in accordance with the nature of work and leave requirements. Employees who donate blood are also given an additional day’s leave with an average salary; generally, this day is added to the annual leave entitlement."
+        },
+        "termination": {
+          "termination_process": "In general, the termination of an employment contract in Azerbaijan is strict and must be managed in accordance with the Employees Act (Angestellten-Gesetz).\nThe final payment must be delivered at the very latest by the final day of employment, and the resignation of employment agreement should be registered in an electronic information system on the last working day together with the notification to the MLSPP providing details of the role and salary of the employee being terminated.",
+          "notice_period": "The notice period for an employee is set out in Section 20 of the Employees Act (Angestellten-Gesetz). All employees must give at least one month’s notice regardless of their length of service. However, contractually the notice period can be increased up to six months.\nThe standard notice period that the employer must give to an employee is also dependent on the employee’s length of service:\n2 years service or less – 6 weeks’ notice\nBetween 2- and 5 years’ service 2 months’ notice\nBetween 4- and 15 years’ service 3 months’ notice\nBetween 15- and 25 years’ service – 4 months’ notice\nMore than 25 years’ service – 5 months’ notice\nAll employees must give at least one month’s notice, regardless of their length of service. The notice period can be increased up to six months, subject to contractual agreement.\nWhen terminating an employment agreement due to downsizing, two months’ notice is required. During this 2-month period, the employee can take one day of paid time off per week for the purpose of finding new employment.",
+          "severance_pay": "For employees who are terminated based on redundancy, a minimum of 3 months’ severance pay is required.\nIn general, severance pay varies depending on the length of time the employee has been employed:\n1 years service or less – 1 month’s salary\nBetween 1- and 5 years’ service  – 1.4 the monthly salary\nBetween 5- and 10 years’ service –  1.7 the monthly salary\nMore than 10 years’ service – 2X the monthly salary\nIn addition to general severance pay, a termination payment of 2 months’ salary must be given if:\nTerms of employment were changed\nThe employee is called for military service\nThe employee can no longer perform their duties due to a permanent disability\nIn the event that the employee dies whilst still in employment, three months of salary allowance is given to their family members.",
+          "probation_period": "In Azerbaijan, the standard probation period is up to 3 months. During this time, either the employee or employer can cancel the employment agreement with three days’ notice."
+        },
+        "visa": {
+          "general_info": "Foreign individuals wishing to work in Azerbaijan must obtain a work permit from the State Migration Service of the Republic of Azerbaijan through their employers. The work permit only lasts up to one year at a time; therefore, an employee would have to be re-issued with this multiple times during their employment.\n\nWithin 15 days of arrival in the country, an application should be made via the electronic services of the official website of the State Migration Service of the Republic of Azerbaijan, e-government portal, via e-mail (qeydiyyat@migration.gov.az), in-person to the regional migration department, or “ASAN service” centers. The following documentation would be required for this submission:\n\nA completed application form\nA copy of an employee’s passport (other border crossing documents including the visa page and pages indicating the last entry to the country)\n\nAll visitors to Azerbaijan are recommended to obtain a visa prior to their arrival. Passports without visas are retained by the immigration authorities at the airport. Visitors then must apply to the Consular Department of the Ministry of Foreign Affairs during working hours to retrieve their passport with a visa.\n\nOnce the work permit is issued, it serves as the basis for obtaining a temporary residence permit. Temporary residence permits are initially issued for up to one year based on the submitted application and may subsequently be extended for no more than two years at a time.\n\nThe maximum timeframe for obtaining a temporary residence permit is 20 working days after submission of the complete application package."
+        },
+        "vat": {
+          "general": "The standard VAT rate in Azerbaijan is 18%."
+        }
+      }
+    }
+  ]
+}

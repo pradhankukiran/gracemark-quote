@@ -1,0 +1,150 @@
+{
+  "scraped_at": "2025-08-24T17:57:16.087Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Colombia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/colombia/",
+      "scraped_at": "2025-08-24T17:57:16.071Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "12.00%",
+              "description": "Pension Fund (applied on salary up to 25 minimum monthly salaries (SMMLV))."
+            },
+            {
+              "rate": "8.50%",
+              "description": "Medical Plan (applied on salary above 10 minimum monthly salaries (SMMLV))."
+            },
+            {
+              "rate": "0.52% – 6.96%",
+              "description": "Labor Risks (applied on salary up to 25 minimum monthly salaries (SMMLV))."
+            },
+            {
+              "rate": "4.00%",
+              "description": "Family Compensation Funds (applied on salary up to 25 minimum monthly salaries (SMMLV))."
+            },
+            {
+              "rate": "3.00%",
+              "description": "Family Welfare (ICBF) (applied only on integral salary) (applied on salary up to 25 minimum monthly salaries (SMMLV))."
+            },
+            {
+              "rate": "2.00%",
+              "description": "National Apprenticeship Service (SENA) (applied only on integral salary) (applied on salary up to 25 minimum monthly salaries (SMMLV))."
+            },
+            {
+              "rate": "21.02% – 27.46%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "4.00%",
+              "description": "Pension Fund (applied on salary up to 25 minimum monthly salaries (SMMLV))."
+            },
+            {
+              "rate": "1.00%-2.00%",
+              "description": "Pension Solidarity Fund (employees who earn more than four minimum legal monthly salaries must contribute an additional 1%, to the pension solidarity fund, created by law, employees who earn more than 16 minimum monthly salaries (COP 18,560,000) must contribute an additional percentage (between 0.2% and 1%), depending on the amount of salary received.)"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Medical Plan"
+            },
+            {
+              "rate": "9.00%-10.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "",
+              "description": "Tax Units (1 Tax Unit= 47,065 COP)"
+            },
+            {
+              "rate": "0.0%",
+              "description": "0-1,090 Tax Units"
+            },
+            {
+              "rate": "19.0%",
+              "description": "1,090-1,700 Tax Unit"
+            },
+            {
+              "rate": "28.0%",
+              "description": "1,700- 4,100 Tax Units"
+            },
+            {
+              "rate": "33.0%",
+              "description": "4,100- 8,670 Tax Units"
+            },
+            {
+              "rate": "35.0%",
+              "description": "8,670- 18,970 Tax Units"
+            },
+            {
+              "rate": "37.0%",
+              "description": "18,970- 31,000 Tax Units"
+            },
+            {
+              "rate": "39.0%",
+              "description": "31,000 Tax Units +"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The monthly minimum wage in Colombia is COP 1,423,500.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Colombia is either bi-monthly, paid on the 15th and last day of each month, or monthly.",
+          "13th_salary": "Paying a 13th-month salary is mandatory in Colombia. The employer must pay one additional monthly salary split in two payments: the first half paid within the first 15 days of June and the other half paid within the first 20 days of December. These will be pro-rated when a full year has not been worked."
+        },
+        "working_hours": {
+          "general": "By law in Colombia, the maximum number of working hours is 8 hours per day and 46 hours per week.\nWorker’s non-working time must be respected and employers should not contact them after working hours.\nUnder Law 2101, the maximum weekly working hours will further reduce to 44 hours per week in July 2025, and then down to 42 hours per week in July 2026. This reduction will not negatively affect worker salary, benefits or the value of the daily working hour.",
+          "overtime": "All work above the standard weekly working hours is paid as overtime and regulated by the Employment Contract/Collective Agreements. The payment of overtime is generally based on the following:\nDaytime (6am to 9pm) overtime is paid at 125% of the regular pay rate, increasing to 175% of the standard pay rate for night-time (9pm-6am) overtime hours.\nSunday/extra daytime/public holiday overtime work is paid at 175% of the regular pay for holidays and night-time work and 125% for overtime work during the daytime.\nNigh Shift Surcharge – An employee who has to work between 10pm-6am must be paid 35% more than the equivalent daytime salary, even if it is their regular working hour.\nEmployees who hold managerial roles, director positions, jobs with significant decision-making authority and those paid salario integral are generally exempt from the standard overtime limits as these roles typically require flexibility and greater responsibility. Employees not on a salario integral must be paid separately for overtime working."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Paid leave in Colombia is outlined in the employment contract as a minimum of 15 days paid leave a year, following completion of 1-year service. This is in addition to any public holidays.",
+          "public_holidays": "In accordance with the Emiliani Law, there are a number of public holidays that the law established that if they do not fall on a Monday they will be moved to the following Monday. Public holidays that fall on a Saturday are usually lost.\nDate\tDay\tHoliday\tNotes\n01 Jan 2025\tWednesday\tNew Year’s Day\t\n06 Jan 2025\tMonday\tEpiphany (Three Kings’ Day)\t\n24 Mar 2025\tMonday\tSt. Joseph’s Day\t\n13 Apr 2025\tSunday\tPalm Sunday\t\n17 Apr 2025\tThursday\tHoly Thursday\t\n18 Apr 2025\tFriday\tGood Friday\t\n20 Apr 2025\tSunday\tEaster Sunday\t\n01 May 2025\tThursday\tLabor Day\t\n02 Jun 2025\tMonday\tAscension Day\t\n23 Jun 2025\tMonday\tCorpus Christi\t\n30 Jun 2025\tMonday\tSacred Heart\t\n20 Jul 2025\tSunday\tIndependence Day\t\n07 Aug 2025\tThursday\tBattle of Boyacá\t\n18 Aug 2025\tMonday\tAssumption of the Virgin Mary\t\n13 Oct 2025\tMonday\tColumbus Day\tAlso known as Indigenous Peoples’ Day in some places\n03 Nov 2025\tMonday\tAll Saints’ Day\t\n17 Nov 2025\tMonday\tCartagena Independence Day\t\n08 Dec 2025\tMonday\tImmaculate Conception Day\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "For the first 2 days of sick leave, employees are entitled to be paid full salary by their employer. From day 3 to 90 of sick leave, payment is made by the Social Security system at a rate of 66.67% of the workers salary. From day 91 to 180 of sick leave, payment is made by the Social Security system at a rate of 50% of the workers salary.\nThe the law requires that the employer makes the sickness payments for the 180 days period, which they can then request a reimbursement from the Social Security system.\nA medical authorization from the Colombian Social Security system must be obtained for the employee to be eligible for paid sick leave.",
+          "maternity_leave": "Employees are entitled to 18 weeks of paid maternity leave.\nThe payment of maternity leave it is done based on the declaration at the moment of the start (of the leave), reported on the first day of the leave by the employer to the social security.\nEmployees with integral salary, are entitled to 70% of the salary, while employees under ordinary salary set up are entitled to is 100%, of their wage. therefore, the maternity pay paid during the leave is the one that fits the declaration.\nThe employer pays this and is then fully reimbursed by social security.",
+          "paternity_leave": "Employees are entitled to two weeks (14 calendar days) of paid paternity leave at 100% of their regular salary rate. The employer pays this and is then fully reimbursed by Social Security (EPS).",
+          "parental_leave": "There is no additional parental leave in Colombia.",
+          "other_leave": "Bereavement Leave: In the event of the death of an immediate family member, an employee is entitled to up to 5 days’ leave in Colombia.\nMarriage Leave: Employees are also entitled to 5 days’ leave in the event of their marriage.\nVoting Leave: Employees are entitled to half a day of paid leave to vote in elections."
+        },
+        "termination": {
+          "termination_process": "The termination process is standard in Colombia and is based on labor law requirements unless an employer can provide sufficient cause for dismissal without notice (due to misconduct, etc.).\nNotice of termination must be in writing and sent to the relevant governmental authorities.\nThe employer must make payment to leavers on their last day at work.",
+          "notice_period": "For Employees under fixed employment contracts, employers must notify employees at least 30 days before the contract’s expiration if they do not intend to renew it, otherwise it will be automatically renewed for the same\nperiod of time. For indefinite contracts, no notice period is required, though it is common to give 15 days. Though notice is not legally required during the probation period, providing a courtesy notice (e.g., 1-2 weeks)\ncommon by both parties.",
+          "severance_pay": "In Colombia, severance pay is mandatory if applicable and determined by the employee’s length of service and the rate of earnings.\nIf the employee earns less than 10x the minimum monthly wage, the severance payment entitlement is 30 days for the first year of employment, plus 20 days for each additional year of service.\nIf the employee earns more than 10x the minimum monthly wage, the severance payment entitlement is 20 days for the first year of employment, plus 15 days for each additional year of service.\nSeverance  is not paid when the employee resigns voluntarily. Compensation is only paid when the employer dismisses the employee without just cause.",
+          "probation_period": "The probation period in Colombia is optional. It is recommended to set a probation period of 1/5 of the contract duration up to 2 months. For permanent employees, it is generally two months."
+        },
+        "common_benefits": [
+          "Private health care insurance",
+          "Additional vacation days",
+          "Internet allowance – approx. 80 USD per month",
+          "Mobile phone allowance – approx. 100 USD per month",
+          "Meal vouchers/allowance – 20 USD per day (per CBA)",
+          "Fitness/Wellness allowance – between 400 -450 USD Per Year"
+        ],
+        "visa": {
+          "general_info": "Any foreigners coming to work in Colombia will need to have a job offer from a local employer before applying for a visa. There are several visa types, but the most commonly used is the M visa which is valid for five years. These visas are issued in person at the Ministerio de Relaciones Exteriores’ offices in Bogota.\nEvery foreigner with a visa valid for more than three months needs to apply and obtain a foreigner’s identity card at a regional office. This must be obtained within 15 days of entering Colombia or 15 days after the visa was issued.\nOnce five years have been completed, foreign nationals can apply for an R visa; then, once an individual has held an R visa for five more years, they can become a Colombian citizen."
+        },
+        "remote_work": "Work From Home\nEmployers are required to respond within 5 days to employees’ written working from home requests. Employees may carry out their work overseas if permission is given by their employer. Teleworkers’ employment agreements must include a description and any restrictions and responsibilities regarding equipment and software, the mode of teleworking, the required working hours, the location of teleworking, reimbursement of expenses, ergonomics and technology, among others.\nIt is possible for the employer and the teleworkers to expressly agree in the employment contracts or amendments on the reversibility of teleworking at any moment.\nEmployers are required to reimburse employees for teleworking-related expenses which are not normally incurred by employees. Employers and employees may agree a monthly allowance to compensate internet, telephone, and energy costs.\nIn Colombia, a home working allowance is not universally mandatory. Specific regulations apply based on salary and work arrangement:\nFor higher earners, there is no legal obligation for such allowances, but they can be agreed upon in employment contracts or company policies.\nEmployers should perform medical examinations for their remote employees when they are hired and on a periodic basis. Remote workers who are caring for minors under age 14, individuals with disabilities or adults over age 60 are allowed to organize their work schedule around their caregiver duty.\nAll workers have the right to disconnect and avoid any work-related contact outside their working hours and statutory or contractual leaves.\nRemote Work\nRemote work can be agreed upon voluntarily by the employer and employee, whereby an employee may conduct their services from any place within the country. The entire labor relationship, from its beginning to its termination, may be conducted without any face-to-face meetings at a designated workplace.\nAll workers have the right to disconnect and avoid any work-related contact outside their working hours and statutory or contractual leaves.",
+        "vat": {
+          "general": "The standard rate of VAT in Colombia is 19.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Social security, private and government entities",
+            "paid_to": "Payments are done by an operator",
+            "due_date": "Based on the tax number of the employer. But always in the first or 2nd week of the following month"
+          }
+        ]
+      }
+    }
+  ]
+}

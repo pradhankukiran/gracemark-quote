@@ -1,0 +1,91 @@
+{
+  "scraped_at": "2025-08-24T18:18:24.807Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Kazakhstan",
+      "url": "https://www.papayaglobal.com/countrypedia/country/kazakhstan/",
+      "scraped_at": "2025-08-24T18:18:24.795Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5.00%",
+              "description": "Social Insurance, minimum contribution of 2,975 KZT, maximum contribution of 20,825 KZT"
+            },
+            {
+              "rate": "3.00%",
+              "description": "Medical Insurance (OMIC), maximum contribution of 25,500 KZT"
+            },
+            {
+              "rate": "11.00%",
+              "description": "Social Tax"
+            },
+            {
+              "rate": "2.50%",
+              "description": "Pension, maximum contribution of 63,750 KZT"
+            },
+            {
+              "rate": "21.50%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "2.00%",
+              "description": "Health Insurance (OMIC) (applied on income up to ten times the minimum monthly wage, for a maximum contribution of 17,000 KZT)"
+            },
+            {
+              "rate": "10.00%",
+              "description": "Pension (OPC) (The gross income subject to OPC is capped at 50 times the minimum monthly wage, maximum contribution of 425,000 KZT )"
+            },
+            {
+              "rate": "12.00%",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": [
+            {
+              "rate": "10.00%",
+              "description": "Flat Rate"
+            }
+          ]
+        },
+        "minimum_wage": "The national monthly minimum wage is 85,000 KZT.",
+        "payroll": {
+          "payroll_cycle": "Wages are paid on a monthly basis and the pay date is determined by either a collective agreement or the employment contract.",
+          "13th_salary": "There are no provisions in the law."
+        },
+        "working_hours": {
+          "general": "A full time workweek is 8 hours per day, 40 hours per week.",
+          "overtime": "Work in excess of the established working hours is considered as overtime. Overtime cannot exceed 2 hours per day (1 hour for dangerous work) and 12 hours per month and 120 hours per year.\nOvertime is paid at the rate of 150% of the regular pay. By agreement, hours of rest may be provided for overtime work at the rate of at least one hour of rest per hour of overtime work.\nIn general, overtime work must be agreed to in writing by the employee. Exceptions to consent are in place when overtime relates to (1) carrying out work in defense of the country, (2) to eliminate circumstances that disrupt normal functioning of supplies such as water, energy and heat, (3) to maintain work if the replacement employee fails to appear, if the work does not allow a break, with immediate measures to replace him with another employee and (4) to provide emergency assistance too citizens at risk of loss of health or life.\nCertain workers are forbidden from working overtime, including pregnant women who have provided their employer with a certificate of pregnancy, employees under eighteen years of age and persons with disabilities."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to a minimum paid vacation period of 24 calendar days (excluding official holidays). One period of leave must be taken with at least fourteen calendar days. Additional vacation days should be provided for employees working in hazardous or harmful conditions.\nVacation accrual is a twelve month period from the first day of work.\nPayment for the annual leave period must be made no later than three working days before the leave begins.\nUnused annual leave can carryover for no longer than 2 years where a worker is off due to temporary disability or maternity leave.",
+          "public_holidays": "There are 12 public holidays, excluding religious holidays.\nWhen a public holiday falls on a weekend, the holiday is moved to another working day as a day off in lieu.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n2 Jan 2025\tThursday\tNew Year Holiday\t\n7 Jan 2025\tTuesday\tOrthodox Christmas Day\t\n8 Mar 2025\tSaturday\tInternational Women’s Day\t\n10 Mar 2025\tMonday\tInternational Women’s Day Holiday\t\n21 Mar 2025\tFriday\tNauryz\t\n22 Mar 2025\tSaturday\tNauryz Holiday\t\n23 Mar 2025\tSunday\tNauryz Holiday\t\n24 Mar 2025\tMonday\tNauryz Holiday\t\n1 May 2025\tThursday\tKazakhstan People Solidarity Day\t\n7 May 2025\tWednesday\tDefender’s Day\t\n9 May 2025\tFriday\tVictory Day\t\n6 Jun 2025\tFriday\tKurban Ait\t\n6 Jul 2025\tSunday\tCapital City Day\t\n7 Jul 2025\tMonday\tCapital City Day Holiday\tDay off in Lieu\n30 Aug 2025\tSaturday\tConstitution Day\t\n1 Sep 2025\tMonday\tConstitution Day Holiday\tDay off in Lieu\n25 Oct 2025\tSaturday\tRepublic Day\t\n16 Dec 2025\tTuesday\tIndependence Day\t\n17 Dec 2025\tWednesday\tIndependence Day Holiday",
+          "sick_days": "The maximum duration for sick leave issuance is 60 calendar days. However, exceptions include maternity leave and certain illnesses requiring longer periods of sick leave. Following the 60-day period, employers reserve the right to dismiss employees on sick leave.\nThe payment is based on sick leave issued by an authorized healthcare entity. The monthly payment for sick leave cannot surpass 25 times the Monthly Reference Point (MRP), equivalent to 92,300 tenge (25 MRP * 3692). The payment amount for each employee is calculated by multiplying their average daily earnings by the number of working days within the period of temporary disability.\nSick leave payments are subject to identical taxes as regular wages and salaries. Upon returning to work on the date specified in the certificate or before the end of the incapacity period, the employee should present the sick leave certificate to the employer.",
+          "maternity_leave": "Mothers are entitled to 126 days of paid maternity leave, 70 days taken before the expected due date, and 56 (increasing to 70 if multiple births) after the birth of a child. In the event of a difficult birth, leave after the birth may be extended by 14 days.\nWhere a child is born during the period of 22-29 weeks of pregnancy and the birth of a child weighing 500 grams or more and lived for more than seven days – 70 calendar days maternity leave is given after the birth.\nIn cases of childbirth during the period of 22-29 weeks of pregnancy that is stillborn or a child weighing 500 grams or more who died before 7 days of life – 56 calendar days of maternity leave is given after the birth.\nIf a mother resides in an area where nuclear tests were performed, the maternity leave is increased to 160 days and is split with 90 days before the expected due date and 70 after the birth.\nThe employer pays all Maternity leave at 100% of the regular salary rate.",
+          "paternity_leave": "There is no paid statutory paternity leave in Kazakhstan. However, employers generally shall provide unpaid leave of up to 5 calendar days following the birth of a child.\nAdoption Leave\nEmployees who adopt a newborn child are granted leave (to one of the parents) for the period from the date of adoption until the 56 days from the date of birth.\nThe employer pays for this leave at 100% of the regular salary rate.",
+          "parental_leave": "Employees are entitled to unpaid leave to care for a child until the child reaches the age of 3 years old. This leave should be provided based on a written application from the employee, indicating its duration of leave and providing a birth certificate or other document confirming the fact of the child’s birth.\nThis leave can be taken in one block or in parts. During this period, the employee’s position of work must be protected.",
+          "other_leave": "Marriage Leave – Employees are entitled to up to 5 days of unpaid leave\nBereavement Leave – Employees are entitled to up to 5 days of unpaid leave in the event of the death of an immediate family member and close relatives.\nExceptional circumstances – By an employee’s application, unpaid leave can be granted for personal circumstances. The duration of unpaid leave should be determined by agreement between the employee and the employer.\nStudy Leave – Employees studying in educational organizations should be provided with leave to study and takes exams, perform laboratory work, prepare a thesis, and to undergo training programs for military-trained reserves. Payment for study leave should be determined by an agreement."
+        },
+        "termination": {
+          "termination_process": "Written notice must be given when terminating the employment contract with the reason for termination clearly stated. Valid termination reasons include failure to fulfill job duties, company liquidation, staff reduction or breach of contract by the employee.\nThe worker must sign the notice agreement to show it has been received and understood.",
+          "notice_period": "The statutory notice period is 1 month. If the employee agrees, the employer can give payment in lieu of notice.",
+          "severance_pay": "Severance pay is in place under certain termination scenarios only. When termination is due to company liquidation or staff reduction workers are entitled to 1 month’s average salary as severance pay. When redundancy occurs due to economic difficulties, employees are entitled to 2 months’ average salary as severance pay. If the employment contract is breached by the employer, employees are entitled to 1 month’s average salary as severance pay. A Collective Bargaining Agreement may offer greater severance entitlement above the legal minimum.",
+          "probation_period": "A trial period of up to 3 months can be given in Kazakhstan. For certain categories of employee the probation can be increases to 6 months including Directors and their deputies, Chief accountants and their deputies and Heads of branches and representative offices.\nIf terminating during the probation period, a reason for dismissal must be given."
+        },
+        "visa": {
+          "general_info": "All foreign nationals planning to visit Kazakhstan need to have a visa. A Kazakhstan visa obtained at diplomatic/consular services. There are several types of entry visas: business, tourist, transit, diplomatic, official, investor, work, study, and medical.\n\n​The immigration system of Kazakhstan provides several options for employers of foreign nationals. Nationals of Armenia, Belarus, Kyrgyzstan, and Russia are both visa and work-permit exempt.\n\nRequirements, processing times, employment eligibility, and benefits for accompanying family members vary by visa classification.\nBusiness visitors must obtain a business visa before travel unless they are visa exempt based on their nationality.\n\nBusiness visas are available in a few subtypes (B1, B2, ​and B3) depending on the purpose of stay. Business visas can be issued for single, double, or multiple entries; visa validity varies between visa types.\nSkilled workers use the Work Permit. Work permit validity ranges from one to three years based on the foreign national’s position. Renewal options similarly vary between work permit categories.​"
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Kazakhstan is 12.00%"
+        }
+      }
+    }
+  ]
+}

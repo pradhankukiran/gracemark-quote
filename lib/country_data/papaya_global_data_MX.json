@@ -1,0 +1,154 @@
+{
+  "scraped_at": "2025-08-24T18:23:45.059Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Mexico",
+      "url": "https://www.papayaglobal.com/countrypedia/country/mexico/",
+      "scraped_at": "2025-08-24T18:23:45.046Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "24.00%-38.00%",
+              "description": "Social Security (IMSS), this includes Retirement and National Housing Fund (maximum annual contribution 234,199.80 MXN)"
+            },
+            {
+              "rate": "up to 3.00%",
+              "description": "State Payroll Tax"
+            },
+            {
+              "rate": "27.00%-41.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "10.00-30.00%",
+              "description": "IMSS (Social Security) are influenced by various factors, such as minimum wage, UMA,  the worker’s age, industry, number of working days per month, fringe benefits, and the location of the employer or the worker’s residence. Typically, the deduction range varies between 10% to 30%."
+            },
+            {
+              "rate": "1.125%",
+              "description": "Retirement/Old Age Insurance"
+            },
+            {
+              "rate": "10.00%-31.125%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "1.92%",
+              "description": "Up to 8,952.49"
+            },
+            {
+              "rate": "6.40%",
+              "description": "8,592.50 – 75,984.55"
+            },
+            {
+              "rate": "10.88%",
+              "description": "75,984.56 – 133,536.07"
+            },
+            {
+              "rate": "16.00%",
+              "description": "133,536.08 – 155,229.81"
+            },
+            {
+              "rate": "17.92%",
+              "description": "155,229.81 – 185,852.57"
+            },
+            {
+              "rate": "21.36%",
+              "description": "185,852.58 – 374,837.88"
+            },
+            {
+              "rate": "23.52%",
+              "description": "374,837.89 – 590,795.99"
+            },
+            {
+              "rate": "30.00%",
+              "description": "590,796.00 – 1,127,926.84"
+            },
+            {
+              "rate": "32.00%",
+              "description": "1,127,926.85 – 1,503,902.46"
+            },
+            {
+              "rate": "34.00%",
+              "description": "1,503,902.47 – 4,511,707.37"
+            },
+            {
+              "rate": "35.00%",
+              "description": "Over 4,511,707.38"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The national minimum wage in Mexico is 278.80 MXN per day; however, this can differ by job role and category.\nThe Northern Border Zone has a different minimum wage of 419.88 MXN per day; the Border zone is a defined set of municipalities in Mexican states bordering the USA.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle is semi-monthly, and employees are generally paid on the 15th and the last day of each month.",
+          "13th_salary": "A 13th-month salary payment is mandatory in Mexico; this is a bonus payment paid by December 20th (Aguinaldo). The Aguinaldo is calculated as 15 working days of salary, plus an allowance, based on a 365-day year. The 13th salary is accrued as of the first day of employment."
+        },
+        "working_hours": {
+          "general": "The standard working hours in Mexico are 48 hours per week, 8 hours per day. However, there are three work shifts stated in Mexico federal labor law:\nDay shifts comprise 48 hours per week (between 6 am to 8 pm)\nNight shifts comprise 42 hours per week (between 8 pm to 6 am)\nMixed shifts comprise 45 hours per week\nThe maximum weekly and daily working hours can differ as stipulated in employment contract/collective bargaining agreements",
+          "overtime": "All work above the standard mandated shift is paid as overtime and regulated by the employment contract/collective agreements. 3 overtime hours a day can be worked providing it is not done for more than 3 consecutive days.\nThe payment of overtime is based on two considerations which determine whether overtime hours need to be paid at double or triple paid hours. These considerations are the total number of overtime hours worked during the working week and the number of hours worked during a single day after a regular shift.\nThe first nine overtime hours during the week are to be paid at 200% of the regular salary rate; every hour after that is to be paid at 300% of the regular salary rate. The first three hours after a normal shift are considered double hours; every hour after that is deemed to be triple regardless of the number of overtime hours worked during the week.\nWorking on holidays is paid at a salary rate of  day + double.​\nGenerally, all worker types are entitled to overtime pay."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Paid leave in Mexico is outlined in the employment contract as a minimum of 12 days paid holiday per year, plus an additional two days per year of service, following completion of 1-year service. Following the completion of 5 years of service, two additional days are added every five years as detailed in the table below. Unused leave can carry over for 6 months.\nA vacation premium must be given at an extra 25% pay for each day of leave.\nService Length\tAnnual Leave Entitlement  (working days)\n1 year\t12 days\n2 years\t14 days\n3 years\t16 days\n4 years\t18 days\n5 years\t20 days\n6+ years\t22 days, increasing by 2 days for every 5 years of service, capped at 32 days.",
+          "public_holidays": "Holidays falling on Saturday or Sunday are usually lost. However, certain holidays might be shifted to the nearest Monday to create a long weekend (commonly referred to as “puentes“).​\nDate\tDay\tHoliday\tComments\n1 Jan 2025\tWednesday\tNew Years\t\n3 Feb 2025\tMonday\tConstitution Day\t\n17 Mar 2025\tMonday\tBenito Juarez\t\n17 Apr 2025\tThursday\tHolly Thursday\tOptional\n18 Apr 2025\tFriday\tHolly Friday\tOptional\n1 May 2025\tThursday\tWorker Day\t\n5 May 2025\tMonday\tPuebla Battle\tOptional\n1 Jun 2025\tSunday\tElection of the judges\tTentative\n16 Sep 2025\tTuesday\tIndependence Day\t\n12 Oct 2025\tSunday\tRace Day\tOptional\n2 Nov 2025\tSunday\tDeath Day\tOptional\n17 Nov 2025\tMonday\tRevolution Day\t\n12 Dec 2025\tFriday\tGuadalupe Virgin Day\tOptional\n25 Dec 2025\tThursday\tChristmas",
+          "sick_days": "Paid by Social Security (IMSS). Eligible employees are entitled to up to 52 weeks of paid sick leave at 60% of the regular salary when verified by IMSS affiliated medical authorities. If it is a work-related injury, the employee is entitled to 100% of the regular salary.",
+          "maternity_leave": "All female employees are entitled to 12 weeks of paid maternity leave, which the employee must take six weeks before the birth and six weeks after that. The maternity pay is calculated at full pay, capped at 25 times daily UMA, and covered by the IMSS. The application for maternity leave must be supported by a medical certification issued by an IMSS approved clinic or a private medical institution.\nFemale employees are also entitled to six weeks of paid adoption leave after the child (a minor) is handed to them.",
+          "paternity_leave": "The father is entitled to mandatory paid paternity leave of 5 days.",
+          "parental_leave": "There is no additional parental leave in Mexico.",
+          "other_leave": "There is no statutory additional leave in Mexico."
+        },
+        "termination": {
+          "termination_process": "At-will employment does not exist in Mexico, and termination at-will clauses are only applicable to the employee. Therefore, employers may not terminate employment relationships without just cause. The Mexican Federal Labor Law stipulates a closed list of reasons and sets the procedure to terminate an employee at any time without incurring liability. The list of reasons can be found below:\nFalse statements about work qualifications\nBreach to the disobedience or honesty principles\nVandalism\nSexual harassment\nAlcoholism in the workplace\nRevealing company secrets\nRefusing to comply with safety procedures\nFour unexcused absences in 30 days\nWhen terminating workers there are several payouts and considerations (finiquito) to take into account upon termination, including:\nUnused PTO\nAguinaldo (Christmas bonus)\nCommission payments (where applicable)\nBonuses (where applicable or contractually agreed)\nSeverance (where applicable)\nA worker’s final paycheck upon termination must include any accrued wages, benefits, and severance pay, made immediately upon termination, particularly in cases of termination without cause. The employer must settle all payments right away on the worker’s last day.\nAdditionally, where required, a meeting must be held at the courthouse so that the termination agreement or MTA can be signed before a labor court judge and with the consent of the worker.\nIt is not permitted to terminate workers during vacation, sick leave or maternity leave.",
+          "notice_period": "There are no statutory minimum notice periods in Mexico; however, federal labor law states that should the circumstance dictate, the company must provide the employee with notice in writing within 30 days of knowing about the misconduct. The written notice must explain the grounds for dismissal, or the labor board must issue a termination notice. Two weeks notice is commonly be given as courtesy where there is ‘termination without cause’ or resignation.",
+          "severance_pay": "In Mexico, any contract that last more than 3 months becomes an indefinite contract per law.  To compliantly terminate an indefinite contract without cause, workers must be paid full severance. Full severance consists of the following:\n3 months’ salary.\n20 days for each year worked,\nSeniority premium equal to 12-days of wages for each year of service rendered.\nWorkers who voluntarily  resign with 15 plus years of service and workers who are terminated for cause receive a seniority premium equal to 12-days of wages for each year of service rendered (the premium is often capped at a maximum of twice the daily minimum wage).\nThe seniority premium is mandatory in cases of dismissal (with or without cause) and also for employees who resign after a certain period of service (usually 15 plus years of service) it is also for workers who are terminated for cause. They too are entitled to receive a seniority premium. However, note that termination for cause is an extremely high threshold and most terminations are without cause.",
+          "probation_period": "The probation period in Mexico is optional but it is common to include a trial period, which can be between 30 to 180 days.\nA 30 day probationary period is used for basic or lower level positions. Longer probationary periods are for managers, directors or employees with specializations."
+        },
+        "common_benefits": [
+          "Private Health Insurance up to 7,100 MXN per month depending on age, gender, scope of cover.",
+          "Internet Allowance, approx. 1500 MXN per month,",
+          "Cell phone allowance, approx. 1500 MXN per month,",
+          "Meals voucher/card, approx. 2600 MXN per month, Wellness/Fitness Allowance, approx.  2,000 MXN per month,",
+          "Computer allowance, approx. 4,000 MXN per month,"
+        ],
+        "visa": {
+          "general_info": "Any foreigners coming to work in Mexico will need to apply for a work permit and resident visa.\nThe National Institute of Immigration oversees all immigration in Mexico and issues work visas.\n\nMexico has a temporary and permanent visa; the employee should apply for both jointly with the prospective employer. A temporary resident visa is for foreign nationals who want to live in Mexico for more than 180 days. In addition to the Mexico work permit, people with a temporary resident visa can live and work in the country for up to four years with a Mexico work visa.\n\nAfter completing four years of service (with the same company), a foreigner may apply for a permanent resident visa."
+        },
+        "remote_work": "The Mexican Government passed federal labor laws on teleworking, which applies to any worker who performs paid work activities at least 40% of the time outside the employer’s workplace, either at home or another location chosen by the employee.\nThe contract should state if the employee is performing work outside the employer’s workplace in order to be eligible for teleworking benefit.\nEmployers must provide, install, and maintain the necessary working equipment and training needed by the employee to perform the work and, Pay for any appropriate telework-related cost, and record teleworking arrangements in a written agreement.",
+        "vat": {
+          "general": "The standard rate of VAT in Mexico is 16%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Social Security",
+            "paid_to": "Instituto Mexicano del Seguro Social (IMSS)",
+            "due_date": "17th of the following month",
+            "method": "Local account owned by client & overseas account under the Mexican entity name"
+          },
+          {
+            "authority_payment": "Housing",
+            "paid_to": "Instituto del Fondo Nacional de la Vivienda para los Trabajadores (INFONAVIT)",
+            "due_date": "17th of the following each two months",
+            "method": "Local account owned by client & overseas account under the Mexican entity name"
+          },
+          {
+            "authority_payment": "State tax",
+            "paid_to": "Gobierno del estado",
+            "due_date": "17th of the following month",
+            "method": "Local account owned by client & overseas account under the Mexican entity name"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "scraped_at": "2025-08-24T18:36:42.861Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Puerto Rico",
+      "url": "https://www.papayaglobal.com/countrypedia/country/puerto-rico/",
+      "scraped_at": "2025-08-24T18:36:42.851Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "6.20%",
+              "description": "Federal Insurance Contributions Act (FICA) – Social Security, a maximum annual taxable wages is 176,100 USD."
+            },
+            {
+              "rate": "1.45%",
+              "description": "Federal Insurance Contributions Act (FICA) – Medicare"
+            },
+            {
+              "rate": "0.90%",
+              "description": "Federal Insurance Contributions Act (FICA) – Medicare.\nAn additional % applied for excess of 250,000 USD for a married couple filing a joint return and 125,000 USD for a married individual filing a separate return."
+            },
+            {
+              "rate": "0.60% – 6.00%",
+              "description": "Federal Unemployment Tax Act (FUTA).\n\nThis rate applies to the first 7,000 USD of wages paid to an employee each calendar year. However, the FUTA tax rate is reduced from 6.0% to 0.6% because Puerto Rico operates its unemployment insurance program in compliance with Federal law, allowing for a credit of 5.4%."
+            },
+            {
+              "rate": "1.40% – 5.40%",
+              "description": "State Unemployment Tax (SUTA)"
+            },
+            {
+              "rate": "2.90%",
+              "description": "State Unemployment Tax (SUTA) – New Employer Tax"
+            },
+            {
+              "rate": "17.95% – 22.85%",
+              "description": "Total Employer Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "6.20%",
+              "description": "Federal Insurance Contributions Act (FICA) – Social Security, a maximum annual taxable wages is 176,100 USD."
+            },
+            {
+              "rate": "1.45%",
+              "description": "Federal Insurance Contributions Act (FICA) – Medicare"
+            },
+            {
+              "rate": "0.90%",
+              "description": "Federal Insurance Contributions Act (FICA) – Medicare.\nAn additional % applied for excess of 250,000 USD for a married couple filing a joint return and 125,000 USD for a married individual filing a separate return."
+            },
+            {
+              "rate": "6.00%",
+              "description": "Federal Unemployment Tax Act (FUTA)."
+            },
+            {
+              "rate": "13.65% – 14.55%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": "Annual"
+            },
+            {
+              "rate": "0.00%",
+              "description": "Up to 9,000 USD"
+            },
+            {
+              "rate": "7.00%",
+              "description": "9,000-25,000 USD"
+            },
+            {
+              "rate": "1,120 USD + 14% of the excess over 25,000 USD",
+              "description": "25,000-41,500 USD"
+            },
+            {
+              "rate": "3,430 USD + 25% of the excess over 41,500 USD",
+              "description": "41,500-61,500 USD"
+            },
+            {
+              "rate": "8,430 USD + 33% of the excess over 61,500 USD",
+              "description": "Over 61,500 USD"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "Puerto Rico’s minimum wage is 10.50 USD per hour as of July 2024, for all employees covered by the Fair Labor Standards Act.\nOther categories of workers, such as agricultural and tipped employees, are subject to different minimum wages.",
+        "payroll": {
+          "payroll_cycle": "In Puerto Rico, the payroll frequency is bi-weekly, monthly or semi-monthly. An employer must make the salary payments in Puerto Rico on the 15th of the month.",
+          "13th_salary": "In Puerto Rico, 13th-month payments are mandatory. Employers with a workforce in excess of 21 employees must by law pay a 13th-month salary in December equating to 2% of the employees’ wages or not more than 600 USD. Employers with less than 21 employees must pay an additional 2% or no more than 300 USD in December."
+        },
+        "working_hours": {
+          "general": "The standard working week in Puerto Rico consists of 40 hours a week, 8 hours per day.",
+          "overtime": "10 overtime hours can be worked in a week (2 hours per day), paid at a rate of 150% salary. Any amount over 2 hours per day is paid at a rate of 200% salary. Exemptions in place for certain workers/industries.\nEmployees who work more than 10 hours in a particular day must also be permitted to enjoy a second meal period, with certain exceptions.  If an employee is required or permitted to work during the meal period or if the meal period is enjoyed outside this time frame, the employee will be entitled to payment for said period or fraction thereof, at a rate of time and a half.  In cases in which the total hours worked in a day does not exceed six hours, the meal period may be waived."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The annual leave entitlement in Puerto Rico is dependent on the seniority of the employee as follows:\nIf an employee has been employed for one year they will be entitled to six days of annual leave\nIf an employee has been employed between one and five years, they will be entitled to nine days of annual leave\nIf an employee has been employed between five and 15 years, they will be entitled to 12 days of annual leave\nIf an employee has been employed for more than 15 years, the employee receives the maximum entitlement of 15 days of annual leave",
+          "public_holidays": "Certain public holidays falling on a Sunday are usually moved to the following Monday as a day off in lieu.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n6 Jan 2025\tMonday\tEpiphany\t\n20 Jan 2025\tMonday\tMartin Luther King Jr. Day\t\n14 Feb 2025\tFriday\tValentine’s Day\t\n17 Feb 2025\tMonday\tPresident’s Day\t\n4 Mar 2025\tTuesday\tShrove Tuesday\t\n22 Mar 2025\tSaturday\tEmancipation Day\t\n13 Apr 2025\tSunday\tPalm Sunday\t\n18 Apr 2025\tFriday\tGood Friday\t\n20 Apr 2025\tSunday\tPassover\t\n11 May 2025\tSunday\tMother’s Day\t\n26 May 2025\tMonday\tMemorial Day\t\n15 Jun 2025\tSunday\tFather’s Day\t\n4 Jul 2025\tFriday\tIndependence Day\t\n25 Jul 2025\tFriday\tConstitution Day\t\n1 Sep 2025\tMonday\tLabor Day\t\n13 Oct 2025\tMonday\tColumbus Day\t\n11 Nov 2025\tTuesday\tVeterans Day\t\n19 Nov 2025\tWednesday\tPuerto Rico Discovery Day\t\n27 Nov 2025\tThursday\tHarvest Festival\t\n24 Dec 2025\tWednesday\tChristmas Eve\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "Following 12 months of consecutive service at a company, an employee is entitled to six days of paid leave for severe diseases.\nEmployees receive 12 days of paid sick leave which is accrued at the rate of one day per month following the commencement of at least 130 hours in that month.",
+          "maternity_leave": "An employee in Puerto Rico is entitled to a maternity leave of eight weeks, four weeks of which is generally taken before the birth and four weeks after. An employee can start maternity leave as late as one week before their predicted due date and can return just two weeks after the child’s birth provided the employee can present a medical certificate.\nMaternity leave can be extended to 20 weeks following a pregnancy-related complication, however, the additional 12 weeks will be unpaid.\nAdoptive mothers are entitled to the same maternity benefits as those of a mother who gives birth, providing the adoptive child is below the age of 6.",
+          "paternity_leave": "Private sector employees can choose to take six months of job-protected unpaid leave.",
+          "parental_leave": "Employers with a workforce of 50 employees or more can provide their employees with 12 weeks of unpaid leave for the birth of a new-born child, the placement of an adoptive/foster child, to care for an immediate family member, or to take medical leave when an employee is unable to work under the U.S. Federal Family and Medical Leave Act (FMLA).",
+          "other_leave": "Special paid leave of up to 6 months for an employee with one of the serious diseases of catastrophic character listed by the Special Coverage of the Health Insurance Administration of Puerto Rico."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment agreement or collective agreement in place and is based on the type of contract and reason for termination. Employers must have just cause to dismiss an employee based on the employee’s conduct or behavior.",
+          "notice_period": "In Puerto Rico, notice periods are not mandatory.",
+          "severance_pay": "Severance pay is only required if there is termination without just cause at an amount of 12 weeks’ salary + 2 weeks of salary for each full year of service, capped at 36 weeks of pay.",
+          "probation_period": "The probation period is only allowed for indefinite contracts and the period is dependent on the employee’s job role. For employees classified as executives, administrators, and professionals, the probation period is 12 months. The probation period for general employees is nine months."
+        },
+        "visa": {
+          "general_info": "Foreigners who wish to work in Puerto Rico must comply with Puerto Rico immigration requirements. According to U.S. visa law, citizens of approximately 40 countries worldwide must have an approved ESTA to visit the country for short stays.\nThe ESTA was introduced in 2009 for all nationalities included in the U.S. visa waiver program. It’s a travel authorization system that allows those who register multiple entries to Puerto Rico, mainland USA, and all incorporated territories of the United States, including the District of Columbia and the U.S. Virgin Islands during its validity.\nOnce approved, an ESTA for Puerto Rico allows a stay of 90 days within a 180-day period with each entry to U.S. territory and it is valid for a total of 2 years from the date of issue. A Puerto Rico ESTA is usually processed within a few business days and is electronically linked to the traveler’s passport once approved, removing the need to present additional documents upon arrival at U.S. border control.\nFor a foreigner to visit Puerto Rico for other purposes or more extended periods of stay, visa waiver citizens must apply for a Puerto Rican embassy visa from a U.S. diplomatic government office and obtain a visa that authorizes the chosen employment.\nOver 190 nationalities need to apply for a visa from an embassy no matter the intended duration of stay or travel purpose."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Puerto Rico is 11.50%."
+        }
+      }
+    }
+  ]
+}

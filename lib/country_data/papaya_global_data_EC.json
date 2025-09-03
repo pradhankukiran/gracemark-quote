@@ -1,0 +1,162 @@
+{
+  "scraped_at": "2025-08-24T18:01:56.398Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Ecuador",
+      "url": "https://www.papayaglobal.com/countrypedia/country/ecuador/",
+      "scraped_at": "2025-08-24T18:01:56.387Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "12.15%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "8.33%*",
+              "description": "Reserve Fund (IESS), individual savings fund paid into from the second of employment, and is exempt from tax and social security levies."
+            },
+            {
+              "rate": "20.48%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "9.45%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "9.45%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": "Annual"
+            },
+            {
+              "rate": "0.00%",
+              "description": "0-11,902 USD"
+            },
+            {
+              "rate": "5.00%",
+              "description": "11,902.01 USD – 15,159 USD"
+            },
+            {
+              "rate": "10.00%",
+              "description": "15,159.01 USD – 19,682 USD"
+            },
+            {
+              "rate": "12.00%",
+              "description": "19,682.01 USD – 26,031 USD"
+            },
+            {
+              "rate": "15.00%",
+              "description": "26,031.01 USD – 34,255 USD"
+            },
+            {
+              "rate": "20.00%",
+              "description": "34,255.01 USD – 45,407 USD"
+            },
+            {
+              "rate": "25.00%",
+              "description": "45,407.01 USD – 60,450 USD"
+            },
+            {
+              "rate": "30.00%",
+              "description": "60,450.01 USD – 80,605 USD"
+            },
+            {
+              "rate": "35.00%",
+              "description": "80,605.01 USD – 107,199 USD"
+            },
+            {
+              "rate": "37.00%",
+              "description": "107,199 USD and Above"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage in Ecuador is referred to as unified basic salary (“SBU”) and the minimum wage for economic sectors is 470 USD per month.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Ecuador is generally monthly or bi-monthly and employers must make salary payments on the same day of the month.",
+          "13th_salary": "In Ecuador, it is mandatory to pay a 13th-month and even a 14th-month salary payment. Generally, the 13th-month salary is to be paid in December and the 14th-month salary in March or April."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Taxes",
+            "paid_to": "Internal rents service",
+            "due_date": "According to the ninth digit of the RUC",
+            "method": "Only local accounts are supported"
+          },
+          {
+            "authority_payment": "Social Security",
+            "paid_to": "Ecuadorian Institute of Social Security",
+            "due_date": "Up to 15 of each month",
+            "method": "Only local accounts are supported"
+          },
+          {
+            "authority_payment": "Payroll",
+            "paid_to": "Ministry of Labor (Ministerio de Trabajo)",
+            "due_date": "Until the end of the month",
+            "method": "All 3 forms of payment are accepted"
+          },
+          {
+            "authority_payment": "Thirteenth salary",
+            "paid_to": "Ministry of Labor (Ministerio de Trabajo)",
+            "due_date": "Until December 24 of each year",
+            "method": "All 3 forms of payment are accepted"
+          },
+          {
+            "authority_payment": "Fourteenth salary",
+            "paid_to": "Ministry of Labor (Ministerio de Trabajo)",
+            "due_date": "Until August 15 of each year",
+            "method": "All 3 forms of payment are accepted"
+          },
+          {
+            "authority_payment": "Utilities",
+            "paid_to": "Ministry of Labor (Ministerio de Trabajo)",
+            "due_date": "Until April 15 of each year",
+            "method": "All 3 forms of payment are accepted"
+          },
+          {
+            "authority_payment": "Judicial retention",
+            "paid_to": "Superintendency of Banks. Judiciary Council (Superintendencia de bancos)",
+            "due_date": "Until 3 day of the following month",
+            "method": "Only local accounts are supported"
+          }
+        ],
+        "working_hours": {
+          "general": "The standard working week in Ecuador consists of 40 hours a week, typically 8 hours per day for a five-day working week.",
+          "overtime": "All work above the standard working hours a week is paid as overtime and regulated by the employment contract/collective agreements. When an employee is requested to work overtime or work on holidays, there are maximums of four hours a day and 12 hours per week.\nAll overtime hours more than 40 hours a week are paid at an overtime compensation rate of either 150.00% or 200.00% of the employee’s regular salary; the rate depends on the work performed during overtime and the time when the overtime was worked. Overtime hours completed must be approved by the local labor inspector."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Full-time employees’ standard paid leave entitlement is 15 days per year following the completion of 1 year of service. After five years of continuous employment, an additional day is given per year (capped at an additional 30 days).",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n3 Mar 2025\tMonday\tCarnival\t\n4 Mar 2025\tTuesday\tCarnival\t\n18 Apr 2025\tFriday\tGood Friday\t\n2 May 2025\tFriday\tLabor Day\tMoved from May 1st\n23 May 2025\tFriday\tBattle of Pichincha\tDay off in lieu\n24 May 2025\tSaturday\tBattle of Pichincha\t\n10 Aug 2025\tSunday\tFirst Cry of Independence\t\n11 Aug 2025\tMonday\tFirst Cry of Independence\tDay off in lieu\n10 Oct 2025\tThursday\tIndependence of Guayaquil\tMoved from Oct 9th\n2 Nov 2025\tSunday\tAll Souls’ Day\t\n3 Nov 2025\tMonday\tIndependence of Cuenca\t\n4 Nov 2025\tTuesday\tAll Souls’ Day\tDay off in lieu\n25 Dec 2025\tThursday\tChristmas",
+          "sick_days": "Employees who have 180 days of continuous contribution to the Ecuadorean Social Security Institute (IESS) within six months prior to the onset of illness or 189 days of continuous contribution within eight months before the start of illness. Employees are entitled to sick leave of up to two months at 50% of their salary.\nEmployees who are covered are paid by the employer for the first three days and by IESS after that.\nAll sick absences require a professional medical certificate provided to the employer within 48 hours of the start date of the sick period.",
+          "maternity_leave": "New mothers are entitled to maternity leave of 12 weeks, two weeks before birth and ten weeks after birth.\nSocial Security and the employer share maternity payments; Social Security pays 75% and the employer pays 25%. Ten days are added for additional births.\nNew mothers are also entitled to nine months of shortened working days, six hours instead of eight.",
+          "paternity_leave": "In Ecuador, fathers are entitled to ten days of paid paternity leave, increasing to 15 days in the case of multiple/complicated births. Fathers are entitled to 18 days of paid paternity leave in the unfortunate circumstance of premature birth.",
+          "parental_leave": "In Ecuador, following the end of paid paternity leave, adoption leave or the conclusion of maternity leave employees are entitled to an optional unpaid leave for up to nine additional months to take care of the children within the first year of their life.",
+          "other_leave": "Depending on collective agreement/employment contract terms, an employee may be allowed additional leave types if  approved between the employer and employee for the following:\nBereavement leave: employees who have suffered the loss of an immediate family member are entitled to up to 3 days of paid bereavement leave.\nChildcare leave: employees are entitled to 25 days of leave should their child be hospitalized.\nAdoption leave: employers must grant adoptive parents 15 days of paid leave of absence from the date the child is legally delivered to them.\nMilitary leave: when an employee is called to partake in Compulsory Military Service in the National Armed Forces, the employee is entitled to paid absence. The employer is required to pay the salary, in the following proportion:\nDuring the first month of absence from work, a 100% salary\nDuring the second month of absence from work, 50% of the salary\nDuring the third month of absence from work, 25% of the salary"
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment agreement and collective agreements in place and is based on the type of contract and reason for termination.",
+          "notice_period": "In Ecuador, the notice period is stipulated in the employee’s employment contract/collect agreement; it is not a statutory obligation.",
+          "severance_pay": "Severance pay is equivalent to a one-month salary payment for each year of service, pro-rated for any part-year worked. The minimum financial compensation is three monthly payments (at the regular salary rate), and the maximum is 25 monthly payments.\nAdditionally, the employer can offer a sudden dismissal bonus of 25.00% of monthly wages for each completed year of service.",
+          "probation_period": "The probationary period in Ecuador is dependent on the type of role and is stipulated within the employment agreement. In general, probation periods are up to three months."
+        },
+        "visa": {
+          "general_info": "Ecuador has a very lenient visa policy and citizens from most countries can enter and stay without a visa – but only for up to 90 days.\nThe temporary resident visa for Ecuador is a type of long-stay visa. It is issued to foreigners who want to live, study, work, or retire in Ecuador. They can be issued for up to two years and can be renewed before they expire. The types of Ecuador temporary resident visas include:\n\nThe Ecuador Work Visa is for foreigners who have found a job with a company in Ecuador\nThe Ecuador Student Visa is suitable for foreigners who have been accepted into a university or other academic program in Ecuador and wish to pursue their studies there\nFor foreigners who want to retire in Ecuador and have the necessary financial means to do so, an Ecuador Retirement visa\n\nThe visa documentation must be legalized by the Ecuadorian Embassy or Consulate and may need to be translated into Spanish.\nOnce the foreigner has lived in Ecuador for more than 21 months under a temporary resident visa, an application can be made for a permanent resident visa for Ecuador."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Ecuador is 15%."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "scraped_at": "2025-08-24T18:41:19.673Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Rwanda",
+      "url": "https://www.papayaglobal.com/countrypedia/country/rwanda/",
+      "scraped_at": "2025-08-24T18:41:19.662Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "2.00%",
+              "description": "Social Security (RSSB) –  Occupational Hazards"
+            },
+            {
+              "rate": "6.00%",
+              "description": "Pension Scheme"
+            },
+            {
+              "rate": "0.30%",
+              "description": "Social Security (RSSB) –  Maternity Fund"
+            },
+            {
+              "rate": "7.50%",
+              "description": "Social Security (RSSB) – Medical Insurance. Private companies must subscribe to medical insurance via the RSSB or alternatively provide medical insurance through a private company."
+            },
+            {
+              "rate": "8.3% – 15.80%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "6.00%",
+              "description": "Pension Scheme"
+            },
+            {
+              "rate": "0.30%",
+              "description": "Social Security (RSSB) –  Maternity Fund"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Community Based Health Insurance (CBHI)"
+            },
+            {
+              "rate": "7.50%",
+              "description": "Social Security (RSSB) – Medical Insurance. Private companies must subscribe to medical insurance via the RSSB or alternatively provide medical insurance through a private company."
+            },
+            {
+              "rate": "6.8% – 14.30%",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "Rwanda does not have a universally applied national minimum wage but some sectors might apply a specific minimum wage.",
+        "payroll": {
+          "payroll_cycle": "The typical payroll cycle in Rwanda is a monthly basis.",
+          "13th_salary": "There is no statutory requirement to provide a 13th salary in Rwanda."
+        },
+        "working_hours": {
+          "general": "The maximum working hours are 45 hours per week, Monday to Friday.",
+          "overtime": "All work exceeding the standard working hours per week is to be paid as overtime and is regulated by a collective labor convention/agreement."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to a minimum of 18 working days of paid annual leave after completing 1 year of service (24 workings days for employees under the age of 18).\nFor every three years of continuous service, employees gain an additional day of leave, capped at a maximum annual leave entitlement of 21 working days.",
+          "public_holidays": "Public Holidays falling on weekends are usually moved to the next working as a day off in lieu, with an exception of April 7th (Genocide against the Tutsi Memorial Day).\nReligious holidays determined by the lunar cycle will show as ‘tentative’ until they are confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNote\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n2 Jan 2025\tThursday\tDay After New Year’s Day\t\n1 Feb 2025\tSaturday\tNational Heroes’ Day\t\n3 Feb 2025\tMonday\tNational Heroes’ Day Holiday\tDay Off in Lieu\n30 Mar 2025\tSunday\tEid al-Fitr\t\n31 Mar 2025\tMonday\tEid al-Fitr\t\n1 Apr 2025\tTuesday\tEid al-Fitr\t\n2 Apr 2025\tWednesday\tEid al-Fitr\t\n7 Apr 2025\tMonday\tTutsi Genocide Memorial Day\t\n18 Apr 2025\tWednesday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n6 Jun 2025\tFriday\tEid al-Adha\t\n1 Jul 2025\tTuesday\tIndependence Day\t\n4 Jul 2025\tFriday\tLiberation Day\t\n1 Aug 2025\tFriday\tUmuganura Day\t\n15 Aug 2025\tFriday\tAssumption of Mary\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day",
+          "sick_days": "Employees are entitled to 15 days of paid sick leave, providing a medical certificate is provided. If sick leave exceeds 15 days, the employee can apply for long-term sick leave which can last for up to six months. The employee will be entitled to full salary for the first three months of the leave. After three months leave the employee can request another three months of unpaid work suspension.\nEmployers have the right to terminate an employment contract if an employee remains ill after six months of long-term sick leave.",
+          "maternity_leave": "Female employees are entitled to 12 weeks of paid maternity leave in Rwanda with no less than 14 days of leave prior to the due date. Maternity confirmation certificates must be provided before any maternity leave can commence.",
+          "paternity_leave": "In Rwanda a father is entitled to unpaid leave of up to four working days in one calendar year.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "There are no provisions in the law regarding other types of leave."
+        },
+        "termination": {
+          "termination_process": "Employers can terminate a fix term contract by giving the following reasons – business, personal, or employee misconduct. It requires notice and a written explanation for the termination. The termination can only be done after following a process – PIP for performance-related termination, Disciplinary procedure for gross misconduct, and redundancy procedure",
+          "notice_period": "The statutory notice period in Rwanda is 15 days’ notice for employees within the first year of service, increasing to one month following the completion of one year of service.\nIt is not permitted to serve notice during the probation period.",
+          "severance_pay": "Workers are entitled to severance pay when terminated due to economic reasons, technological transfer or sickness, provided they have completed at least one year of continuous service. Severance is calculated as follows:\nTwo times the average salary for less than five years of service\nThree times the average salary for five to 10 years of service\nFour times the average salary for 10 to 15 years of service\nFive times the average salary for 15-20 years of service\nSix times the average salary for 20-25 years of service\nSeven times the average salary for more than 25 years of service\nTo calculate the average monthly salary, the employee’s total salary for the past twelve months (excluding any allowances given for work-related purposes) is divided by 12. Once an employment contract is terminated, any related benefits must be paid within seven working days.",
+          "probation_period": "In Rwanda, the probation period cannot exceed three (3) months. However, after the written evaluation of the employee’s performance notified to the employee, the employer can, for valid reasons related to the nature of work, employee’s performance and conduct, decide that an employee retakes the probation for a period not exceeding three (3) months."
+        },
+        "visa": {
+          "general_info": "Expatriates may work in Rwanda, provided they have a work permit issued by the Directorate General of Immigration and Emigration. The work permits are usually granted to foreign enterprises approved to operate in Rwanda if the applicants are key personnel. However, any enterprise may recruit any category of expatriate skilled labour if Rwandans are not available. The enterprise will be required to prove that it has conducted a labour market test and failed to get local candidates who meet the requirements.\n\nA foreigner with a contract of employment for longer than 90 days must apply for a work permit within 15 working days from the day of entry in Rwanda. The employee may also be allowed to change employers and renew his/her work permit by informing the Directorate General of Immigration and Emigration in writing."
+        },
+        "vat": {
+          "general": "The Standard rate of VAT in Rwanda is 18%."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "scraped_at": "2025-08-24T17:33:32.707Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "United Arab Emirates",
+      "url": "https://www.papayaglobal.com/countrypedia/country/united-arab-emirates/",
+      "scraped_at": "2025-08-24T17:33:32.697Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "12.50%",
+              "description": "Social Security (basic social security plus housing allowance, based on monthly minimum of 20,000 AED and maximum of 70,000 AED for private sector workers and 100,000 AED for public sector)\n\nA higher rate of 15% is applied in the Emirate of Abu Dhabi."
+            },
+            {
+              "rate": "0.25% (Dubai)/0.10% (Abu Dhabi)",
+              "description": "Workmen’s Compensation Insurance"
+            },
+            {
+              "rate": "Variable",
+              "description": "Emiritization fee- Companies must meet a ratio of 6% local hire by the end of 2024, increasing by 1% every six months until it reaches 10% at the end of 2026. Companies who fail to meet the ratio incur an additional cost, which varies per company setup."
+            },
+            {
+              "rate": "12.65%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "11.00%",
+              "description": "Social security (basic social security plus housing allowance, based on monthly minimum of 20,000 AED and maximum of 50,000 AED). These contributions are for Emiratis only, no contributions for expats."
+            },
+            {
+              "rate": "5 AED/month",
+              "description": "Unemployment Insurance: Income up to 16,000 AED"
+            },
+            {
+              "rate": "10 AED/month",
+              "description": "Unemployment Insurance: Income above 16,000 AED"
+            },
+            {
+              "rate": "5.00% + 10 AED/month",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": [
+            {
+              "rate": "No personal income tax",
+              "description": ""
+            }
+          ]
+        },
+        "minimum_wage": "There is no minimum salary stipulated in the UAE Labour Law, however it broadly mentions that salaries must cover basic needs of the employees.  All employers registered with Ministry of Human Resources and Emiratisation (MoHRE) must subscribe to the ‘Wages Protection System (WPS)’ and pay the wages to their employees through it, as per the due dates.\nUnder this system, salaries of employees will be transferred to their accounts in banks or financial institutions, which are authorised by Central Bank of the UAE to provide the service.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in UAE is generally monthly, with payment made on the last working day.",
+          "13th_salary": "There is no requirement for a 13th-month salary payment in the United Arab Emirates."
+        },
+        "working_hours": {
+          "general": "Private sector employers work 8 hours per day and up to 48 hours per week, Monday to Friday. Public sector employees work week is reduced to four and a half days, with the weekend running from Friday afternoon to Sunday.\nEmployees who wish to attend Friday congregational prayers should be given the flexibility to work remotely, or to be provided with an extended break to attend prayers.\nUsual business hours are from 08:00 to 13:00, resuming after the temperatures have begun to cool from 16:00 and continuing until 19:00.\nDuring Ramadan, the working day may be shorter (reduced by 2 hours each day) and Free Zones may also have different working hours.",
+          "overtime": "All work above the standard weekly working hours is to be paid as overtime and is regulated by employment contract/collective agreements. In general, there are two rates of overtime due when overtime is worked. For nighttime overtime, between the hours of 9 pm and 4 am, overtime is calculated at 150% of the regular salary rate; with 125% for any other time.\nFor work on Fridays, the employee is entitled to an additional paid day off and overtime pay at the rate of 150% of the regular pay.\nOvertime shall not exceed 2 hours per day and a worker shall not be instructed to work for more than two consecutive weekend days.\nThose in managerial or a supervisory positions are generally exempt from overtime compensation."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Workers are entitled to a minimum of 30 calendar days paid leave each year, following completion of 1-year service. For employment over 6 months but less than 1 year the worker accrues 2 days per month. The employer is required to pay the employee’s salary before the commencement of annual leave.\nAnnual leave should be used within the allotted year, unless a carryover policy has been set by the company.",
+          "public_holidays": "The local Government decides each year if holidays falling on the weekend are lost or moved to a working day in lieu.\nReligious holidays are determined by the lunar cycle and will show as “Tentative” until they are confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n30 Mar 2025\tSunday\tEid al Fitr holiday\t\n31 Mar 2025\tMonday\tEid al Fitr holiday\t\n1 Apr 2025\tTuesday\tEid al Fitr\t\n2 Apr 2025\tWednesday\tEid al Fitr holiday\t\n5 Jun 2025\tThursday\tArafat Day\t\n6 Jun 2025\tFriday\tEid al Adha\t\n7 Jun 2025\tSaturday\tEid al Adha holiday\t\n8 Jun 2025\tSunday\tEid al Adha holiday\t\n27 Jun 2025\tFriday\tIslamic New Year\t\n28 Jun 2025\tSaturday\tIslamic New Year Holiday\t\n29 Jun 2025\tSunday\tIslamic New Year Holiday\t\n5 Sep 2025\tFriday\tProphet Muhammad’s Birthday\tTentative\n1 Dec 2025\tMonday\tCommemoration Day\t\n2 Dec 2025\tTuesday\tNational Day\tTentative\n3 Dec 2025\tWednesday\tNational Day Holiday\tTentative",
+          "sick_days": "All employees who have completed three months of service are entitled to paid sick leave up to a maximum of 90 days per year and must provide a medical certificate within 48 hours of the first day of sickness.\nFor the first 15 days of sickness, the employee is entitled to 100% of the regular salary rate of pay. This reduces to 50% for the next 30 days, and any subsequent sickness in one year is unpaid (90 days total per year).\nSickness should be reported within 3 working days.",
+          "maternity_leave": "Female employees are guaranteed maternity leave under the provisions of the Labor Code, irrespective of whether it is explicitly stated in their employment contracts.\nAll female employees are entitled to maternity leave of 60 days. The first 45 days are paid at 100% of the regular salary rate, reducing to 50% of the regular salary rate for the remaining 15 days. The employee can take maternity leave before and after the due date.\nEmployees are also entitled to take up to an additional 45 days (consecutive or intermittent) of unpaid leave due to a medical condition related to pregnancy or delivery upon producing a professional medical certificate.\nUpon returning from maternity leave, and for a period not exceeding 6 months from the date of delivery, a female worker is entitled to one or two rest periods per day for breastfeeding, each not exceeding one hour.\nIt is not permitted to terminate employment due to pregnancy or absence due to maternity leave.",
+          "paternity_leave": "Fathers can take leave following the baby’s birth under the Parental Leave regulations.",
+          "parental_leave": "Private sector employees (men and women) are entitled to 5 working days’ paid parental leave. Employees may take leave from the time the child is born until the child reaches the age of 6 months.\nProof of birth of a child must be provided when requesting this leave.",
+          "other_leave": "Under the labor law, the following leaves are available to workers:\nBereavement Leave\n5 working days in the event of the death of an employee’s spouse\n3 working days in the event of the death of an employee’s mother, father, son, brother, sister, grandson or grandparent",
+          "study_leave": "Employees affiliated/studying with an approved UAE education instruction will be entitled to 10 working days study leave once they have completed 2 years of service.",
+          "hajj_or_umrah_leave": "Hajj or Umrah leave may be granted once during ones employment with the company for up to 30 days unpaid and subject to the employer’s approval."
+        },
+        "termination": {
+          "termination_process": "Each party to the employment contract may terminate the contract for a legitimate reason. Legitimate reason is not defined under UAE labor law, however it includes performance or behavioural issues, redundancy, bankruptcy and insolvency, and failure of the worker to renew a work permit.",
+          "notice_period": "A minimum of 30 days mandatory notice period is required and no more than 90 days.\nFor workers under Dubai International Financial Centre (DIFC) the notice period is determined by their length of employment. This can be given as notice days to be worked or paid  in lieu of notice, as below:\nLess than 3 months of employment – 7 days notice.\nBetween 3 months and 5 years of employment- 1 month’s notice\n5+ years of employment- 90 days’ notice\nDuring the probation period only 14 days must be given; if a worker resigns during probation to move to a new company in the UAE they must give 30 days’ notice, however, if a foreign worker is leaving the UAE then they just need to give 14 days’ notice.",
+          "severance_pay": "A worker is entitled to End of Service Gratuity (EOSG) upon termination or resignation.\nAfter completing a full year of service (in both resignation and termination), a worker will be entitled to Gratuity.\nThe gratuity pay is 21 days’ salary for each year in the first 5 years of service, and 30 days’ salary for each year exceeding such period. The amount paid out for the time worked above a full year will be prorated.\nIf the reason for termination is not recognized by UAE law, the employee may be entitled to additional compensation of 3 months’ pay.",
+          "probation_period": "Probation period may not exceed 6 months.\nDuring probation, any party desiring to terminate employment must give at least 14 days’ notice. When a resigned employee is joining another UAE-based company, at least 30 days’ notice must be given.\nIn certain circumstances, when an employee leaves during the probation period the employer might be able to recoup some of the recruitment costs from the new employer."
+        },
+        "common_benefits": [
+          "Meal vouchers – approx. 70 AED",
+          "Gym/Wellness – approx. 200 AED (per month)",
+          "Transport/Commuting – approx. 1,200 AED (per month)",
+          "Per diem – approx. 1,500 AED",
+          "Bonus – 10% of salary per month (average)",
+          "Additional leave –  maximum 40 days (10 more than the law)",
+          "Study allowance – approx. 10,000 AED per year",
+          "Family health care allowance – 10-15,000 AED per year",
+          "Child education allowance – approx. 10,000 per child per year",
+          "Cell phone allowance – approx. 200 AED per month",
+          "Flights home each year for expat workers."
+        ],
+        "visa": {
+          "general_info": "Any foreigners coming to work in UAE will need to be registered with the UAE immigration authorities. All foreigners must have secured a job offer from a company operating in the UAE, and some require specific qualifications that the ministry of foreign affairs may require.\nTo work in Dubai, a UAE employment permit/work permit is required. In general, these are valid for up to two years for anyone offered a job in the UAE and provides the right to live and work in the UAE for the duration of the visa, which is renewable after two years.\n\nCompanies who fail to meet the Government quotas on local hires must pay a monthly Emiritisation fee, as mandated across legislation including Ministerial Resolution numbers: 663 (2022), 258 (2022), 279 (2022) and Cabinet Resolution number 21 (2020)."
+        },
+        "vat": {
+          "general": "The standard rate is 5%."
+        }
+      }
+    }
+  ]
+}

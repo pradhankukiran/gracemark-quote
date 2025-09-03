@@ -1,0 +1,102 @@
+{
+  "scraped_at": "2025-08-24T18:35:31.117Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Pakistan",
+      "url": "https://www.papayaglobal.com/countrypedia/country/pakistan/",
+      "scraped_at": "2025-08-24T18:35:31.107Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5%",
+              "description": "Employees Old Age Benefit (EOAB) applied on salary up to 444,000 PKR annually"
+            },
+            {
+              "rate": "5%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "1%",
+              "description": "Employees Old Age Benefit (EOAB) applied on salary up to 444,000 PKR annually."
+            },
+            {
+              "rate": "40-rupee flat rate each month",
+              "description": "Healthcare"
+            },
+            {
+              "rate": "1% plus 40-rupee per month",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "0-600,000 PKR annually."
+            },
+            {
+              "rate": "5.00%",
+              "description": "600,001-1,200,000 PKR annually."
+            },
+            {
+              "rate": "15.00%",
+              "description": "1,200,001-2,200,000 PKR annually."
+            },
+            {
+              "rate": "25.00%",
+              "description": "2,200,001-3,200,000 PKR annually."
+            },
+            {
+              "rate": "30.00%",
+              "description": "3,200,001-4,100,000 PKR annually."
+            },
+            {
+              "rate": "35.00%",
+              "description": "4,100,001 PKR annually."
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "In Pakistan, the minimum wage varies by province. The highest rate of minimum wage is in Punjab at PKR 37,000 per month.",
+        "payroll": {
+          "payroll_cycle": "In Pakistan, the payroll frequency can be daily, weekly, bi-monthly, or monthly. The employee must pay salaries at least once a month.",
+          "13th_salary": "13th-month payments are not legally required."
+        },
+        "working_hours": {
+          "general": "The standard work week in Pakistan consists of 45 hours a week, 9 hours a day.",
+          "overtime": "All work more than the standard working hours a week is to be paid as overtime and is regulated by employment contract/collective agreements. When an employee is requested to work overtime or work on holidays, there are maximums in relation to the number of hours allowed.\nAnytime worked over 9 hours per day is considered overtime and needs to be paid at a rate of 200% salary. Employees receive compensation equivalent to 300% of their typical pay for overtime hours worked on public holidays."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In Pakistan, employees are entitled to 14 calendar days of fully paid annual leave following 12 months of consecutive service. This leave cannot be taken in part and must be taken in its entirety. Leave of up to 14 days can be carried over into the following vacation year.",
+          "public_holidays": "The local government decides each year if holidays falling on the weekend are lost or moved to a working day in lieu.\nReligious holidays are determined by the lunar cycle and will show as tentative until they are confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\tOptional Holiday\n27 Jan 2025\tMonday\tShab e-Meraj\tOptional Holiday\n2 Feb 2025\tSunday\tBasant Panchami\tOptional Holiday\n5 Feb 2025\tWednesday\tKashmir Day\t\n14 Feb 2025\tFriday\tShab e-Barat\tOptional Holiday\n14 Mar 2025\tFriday\tHoli\tOptional Holiday\n23 Mar 2025\tSunday\tPakistan Day\t\n31 Mar 2025\tMonday\tEid ul Fitr\t\n1 Apr 2025\tTuesday\tEid ul Fitr\t\n2 Apr 2025\tWednesday\tEid ul Fitr\t\n14 Apr 2025\tMonday\tBaisakhi\tOptional Holiday\n18 Apr 2025\tFriday\tGood Friday\tOptional Holiday\n21 Apr 2025\tMonday\tEaster Monday/Ridván\tOptional Holiday\n1 May 2025\tThursday\tLabour Day\t\n6 Jun 2025\tFriday\tEid al-Adha\t\n7 Jun 2025\tSaturday\tEid al-Adha\t\n8 Jun 2025\tSunday\tEid al-Adha\t\n9 Jun 2025\tMonday\tEid al-Adha\t\n5 Jul 2025\tSaturday\tAshura\t\n6 Jul 2025\tSunday\tAshura\t\n14 Aug 2025\tThursday\tIndependence Day\t\n4 Sep 2025\tThursday\tGiarhwin Sharief\tOptional Holiday\n5 Sep 2025\tFriday\tEid Milad un-Nabi\t\n2 Oct 2025\tThursday\tDurga Puja/Dussehra\tOptional Holiday\n7 Oct 2025\tTuesday\tBirthday of Guru Balmik Sawami Ji\tOptional Holiday\n20 Oct 2025\tMonday\tDiwali/Deepavali\tOptional Holiday\n9 Nov 2025\tSunday\tIqbal Day\t\n25 Dec 2025\tThursday\tChristmas Day / Quaid-e-Azam Day\t\n26 Dec 2025\tFriday\tDay After Christmas\tDay Off for Christians",
+          "sick_days": "Employees are entitled to 10 days of Casual Leave upon contingent situations such as sudden illness or other urgent purposes.\nEvery employee is entitled to 10 days of Casual Leave (in addition to the annual leave) with full pay. This leave is granted upon certain situations such as sudden illness.\nA further 16 days of leave is entitled for Sick or Medical leave and paid at a rate of 50% of pay. Sick Leave requires a medical certificate to be issued.",
+          "maternity_leave": "Female employees are entitled to three months of paid maternity leave following four months of working for a single employer before giving birth. The employee must take a six-week post-natal leave period.\nEmployees are protected during their maternity leave and cannot be terminated during this time.\nTo receive benefits, the employee must have at least 180 days of contributions in the year before the child’s expected birth.",
+          "paternity_leave": "Fathers are eligible for one month of leave following the birth of their first three children.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "Employees in Pakistan are entitled to Iddat leave. Iddat leave is applicable if a secured person dies while in receipt of a sickness or injury benefit. In this case, their survivors are entitled to a death grant equal to the daily rate of sickness benefit multiplied by 30, but it should not be less than 1500 PKR.\nIddat leave is also applicable if a female employee loses her husband."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to how the employment agreement and collective agreement are in place and is based on the type of contract and reason for termination. Both employees and employers should provide terminations in writing, and the reasoning for dismissal must be sufficient.",
+          "notice_period": "Both employees and employers require a notice period of one month to terminate an employment contract. Advanced notice is not necessary for temporary workers.\nIf advanced notice is not provided, then an employer must pay a monthly salary in its lieu.",
+          "severance_pay": "Except in the circumstance of misconduct, employees receive severance pay amounting to 30 days’ wages for each year of completed service following their discharge from work.",
+          "probation_period": "In Pakistan, probation periods are outlined in the employees’ employment contracts. The probation period is typically three months long."
+        },
+        "visa": {
+          "general_info": "Work visas are usually granted for one year once approved by the board of investment; these must be renewed and re-approved annually. Pakistan has several specific visa applications for particular countries – each with differing requirements and levels of responsibility.\n\nForeign workers looking to work in Pakistan must obtain their working visa at the Pakistani Consulate in their country of residence. An essential requirement for the visa is an official invitation/letter from the Chamber of Commerce and Industry on behalf of sponsoring company in Pakistan. The letter must indicate the length of stay, place of stay, etc.\n\nOnce a work visa is granted for three months, an applicant can seek an extension of up to 2 years with multiple entries.\nFollowing the completion of 2 years, an employee can apply for permanent status."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Pakistan is 17%."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "scraped_at": "2025-08-24T18:56:24.049Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Uruguay",
+      "url": "https://www.papayaglobal.com/countrypedia/country/uruguay/",
+      "scraped_at": "2025-08-24T18:56:24.038Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5%",
+              "description": "Health Insurance, applied on income up to 14,150 UYU per month."
+            },
+            {
+              "rate": "0.1%",
+              "description": "Labor Re-conversion Fund"
+            },
+            {
+              "rate": "7.5%",
+              "description": "Pension Fund, applied on income up to 256,821 UYU per month."
+            },
+            {
+              "rate": "0.025%",
+              "description": "Labor Credit Guarantee Fund"
+            },
+            {
+              "rate": "12.625%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "15%",
+              "description": "Pension Fund"
+            },
+            {
+              "rate": "3%-8%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "0.1%",
+              "description": "Labor Re-conversion Fund"
+            },
+            {
+              "rate": "18.10-23.10%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": "The tax brackets are based on multiples of the “Base de Prestaciones y Contribuciones” (BPC).\n\n2025 BPC = 6,576 UYU per month"
+            },
+            {
+              "rate": "0%",
+              "description": "Income up to 7 BPC"
+            },
+            {
+              "rate": "10%",
+              "description": "Income between 7 – 10 BPC"
+            },
+            {
+              "rate": "15%",
+              "description": "Income between 10 – 15 BPC"
+            },
+            {
+              "rate": "24%",
+              "description": "Income between 15 – 30 BPC"
+            },
+            {
+              "rate": "25%",
+              "description": "Income between 30 – 50 BPC"
+            },
+            {
+              "rate": "27%",
+              "description": "Income between 50 – 75 BPC"
+            },
+            {
+              "rate": "31%",
+              "description": "Income between 75 – 115 BPC"
+            },
+            {
+              "rate": "36%",
+              "description": "Income above 115 BPC"
+            },
+            {
+              "rate": "Non-Residents",
+              "description": "Are generally subject to a withholding tax of 12% applied on Uruguayan-sourced income, except in cases where the income is obtained through operations of a permanent establishment."
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "In Uruguay, the monthly minimum wage is 23,604 UYU.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle is generally monthly, and employers in Uruguay must pay employees by the 5th day of the following month.",
+          "13th_salary": "Employees are entitled to a 13th-month salary payment (Aguinaldo), which is distributed in two halves: one in June and one in December."
+        },
+        "working_hours": {
+          "general": "Standard working hours in Uruguay are 44 hours per week, eight hours per day. Employees in the industrial sector may be required to work 48 hours, eight hours per day over a six-day week.",
+          "overtime": "All work above the standard 44 hours a week is overtime and regulated by the employment contract/collective agreements.\nIn general, overtime maximum limits are set at 8 hours per week and paid 200.00% of the standard salary rate.\nOvertime performed on a non-working day such as a holiday is compensated at 250.00% of the employee’s standard earnings."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The annual leave entitlement in Uruguay is generally 20 working days following the employee’s completion of at least one year of service.\nThe entitlement may increase by one day for every four years of service up to a maximum of 25 days.\nVacation Pay/Bonus\nThe amount of the benefit is 100% of the net vacation daily wage, which is the same as the annual leave and/or daily amount after deducting personal contributions.",
+          "public_holidays": "Public holidays falling on weekends are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n6 Jan 2025\tMonday\tThree Kings Day\t\n3 Mar 2025\tMonday\tCarnival\t\n4 Mar 2025\tTuesday\tCarnival\t\n17 Apr 2025\tThursday\tMaundy Thursday\t\n18 Apr 2025\tFriday\tGood Friday\t\n19 Apr 2025\tSaturday\tLanding of the Patriots\t\n1 May 2025\tThursday\tLabour Day\t\n18 May 2025\tSunday\tBattle of Las Piedras\t\n19 Jun 2025\tThursday\tBirth of Artigas\t\n18 Jul 2025\tFriday\tConstitution Day\t\n25 Aug 2025\tMonday\tIndependence Day\t\n12 Oct 2025\tSunday\tDay of the Race\t\n2 Nov 2025\tSunday\tAll Souls’ Day\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "An employee is entitled to up to one year of sick leave, which is compensated at 100% of the employee’s salary for the first three days of sickness covered by the employer.\nFollowing this, the employee will be compensated by Uruguay’s social security system, Banco de Previsión Social (BPS) at 70% of the employee’s average earnings.\nTo qualify for sick leave, all sickness is to be justified with a medical certificate.",
+          "maternity_leave": "Female employees are entitled to a maternity leave of 14 weeks, six of which are to be taken before the due date and eight weeks after the birth.\nThe employee will be compensated by Uruguay’s social security system, Banco de Previsión Social (BPS).",
+          "paternity_leave": "Fathers/parents are entitled to 13 days of paid paternity leave.",
+          "parental_leave": "There are no provisions in the law for parental leave.",
+          "other_leave": "There are no additional statutory leave requirements in Uruguay."
+        },
+        "termination": {
+          "termination_process": "Employers can terminate a fix term contract for the following reasons – business, personal, or workers misconduct.\nIt requires notice and a written explanation for the termination. If the reason for termination is misconduct, a warning needs to be given and the employee gets a chance to explain their actions.\nAll terminated employees must receive a notice of termination as well as a severance payment.",
+          "notice_period": "There is no legal obligation for a notice period in Uruguay before dismissal.",
+          "severance_pay": "Severance pay must be granted to a terminated employee at the rate of one month’s salary for every year of service, up to six months.",
+          "probation_period": "The probation period in Uruguay is typically up to 3 months."
+        },
+        "visa": {
+          "general_info": "Uruguay offers a variety of visas to foreign nationals including:\n\nTourism visas, which allow multiple entries and are valid for 90 days\nBusiness visas, which are valid for 90 days and multiple entries\nStudent visas, which are single entry and valid for 30 days\nFamily reunification visas, which allow a single entry and are valid for 30 days\nWork visas, which are valid for 30 days and a single entry\nHumanitarian and emergency visas, which are single entry and valid for 30 days\nForeign employees will need to obtain a work visa to enter Uruguay\n\nTo remain in the country beyond the initial 30-day period, a residency visa will be required.\n\nTo apply for residency, the foreigner enters Uruguay as a tourist and then applies in person at Uruguay’s national immigration office, Dirección Nacional de Migración (DNM). The required documentation includes:\n\na birth certificate\na marriage certificate\na police certificate for each country you’ve lived in during the last five years, and if you are a U.S. citizen, you need an FBI report instead of a police report\ndocumented proof of income\n\nThe birth certificate, marriage certificate, and non-Interpol (non-U.S.) police records must be authenticated by apostille (an official pre-printed form) affixed to the document by the appropriate authority in the appropriate jurisdiction and translated into Spanish by an official public translator.\n\nThe legalized translated birth certificate must also be registered with the Registro de Extranjeros, which will issue a document required to obtain the Uruguayan resident ID card.\n\nBesides these documents, there is also a requirement for a carné de Salud (Uruguay health card) and a medios de vida (an income certificate). The health card requires a medical exam at an authorized clinic in Uruguay and the income certification must prove a sufficient income. The source and amount of your income must be verified by an escribano, an Uruguayan legal professional authorized to prepare an income verification certificate. Any source of income from abroad is acceptable, such as a pension, social security, lease income, or business income.\n\nOnce the application has been made and documentation provided, the foreigner will become a temporary resident of Uruguay—known as a residente en trámite (a resident in the process). The next step is to go to the immigration department to get the documentation associated with getting the temporary cédula at the Dirección Nacional de Identificación Civil (DNIC). It often takes around a year for the completed residency application to be processed."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Uruguay is 22%."
+        }
+      }
+    }
+  ]
+}

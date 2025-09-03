@@ -1,0 +1,82 @@
+{
+  "scraped_at": "2025-08-24T17:34:21.212Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Armenia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/armenia/",
+      "scraped_at": "2025-08-24T17:34:21.203Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "0.00%",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "5.00%",
+              "description": "Pension fund – if the monthly gross income is less than 500,000 AMD"
+            },
+            {
+              "rate": "10.00%",
+              "description": "Pension Fund. Applied for monthly gross income higher than 500,000 AMD with a maximum threshold of AMD 1,125,000. The maximum social payment is capped at AMD 87,500 per month."
+            },
+            {
+              "rate": "5.00% -10.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "20%",
+              "description": "Flat Rate"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The National Monthly Minimum Wage is 75,000 AMD in Armenia and the minimum hourly wage is 500 AMD (those who work in hazardous environments earn a premium over their average salary).",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Armenia is generally a monthly cycle, with wages paid on the 15th day of the following month.",
+          "13th_salary": "There is no mandatory or customary 13th salary payment in Armenia."
+        },
+        "working_hours": {
+          "general": "The Republic of Armenia (RA Labor Code) states that the standard working hours are 40 hours per week and a daily work period is eight hours.",
+          "overtime": "In Armenia, overtime is calculated at 150% of the standard hourly rate for each hour of overtime worked.\nShould an employee work nights, these are calculated at 130% of the standard hourly rate for each hour of night work.\nThe maximum working time (including overtime) should not exceed 12 hours per day (48 hours per week), including breaks. Overtime cannot be included in the salary.\nManagers are exempt from overtime limitations and do not need to be paid an additional salary."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The minimum days of paid annual leave are based on the working week. If an employee works five days a week, they will be entitled to 20 working days annual leave; however, if an employee works six days a week, they receive 24 working days annual leave.\nThe annual leave cycle is based on the individual worker’s start date not from a fixed calendar month such as January to December. It is permitted to a carryover policy for unused leave.\nShould employees work in stressful or high-risk conditions, the number of days of annual leave increases. Employees who work a five-day working week would receive an annual leave entitlement of up to 35 days in exceptional conditions. Those who work a six-day working week are entitled to up to 42 days of annual leave in extraordinary circumstances.\nGenerally, employees can access annual leave after six months of continuous work.",
+          "public_holidays": "Public holidays falling on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n2 Jan 2025\tThursday\tNew Year’s Day\t\n6 Jan 2025\tMonday\tOrthodox Christian Day\t\n28 Jan 2025\tTuesday\tArmy Day\t\n8 Mar 2025\tSaturday\tInternational Women’s Day\t\n21 Apr 2025\tMonday\tEaster\t\n24 Apr 2025\tThursday\tArmenian Genocide Remembrance Day\t\n1 May 2025\tThursday\tLabour Day\t\n9 May 2025\tFriday\tVictory and Peace Day\t\n28 May 2025\tWednesday\tRepublic Day\t\n5 Jul 2025\tSaturday\tConstitution Day\t\n21 Sep 2025\tSunday\tArmenian Independence Day\t\n31 Dec 2025\tWednesday\tNew Year’s Eve",
+          "sick_days": "Employees are entitled to receive paid sick leave from the first day to day five of sickness at 80% of the average salary, with the employer paying. From day six, the sick pay is covered by social insurance. If an employee is absent for fewer than 120 successive days or 140 days within a year, they remain entitled to their full benefits.\nThe Social Insurance Scheme is responsible for paying an employee’s sick leave if this is due to a work-related injury or illness. The employee may return to work when they are healthy enough to do so.\nThe employee must notify the employer on the first day of absence.\nThe employee must provide the employer with sick leave confirmation for all days of absence from the medical institution on the same day when he arrives to work after sick leave.",
+          "maternity_leave": "In Armenia, an employee is entitled to at least 140 days of maternity leave (70 days during pregnancy and 70 days following the child’s birth). The maternity leave entitlement increases to 155 days (70 days of pregnancy, 85 days from delivery) in the case of complicated childbirth. For multiple births, the leave entitlement would increase to 180 days (70 days of pregnancy, 110 days from childbirth).\nEmployers must provide paid maternity pay at 100% of the insured’s average monthly earnings (regardless of the number of years of covered employment) divided by 30.4 (average number of days in a month).",
+          "paternity_leave": "New fathers are entitled to 5 days of paid leave within the first 30 days of the child’s birth.",
+          "parental_leave": "Within the first month of the child’s birth, it is possible to request up to 5 days of paid parental leave.",
+          "other_leave": "Bereavement leave\nEmployers must provide employees with three days of unpaid leave to attend the funeral of a family member.\nMarriage Leave\nEmployers must provide employees three days of unpaid leave in the event of their marriage."
+        },
+        "termination": {
+          "termination_process": "Employers must have a valid reason to terminate an employee and must provide notice before doing so. The notice period is generally linked to the length of employment with the company.",
+          "notice_period": "The notice periods are as below:\nAn employee gives 30 days’ notice to resign unless a collective agreement outlines a longer period.\nFor the employer, during the probation period, only 3 days’ notice is required\nFor service of less than 1 year, 14 days’ notice is required\nBetween 1- and 5 years of service, 35 days’ notice\nAfter 5 to 10 years of service, 42 days’ notice\nMore than 10 years of service, 60 days’ notice",
+          "severance_pay": "The reason for termination determines the severance pay should it be company related (i.e., the company is liquidated, the number of employees is reduced, or the employee is rehired in a previous job) the severance pay will be equal to the employee’s average monthly salary. Should the termination be employee-related, (i.e., long-term disability, old age, significant changes in working conditions, or an employee is called up for compulsory Military Service) the employee’s employment length will determine the severance pay as below:\nfewer than 12 months of employment service – 10x average daily salary\nBetween 1- and 5 years of employment service –  25x average daily salary\nBetween 5 to 10 years of employment service –  30x average daily salary\nBetween 10 to 15 years of employment service –  35x average daily salary\nMore than 15 years of employment service –  44x average daily salary",
+          "probation_period": "Probationary periods are generally three months and will be referenced in the employee’s contract of employment. Should either the employee or the employer wish to terminate before the three-month probation period, either may terminate the employment contract with three days’ notice."
+        },
+        "visa": {
+          "general_info": "Individuals entering Armenia for business must obtain a work permit sponsored by their employer to work in Armenia legally.\nGenerally, a holder of an Armenian visa is not entitled to work in Armenia unless they also hold a work permit. However, some highly skilled foreign specialists, business owners, executives, and other workers are exempt from the work permit requirement.\n\nUnless a foreign individual is exempt from the work permit requirement, the employer must first obtain a work permit by applying to the Ministry of Labor and Social Affairs (MLSA) before the employee starts their employment.\n\nThe MLSA tests the Armenian market to ensure that there are no qualified and available Armenian workers to fill the position internally. When a work permit is granted, the foreign national can start working in Armenia, but it does have a fixed term and is renewable on request.\n\nAfter obtaining the work permit, the foreign national must file an application for a temporary residence permit at the Passport and Visa Department of the Police in Yerevan. The application must be accompanied by the requested supporting documentation, including medical test results. The temporary residence card is issued within approximately 30-45 days of the application date if accepted.\n\nSpecific individuals may qualify for temporary residence in Armenia, including those entering on a contractual basis, international students, journalists, and researchers. Temporary residence is granted for one year and can be extended for a maximum of one additional year."
+        },
+        "vat": {
+          "general": "The general rate of VAT in Armenia is 20%."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "scraped_at": "2025-08-24T18:23:21.307Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Malta",
+      "url": "https://www.papayaglobal.com/countrypedia/country/malta/",
+      "scraped_at": "2025-08-24T18:23:21.296Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "10.00%",
+              "description": "Social Security up to annual salaries of 27,679.00 EUR"
+            },
+            {
+              "rate": "10.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "10.00%",
+              "description": "Social Security up to annual salaries of 27,679.00 EUR"
+            },
+            {
+              "rate": "10.00%",
+              "description": "Total Employee Cost*"
+            },
+            {
+              "rate": "Employee Income Tax *",
+              "description": ""
+            },
+            {
+              "rate": "Single resident taxpayers (or married couples opting for a separate computation)",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "up to 12,000 EUR annually"
+            },
+            {
+              "rate": "15.00%",
+              "description": "from 12,001 – 16,000 EUR annually"
+            },
+            {
+              "rate": "25.00%",
+              "description": "from 16,001 – 60,000 EUR annually"
+            },
+            {
+              "rate": "35.00%",
+              "description": "60,001 EUR and above annually"
+            },
+            {
+              "rate": "Employee Income Tax *",
+              "description": ""
+            },
+            {
+              "rate": "Married resident taxpayers",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "up to 15,000 EUR annually"
+            },
+            {
+              "rate": "15.00%",
+              "description": "from 15,001 – 23,000 EUR annually"
+            },
+            {
+              "rate": "25.00%",
+              "description": "from 23,001 – 60,000 EUR annually"
+            },
+            {
+              "rate": "35.00%",
+              "description": "60,001 EUR and above annually"
+            },
+            {
+              "rate": "Employee Income Tax *",
+              "description": ""
+            },
+            {
+              "rate": "Parent rates",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "up to 13,000 EUR annually"
+            },
+            {
+              "rate": "15.00%",
+              "description": "from 13,001 – 17,500 EUR annually"
+            },
+            {
+              "rate": "25.00%",
+              "description": "from 17,501 – 60,000 EUR annually"
+            },
+            {
+              "rate": "35.00%",
+              "description": "60,001 EUR and above annually"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The national minimum wage for full-time employees is 221.78 EUR per week for an employee aged 18 and over, 215.00 EUR per week for an employee aged 17, and 212.16 EUR per week for an employee aged under 17.\nThe national minimum wage for part-time employees is calculated pro-rata at the same hourly rate of a comparable full-time employee in accordance with the relevant Wage Regulation Order.",
+        "payroll": {
+          "payroll_cycle": "Salaries are paid monthly on the last day of the month, unless otherwise stated in the employment contract.",
+          "13th_salary": "There are no provisions in the law regarding 13th salaries."
+        },
+        "working_hours": {
+          "general": "A standard full-time workweek in Malta consists of 40 hours per week and 8 hours per day.\nThe standard working hours as stipulated in the Wage Regulation Orders are 40 hours per week but not exceeding a maximum of an average of 48 hours a week across a period of 17 weeks.",
+          "overtime": "Overtime is regulated by the Wage Regulation Order (WRO), which outlines different overtime rules by industry. Written consent from the worker is required and can be revoked at any time. If the WRO does not cover an employee, overtime is calculated at 150% of the regular pay rate of work over 40 hours per week and averaged over four weeks.\nThe income tax rate applicable on qualifying overtime is 15% up to a maximum amount of emoluments of 10,000 EUR, rather than a maximum of 100 hours of overtime. Overtime emoluments exceeding this amount are taxable at the standard applicable rates of income tax.\nExemptions to overtime rules might be in place for certain job types, including managerial or supervisory positions. It is also permitted to offer a Global Salary which includes an element of overtime pay."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Full-time employees who work 40 hours per week are entitled to 24 working days of paid leave (pro-rata for employees not working full-time hours). Regular salary is paid during these days off.\nUnused leave can be carried over until 31 March of the next year\nThe law stipulates that a minimum of four weeks cannot be replaced by any allowances, except where employment is terminated.",
+          "public_holidays": "Public holidays falling on the weekend are added to the worker’s annual vacation allowance to be taken as days off in lieu. Under certain set ups it might be moved to the next working day.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n10 Feb 2025\tMonday\tFeast of St Paul’s Shipwreck\t\n19 Mar 2025\tWednesday\tFeast of St Joseph\t\n31 Mar 2025\tMonday\tFreedom Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n1 May 2025\tThursday\tWorkers’ Day\t\n7 Jun 2025\tSaturday\tSette Giugno\t\n29 Jun 2025\tSunday\tFeast of St Peter and St Paul\t\n15 Aug 2025\tFriday\tFeast of the Assumption\t\n8 Sep 2025\tMonday\tVictory Day\t\n21 Sep 2025\tSunday\tIndependence Day\t\n8 Dec 2025\tMonday\tImmaculate Conception\t\n13 Dec 2025\tSaturday\tRepublic Day\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "Sick leave is regulated under the Wage Regulation Order (WRO). When the WRO does not cover an employee, the sick leave entitlement is 2 weeks (10 working days) per year at full pay from the employer. After two weeks, an employee may be entitled to a sickness benefit through Social Security.\nThe employee should report absence within a day of sickness and must provide a medical certificate.",
+          "maternity_leave": "Maternity leave in Malta is 18 weeks and starts 4 weeks before the expected due date and an employee must take a minimum of 6 weeks after the birth.\nThe maternity benefit is paid at 100% of the regular rate of salary by the employer for the first 14 weeks and after that, paid by Social Security.",
+          "paternity_leave": "10 working days, paid at regular salary.",
+          "parental_leave": "Parents are entitled to up to 4 months of leave following the birth of a child, adoption, fostering, or general child care until the child reaches the age of 8. This leave is usually unpaid.\nTo be eligible, the employee must have been employed for at least 12 consecutive months.",
+          "other_leave": "Employers must let employees take other special leave with pay for a period of time deemed reasonable. This includes, bereavement leave, court witness leave and jury service leave.\nCertain Collective Agreements/Employment Contract might regulate for additional leave types to be given."
+        },
+        "termination": {
+          "termination_process": "In Malta, the recommended route for employment termination is through a Mutual Termination Agreement (MTA). This is because dismissals for “good and sufficient cause” require the employer to provide substantial proof justifying the dismissal. For instance, in cases of poor performance, the employer must demonstrate all elements proving the employee’s poor performance, such as objectives given, clear policies/instructions, efforts to help the employee improve, and the implementation of a performance improvement plan. Without this, a tribunal may consider the dismissal unfair and could award compensation to the employee, with no minimum or maximum cap on the award. Building a strong case for dismissals due to poor performance can be a lengthy process, taking approximately 3 to 6 months.\nAnother “good and sufficient cause” for termination is redundancy, which is complex in Malta. If an employee is terminated due to redundancy, they are entitled to re-employment if their former position becomes available within a year from the termination date. Employers must follow the “last in, first out” principle when terminating employment on redundancy grounds.\nIf requested by an employee who has completed at least one month of employment, the employer is obligated to provide an employment certificate stating the dates employed and a description of duties.",
+          "notice_period": "The amount of notice required is dependent on the length of service and reason for termination, as follows:\nIf an employee has less than one month of service, no notice period is required\nFor an employee with between one and six months of service, one week of notice is required\nFor an employee with between six months and two years’ service, two weeks’ notice is required\nFor an employee with between two- and four years’ service, four weeks’ notice is required\nFor an employee with between four- and seven years’ service, eight weeks’ notice is required\nFor an employee with between seven- and eight years’ service, nine weeks’ notice is required\nFor an employee with between eight- and nine years of service, ten weeks’ notice is required\nFor an employee with between nine- and ten years’ service, eleven weeks’ notice is required\nFor an employee with more than ten years’ service, twelve weeks’ notice is required\nDuring Probation – one week notice applies if the length of service is longer than one month.\nIt is possible to pay the employee in lieu of notice. However, suppose an employee is due to work the notice and chooses not to work during this period or resign without notice; in that case, they are obligated to pay the employer 50% of the wages that would have been earned during the notice period.\nAn employee who fails to give notice will be liable to pay the employer a sum equal to half the wages that would have been due in respect of the notice period.",
+          "severance_pay": "There are no statutory laws on severance pay beyond pay out of owed salary and benefits.\nIn cases where a Fixed Term contract is being terminated early, a compensation payment is required, set at 50% of the salary due for the remaining period of the contract."
+        },
+        "visa": {
+          "general_info": "Malta’s immigration law provides several options for employers of foreign nationals. Malta is a member of the European Union (EU) and the Schengen Area. Requirements, processing times, employment eligibility, and benefits for accompanying family members vary by visa classification.\n\nBusiness visitors to Malta typically use a local version of the Schengen C Visa unless they are visa exempt based on their nationality. The Schengen Area limits stay to 90 days within 180 days.\n\nFor work, foreign nationals traveling to Malta require a Single Permit, which combines work and residence authorization. The Single Permit can be issued for one year and is renewable.​​"
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Mata is 18%."
+        }
+      }
+    }
+  ]
+}

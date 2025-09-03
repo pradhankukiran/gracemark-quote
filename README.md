@@ -22,8 +22,17 @@ To get the project up and running, follow these steps:
    ```
 3. **Create a `.env.local` file** in the root of the project and add the following environment variables:
     ```
+    # Provider APIs
     REMOTE_API_TOKEN=your_remote_api_token
     DEEL_ORGANIZATION_TOKEN=your_deel_organization_token
+
+    # Groq LLM (Enhancement Engine)
+    GROQ_API_KEY=your_groq_api_key
+    # Optional overrides
+    GROQ_MODEL=openai/gpt-oss-20b
+    GROQ_TEMPERATURE=0.1
+    GROQ_MAX_TOKENS=2048
+    GROQ_RATE_LIMIT_RPM=30
     ```
 4. **Run the development server:**
     ```bash
@@ -48,6 +57,10 @@ The application has the following API endpoints:
 - `POST /api/currency-converter`: Converts a given amount from a source currency to a target currency.
 - `POST /api/eor-cost`: Calculates the EOR cost for a given salary, country, and currency using the Deel API.
 - `POST /api/remote-cost`: Calculates the EOR cost for a given salary, country, and currency using the Remote API.
+- `POST /api/enhancement/quote`: Enhances a single provider quote using Groq LLM.
+- `POST /api/enhancement/batch`: Enhances multiple provider quotes in one request.
+- `GET /api/enhancement/quote`: Health check and stats for enhancement engine.
+- `GET /api/enhancement/debug`: Debug endpoints (`?action=stats|cache|performance|health`).
 
 ## File Structure
 

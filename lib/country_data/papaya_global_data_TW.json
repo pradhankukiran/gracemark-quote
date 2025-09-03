@@ -1,0 +1,138 @@
+{
+  "scraped_at": "2025-08-24T18:47:53.160Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Taiwan",
+      "url": "https://www.papayaglobal.com/countrypedia/country/taiwan/",
+      "scraped_at": "2025-08-24T18:47:53.146Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "8.05%",
+              "description": "Labor Insurance"
+            },
+            {
+              "rate": "0.70%",
+              "description": "Employment Insurance"
+            },
+            {
+              "rate": "6.00%",
+              "description": "Pension Fund"
+            },
+            {
+              "rate": "4.84%",
+              "description": "National Health Insurance, applied on income between 28,590 TWD and 313,000 TWD."
+            },
+            {
+              "rate": "2.11%",
+              "description": "National Health Insurance – Supplementary Premium, applied on income between 28,590 TWD and 313,000 TWD."
+            },
+            {
+              "rate": "0.13%",
+              "description": "Workers’ Compensation"
+            },
+            {
+              "rate": "21.83 %",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "2.5%",
+              "description": "Labor Insurance"
+            },
+            {
+              "rate": "0.20%",
+              "description": "Employment Insurance"
+            },
+            {
+              "rate": "1.55%",
+              "description": "National Health Insurance contribution is applied on income between 28,590 TWD and 313,000 TWD."
+            },
+            {
+              "rate": "4.25%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "5.00%",
+              "description": "Up to 590,000 TWD"
+            },
+            {
+              "rate": "12.00%",
+              "description": "590,001 TWD – 1,330,000 TWD"
+            },
+            {
+              "rate": "20.00%",
+              "description": "1,330,001 TWD – 2,660,000 TWD"
+            },
+            {
+              "rate": "30.00%",
+              "description": "2,660,001 TWD – 4,980,000 TWD"
+            },
+            {
+              "rate": "40.00%",
+              "description": "4,980,001 TWD and above"
+            },
+            {
+              "rate": "Non Resident Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "18%",
+              "description": "Flat rate"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "Taiwan’s monthly minimum wage is NT$28,590. The hourly minimum wage is NT$190.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Taiwan is generally monthly and payments are usually paid on the 15th of each month.",
+          "13th_salary": "Although it is not mandatory, often 13th and 14th-month salaries are provided and paid before the Chinese new year. Festival bonus is also common before the Dragon Boat Festival and Mid-Autumn Festival."
+        },
+        "working_hours": {
+          "general": "The maximum number of working hours are eight hours per day and 40 hours per week, up to a maximum of 12 hours per day, inclusive of overtime. In Taiwan, it is mandatory to have two days off every seven days. One of these days off is compulsory and the other day is flexible and can be worked and paid as overtime.",
+          "overtime": "Work in excess of the standard weekly working hours is considered overtime and is regulated by the employment contract or collective agreements.\nThe employer must pay overtime as follows:\nFirst two hours of overtime: 134% of the regular salary rate\nFollowing two hours of overtime: 167% of the regular salary rate\nEmployees are allowed to work up to a maximum of 12 hours per day, inclusive of overtime, with a total limit of 46 overtime hours per month."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The employment contract determines paid leave in Taiwan as dependent on the completed years of service.\nAnnual leave is accrued as follows:\n6 months to less than 1 year of employment: 3 days’ paid leave\n1 year of employment: 7 days’ paid leave\n2 years of employment: 10 days’ paid leave\n3 years of employment: 14 days’ paid leave\n5 years of employment: 15 days’ paid leave\nOne additional day is provided for each year of service following the completion of 10 years (to a maximum of 30 days)",
+          "public_holidays": "Holidays falling on Sundays are usually moved to another day in lieu.\nIn May 2025, four additional public holidays have been added under a new law including the day before Lunar New Year’s Eve, Teachers Day (28 September), Taiwan Restoration Day (25 October) and Constitution Day (25 December).\nDate\tDay\tName of Holiday\tNotes\n1 Jan 2025\tWednesday\tFounding Day of the Republic of China\t\n27 Jan 2025\tMonday\tChinese New Year\t\n28 Jan 2025\tTuesday\tChinese New Year\t\n29 Jan 2025\tWednesday\tChinese New Year\t\n30 Jan 2025\tThursday\tChinese New Year\t\n31 Jan 2025\tFriday\tChinese New Year\t\n28 Feb 2025\tFriday\tPeace Memorial Day\t\n3 Apr 2025\tThursday\tTomb Sweeping Day\t\n4 Apr 2025\tFriday\tChildren’s Day\t\n1 May 2025\tThursday\tLabor Day\t\n30 May 2025\tFriday\tDragon Boat Festival\t\n28 Sep 2025\tSunday\tTeacher’s Restoration Day\tNew public holiday added in 2025\n6 Oct 2025\tMonday\tMid-Autumn Festival\t\n10 Oct 2025\tFriday\tNational Day\t\n25 Oct 2025\tSaturday\tTaiwan Restoration Day\tNew public holiday added in 2025\n25 Dec 2025\tThursday\tConstitution Day\tNew public holiday added in 2025",
+          "sick_days": "There are two types of sick leave in Taiwan. For employees who are sick but do not require hospitalization, sick leave entitlement is 30 days per year paid at 50.00% of the regular salary rate. When an employee’s sickness is covered by labor insurance and there’s a difference in the amount due and the regular salary rate of pay, the employer must pay the difference.\nSick leave entitlement increases to twelve months when the employee is hospitalized.\nTaiwan’s government will stop covering the COVID-19-related medical expenses of foreign nationals without National Health Insurance (NHI) cards from 2024.",
+          "maternity_leave": "Employees are entitled to eight weeks of paid maternity leave at 100.00% of the regular salary rate of pay for employees with a minimum of six months of employment. If the employee has not been employed for the minimum period, maternity pay reduces to 50.00%.\nIn addition, pregnant employees are entitled to five days’ leave prior to birth for medical check-ups.",
+          "paternity_leave": "Employees are entitled to seven days of paid paternity leave at the rate of 100% of the regular pay.",
+          "parental_leave": "Employees may apply for parental leave after being in service for six months. The period of this leave is until their children reach the age of three years old but may not exceed two years. When employees are raising over two children at the same time, the period of their parental leave shall be computed aggregately and the maximum period shall be limited to two years received by the youngest child.\nThe parental leave allowance shall be 60% of the insured person’s average monthly insurance salary six months prior to the month the person went on parental leave. For each child, the parent may, on an aggregated basis, receive a maximum of six months’ allowance. This allowance is covered by the Bureau of Labor Insurance. To request this leave the worker should file an application in writing 10 days in advance.",
+          "other_leave": "Bereavement Leave – In the event of the death of an immediate family member (parent, foster-parent, step-parent, spouse) a worker shall be entitled to 8 days of funeral leave with pay. On the death of grand-parent, son or daughter, parent of spouse, foster-parent or step-parent of spouse, a worker shall be entitled to 6 days of funeral leave with pay. On the death of great-grandparent, brother or sister, grand-parent of spouse, a worker shall be entitled to 3 days of funeral leave with pay.\nMarriage Leave – A worker is entitled to 8 days of wedding leave with pay.\nNational Service –  is official leave with pay granted to an employee who is required for education or duty of national service.\nLeave for Personal Matters – Workers may take up to  14 days of unpaid leave annually to deal with personal matters."
+        },
+        "termination": {
+          "termination_process": "It is common to use a mutual term agreement to end the employment relationship. The terms of this agreement vary case by case.\nAn employer can terminate an employment contract with notice (or with pay in lieu of notice) and with severance pay only in one of the following circumstances:\nStoppage of business or a transfer of ownership.\nBusiness losses or curtailment of business operations.\nSuspension of operations for more than one month due to a force majeure event.\nAlteration of the business nature, forcing a reduction in the number of employees where those employees cannot be reassigned to other suitable positions.\nThe employee is incapable of performing the tasks assigned.The employer must give the former employee proof of termination of the employment contract and documentation regarding the last day of work. The employee and employer should both sign these documents.\nAn employer can terminate an employment contract without advance notice or severance pay only in one of the following circumstances:\nMisrepresentation of the facts by the employee at the time the labour contract was signed which leads, or may lead, to the employer suffering damage.\nActs of violence by the employee against the employer, the employer’s family or representative, or other employees.\nSerious breaches by the employee of the employment contract or work rules.\nThe employee has been sentenced to temporary imprisonment in a final judgment, which cannot be suspended or commuted to a fine.\nPurposeful damage or abuse to the employer’s property by the employee.\nIntentional disclosure by the employee of the employer’s technological or business secrets.\nThe employee’s absence from work for three consecutive days, or for six days in a month, without justifiable reason.",
+          "notice_period": "The minimum period of notice required for an employer to terminate an employee:\nEmployed for more than 3 months, but less than 1 year: 10 days’ notice.\nEmployed for more than 1 year, but less than 3 years: 20 days’ notice.\nEmployed for more than 3 years: 30 days’ notice.\nOnce an employee has received notice, the worker may ask for leave during work hours (not more than 2 days a week), for the purpose of finding a new job. During this time the employee must still receive their wages.\nIf an employer dismisses an employee without providing the requisite notice period, the employer must pay wages for the whole notice period.",
+          "severance_pay": "Generally, severance is 50% of the average monthly pay per year of service, up to a maximum of six months’ pay. For foreigners and local employees that are still under the LSA pension system, severance is one month’s average pay for each year of service.",
+          "probation_period": "In Taiwan, there isn’t a predetermined probation period. The Act gives the flexibility to employers and employees to decide the length of the probation period. There isn’t a maximum limit for this duration. However, typically, the probation period is set for 3 months."
+        },
+        "common_benefits": [
+          "Leaving service benefits (LSB)",
+          "Life, accident, and business travel insurance",
+          "Housing allowances – Mainly provided to expatriates and some senior-level executives and are included in taxation. Most multinational companies provide these enhanced benefits to attract and retain local talent.",
+          "Meal Allowance – No legally mandated amount of meal allowance, employers can decide on their own policy.  Non-taxable within TWD 3,000 per month.",
+          "Medical benefits – Optional, supplemental medical plans extended to employees’ spouses and dependent children."
+        ],
+        "visa": {
+          "general_info": "Work permits are issued by the Council of Labor Affairs (CLA) upon request from a Taiwanese employer.\nWork permits are valid for up to three years, although an employer can apply for an extension on behalf of an employee, which the employer should submit within four months of the expiration date. When an employee changes employers after arriving in Taiwan, the new employer must apply for a new work permit. In addition, the previous employer must apply to have the original work permit canceled with the Council of Labor Affairs.\nWhen the permit is issued in a foreign country, it must be verified by a representative from a local Taipei Economic and Cultural Office or Taiwan representative office in the country which issued it.\nThere is an approved list of employment for foreign nationals in Taiwan, including school or foreign-language teachers, specialized or technical experts, a director, executive, or manager of a business set up by or invested in by a foreigner."
+        },
+        "remote_work": "The Government of Taiwan passed a work from home regulation requiring employers to provide remote employees with the necessary tools and equipment to perform the job which should include the use of ergonomically sound work equipment and up to date software on electronic devices.\nEmployers are required to pay for any maintenance of such tools and equipment as needed and provide education and training on mental and physical health to ensure the wellbeing of their remote employees.",
+        "vat": {
+          "general": "5% standard rate."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "scraped_at": "2025-08-24T18:18:03.275Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Cambodia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/cambodia/",
+      "scraped_at": "2025-08-24T18:18:03.266Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "2.60%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "0.80%",
+              "description": "National Social Security Fund (Maximum 1,200,000 KHR)"
+            },
+            {
+              "rate": "2.00%",
+              "description": "Mandatory Pension contribution (Maximum 1,200,000 KHR)"
+            },
+            {
+              "rate": "5.40%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "2.00%",
+              "description": "Mandatory Pension contribution (Maximum 1,200,000 KHR)"
+            },
+            {
+              "rate": "2.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "0-1,500,000 KHR"
+            },
+            {
+              "rate": "5.00%",
+              "description": "1,500,001-2,000,000 KHR"
+            },
+            {
+              "rate": "10.00%",
+              "description": "2,000,001- 8,500,000 KHR"
+            },
+            {
+              "rate": "15.00%",
+              "description": "8,500,001- 12,500,000"
+            },
+            {
+              "rate": "20.00%",
+              "description": "12,500,000 KHR and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage for regular workers is set at 833,792.00 KHR per month.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Cambodia is generally monthly, and payments are to be made on the last working day of each month. However, laborers are paid at least every 16 days.",
+          "13th_salary": "There is no statutory requirement for a 13th-month salary in Cambodia."
+        },
+        "working_hours": {
+          "general": "The standard working week in Cambodia consists of 8 hours a day, 40 hours a week. All employees are entitled to at least one day off per working week, predominantly taken Sunday.",
+          "overtime": "All work above the standard working week is paid as overtime and regulated by employment contract/collective agreements. When an employee is requested to work overtime or on holidays, there is a maximum of 2 hours per day.\nOvertime hours above 40 hours a week are paid at the rate of 150.00% of the employees’ regular pay rate; this increases to 200.00% of the employees’ regular pay if the overtime is performed on a Sunday or public holiday. For employees who conduct overtime during the night hours of 10.00 pm and 5.00 am, the overtime rate is paid at 130.00% of the employees’ regular pay rate.\nTo perform additional hours of work, permission needs to be granted from the Ministry of Labor."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In Cambodia, the paid annual leave entitlement depends on the years of service that the employee has served as well as the working schedule.\nFor a 40 hours per week working schedule, the worker is entitled for 15 working days of annual leave ,accrued at 1.25 days per month.\nFor a 48 hours per week working schedule, the worker is entitled for 18 working days of annual leave ,accrued at 1.50 days per month.\nEmployees should receive an additional day of leave for every three years in service following four years of service.\nPart-time employees receive leave on a pro-rata basis.",
+          "public_holidays": "There are 15 public holidays. Public holidays falling on a weekend are lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tInternational New Year Day\t\n7 Jan 2025\tTuesday\tVictory over Genocide Day\t\n8 Mar 2025\tSaturday\tInternational Woman’s Day\t\n14 Apr 2025\tMonday\tKhmer New Year Day\t\n15 Apr 2025\tTuesday\tKhmer New Year Day\t\n16 Apr 2025\tWednesday\tKhmer New Year Day\t\n1 May 2025\tThursday\tInternational Labor Day\t\n11 May 2025\tSunday\tVisak Bochea Day\t\n14 May 2025\tWednesday\tKing Norodom Sihamoni’s Birthday\t\n15 May 2025\tThursday\tRoyal Ploughing Ceremony\t\n18 Jun 2025\tWednesday\tQueen Mother Norodom Monineath Sihanouk’s Birthday\t\n21 Sep 2025\tSunday\tPchum Ben Day\t\n22 Sep 2025\tMonday\tPchum Ben Day\t\n23 Sep 2025\tTuesday\tPchum Ben Day\t\n24 Sep 2025\tWednesday\tConstitution Day\t\n15 Oct 2025\tWednesday\tCommemoration Day of Former King Norodom Sihanouk\t\n29 Oct 2025\tWednesday\tKing Norodom Sihamoni’s Coronation Day\t\n4 Nov 2025\tTuesday\tWater Festival\t\n5 Nov 2025\tWednesday\tWater Festival\t\n6 Nov 2025\tThursday\tWater Festival\t\n9 Nov 2025\tSunday\tIndependence Day\t\n29 Dec 2025\tMonday\tPeace Day",
+          "sick_days": "An employee can claim up to six months of leave, providing the employee can provide a certificate of sickness. The employee will receive 100.00% of their regular salary rate for the first month of sickness, the two months that follow are paid at 60.00%, and the remainder of the leave is unpaid.\nAn employer holds the right to dismiss an employee following more than six months of sick leave.",
+          "maternity_leave": "Female employees are entitled to 90 days of paid maternity leave at 50.00% of the employees’ regular salary rate and receive two nursing breaks of 30 minutes each working day until the child reaches the age of 12; this nursing leave is paid.\nA Tax deduction of KHR150,000 per month is allowed for each dependent child or spouse.",
+          "paternity_leave": "There is no paid statutory paternity leave, but male employees can use their annual leave entitlement for paternity leave of up to seven days.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "In Cambodia, in the event of the death of an immediate member, an employee is entitled to bereavement leave. For the death of a father, mother, spouse, or child, an employee is entitled to seven days of unpaid leave.\nIn addition, an employee is entitled to 7 days of unpaid leave in the event of their wedding."
+        },
+        "termination": {
+          "termination_process": "The termination process is standard in Cambodia with notice periods required, unless an employer can provide sufficient cause for dismissal without notice (due to misconduct, etc.) Notice of termination must be in writing and sent to the relevant governmental authorities. In addition, upon termination, the employee is entitled to request a certificate of employment stating the dates of employment and information about the position held.",
+          "notice_period": "In Cambodia, an employer must have a reason for terminating the contract and provide notice to the employee. This can include termination for performance, behaviour, or for economic reasons. The notice period depends on the employee’s length of service:\nSeven days of notice for employees with six months or less of service\n15 days of notice for employees with 6 to 24 months of service\nOne month of notice for employees with 2 to 5 years of service\nTwo months of notice for employees with 5 to 10 years of service\nThree months of notice for employees with more than ten years of service",
+          "severance_pay": "Employees with a Fixed Duration Contract (FDC) are entitled to statutory severance payments of 5.00% of the total wages paid to the employee during the length of the contract. The amount due is dependent on the number of years’ service the employee has completed.\nWorkers on Unlimited Duration Contracts (UDC) are eligible for Seniority pay, instead of severance,  of 15 days of monthly salary paid two times per year  which they would have received as 7.5 days in June and 7.5 days in December.\nFor employees with an employment service of between 6 months to 1 year, the employer should calculate the seniority payment at seven days of the regular salary rate.\nFor employees who have completed more than one year of service, the seniority payment should be calculated at 15 days of the regular salary rate for each year of employment, up to a maximum total of 6 months’ salary and benefits.",
+          "probation_period": "In Cambodia, the probation period is fixed depending on the skill of the employee. For a regular employee, the probation period is three months, two months for a skilled employee, and one month for an unskilled employee."
+        },
+        "visa": {
+          "general_info": "Foreign workers looking to work in Cambodia will need a valid business visa (E-class visa). The E-class visa is initially valid for 30 days. The visa can be extended for one month, three months, six months, or a maximum of one year at a time by applying to the immigration department of the Ministry of Interior (MoI).\nE-visas can be obtained at the employees’ nearest Cambodian embassy and upon arrival at Phnom Penh international airport. The six- and 12-months visas allow applicants multiple entries into Cambodia, while the one-month and three-month visas permit single entry.\nIn addition to an E-visa, a foreign worker must also obtain a work permit and employment card. This is the responsibility of the employer who will apply through the MVLT.\nBusinesses that cannot find qualified Cambodian nationals or sufficient numbers of qualified Cambodian nationals can request an increase in the employment cap. On August 14, 2020, the MLVT issued Prakas No. 277/20, which permits businesses to exceed the 10 percent quota cap."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Cambodia is 10.00%."
+        }
+      }
+    }
+  ]
+}

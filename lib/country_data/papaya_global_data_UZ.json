@@ -1,0 +1,101 @@
+{
+  "scraped_at": "2025-08-24T18:57:02.823Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Uzbekistan",
+      "url": "https://www.papayaglobal.com/countrypedia/country/uzbekistan/",
+      "scraped_at": "2025-08-24T18:57:02.815Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "12.00%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "0.10%",
+              "description": "Pension"
+            },
+            {
+              "rate": "12.10%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "4.00%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Unemployment Insurance"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Housing Loan Regime"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Employee training contribution (INCES)"
+            },
+            {
+              "rate": "6.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employer Social Tax",
+              "description": ""
+            },
+            {
+              "rate": "12.00%- 25.00%",
+              "description": "Flat Rate (The rate of ST is 12% for all kinds of entities with extension to certain new categories of taxpayers, including individual entrepreneurs and their employees, members of family enterprises, farming enterprises, and artisans, etc. Other organizations pay ST at the rate of 25%)."
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "12.00%",
+              "description": "Flat Rate"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The national minimum wage in Uzbekistan is 1,155,000 UZS per month.",
+        "payroll": {
+          "payroll_cycle": "The payroll frequency is typically monthly. Employers must make the payment of salaries on the last working day of the month."
+        },
+        "working_hours": {
+          "general": "The standard working week consists of 40 hours over the course of five or six days. Working hours are reduced for minors and employees in difficult and dangerous sectors.",
+          "overtime": "All work more than the standard working hours per week is to be paid as overtime and is regulated by employment contract/collective agreements.\nWhen an employee is requested to work overtime or work on holidays, there are maximums in relation to the number of hours allowed.\nAll overtime hours in excess of 40 hours a week are paid at an overtime compensation rate; this rate is stipulated in the employment contract/collective agreements etc. This rate is commonly 200% of the employee’s regular rate of pay."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to a minimum of 15 working days of paid vacation year after completing 6 months of continuous employment.\nThe paid leave entitlement may increase for minors and employees with difficult and dangerous jobs.",
+          "public_holidays": "The local government decides each year if holidays falling on the weekend are lost or moved to a working day in lieu.\nReligious holidays are determined by the lunar cycle and will show as ‘tentative’ until they are confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n14 Jan 2025\tTuesday\tDay of Defenders of the Native Land\t\n8 Mar 2025\tSaturday\tInternational Women’s Day\t\n21 Mar 2025\tFriday\tNavruz\t\n31 Mar 2025\tMonday\tEid al-Fitr\t\n9 May 2025\tFriday\tDay of Memory and Honour\t\n6 Jun 2025\tFriday\tEid al-Adha\t\n7 Jun 2025\tSaturday\tEid al-Adha\t\n1 Sep 2025\tMonday\tIndependence Day\t\n1 Oct 2025\tWednesday\tTeacher’s Day\t\n8 Dec 2025\tMonday\tConstitution Day",
+          "sick_days": "Sick leave is paid by the employer but is excluded from the employer’s taxable income.\nSick leave compensation must be paid to an employee in the event of illness, injury and in cases where an employee is caring for a sick family member, as well as in some other instances.\nSick leave compensation payment ranges between 60% to 80% of an employee’s average earnings, dependent on the employment contract, reasons for sick leave, and length of service.\nIn addition, employees are required to submit a medical certificate for any absence after their recovery and return to work.\nIn cases of a labor-related injury or occupational disease or other special qualification of the employee, the amount of sick leave compensation is 100% of the employee’s average earnings.",
+          "maternity_leave": "An employee is entitled to paid maternity leave of up to 126 days, 70 days of leave prior to the birth of a child and 56 days after the birth.\nEmployees are given 70 days in the case of multiple/complicated birth.\nDuring maternity leave, an employee is entitled to social security benefit of 100% of their regular salary.",
+          "paternity_leave": "There are no provisions in the law regarding paternity leave.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "In Uzbekistan, an employee is entitled to 56 days of paid leave following the adoption of a child; if an employee adopts multiple children, the entitlement increases to 70 days of paid leave."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment agreement or collective agreement in place and is based on the type of contract and reason for termination.\nHowever, no termination due to economic reasons or long-term disability can occur without the Employee Insurance Agency (UWV).\nIf an employee is a trade union member, the employer must receive approval before terminating the employee.\nUpon receipt of approval, the employee must proceed to dismiss the employee within one month.",
+          "notice_period": "The notice period depends on the reason for termination:\nRedundancy – 2 months’ notice\nLack of qualification or health reason that impedes the employee’s ability to carry out their duties– 2 weeks’ notice\nChange in the company’s ownership – 2 months’ notice\nGross misconduct or performance- 3 days’ notice\nPayment in lieu of notice is permissible.",
+          "severance_pay": "The amount of severance pay cannot be less than the average monthly wage, then under the new code, the amount of severance pay will depend on the length of service with the employer:\nfor employees with work experience of up to 3 years – from 50% of the average monthly salary\nfor employees with work experience from 3 to 5 years – from 75% of the average monthly salary\nfor employees with work experience from 5 to 10 years – from 100% of the average monthly salary\nfor employees with work experience from 10 to 15 years – from 150% of the average monthly salary\nfor employees with more than 15 years of experience – at least 200% of the average monthly salary",
+          "probation_period": "A provisional trial can be established only when an employee is hired. It is not allowed to establish a provisional trial when transferring an employee to another job and seconding an employee to another employer.\nThe provisional trial period cannot exceed three months and for heads of organizations, their deputies, chief accountants, and heads of separate divisions of organizations – six months."
+        },
+        "visa": {
+          "general_info": "Most nationals require either a B-1 Business Visa or a B-2 Business Visa to enter Uzbekistan to conduct business activities in Uzbekistan and must obtain it before travel from an Uzbek Consulate or Embassy.\n\nForeign nationals arriving from countries without an Uzbek consulate or embassy may apply for a visa upon arrival at the airport in Uzbekistan provided that a request for a visa upon arrival is included in a visa application form and approved by the Consulate Department of the Ministry of Foreign Affairs of Uzbekistan.\n\nApart from Turkmenistan and Tajikistan, nationals from the Commonwealth of Independent States (CIS) do not require a business visa and are visa-waivered to enter Uzbekistan and conduct business activities.\n\nIn Uzbekistan, the requirement for a work permit is generally determined by the nature of the work assignment.\n\nAn employee can conduct most unremunerated activities on a short-term basis with a business visa.\n\nHowever, a legal assessment is recommended before travel to Uzbekistan.\n\nWhether a work permit is required depends on levels of qualifications, employer entity, and nature of work.\n\nThe most common Uzbek work authorization is a work permit (direct-hire work permit)."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Uzbekistan is 12%."
+        }
+      }
+    }
+  ]
+}

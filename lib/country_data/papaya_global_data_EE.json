@@ -1,0 +1,94 @@
+{
+  "scraped_at": "2025-08-24T18:02:29.823Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Estonia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/estonia/",
+      "scraped_at": "2025-08-24T18:02:29.814Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "20.00%",
+              "description": "Pension"
+            },
+            {
+              "rate": "13.00%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "0.80%",
+              "description": "Unemployment Insurance"
+            },
+            {
+              "rate": "",
+              "description": "* There is usually a minimum obligation for the social tax to be paid 270.60 EUR monthly, even if there were no salary payments to employee."
+            },
+            {
+              "rate": "33.80%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "1.60%",
+              "description": "Unemployment Insurance"
+            },
+            {
+              "rate": "2.00%",
+              "description": "Compulsory Pension for those born after December 31, 1982.\nWorkers has the possibility to increase the contribution up to 6%."
+            },
+            {
+              "rate": "1.6% – 3.6%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "22%\n* The tax-free minimum of which no deduction of income tax takes place is up to 654 EUR in a month but decreases depending on the total income amount. When the annual gross income exceeds 25,200 EUR or 2100 EUR per month, the exemption is zero.",
+              "description": "Flat Rate"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "In Estonia, the national minimum wage is 886 EUR per month.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Estonia is generally monthly and payments must be made on the same day of the month and no later than the last working day of the month.",
+          "13th_salary": "In Estonia, a 13th-month salary is not mandatory. However, bonuses are common and often paid annually."
+        },
+        "working_hours": {
+          "general": "The standard work week in Estonia consists of 40 hours a week, typically 8 hours per day for a five-day work week.",
+          "overtime": "Working time cannot exceed on average 48 hours per week over a period of 4 months. Overtime must be paid at a rate of 150% salary or compensated with additional time off."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "According to Section 55 of the Employment Contracts Act, an employee’s annual paid leave is 28 calendar days, unless the employee and the employer have agreed on a longer annual leave or unless otherwise provided by law. For example, government officials are entitled to 35 days of annual leave, and academic and research staff receives 56 days of paid leave.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n24 Feb 2025\tMonday\tIndependence Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n20 Apr 2025\tSunday\tEaster Sunday\t\n1 May 2025\tThursday\tLabor Day\t\n8 Jun 2025\tSunday\tPentecost\t\n23 Jun 2025\tMonday\tVictory Day\t\n24 Jun 2025\tTuesday\tMidsummer Day\t\n20 Aug 2025\tWednesday\tIndependence Restoration Day\t\n24 Dec 2025\tWednesday\tChristmas Eve\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day",
+          "sick_days": "Employees in Estonia are entitled to up to 182 calendar days per year. Day 1 to 3 is unpaid leave, day 4 to 8 is paid by the employer, and day 9 to 182 is paid by health insurance at 70% pay.\nThe current sick leave compensation scheme where employees receive payment from the second day of sickness is extended to June 30th, 2023.",
+          "maternity_leave": "Pregnant employees are entitled to 140 calendar days of maternity leave in Estonia, which can start at the earliest 70 calendar days before the due date and has a minimum of 30 days.\nMaternity leave is compensated at one 100% of average earnings calculated based on employment in the previous calendar year with no upper limit on payments. The minimum wage of 654 EUR per month is paid to mothers who had not worked in the last calendar year but then worked before the child’s birth.\nThe health insurance contributions fund the payment of maternity pay at a rate of 100% of the employee’s average earnings based on the previous year’s earnings. The minimum wage is paid to mothers who had not worked during the previous calendar year but worked before the child’s birth.\nChildcare allowance will no longer be granted to children born after 31, August 2019, however, the payment of child allowance and other family allowances will continue.",
+          "paternity_leave": "Fathers are entitled to 10 working days of paternity leave taken within two months of the due date. After the birth, the father is entitled to 2 months’ paternity leave. Pay is based on the average wage of the employee. The father is entitled to 100% of their regular wages, however, this is capped at three times the minimum wage.",
+          "parental_leave": "With effect from 1st April 2022, parents will be able to take up to two months of parental leave at the same time and they will both receive parental benefits at this time. Parents of premature babies and multiple births will be given an exception and the total duration of the payment of parental benefits will not be reduced by more than 30 days. This will ensure that these families can stay at home with their children in any case until the children reach 18 months of age. A parent can also claim parental benefit until the child is three years old.\nChildcare leave will be granted to both parents separately and on a per-child basis, which will solve the issue of using childcare leave in blended families.\nBoth parents will have their individual right for the leave and benefit and can both separately claim paid parental leave of 10 days per child until the end of the calendar year in which the child reaches 14 years of age. In conjunction with this, the parental leave benefit will be increased to half of the average wages of the parent.",
+          "other_leave": "Depending on the collective agreement/employment contract terms, an employee may be allowed additional leave types approved between the employer and employee for the following:\nAdopter’s leave: a person who adopts a child under the age of 10 is entitled to paid leave based on the employee’s average salary.\nChildcare leave: a mother or father can take paid leave (pay is equal to the minimum wage) and varies based on the age of the child:\nUp to 2 children under the age of 14 – 3 days of leave\n3+ children under the age of 14- 6 days of leave\nFor parents with a disabled child- the mother or father can take off an additional day of work each month until the child reaches the age of 18. This leave is also compensated based on the minimum wage.\nStudy leave: an employee has the right to 30 days of study leave as prescribed in the Adult Education Act. Twenty of the 30 days are compensated at the rate of the employee’s average salary."
+        },
+        "termination": {
+          "termination_process": "The Employer can end the employment contract on an exceptional basis which includes when there is misconduct (a warning must have been given first and the employee must get a chance to explain his actions), due to decrease in the work volume, reorganisation of work or other cessation of work (lay-offs).\nTermination requires notice and a written explanation for the termination.",
+          "notice_period": "The notice period is stipulated by the service length the employee has worked within a single organization as follows:\nTermination during probation period – 15 days notice\nLess than one year service – 15 days’ notice\n1-5 years of service – 30 days’ notice\n5-10 years of service – 60 days’ notice\n10+ years of service – 90 days’ notice\nIt is also permitted to to give payment in lieu of notice.\nIn case of employee resignation, 30 days’ notice must be given.",
+          "severance_pay": "In cases of termination of the employment contract due to redundancy, the employer must pay compensation of one month’s salary payment (calculated on the employee’s average wage across the previous six months).\nEmployees with employment service of between 5 to 10 years are entitled to an additional one month’s salary from the unemployment insurance fund (Töötukassa); if the employees’ service is 10 years or more, the employee is entitled to an additional 1 month’s salary from the Unemployment Insurance Fund.",
+          "probation_period": "Probation periods cannot be more than 4 months."
+        },
+        "visa": {
+          "general_info": "Business visitors to Estonia typically use a Schengen C Visa unless they are visa exempt based on their nationality or a treaty. The Schengen Area limits stay to 90 days in 180 days. The visa can be obtained at their nearest Estonian consular post or a Schengen member state consular post representing Estonia.\nThe main work authorization category is the Residence Permit for Employment, suitable for foreign workers with skills not locally available. Estonia also offers a short-term employment program for work activities for up to 12 months and a digital nomad visa for remote work for up to 12 months."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Estonia is 22%."
+        }
+      }
+    }
+  ]
+}

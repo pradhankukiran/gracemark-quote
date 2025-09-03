@@ -1,0 +1,78 @@
+{
+  "scraped_at": "2025-08-24T18:37:45.991Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Paraguay",
+      "url": "https://www.papayaglobal.com/countrypedia/country/paraguay/",
+      "scraped_at": "2025-08-24T18:37:45.984Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "16.50%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "16.50%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "9.00%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "9.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "10%",
+              "description": "(Applicable to all resident employees in Paraguay with an annual income equal to or higher than 36 monthly minimum salaries (approximately 13,000 USD annually). The salary used is that which is in force on 1 January of every year)."
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The monthly minimum wage in Paraguay is 2,680,373 PYG.",
+        "payroll": {
+          "payroll_cycle": "In Paraguay, the payroll frequency can be weekly, bi-weekly, or monthly. The employer must pay salaries at least once a month.",
+          "13th_salary": "13th-month payments are mandatory in Paraguay and an additional month’s salary must be paid by the end of the year. This payment is generally referred to as a Christmas bonus equal to one-twelfth of all remuneration accrued during the year."
+        },
+        "working_hours": {
+          "general": "In Paraguay, the work week generally consists of 48 hours a week, 8 hours per day. For employees who work between 8:00 pm and 6:00 am, the work week cannot exceed 42 hours and must be compensated at 130% of the employee’s regular pay rate.",
+          "overtime": "All work above the standard hours per week is paid as overtime and regulated by the employment contract/collective agreements. When an employee is requested to work overtime or work on holidays, there is a maximum of 57 hours a week and 3 hours a day.\nAll overtime hours above 48 hours a week are paid at an overtime compensation rate of 150% of the employee’s regular pay rate for overtime work performed during daytime hours and 200% for hours worked during the night or on a public holiday."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The paid leave entitlement in Paraguay depends on the employee’s seniority:\n12 working days of leave for the first 5 years of service\n18 working days of paid leave for 5 to 10 years of service\nAfter ten years of service, an employee is entitled to 30 working days of paid leave",
+          "public_holidays": "The government decides each year if any public holidays falling on weekends lost are moved to a weekday in lieu.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n1 Mar 2025\tSaturday\tNational Heroes Day\t\n17 Apr 2025\tThursday\tMaundy Thursday\t\n18 Apr 2025\tFriday\tGood Friday\t\n1 May 2025\tThursday\tLabour Day\t\n14 May 2025\tWednesday\tIndependence Day\t\n15 May 2025\tThursday\tMother’s Day\t\n12 Jun 2025\tThursday\tChaco Armistice\t\n15 Aug 2025\tFriday\tFounding of Asunción\t\n29 Sep 2025\tMonday\tBoqueron Battle Victory Day\t\n8 Dec 2025\tMonday\tVirgin of Caacupé Day\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "Employees are entitled to paid sick leave provided they have made a minimum of four weeks of Social Security payments. The leave is paid based on the employee’s salary for the four months preceding the sickness up to 26 weeks and can be extended by 24 weeks in exceptional circumstances. It is compensated by the employer and Social Security (IPS), each paying 50% of the employee’s regular income.",
+          "maternity_leave": "Employees are entitled to 18 weeks of fully paid maternity leave, compensated by Social Security (IPS) following the submission of a medical certificate.\nThe employer can grant an additional six weeks of leave to an employee who has suffered an illness during pregnancy or the delivery of the child. In the event of multiple births, a mother receives an additional 30 days of leave per child.\nAdoptive mothers are granted 18 weeks of maternity leave if the adoptive child is below six months. If the child is older than six months, the entitlement is 12 weeks of sick leave.",
+          "paternity_leave": "The father/partner is entitled to 2 weeks of paid paternity leave after the child’s birth. Paternity leave is compensated by the IPS at the rate of 100% of the employee’s regular salary.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "In Paraguay, in the event of the death of an immediate member, an employee is entitled to bereavement leave. For the death of a father, mother, spouse, or child, an employee is entitled to three days of leave.\nIn addition, an employee is entitled to 3 days of leave in the event of their wedding."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to how the employment agreement and collective agreement are in place and is based on the type of contract and reason for termination. All notices of termination must be delivered by the employee in writing.\nAn employer cannot unlawfully dismiss employees employed for more than ten years and only for a just cause.",
+          "notice_period": "The Notice period in Paraguay is as follows:\nNo notice is required during the probationary period.\nFor employees with up to 1 year of service, a 30-day notice is required.\nA 45-day notice is required for those with more than 1 year but less than 5 years of service.\nEmployees with 5 to 10 years of service require a 60-day notice.\nFor those with over 10 years of service, a 90-day notice is mandatory.",
+          "severance_pay": "In Paraguay, the severance pay (if applicable) is dependent on the employee’s length of service.\nSeverance pay for employees is calculated as 15 days of regular salary for every year of service up to a maximum payment of 50% of the employee’s annual salary.\nAn employee with over 10 years of employment with a company, (if an employer is not able to prove a just cause to a labor court) may need to be reinstated or have the right to a payment twice the amount of the regular severance pay.",
+          "probation_period": "The probationary period is 30 days for unqualified employees or domestic workers and 60 days for qualified workers or apprentices."
+        },
+        "visa": {
+          "general_info": "People traveling to Paraguay for work must obtain a business visa to enter the country unless their country of origin is exempt from visas to Paraguay.\n\nProvisional Residence Permit – valid for six months and can be renewed for additional six months, intended for employees working for foreign companies for short periods.\n\nTemporary Residence Permit – valid for a year and can be renewed repeatedly for up to 6 years depending on employment area and reason for extending the stay. The application must include an employment contract with a business incorporated in Paraguay.\n\nPermanent Residence Permit – allows the applicant to live and work in Paraguay indefinitely.\n\nThe application process can take up to 90 days.\n\nThe business visa is valid for six months and can be renewed for an additional six months. During that time, the candidate must apply for a resident permit, which allows for employment. The application must include employment confirmation."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Paraguay is 10%."
+        }
+      }
+    }
+  ]
+}

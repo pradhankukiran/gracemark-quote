@@ -1,0 +1,115 @@
+{
+  "scraped_at": "2025-08-24T18:26:51.061Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Norway",
+      "url": "https://www.papayaglobal.com/countrypedia/country/norway/",
+      "scraped_at": "2025-08-24T18:26:51.049Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "14.10 – 19.10%",
+              "description": "Social Security (applied rate depends on region)"
+            },
+            {
+              "rate": "14.10%-19.10%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "5.10% – 8.20%",
+              "description": "Social Security (income not exceeding 64,650 NOK is exempt; the contribution may not constitute more than 25% of the income for amounts in excess of 64,650 NOK)\nIncome derived by individuals under 17 or over 69 years of age is subject to the contribution, but at a low rate of 5.1%."
+            },
+            {
+              "rate": "5.10% to 8.20%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "22%",
+              "description": "Base Income Tax*"
+            },
+            {
+              "rate": "For employees earning more than 217,400 NOK a year, a progressive bracket tax is levied on top of the 22% income tax as follows:",
+              "description": "Annual"
+            },
+            {
+              "rate": "0.0%",
+              "description": "Up to 217,400 NOK"
+            },
+            {
+              "rate": "1.7%",
+              "description": "217,401 – 306,050 NOK"
+            },
+            {
+              "rate": "4.0%",
+              "description": "306,051 – 697,150 NOK"
+            },
+            {
+              "rate": "13.70%",
+              "description": "697,151 – 942,400 NOK"
+            },
+            {
+              "rate": "16.70%",
+              "description": "942,401 – 1,410,750 NOK"
+            },
+            {
+              "rate": "17.60%",
+              "description": "1,410,750 NOK and above"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "There is no official national minimum wage in Norway; minimum wages are often outlined by individual sector collective bargaining agreements and employment contracts.",
+        "payroll": {
+          "payroll_cycle": "In Norway, the employer and employee determine the payroll frequency stipulated in the employment contract. However, salary payments are to be made at least once a month.",
+          "13th_salary": "There is no mandatory provision for a 13th-month salary in Norway. Performance-based bonuses are granted at the discretion of the employer."
+        },
+        "working_hours": {
+          "general": "Full-time employment consists of a maximum 9-hour workday or 40 hours for a 7-day period.",
+          "overtime": "All work over a standard working week is to be paid as overtime and is regulated by employment contracts/collective agreements etc. When an employee is requested to work overtime or work on holidays, there are maximums in relation to the number of hours allowed. These maximums include 13 hours of work within 24 hours, 10 hours in 7 days, 25 hours in 4 consecutive weeks, and 200 hours in 52 weeks.\nll overtime hours in excess of 40 hours a week are paid at an overtime compensation rate; this rate is commonly 140.00% of the employee’s regular rate of pay."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In Norway, employees receive a paid annual leave entitlement of 21 working days per year; most CBAs and many companies offer 25 working days to employees.\nFor employees over 60, the entitlement increases to 31 days per year. Three weeks of continuous leave can be taken by any employee between 1st June and 30th September, though the employer and employee must agree upon the leave.\nAnnual leave is compensated at a minimum rate of 10.20% of the employee’s total salary, commonly paid in June. Some collective bargaining agreements will state an increased rate of vacation payment at 12.00%, and employees over the age of 60 are compensated at 12.50% of their total salary.\nLeave entitlement is not accrued monthly. An employee that starts on any date before Sept 1 will always be entitled to all contractual days (5 days if the start date is after Sept 1).",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n17 Apr 2025\tThursday\tMaundy Thursday\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n17 May 2025\tSaturday\tConstitution Day\t\n29 May 2025\tThursday\tAscension Day\t\n9 Jun 2025\tMonday\tWhit Monday\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\t2nd Day of Christmas",
+          "sick_days": "In Norway, employees will receive sick pay directly from the employer until day 16 of sickness at 100.00% of the employee’s salary. The maximum sick leave entitlement is 52 weeks of leave; From the 17th day – 52nd week, sick leave is compensated by a Social Security sickness benefit capped at six times the National Insurance base amount  The limit of the sickness benefit is 744,168 NOK.\nTo be eligible for the Social Security benefit, an employee must meet a specific criterion, including being a member of the National Insurance Scheme, working for four consecutive weeks, and have a minimum income of 49,929 NOK annually.\nWithin three days of sickness, an employee must provide a completed written sick leave form and if the sick leave exceeds three days, a doctor’s note is required.",
+          "maternity_leave_(_mom’s_qu0ta)": "The mother must commence her parental benefits 3 weeks before the due date. This includes the mother’s right to take up to 12 weeks of leave during pregnancy, as well as 6 weeks of mandatory leave exclusively for the mother following the birth.",
+          "parental_leave": "The Parental leave may be split between the mother and father.\nIn Norway, you have the option of choosing between:\n49 weeks of parental leave with 100% salary coverage\n61 weeks + 1 day of parental leave with 80% salary coverage\nThese weeks ( Parental leave) includes both the “mum quota” and “dad quota,” as well as the flexible weeks that can be shared between both parents.\nThe national insurance will pay the parent 80.00% of the regular income for 61 weeks of leave and 1 day (Up to the national insurance limit ). If the employee opts to take a reduced leave of 49 weeks, they will be compensated at 100.00% of their income. Equalizing the total payout for both options.",
+          "paternity_leave": "Fathers receive two weeks of unpaid paternity leave.",
+          "other_leave": "In Norway, employers must take out occupational injury insurance for their employees.\nIf an employee is injured in the workplace, they are entitled to compensation up to 72,662 NOK per year. If the employee is unable to work, they will be entitled to disability compensation. The rate of compensation depends on the employee’s incapacity to work.\nTo be compensated, an employee must report the workplace injury to the Norwegian Labour and Welfare Administration (NAV), proving that the accident happened in the workplace."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the Employment Agreement or Collective Agreements that are in place and is based on the type of contract and reason for termination. An employer is not required to issue a warning before an employee is dismissed and there is no at-will employment in Norway. As such, an employer must have a solid cause for terminating an employee and must prove the ground for termination.\nAll employers must adhere to strict requirements outlined in the Working Environment Act. An employer must conduct a consultation with the employee to discuss the potential dismissal before the termination.",
+          "notice_period": "If an employee wishes to terminate their employment, they must provide one month’s notice and submit their resignation in writing.\nIf an employer wishes to terminate an employee, the notice period is dependent on the age and seniority of the employee, as follows:\nIf an employee has served fewer than five years, one month’s notice is required. A shorter period of notice than one month is only permitted if agreed in writing or laid down in a collective pay agreement.\nIf an employee has served over five years of employment, two months’ notice is required.\nOver ten years of employment, three months’ notice is required.\nOver the age of 50, 4 months’ notice is required.\nOver the age of 55, 5 months’ notice is required.\nOver the age of 60, 6 months’ notice is required.\nIf an employee is in their probation period, either the employee or employer can terminate the employment with a 14-day notice period.\nThe notice period begins on the first day of the month following when the notice was given.",
+          "severance_pay": "No statutory right to severance pay. However, employers often offer severance pay so the employee accepts notice.",
+          "probation_period": "The probation period is optional and it is common to use six months."
+        },
+        "common_benefits": [
+          "Meal Allowance: between 450 – 1000 NOK per month (taxable)",
+          "Gym/Wellness allowance: between 150 – 600 NOK per month (taxable)",
+          "Transport/Commuting Allowance: approx. 1000 NOK",
+          "Private health allowance: between 300-500 NOK per month, highly variable as it is entirely dependent on the worker’s personal situation",
+          "Private pension: the common employer contribution would be 5-10%",
+          "Additional leave: common to give 4 additional days off (total of 25 working days)",
+          "Cell phone allowance: between 300 – 800 NOK per month"
+        ],
+        "visa": {
+          "general_info": "If you are a citizen of a country outside the EU/EEA, you should contact the Norwegian Directorate of Immigration (Utlendingsdirektoratet, UDI) to determine what regulations apply to you. Norway’s immigration system provides several options for employers of foreign nationals.\n\nBusiness visitors to Norway typically use a local version of the Schengen C Visa, unless they are visa-exempt based on their nationality. The Schengen Area limits stay for visitors to 90 days in 180 days.\n\nThe main work authorization categories are the Residence and Work Permit for Service Providers, suitable for highly skilled staff on temporary assignment to a Norwegian subsidiary or client, available in two-year increments up to a total stay of six years and the Residence and Work Permit for Skilled Workers, suitable for the highly skilled staff locally hired by a\n\nNorwegian company, available in three-year increments with no limit on total stay.\nA residence permit in a Nordic country does not automatically entitle you to live in another Nordic country. You must check with the relevant immigration authority whether you can move to that country; a double-entry visa may be required."
+        },
+        "vat": {
+          "general": "VAT is 25% standard rate."
+        }
+      }
+    }
+  ]
+}

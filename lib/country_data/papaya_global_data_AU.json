@@ -1,0 +1,744 @@
+{
+  "scraped_at": "2025-08-24T17:36:03.369Z",
+  "summary": {
+    "total": 9,
+    "success": 5,
+    "failed": 4
+  },
+  "results": [
+    {
+      "country": "Australia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/australia/",
+      "scraped_at": "2025-08-24T17:34:59.339Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5.45%",
+              "description": "Payroll Tax (applies to companies where the total monthly wages exceeds 1,200,000 AUD)"
+            },
+            {
+              "rate": "2.00 -5.00%",
+              "description": "Accident Insurance (rate may vary)"
+            },
+            {
+              "rate": "12.00%",
+              "description": "Superannuation (capped at 30,000 AUD per year)"
+            },
+            {
+              "rate": "19.45-22.45%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "2%",
+              "description": "Medicare levy"
+            },
+            {
+              "rate": "2%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax**",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "0 AUD – 18,200 AUD"
+            },
+            {
+              "rate": "19.00%",
+              "description": "18,201 AUD – 45,000 AUD"
+            },
+            {
+              "rate": "32.5%",
+              "description": "45,001 AUD – 120,000 AUD"
+            },
+            {
+              "rate": "37%",
+              "description": "120,001 AUD – 180,000 AUD"
+            },
+            {
+              "rate": "45%",
+              "description": "180,001 AUD and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage rate is 24.95 AUD per hour or 948 AUD per week.\nThis rate is effective July 1, 2025 for a full-time employee working a 38-hour week. Award minimum wages increase by 3.5%. Modern award minimum wages have also increased by the same percentage, affecting a wide range of employees covered under industry-specific or occupation-specific awards.",
+        "payroll": {
+          "payroll_cycle": "Employees in Australia are employed on contracts that stipulate the pay cycle, and although there are part-time, casual, and independent contractor pay types with set pay cycles, the most common are:\nMonthly payroll (with payment due by the last day of the month)\nBi-weekly payroll (with payments due every second week on a set day, usually mid-week, Wednesday, or Thursday)\nBi-monthly payroll (with payment due on the 15th and the 30th, respectively)",
+          "13th_salary": "There is no legislation for 13th–month payments in Australia."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "ATO",
+            "dates": "Small withholders up to AUD: 25,000 pa – 28 days from quarter end\nMedium withholders AUD 25,001- 1000,000 pa- 21 days from EOM\nLarge withholders >100,000 pa – Monday/Thursday about 1 week from payment",
+            "methods": "EFT/BPAY/Australia Post – can use wire as well\nAUD"
+          },
+          {
+            "authority_payment": "Workers compensation",
+            "dates": "Annually",
+            "methods": "BPAY\nAUD"
+          },
+          {
+            "authority_payment": "Superannuation\nSuper Funds",
+            "dates": "Monthly or quarterly.\nIf quarterly, 28th day after the end of the each quarter",
+            "methods": "Direct Debit/EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "NSW Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "Direct Debit/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "VIC State Revenue Office\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "Direct Debit/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "QLD Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month\n14th of January of bi-annual\n21st of July if annual",
+            "methods": "EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "TAS Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "Revenue SA\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "NT Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "EFT\nAUD"
+          }
+        ],
+        "working_hours": {
+          "general": "The National Employment Standards (NES) sets the maximum number of working hours at 38 hours a week. This applies to all employees covered by the national workplace relations system, regardless of any award, agreement, or contract.\nThe Fair Work Commission can now arbitrate and make orders regarding the right to disconnect. Employers must clearly communicate if a role requires after-hours contact and what is expected. This right encourages discussions about after-hours contact, ensuring employees know when they can switch off. Employees can refuse contact outside working hours unless it is unreasonable.\nEmployers can still contact employees outside working hours but cannot take adverse action against those who reasonably exercise their right to disconnect.",
+          "overtime": "All overtime requests must be agreed upon between the employee and the employer. Employers must provide an assessment of whether additional hours are “reasonable” before approving overtime. The rates are generally set within the contract/awards, most commonly 200.00% of the regular salary pay rate for the first 3 hours of overtime and 150.00% of the typical salary pay rate thereafter.\nHowever, additional allowances and higher overtime pay rates may be stipulated within the employee agreement/contract/award. This higher rate also applies when working overtime on weekends, public holidays, nights, or in difficult/unpleasant conditions."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "All employees (except for casual employees) get paid annual leave as stipulated by The National Employment Standards (NES) contained in the Fair Work Act 2009 (Cth). In general, all employees are entitled to a minimum of 4 weeks paid leave (5 weeks for shift workers). Furthermore, the NES states that awards and contracts/agreements cannot contain any less than this minimum, but they can contain a greater number of days.\nThe NES also states that if the period during which an employee takes annual leave includes a public holiday, a period of another kind of leave (including sick leave, personal leave, etc.), that time is not regarded as annual leave. Annual leave is paid at the same rate as the regular salary rate, but where there are exceptions within the employee’s award/contract/workplace agreement, there can be an additional annual leave payment due of up to 17.50%.\nIn addition, each state in Australia has an entitlement for employees to have extended service leave.",
+          "public_holidays": "10 days minimum (7 national holidays + additional state given holidays). Holidays that fall on weekends are moved to another day.\nSee states pages for specific calendars",
+          "sick_days": "The NES entitles permanent employees to 10 days paid sick leave and two days of paid compassionate leave per year (personal/carers leave).\nAn employee may take this paid personal/carer’s leave if they are unfit for work because of their own personal illness or injury, or to provide care or support to a member of their immediate family. This is funded by the employer.",
+          "maternity_leave": "See Parental Leave.",
+          "paternity_leave": "See Parental Leave.",
+          "family/parental_leave": "The paid parental leave provides financial support to eligible working parents of newborn or recently adopted children. Parental leave with pay is up to 120 days (24 weeks weeks based on a five-day work week). The leave may be taken by either parent at the time of birth, adoption, or surrogacy. Each partner is required to take at least 2 weeks. An employee is not entitled to parental leave under the NES unless they have 12 months of continuous service or are a “long-term casual employee.” The casual employee must have been employed regularly and systematically for at least 12 months.\nParental leave is paid by the government at the national minimum weekly wage rate. As of 1 July 2024, 2 weeks of payment will be added to Parental Leave Pay each year to 2026. This will increase the overall length of the Paid Parental Leave scheme by 6 weeks from July 2026.\nEmployers can also provide for paid parental leave in registered agreements, employment contracts, and workplace policies which do not affect the employee’s eligibility for the Australian government’s paid parental leave scheme so the employee can be paid both.\nIn addition, employees who have worked for more than 12 months are entitled to at least 12 months of unpaid parental leave if the employee is or will be responsible for caring for a child or adopted child under 16 years old.\nParents who request unpaid leave for a period greater than 12 months will have a stronger right to request an extension of unpaid parental leave. If an employee has already taken 12 months of unpaid leave, they can request a further 12 months of unpaid leave (24 months in total). This is provided that their partner has not already taken 12 months of unpaid leave.\nAll salary payments are initially made by the employer and later reimbursed by the government.",
+          "other_leave": "The NES stipulates employees are entitled to be absent from work for three main reasons, all to undertake community service activities.\nJury service is paid when employees take leave for jury service. Employees receive jury service pay from the government and employers then top this up to their usual pay for up to 10 days at the rates set.\nVoluntary emergency management activity is unpaid leave. Activity in community service that the regulations prescribe is also an unpaid leave.\nThe leave period includes reasonable travel and rest time before and following the eligible activity, and the employee must aim to provide as much prior notice and information as possible."
+        },
+        "termination": {
+          "termination_process": "There are several complex laws relating to termination processes in Australia. To ensure the correct process is followed, employers must adhere to the four key areas below to ensure the termination of an employee for the right reasons.\nCapacity – if an employee lacks the ability or capacity to complete the job\nPerformance – unsatisfactory performance of the employee, which is outlined clearly to the employee with the opportunity for them to rectify their conduct\nMisconduct – failing to adhere to workplace standards, or if the employee is involved in serious misconduct\nRedundancy – if the job the employee is completing is no longer necessary for the business, or technological change has made their role unnecessary\nEmployees must have completed six months of service (12 months for a small company) before they can make an unfair dismissal claim.\nAn additional legal requirement for the employer is to provide the employee with an employment termination letter that must include confirmation of:\nthe reason for the termination\nthe date of the employee’s last day of work\nthe fixed number of payments/entitlements etc. and any unpaid wages the employee will receive as final pay",
+          "notice_period": "The Fair Work Act 2009 (Cth) stipulates that the minimum notice periods for termination varies with the employee’s length of service as below:\nLess than 12 months of employment: 1 week’s notice\n1-3 years of employment: 2 weeks’ notice\n3-5 years of employment: 3 weeks’ notice\n5 + years of employment: 4 weeks’ notice\nIn addition, if an employee is over 45 years of age and has completed at least two years’ continuous service, an additional week of notice is required.\nHowever, it is common practice in Australia for the award/contract/workplace agreement to have a more extended period of notice than the minimum requirement; this is commonly four weeks’ notice. Despite the minimum notice periods provided in the Fair Work Act 2009 (Cth), employees who have no notice period specified in their contract of employment may be entitled to what is called in Australia “reasonable period of notice” .\nThe reasonable period of notice will set a notice period of greater than the norm, and minimum, for employees with long lengths of service and/or where equivalent jobs/skills are in short supply.",
+          "severance_pay": "The entitlement to severance as a result of termination because of redundancy is based on a sliding scale and calculated by reference to the length of the employee’s period of continuous service on termination.\nPeriod of continuous service\tPay\nLess than 12 months of service\t0\n12 months to less than 2 years of service\t4 weeks’ pay\n2 years of service to less than 3 years of service\t6 weeks’ pay\n3 years of service to less than 4 years of service\t7 weeks’ pay\n4 years of service to less than 5 years of service\t8 weeks’ pay\n5 years of service to less than 6 years of service\t10 weeks’ pay\n6 years of service to less than 7 years of service\t11 weeks’ pay\n7 years of service to less than 8 years of service\t13 weeks’ pay\n8 years of service to less than 9 years of service\t14 weeks’ pay\n9 years of service to less than 10 years of service\t16 weeks’ pay\n10 years and over\t12 weeks’ pay\nThere are some exceptions to this entitlement. An employment contract, enterprise agreement, or modern award may also specify a greater entitlement.",
+          "probation_period": "Probation is not mandatory but it is common to use a period of 3-6 months (12 months for a small company). This can be greater or less as stated in the award/contract/workplace agreement."
+        },
+        "visa": {
+          "visa": "Under the Migration Act 1958 and the Migration Regulations 1994, employers have a legal obligation to ensure all employees have the right to work in Australia. Even if they already live in Australia and are not Australian citizens, they may be permanent residents or New Zealand citizens on a special class of visa that allows them to remain in Australia indefinitely or have a temporary visa. All these types of visas need to be checked regularly by the employer via the Department of Home Affairs’ online verification system, the Visa Entitlement Verification Online (VEVO). If employers cannot find the appropriate person with the required skills/experience for a job, applications can be made to sponsor workers temporarily or permanently.\nHowever, skilled workers must generally be included on the “Skilled Occupations List,” and the length of sponsorship is set by the length of time in the sponsored visa.\nThere are several ways to sponsor a skilled foreign worker:\nSponsor a skilled worker for permanent migration through the Employer Nomination Scheme (ENS) or the Regional Sponsored Migration Scheme (RSMS).\nSponsor a worker on a temporary visa through the Temporary Skill Shortage visa (subclass 482), which allows overseas people to come to Australia to work for up to 4 years.\nTake over the sponsorship of temporary migrants already in Australia on skilled work visas.\nEnter a labor agreement that allows you to employ several overseas skilled workers on a permanent or temporary basis by entering a formal labor agreement with the Australian government if the job is not on the Skilled Occupations List."
+        },
+        "remote_work": "The Australian government passed the “Secure Jobs, Better Pay” Act legislation that introduces the right for workers to request flexible working arrangements to include no just those who have a disability and those who are aged 55 and older but also to employees who are pregnant and those who have experienced family or domestic violence.\nEmployers will be required to meet with employees to discuss their flexible work arrangement requests. Employers will need to evaluate such requests and try to accommodate the requests including offering alternative arrangements. If the employer and employee cannot reach an agreement, then an employer is entitled to reject the request on reasonable business grounds. The employer should provide a written explanation of the reasons for refusal within 21 days of receiving the request.\nEmployees will be allowed to apply to the Fair Works Commission (FWC) to challenge an employer’s refusal or a failure to respond to a flexible work arrangement request. The FWC will have the power to conciliate and arbitrate, including ordering employers to provide additional explanation, granting the employee’s request, or ordering alternative arrangements to accommodate the request.",
+        "vat": {
+          "general": "The standard rate of GST in Australia is 10.00%."
+        }
+      }
+    },
+    {
+      "country": "Australia New South Wales",
+      "url": "https://www.papayaglobal.com/countrypedia/country/australia-new-south-wales/",
+      "scraped_at": "2025-08-24T17:35:05.757Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5.45%",
+              "description": "Payroll Tax (applies to companies where the total monthly wages exceeds 1,200,000 AUD)"
+            },
+            {
+              "rate": "2.00%",
+              "description": "Accident Insurance (rate may vary)"
+            },
+            {
+              "rate": "12.00%",
+              "description": "Superannuation (capped at 30,000 AUD per year)"
+            },
+            {
+              "rate": "19.45%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "2%",
+              "description": "Medicare levy"
+            },
+            {
+              "rate": "2%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax**",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "0 AUD – 18,200 AUD"
+            },
+            {
+              "rate": "19.00%",
+              "description": "18,201 AUD – 45,000 AUD"
+            },
+            {
+              "rate": "32.5%",
+              "description": "45,001 AUD – 120,000 AUD"
+            },
+            {
+              "rate": "37%",
+              "description": "120,001 AUD – 180,000 AUD"
+            },
+            {
+              "rate": "45%",
+              "description": "180,001 AUD and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage rate is 24.10 AUD per hour or 915.90 AUD per week\nThis rate is set by The Fair Work Act each year as a National Minimum Wage which applies to all employees who are not covered by an award or registered agreement.",
+        "payroll": {
+          "payroll_cycle": "Employees in Australia are employed on contracts that stipulate the pay cycle, and although there are part-time, casual, and independent contractor pay types with set pay cycles, the most common are: Monthly payroll (with payment due by the last day of the month), Bi-weekly payroll (with payments due every second week on a set day, usually mid-week, Wednesday, or Thursday), Bi-monthly payroll (with payment due on the 15th and the 30th, respectively)",
+          "13th_salary": "There is no legislation for 13th–month payments in Australia."
+        },
+        "working_hours": {
+          "general": "The National Employment Standards (NES) sets the maximum number of working hours at 38 hours a week. This applies to all employees covered by the national workplace relations system, regardless of any award, agreement, or contract.\nThe Fair Work Commission can now arbitrate and make orders regarding the right to disconnect. Employers must clearly communicate if a role requires after-hours contact and what is expected. This right encourages discussions about after-hours contact, ensuring employees know when they can switch off. Employees can refuse contact outside working hours unless it is unreasonable.\nEmployers can still contact employees outside working hours but cannot take adverse action against those who reasonably exercise their right to disconnect.",
+          "overtime": "All overtime requests must be agreed upon between the employee and the employer. Employers must provide an assessment of whether additional hours are “reasonable” before approving overtime. The rates are generally set within the contract/awards, most commonly 200.00% of the regular salary pay rate for the first 3 hours of overtime and 150.00% of the typical salary pay rate thereafter.\nHowever, additional allowances and higher overtime pay rates may be stipulated within the employee agreement/contract/award. This higher rate also applies when working overtime on weekends, public holidays, nights, or in difficult/unpleasant conditions."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "All employees (except for casual employees) get paid annual leave as stipulated by The National Employment Standards (NES) contained in the Fair Work Act 2009 (Cth). In general, all employees are entitled to a minimum of 4 weeks paid leave (5 weeks for shift workers). Furthermore, the NES states that awards and contracts/agreements cannot contain any less than this minimum, but they can contain a greater number of days.\nThe NES also states that if the period during which an employee takes annual leave includes a public holiday, a period of another kind of leave (including sick leave, personal leave, etc.), that time is not regarded as annual leave. Annual leave is paid at the same rate as the regular salary rate, but where there are exceptions within the employee’s award/contract/workplace agreement, there can be an additional annual leave payment due of up to 17.50%.\nIn addition, each state in Australia has an entitlement for employees to have extended service leave. For New South Wales, it is two months’ leave after ten years of service, with one month’s leave for each subsequent period of five years of service after that. Unused vacation days are carried over.",
+          "public_holidays": "10 days minimum (7 national holidays + additional state given holidays). Holidays that fall on weekends are moved to another day.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n27 Jan 2025\tMonday\tAustralia Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n19 Apr 2025\tSaturday\tEaster Saturday\t\n20 Apr 2025\tSunday\tEaster Sunday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n25 Apr 2025\tFriday\tANZAC Day\t\n9 Jun 2025\tMonday\tKing’s Birthday\t\n6 Oct 2025\tMonday\tLabour Day\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day",
+          "sick_days": "The NES entitles permanent employees to 10 days paid sick leave and two days of paid compassionate leave per year (personal/carers leave).\nAn employee may take this paid personal/carer’s leave if they are unfit for work because of their own personal illness or injury, or to provide care or support to a member of their immediate family. This is funded by the employer.",
+          "maternity_leave": "See Parental Leave.",
+          "paternity_leave": "See Parental Leave.",
+          "family/parental_leave": "The paid parental leave provides financial support to eligible working parents of newborn or recently adopted children. Parental leave is up to 24 weeks (120 days). The leave may be taken by either parent at the time of birth, adoption, or surrogacy. Each partner is required to take at least 2 weeks. An employee is not entitled to parental leave under the NES unless they have 12 months of continuous service or are a “long-term casual employee.” The casual employee must have been employed regularly and systematically for at least 12 months.\nParental leave is paid by the government at the national minimum weekly wage rate. As of 1 July 2024, 2 weeks of payment will be added to Parental Leave Pay each year to 2026. This will increase the overall length of the Paid Parental Leave scheme by 6 weeks from July 2026.\nEmployers can also provide for paid parental leave in registered agreements, employment contracts, and workplace policies which do not affect the employee’s eligibility for the Australian government’s paid parental leave scheme so the employee can be paid both.\nIn addition, employees who have worked for more than 12 months are entitled to at least 12 months of unpaid parental leave if the employee is or will be responsible for caring for a child or adopted child under 16 years old.\nParents who request unpaid leave for a period greater than 12 months will have a stronger right to request an extension of unpaid parental leave. If an employee has already taken 12 months of unpaid leave, they can request a further 12 months of unpaid leave (24 months in total). This is provided that their partner has not already taken 12 months of unpaid leave.\nAll salary payments are initially made by the employer and later reimbursed by the government.",
+          "other_leave": "The NES stipulates employees are entitled to be absent from work for three main reasons, all to undertake community service activities.\nJury service is paid when employees take leave for jury service. Employees receive jury service pay from the government and employers then top this up to their usual pay for up to 10 days at the rates set.\nVoluntary emergency management activity is unpaid leave. Activity in community service that the regulations prescribe is also an unpaid leave.\nThe leave period includes reasonable travel and rest time before and following the eligible activity, and the employee must aim to provide as much prior notice and information as possible."
+        },
+        "termination": {
+          "termination_process": "There are several complex laws relating to termination processes in Australia. To ensure the correct process is followed, employers must adhere to the four key areas below to ensure the termination of an employee for the right reasons.\nCapacity – if an employee lacks the ability or capacity to complete the job\nPerformance – unsatisfactory performance of the employee, which is outlined clearly to the employee with the opportunity for them to rectify their conduct\nMisconduct – failing to adhere to workplace standards, or if the employee is involved in serious misconduct\nRedundancy – if the job the employee is completing is no longer necessary for the business, or technological change has made their role unnecessary\nEmployees must have completed six months of service (12 months for a small company) before they can make an unfair dismissal claim.\nAn additional legal requirement for the employer is to provide the employee with an employment termination letter that must include confirmation of:\nthe reason for the termination\nthe date of the employee’s last day of work\nthe fixed number of payments/entitlements etc. and any unpaid wages the employee will receive as final pay",
+          "notice_period": "The Fair Work Act 2009 (Cth) stipulates that the minimum notice periods for termination varies with the employee’s length of service as below:\nLess than 12 months of employment: 1 week’s notice\n1-3 years of employment: 2 weeks’ notice\n3-5 years of employment: 3 weeks’ notice\n5 + years of employment: 4 weeks’ notice\nIn addition, if an employee is over 45 years of age and has completed at least two years’ continuous service, an additional week of notice is required.\nHowever, it is common practice in Australia for the award/contract/workplace agreement to have a more extended period of notice than the minimum requirement; this is commonly four weeks’ notice. Despite the minimum notice periods provided in the Fair Work Act 2009 (Cth), employees who have no notice period specified in their contract of employment may be entitled to what is called in Australia “reasonable period of notice” .\nThe reasonable period of notice will set a notice period of greater than the norm, and minimum, for employees with long lengths of service and/or where equivalent jobs/skills are in short supply.",
+          "severance_pay": "The entitlement to severance as a result of termination because of redundancy is based on a sliding scale and calculated by reference to the length of the employee’s period of continuous service on termination.\nPeriod of continuous service\tPay\nLess than 12 months of service\t0\n12 months to less than 2 years of service\t4 weeks’ pay\n2 years of service to less than 3 years of service\t6 weeks’ pay\n3 years of service to less than 4 years of service\t7 weeks’ pay\n4 years of service to less than 5 years of service\t8 weeks’ pay\n5 years of service to less than 6 years of service\t10 weeks’ pay\n6 years of service to less than 7 years of service\t11 weeks’ pay\n7 years of service to less than 8 years of service\t13 weeks’ pay\n8 years of service to less than 9 years of service\t14 weeks’ pay\n9 years of service to less than 10 years of service\t16 weeks’ pay\n10 years and over\t12 weeks’ pay\nThere are some exceptions to this entitlement. An employment contract, enterprise agreement, or modern award may also specify a greater entitlement.",
+          "probation_period": "Probation is not mandatory but it is common to use a period of 3-6 months (12 months for a small company). This can be greater or less as stated in the award/contract/workplace agreement."
+        },
+        "common_benefits": [
+          "Commuter benefits (e.g., parking)",
+          "Fitness/wellness cover (e.g., gym memberships)",
+          "Meal vouchers/allowance",
+          "Entertainment (such as tickets to concerts, product discounts)",
+          "Life and private health insurance",
+          "Internet/phone allowance",
+          "Car allowance"
+        ],
+        "visa": {
+          "general_info": "Under the Migration Act 1958 and the Migration Regulations 1994, employers have a legal obligation to ensure all employees have the right to work in Australia. Even if they already live in Australia and are not Australian citizens, they may be permanent residents or New Zealand citizens on a special class of visa that allows them to remain in Australia indefinitely or have a temporary visa. All these types of visas need to be checked regularly by the employer via the Department of Home Affairs’ online verification system, the Visa Entitlement Verification Online (VEVO). If employers cannot find the appropriate person with the required skills/experience for a job, applications can be made to sponsor workers temporarily or permanently.\n\nHowever, skilled workers must generally be included on the “Skilled Occupations List,” and the length of sponsorship is set by the length of time in the sponsored visa.\nThere are several ways to sponsor a skilled foreign worker:\n\nSponsor a skilled worker for permanent migration through the Employer Nomination Scheme (ENS) or the Regional Sponsored Migration Scheme (RSMS).\nSponsor a worker on a temporary visa through the Temporary Skill Shortage visa (subclass 482), which allows overseas people to come to Australia to work for up to 4 years.\nTake over the sponsorship of temporary migrants already in Australia on skilled work visas.\nEnter a labor agreement that allows you to employ several overseas skilled workers on a permanent or temporary basis by entering a formal labor agreement with the Australian government if the job is not on the Skilled Occupations List."
+        },
+        "vat": {
+          "general": "The standard rate of GST in Australia is 10.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "ATO",
+            "dates": "Small withholders up to AUD: 25,000 pa – 28 days from quarter end\nMedium withholders AUD 25,001- 1000,000 pa- 21 days from EOM\nLarge withholders >100,000 pa – Monday/Thursday about 1 week from payment",
+            "methods": "EFT/BPAY/Australia Post – can use wire as well\nAUD"
+          },
+          {
+            "authority_payment": "Workers compensation",
+            "dates": "Annually",
+            "methods": "BPAY\nAUD"
+          },
+          {
+            "authority_payment": "Superannuation\nSuper Funds",
+            "dates": "Monthly or quarterly.\nIf quarterly, 28th day after the end of the each quarter",
+            "methods": "Direct Debit/EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "NSW Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "Direct Debit/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "VIC State Revenue Office\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "Direct Debit/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "QLD Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month\n14th of January of bi-annual\n21st of July if annual",
+            "methods": "EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "TAS Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "Revenue SA\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "NT Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "EFT\nAUD"
+          }
+        ]
+      }
+    },
+    {
+      "country": "Australia Victoria",
+      "url": "https://www.papayaglobal.com/countrypedia/country/australia-victoria/",
+      "scraped_at": "2025-08-24T17:35:16.876Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    },
+    {
+      "country": "Australia Queensland",
+      "url": "https://www.papayaglobal.com/countrypedia/country/australia-queensland/",
+      "scraped_at": "2025-08-24T17:35:22.759Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "4.75%-5.20%",
+              "description": "Payroll Tax (applies to companies where the total monthly wages exceeds 1,300,000 AUD for the lower rate and 6,500,000 AUD for the higher rate)"
+            },
+            {
+              "rate": "2.00%",
+              "description": "Accident Insurance"
+            },
+            {
+              "rate": "12.00%",
+              "description": "Superannuation (capped at 30,000 AUD per year)"
+            },
+            {
+              "rate": "18.75%-19.20%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "2%",
+              "description": "Medicare Levy"
+            },
+            {
+              "rate": "2%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax**",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "0 AUD – 18,200 AUD"
+            },
+            {
+              "rate": "19.00%",
+              "description": "18,201 AUD – 45,000 AUD"
+            },
+            {
+              "rate": "32.5%",
+              "description": "45,001 AUD – 120,000 AUD"
+            },
+            {
+              "rate": "37%",
+              "description": "120,001 AUD – 180,000 AUD"
+            },
+            {
+              "rate": "45%",
+              "description": "180,001 AUD and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage rate is 24.10 AUD per hour or 915.90 AUD per week\nThis rate is set by The Fair Work Act each year as a National Minimum Wage which applies to all employees who are not covered by an award or registered agreement.\n",
+        "payroll": {
+          "payroll_cycle": "Employees in Australia are employed on contracts that stipulate the pay cycle, and although there are part-time, casual, and independent contractor pay types with set pay cycles, the most common are:\nMonthly payroll (with payment due by the last day of the month)\nBi-weekly payroll (with payments due every second week on a set day, usually mid-week, Wednesday, or Thursday)\nBi-monthly payroll (with payment due on the 15th and the 30th, respectively).",
+          "13th_salary": "There is no legislation for 13th-month payments in Australia."
+        },
+        "working_hours": {
+          "general": "The National Employment Standards (NES) sets the maximum number of working hours at 38 hours a week; this applies to all employees covered by the national workplace relations system, regardless of any award, agreement, or contract.\nThe Fair Work Commission can now arbitrate and make orders regarding the right to disconnect. Employers must clearly communicate if a role requires after-hours contact and what is expected. This right encourages discussions about after-hours contact, ensuring employees know when they can switch off. Employees can refuse contact outside working hours unless it is unreasonable.\nEmployers can still contact employees outside working hours but cannot take adverse action against those who reasonably exercise their right to disconnect.",
+          "overtime": "All overtime requests must be agreed upon between the employee and the employer. Employers need to provide an assessment of whether additional hours are “reasonable” before approving overtime. The rates are generally set within the contract/awards, most commonly 200.00% of the regular salary pay rate for the first 3 hours of overtime and 150.00% of the typical salary pay rate thereafter.\nHowever, additional allowances and higher overtime pay rates may be stipulated within the employee agreement/contract/award. This higher rate also applies when working overtime on weekends, public holidays, nights, or in difficult/unpleasant conditions."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "All employees (except for casual employees) get paid annual leave as stipulated by the National Employment Standards (NES) contained in the Fair Work Act 2009 (Cth). In general, all employees are entitled to a minimum of 4 weeks paid leave (5 weeks for shift workers). Furthermore, the NES states that awards, contracts/agreements cannot contain any less than this minimum, but they can contain a greater number of days.\nThe NES also states that if the period during which an employee takes annual leave includes a public holiday, a period of another kind of leave (including sick leave, personal leave, etc.), that time is not regarded as annual leave. If sick during vacation, the employee can report sick days instead of annual leave and take the vacation at another time. Annual leave is paid at the same rate as the regular salary rate, but where there are exceptions within the employee’s award/contract/workplace agreement, there can be an additional annual leave payment due of up to 17.50%.\nIn addition, each state in Australia has an entitlement for employees to have extended service leave. For New South Wales, it is two months’ leave after ten years of service, with one month’s leave for each subsequent period of five years of service after that.",
+          "public_holidays": "A public holiday is scheduled on the following Monday, if a holiday falls on Saturday or Sunday\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n27 Jan 2025\tMonday\tAustralia Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n19 Apr 2025\tSaturday\tEaster Saturday\t\n20 Apr 2025\tSunday\tEaster Sunday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n25 Apr 2025\tFriday\tANZAC Day\t\n5 May 2025\tMonday\tLabour Day\t\n9 Jun 2025\tMonday\tKing’s Birthday\t\n13 Aug 2025\tWednesday\tRoyal Queensland Show\tBrisbane Area only. Some regional areas hold a show day on different dates\n6 Oct 2025\tMonday\tKing’s Birthday\t\n24 Dec 2025\tWednesday\tChristmas Eve\tFrom 6pm to midnight\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day\nQueensland has a part-day public holiday for Christmas Eve from 6pm to midnight",
+          "sick_days": "The NES entitles permanent employees to 10 days paid sick leave and two days of paid compassionate leave a year (personal/carers leave).\nAn employee may take this paid personal/carer’s leave if they are unfit for work because of their own personal illness or injury or provide care or support to a member of their immediate family.",
+          "maternity_leave": "See parental leave below.",
+          "paternity_leave": "See parental leave below.",
+          "family/parental_leave": "The paid parental leave provides financial support to eligible working parents of newborn or recently adopted children. Parental leave with pay is up to 24 weeks (120 days). The leave may be taken by either parent at the time of birth, adoption, or surrogacy. Each partner is required to take at least 2 weeks. An employee is not entitled to parental leave under the NES unless they have 12 months of continuous service or are a “long-term casual employee.” The casual employee must have been employed regularly and systematically for at least 12 months.\nParental leave is paid by the government at the national minimum weekly wage rate. As of 1 July 2024, 2 weeks of payment will be added to Parental Leave Pay each year to 2026. This will increase the overall length of the Paid Parental Leave scheme by 6 weeks from July 2026.\nEmployers can also provide for paid parental leave in registered agreements, employment contracts, and workplace policies which do not affect the employee’s eligibility for the Australian government’s paid parental leave scheme so the employee can be paid both.\nIn addition, employees who have worked for more than 12 months are entitled to at least 12 months of unpaid parental leave if the employee is or will be responsible for caring for a child or adopted child under 16 years old.\nParents who request unpaid leave for a period greater than 12 months will have a stronger right to request an extension of unpaid parental leave. If an employee has already taken 12 months of unpaid leave, they can request a further 12 months of unpaid leave (24 months in total). This is provided that their partner has not already taken 12 months of unpaid leave.\nAll salary payments are initially made by the employer and later reimbursed by the government.",
+          "other_leave": "The NES stipulates employees are entitled to be absent from work for three main reasons, all to undertake community service activities.\nThe leave period includes reasonable travel and rest time prior to and following the eligible activity, and the employee must aim to provide as much prior notice and information as possible."
+        },
+        "termination": {
+          "termination_process": "There are several complex laws relating to termination processes in Australia. To ensure the correct process is followed, employers must adhere to the four key areas below to ensure the termination of an employee for the right reasons.\nCapacity – if an employee lacks the ability or capacity to complete the job\nPerformance – unsatisfactory performance of the employee, which is outlined clearly to the employee with the opportunity for them to rectify their conduct\nMisconduct – failing to adhere to workplace standards, or if the employee is involved in serious misconduct\nRedundancy – if the job the employee is completing is no longer necessary for the business, or technological change has made their role unnecessary\nEmployees must have completed six months of service (12 months for a small company) before they can make an unfair dismissal claim.\nAn additional legal requirement for the employer is to provide the employee with an employment termination letter that must include confirmation of:\nReason for the termination\nDate of the employee’s last day of work\nThe fixed number of payments/entitlements etc. and any unpaid wages the employee will receive as final pay",
+          "notice_period": "The Fair Work Act 2009 (Cth) stipulates that the minimum notice periods for termination varies with the employee’s length of service as below:\nLess than 12 months of employment: 1 week’s notice\n1-3 years of employment: 2 weeks’ notice\n3-5 years of employment: 3 weeks’ notice\n5 + years of employment: 4 weeks’ notice\nIn addition, if an employee is over 45 years of age and has completed at least two years’ continuous service, there is a requirement for an additional week of notice.\nHowever, it is common practice in Australia for the award/contract/workplace agreement to have a more extended period of notice than the minimum requirement; this is commonly four weeks’ notice. Despite the minimum notice periods provided in the Fair Work Act 2009 (Cth), employees who have no notice period specified in their contract of employment may be entitled to what is called in Australia ‘a reasonable period of notice’.\nThe “reasonable period of notice” will set a notice period of greater than the norm, and minimum, for employees with long lengths of service and/or where equivalent jobs/skills are in short supply.",
+          "severance_pay": "The entitlement to severance as a result of termination because of redundancy is based on a sliding scale and calculated by reference to the length of the employee’s period of continuous service on termination.\nPeriod of continuous service\tPay\nLess than 12 months of service\t0\n12 months to less than 2 years of service\t4 weeks’ pay\n2 years of service to less than 3 years of service\t6 weeks’ pay\n3 years of service to less than 4 years of service\t7 weeks’ pay\n4 years of service to less than 5 years of service\t8 weeks’ pay\n5 years of service to less than 6 years of service\t10 weeks’ pay\n6 years of service to less than 7 years of service\t11 weeks’ pay\n7 years of service to less than 8 years of service\t13 weeks’ pay\n8 years of service to less than 9 years of service\t14 weeks’ pay\n9 years of service to less than 10 years of service\t16 weeks’ pay\n10 years and over\t12 weeks’ pay\nThere are some exceptions to this entitlement. An employment contract, enterprise agreement, or modern award may also specify a greater entitlement.",
+          "probation_period": "The commonly used probation period is three to six months (12 months for a small company), although this can be greater or less as stated in the award/contract/workplace agreement. The Fair Work Act 2009 (Cth) does not refer to probation periods. Still, it stipulates that the award/contract/workplace agreement must clearly specify the period of probation set and how and when performance is to be reviewed."
+        },
+        "visa": {
+          "general_info": "Under the Migration Act 1958 and the Migration Regulations 1994, employers have a legal obligation to ensure all employees have the right to work in Australia. Even if they already live in Australia and are not Australian citizens, they may be permanent residents or New Zealand citizens on a special class of visa that allows them to remain in Australia indefinitely or have a temporary visa. All these types of visas need to be checked regularly by the employer via the Department of Home Affairs’ online verification system, the Visa Entitlement Verification Online (VEVO).\nSuppose employers cannot find the appropriate person with the required skills/experience etc., for a job. In that case, applications can be made to sponsor workers temporarily or permanently. However, skilled workers must generally be included on the “Skilled Occupations List,” and the length of sponsorship is set by the length of time in the sponsored visa.\nThere are several ways to sponsor a skilled foreign worker:\n\nSponsor a skilled worker for permanent migration through the Employer Nomination Scheme (ENS) or the Regional Sponsored Migration Scheme (RSMS).\nSponsor a worker on a temporary visa through the Temporary Skill Shortage visa (subclass 482), which allows overseas people to come to Australia to work for up to 4 years.\nTake over the sponsorship of temporary migrants already in Australia on skilled work visas.\nEnter a labor agreement that allows you to employ several overseas skilled workers on a permanent or temporary basis by entering a formal labor agreement with the Australian government if the job is not on the Skilled Occupations List."
+        },
+        "vat": {
+          "general": "The standard rate of GST in Australia is 10.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "ATO",
+            "dates": "Small withholders up to AUD: 25,000 pa – 28 days from quarter end\nMedium withholders AUD 25,001- 1000,000 pa- 21 days from EOM\nLarge withholders >100,000 pa – Monday/Thursday about 1 week from payment",
+            "methods": "EFT/BPAY/Australia Post – can use wire as well\nAUD"
+          },
+          {
+            "authority_payment": "Workers compensation",
+            "dates": "Annually",
+            "methods": "BPAY\nAUD"
+          },
+          {
+            "authority_payment": "Superannuation\nSuper Funds",
+            "dates": "Monthly or quarterly.\nIf quarterly, 28th day after the end of the each quarter",
+            "methods": "Direct Debit/EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "NSW Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "Direct Debit/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "VIC State Revenue Office\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "Direct Debit/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "QLD Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month\n14th of January of bi-annual\n21st of July if annual",
+            "methods": "EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "TAS Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "Revenue SA\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "NT Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "EFT\nAUD"
+          }
+        ]
+      }
+    },
+    {
+      "country": "Australia Tasmania",
+      "url": "https://www.papayaglobal.com/countrypedia/country/australia-tasmania/",
+      "scraped_at": "2025-08-24T17:35:32.727Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    },
+    {
+      "country": "Australia South Australia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/south-australia/",
+      "scraped_at": "2025-08-24T17:35:38.620Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "4.95%",
+              "description": "Payroll Tax (applies to companies where the total monthly wages exceeds 1,500,000 AUD)"
+            },
+            {
+              "rate": "2.00%",
+              "description": "Accident Insurance"
+            },
+            {
+              "rate": "12.00%",
+              "description": "Superannuation (capped at 30,000 AUD annually)"
+            },
+            {
+              "rate": "18.95%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "2%",
+              "description": "Medicare Levy"
+            },
+            {
+              "rate": "2%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "0 AUD – 18,200 AUD"
+            },
+            {
+              "rate": "19.00%",
+              "description": "18,201 AUD – 45,000 AUD"
+            },
+            {
+              "rate": "32.5%",
+              "description": "45,001 AUD – 120,000 AUD"
+            },
+            {
+              "rate": "37%",
+              "description": "120,001 AUD – 180,000 AUD"
+            },
+            {
+              "rate": "45%",
+              "description": "180,001 AUD and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage rate is 24.10 AUD per hour or 915.90 AUD per week\nThis rate is set by The Fair Work Act each year as a National Minimum Wage which applies to all employees who are not covered by an award or registered agreement.",
+        "payroll": {
+          "payroll_cycle": "Employees in Australia are employed on contracts that stipulate the pay cycle, and although there are part-time, casual, and independent contractor pay types with set pay cycles, the most common are:\nMonthly payroll (with payment due by the last day of the month), Bi-weekly payroll (with payments due every second week on a set day, usually mid-week, Wednesday, or Thursday), Bi-monthly payroll (with payment due on the 15th and the 30th, respectively)",
+          "13th_salary": "There is no legislation for 13th-month payments in Australia."
+        },
+        "working_hours": {
+          "general": "The National Employment Standards (NES) sets the maximum number of working hours at 38 hours a week; this applies to all employees covered by the national workplace relations system, regardless of any award, agreement, or contract.\nThe Fair Work Commission can now arbitrate and make orders regarding the right to disconnect. Employers must clearly communicate if a role requires after-hours contact and what is expected. This right encourages discussions about after-hours contact, ensuring employees know when they can switch off. Employees can refuse contact outside working hours unless it is unreasonable.\nEmployers can still contact employees outside working hours but cannot take adverse action against those who reasonably exercise their right to disconnect.",
+          "overtime": "All overtime requests must be agreed upon between the employee and the employer. Employers need to provide an assessment of whether additional hours are “reasonable” before approving overtime.\nOvertime rates are generally set within the contract, most commonly 200.00% of the regular salary pay rate for the first 3 hours of overtime and 150.00% of the typical salary pay rate thereafter."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "All employees (except for casual employees) get paid annual leave as stipulated by The National Employment Standards (NES) contained in the Fair Work Act 2009 (Cth). In general, all employees are entitled to a minimum of 4 weeks (20 working days) paid leave (5 weeks for shift workers). The NES states that awards, contracts/agreements cannot contain any less than this minimum, but they can contain a greater number of days.\nThe NES also states that if the period during which an employee takes annual leave includes a public holiday, a period of another kind of leave (including sick leave, personal leave, etc.), that time is not regarded as annual leave. Annual leave is paid at the same rate as the regular salary rate, but where there are exceptions within the employee’s award/contract/workplace agreement, there can be an additional annual leave payment due of up to 17.50%.\nIn addition, each state in Australia has an entitlement for employees to have long service leave for South Australia. This leave is 13 weeks after the first ten years of service, with 1.3 weeks’ leave for each full year of service after the initial ten years.",
+          "public_holidays": "Public holidays that fall on the weekend are moved to a weekday as a day off in lieu. South Australia has a part-day public holiday for Christmas Eve and New Year’s Eve from 7 pm to 12 midnight.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n27 Jan 2025\tMonday\tAustralia Day\t\n10 Mar 2025\tMonday\tAdelaide Cup Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n19 Apr 2025\tSaturday\tEaster Saturday\t\n20 Apr 2025\tSunday\tEaster Sunday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n25 Apr 2025\tFriday\tANZAC Day\t\n9 Jun 2025\tMonday\tKing’s Birthday\t\n6 Oct 2025\tMonday\tLabour Day\t\n24 Dec 2025\tWednesday\tChristmas Eve\tFrom 7pm\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day\t\n31 Dec 2025\tWednesday\tNew Year’s Eve\tFrom 7pm",
+          "sick_days": "The NES entitles permanent employees to 10 days paid sick leave and two days of paid compassionate leave per year (personal/carers leave). This is funded by the employer.\nAn employee may take this paid personal/carer’s leave if they are unfit for work because of their own personal illness or injury or provide care or support to a member of their immediate family.",
+          "maternity_leave": "See parental leave below.",
+          "paternity_leave": "See parental leave below.",
+          "family/parental_leave": "The paid parental leave provides financial support to eligible working parents of newborn or recently adopted children. Parental leave is up to 24 weeks (120 days). The leave may be taken by either parent at the time of birth, adoption, or surrogacy. Each partner is required to take at least 2 weeks. An employee is not entitled to parental leave under the NES unless they have 12 months of continuous service or are a “long-term casual employee.” The casual employee must have been employed regularly and systematically for at least 12 months.\nParental leave is paid by the government at the national minimum weekly wage rate. As of 1 July 2024, 2 weeks of payment will be added to Parental Leave Pay each year to 2026. This will increase the overall length of the Paid Parental Leave scheme by 6 weeks from July 2026.\nEmployers can also provide for paid parental leave in registered agreements, employment contracts, and workplace policies which do not affect the employee’s eligibility for the Australian government’s paid parental leave scheme so the employee can be paid both.\nIn addition, employees who have worked for more than 12 months are entitled to at least 12 months of unpaid parental leave if the employee is or will be responsible for caring for a child or adopted child under 16 years old.\nParents who request unpaid leave for a period greater than 12 months will have a stronger right to request an extension of unpaid parental leave. If an employee has already taken 12 months of unpaid leave, they can request a further 12 months of unpaid leave (24 months in total). This is provided that their partner has not already taken 12 months of unpaid leave.\nAll salary payments are initially made by the employer and later reimbursed by the government.",
+          "other_leave": "The NES stipulates employees are entitled to be absent from work for three main reasons related to community service activities.\nEmployees receive payment for jury service, employees receive jury service pay from the government and employers then top this up to their usual pay for up to 10 days at the rates set.\nVoluntary emergency management activity is unpaid leave. Community service is also unpaid leave.\nThe leave period includes reasonable travel and rest time before and following the eligible activity, and the employee must aim to provide as much prior notice and information as possible."
+        },
+        "termination": {
+          "termination_process": "There are several complex laws relating to termination processes in Australia. To ensure the correct process is followed, employers must adhere to the four key areas below to ensure the termination of an employee for the right reasons.\nCapacity – if an employee lacks the ability or capacity to complete the job\nPerformance – unsatisfactory performance of the employee, which is outlined clearly to the employee with the opportunity for them to rectify their conduct\nMisconduct – failing to adhere to workplace standards, or if the employee is involved in serious misconduct\nRedundancy – if the job the employee is completing is no longer necessary for the business, or technological change has made their role unnecessary\nEmployees must have completed six months of service (12 months for a small company) before they can make an unfair dismissal claim.\nAn additional legal requirement for the employer is to provide the employee with an employment termination letter that must include confirmation of:\nthe reason for the termination\nthe date of the employee’s last day of work\nthe fixed number of payments/entitlements etc., and any unpaid wages the employee will receive as final pay",
+          "notice_period": "The Fair Work Act 2009 (Cth) stipulates that the minimum notice periods for termination varies with the employee’s length of service as below:\nLess than 12 months of employment: 1 week’s notice\n1-3 years of employment: 2 weeks’ notice\n3-5 years of employment: 3 weeks’ notice\n5 + years of employment: 4 weeks’ notice\nIn addition, if an employee is over 45 years of age and has completed at least two years’ continuous service, there is a requirement for an additional week of notice.\nHowever, it is common practice in Australia for the award/contract/workplace agreement to have a more extended period of notice than the minimum requirement; this is commonly four weeks’ notice. Despite the minimum notice periods provided in the Fair Work Act 2009 (Cth), employees who have no notice period specified in their contract of employment may be entitled to what is called in Australia “a reasonable period of notice”.\nThe reasonable period of notice will set a notice period of greater than the norm, and minimum, for employees with long lengths of service and/or where equivalent jobs/skills are in short supply.",
+          "severance_pay": "The entitlement to severance as a result of termination because of redundancy is based on a sliding scale and calculated by reference to the length of the employee’s period of continuous service on termination.\nPeriod of continuous service\tPay\nLess than 12 months of service\t0\n12 months to less than 2 years of service\t4 weeks’ pay\n2 years of service to less than 3 years of service\t6 weeks’ pay\n3 years of service to less than 4 years of service\t7 weeks’ pay\n4 years of service to less than 5 years of service\t8 weeks’ pay\n5 years of service to less than 6 years of service\t10 weeks’ pay\n6 years of service to less than 7 years of service\t11 weeks’ pay\n7 years of service to less than 8 years of service\t13 weeks’ pay\n8 years of service to less than 9 years of service\t14 weeks’ pay\n9 years of service to less than 10 years of service\t16 weeks’ pay\n10 years and over\t12 weeks’ pay\nThere are some exceptions to this entitlement. An employment contract, enterprise agreement, or modern award may also specify a greater entitlement.",
+          "probation_period": "The commonly used probation period is three to six months (12 months for a small company), although this can be less or more as stated in the award/contract/workplace agreement.\nThe Fair Work Act 2009 (Cth) does not refer to a specific probation period. It stipulates that the award/contract/workplace agreement must clearly specify the period of probation set and how and when performance is to be reviewed."
+        },
+        "visa": {
+          "general_info": "Under the Migration Act 1958 and the Migration Regulations 1994, employers have a legal obligation to ensure all employees have the right to work in Australia. Even if they already live in Australia and are not Australian citizens, they may be permanent residents or New Zealand citizens on a special class of visa that allows them to remain in Australia indefinitely or have a temporary visa. All these types of visas need to be checked regularly by the employer via the Department of Home Affairs’ online verification system, the Visa Entitlement Verification Online (VEVO).\n\nIf employers cannot find the appropriate person with the required skills/experience for a job, applications can be made to sponsor workers temporarily or permanently. However, skilled workers must generally be included on the “Skilled Occupations List,” and the length of sponsorship is set by the length of time in the sponsored visa.\n\nThere are several ways to sponsor a skilled foreign worker:\n\nSponsor a skilled worker for permanent migration through the Employer Nomination Scheme (ENS) or the Regional Sponsored Migration Scheme (RSMS).\nSponsor a worker on a temporary visa through the Temporary Skill Shortage visa (subclass 482), which allows overseas people to come to Australia to work for up to 4 years.\nTake over the sponsorship of temporary migrants already in Australia on skilled work visas.\nEnter a labor agreement that allows you to employ several overseas skilled workers on a permanent or temporary basis by entering a formal labor agreement with the Australian government if the job is not on the Skilled Occupations List."
+        },
+        "remote_work": "The Australian government passed the “Secure Jobs, Better Pay” Act legislation that introduces the right for workers to request flexible working arrangements to include no just those who have a disability and those who are aged 55 and older but also to employees who are pregnant and those who have experienced family or domestic violence.\nEmployers will be required to meet with employees to discuss their flexible work arrangement requests. Employers will need to evaluate such requests and try to accommodate the requests including offering alternative arrangements. If the employer and employee cannot reach an agreement, then an employer is entitled to reject the request on reasonable business grounds. The employer should provide a written explanation of the reasons for refusal within 21 days of receiving the request.\nEmployees will be allowed to apply to the Fair Works Commission (FWC) to challenge an employer’s refusal or a failure to respond to a flexible work arrangement request. The FWC will have the power to conciliate and arbitrate, including ordering employers to provide additional explanation, granting the employee’s request, or ordering alternative arrangements to accommodate the request.",
+        "vat": {
+          "general": "The standard rate of GST in Australia is 10.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "ATO",
+            "dates": "Small withholders up to AUD: 25,000 pa – 28 days from quarter end\nMedium withholders AUD 25,001- 1000,000 pa- 21 days from EOM\nLarge withholders >100,000 pa – Monday/Thursday about 1 week from payment",
+            "methods": "EFT/BPAY/Australia Post – can use wire as well\nAUD"
+          },
+          {
+            "authority_payment": "Workers compensation",
+            "dates": "Annually",
+            "methods": "BPAY\nAUD"
+          },
+          {
+            "authority_payment": "Superannuation\nSuper Funds",
+            "dates": "Monthly or quarterly.\nIf quarterly, 28th day after the end of the each quarter",
+            "methods": "Direct Debit/EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "NSW Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "Direct Debit/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "VIC State Revenue Office\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "Direct Debit/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "QLD Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month\n14th of January of bi-annual\n21st of July if annual",
+            "methods": "EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "TAS Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "Revenue SA\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "NT Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "EFT\nAUD"
+          }
+        ]
+      }
+    },
+    {
+      "country": "Australia Western Australia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/australia-western-australia/",
+      "scraped_at": "2025-08-24T17:35:44.924Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5.50%-6.50%",
+              "description": "Payroll Tax (applies to companies where the total monthly wages exceeds 1,000,000 AUD)"
+            },
+            {
+              "rate": "2.00%",
+              "description": "Accident Insurance"
+            },
+            {
+              "rate": "12.00%",
+              "description": "Superannuation (capped at 30,000 AUD per year)"
+            },
+            {
+              "rate": "19.5%-20.5%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "2%",
+              "description": "Medicare Levy"
+            },
+            {
+              "rate": "2%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax**",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "0 AUD – 18,200 AUD"
+            },
+            {
+              "rate": "19.00%",
+              "description": "18,201 AUD – 45,000 AUD"
+            },
+            {
+              "rate": "32.5%",
+              "description": "45,001 AUD – 120,000 AUD"
+            },
+            {
+              "rate": "37%",
+              "description": "120,001 AUD – 180,000 AUD"
+            },
+            {
+              "rate": "45%",
+              "description": "180,001 AUD and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage rate is 24.10 AUD per hour or 915.90 AUD per week\nThis rate is set by The Fair Work Act each year as a National Minimum Wage which applies to all employees who are not covered by an award or registered agreement.",
+        "payroll": {
+          "payroll_cycle": "Employees in Australia are employed on contracts that stipulate the pay cycle, and although there are part-time, casual, and independent contractor pay types with set pay cycles, the most common are:\nMonthly pay cycle (with payment due by the last day of the month)\nBi-weekly pay cycle (with payments due every second week on a set day, usually mid-week, Wednesday, or Thursday)\nBi-monthly pay cycle (with payment due on the 15th and the 30th of the month)",
+          "13th_salary": "There are no provisions in the law regarding 13th salaries."
+        },
+        "working_hours": {
+          "general": "The National Employment Standards (NES) sets the maximum number of working hours at 38 hours a week. This applies to all employees covered by the national workplace relations system, regardless of any award, agreement, or contract.\nThe Fair Work Commission can now arbitrate and make orders regarding the right to disconnect. Employers must clearly communicate if a role requires after-hours contact and what is expected. This right encourages discussions about after-hours contact, ensuring employees know when they can switch off. Employees can refuse contact outside working hours unless it is unreasonable.\nEmployers can still contact employees outside working hours but cannot take adverse action against those who reasonably exercise their right to disconnect.",
+          "overtime": "Overtime must be agreed upon between the employee and the employer. Employers need to provide an assessment of whether additional hours are reasonable before approving overtime. The rates are generally set within the contract or awards, most commonly 200% of the regular salary pay rate for the first 3 hours of overtime and 150% for the following hours.\nAdditional allowances and higher overtime pay rates may be stipulated within the employee agreement, contract, or award. This higher rate also applies when working overtime on weekends, public holidays, nights, or in difficult and unpleasant conditions."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "All employees (except for casual employees) get paid annual leave as stipulated by the National Employment Standards (NES) contained in the Fair Work Act. In general, employees are entitled to a minimum of 4 weeks paid leave (5 weeks for shift workers).\nThe NES also states that if the period during which an employee takes annual leave includes a public holiday or a period of another kind of leave (including sick leave, personal leave, etc.), that time is not regarded as annual leave. Annual leave is paid at the same rate as the regular salary rate, but there may be exceptions within the employee’s award, contract, or workplace agreement with an additional annual leave payment due of up to 17.50%.\nIn addition, each state in Australia has an entitlement for employees to have long service leave. For Western Australia, it is eight and two-thirds weeks’ leave after ten years of continuous service, with four and one-thirds weeks’ leave for each subsequent period of five years of continuous service.",
+          "public_holidays": "Date\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n27 Jan 2025\tMonday\tAustralia Day\t\n3 Mar 2025\tMonday\tLabour Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n20 Apr 2025\tSunday\tEaster Sunday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n25 Apr 2025\tFriday\tANZAC Day\t\n2 Jun 2025\tMonday\tWestern Australia Day\t\n29 Sep 2025\tMonday\tKing’s Birthday\tSome regional areas in Western Australia hold the King’s Birthday public holiday on a different date\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day\nWhen New Year’s Day, Anzac Day, or Christmas Day falls on a Saturday or Sunday the next following Monday is also a public holiday. When Boxing Day falls on a Saturday the next following Monday is also a public holiday, and when Boxing Day falls on a Sunday or Monday the next following Tuesday is also a public holiday. Monday 26 December 2022 is a Boxing Day public holiday and an additional Christmas Day public holiday at the same time.\nOn 16 December 2021 the Industrial Relations Legislation Amendment Bill 2021 was passed by State Parliament. These included changes to state employment law, making Easter Sunday a public holiday in Western Australia.\n* Some regional areas in Western Australia hold the Queen’s Birthday public holiday on a different date.",
+          "sick_days": "The NES entitles permanent employees to 10 days of paid sick leave and 2 days of paid compassionate leave per year (personal or carers leave).\nAn employee may take leave if they are unfit for work because of their own personal illness or injury or provide care or support to a member of their immediate family.",
+          "maternity_leave": "See parental leave below.",
+          "paternity_leave": "Paternity leave falls under the Paid Parental Leave Act.",
+          "family/parental_leave": "The paid parental leave provides financial support to eligible working parents of newborn or recently adopted children. Parental leave is up to 24 weeks (120 days). The leave may be taken by either parent at the time of birth, adoption, or surrogacy. Each partner is required to take at least 2 weeks. An employee is not entitled to parental leave under the NES unless they have 12 months of continuous service or are a “long-term casual employee.” The casual employee must have been employed regularly and systematically for at least 12 months.\nParental leave is paid by the government at the national minimum weekly wage rate. As of 1 July 2024, 2 weeks of payment will be added to Parental Leave Pay each year to 2026. This will increase the overall length of the Paid Parental Leave scheme by 6 weeks from July 2026.\nEmployers can also provide for paid parental leave in registered agreements, employment contracts, and workplace policies which do not affect the employee’s eligibility for the Australian government’s paid parental leave scheme so the employee can be paid both.\nIn addition, employees who have worked for more than 12 months are entitled to at least 12 months of unpaid parental leave if the employee is or will be responsible for caring for a child or adopted child under 16 years old.\nParents who request unpaid leave for a period greater than 12 months will have a stronger right to request an extension of unpaid parental leave. If an employee has already taken 12 months of unpaid leave, they can request a further 12 months of unpaid leave (24 months in total). This is provided that their partner has not already taken 12 months of unpaid leave.\nAll salary payments are initially made by the employer and later reimbursed by the government.",
+          "other_leave": "The NES stipulates that employees are entitled to be absent from work for 3 main reasons, all to undertake community service activities.\nThe leave period includes reasonable travel and rest time prior to and following the eligible activity, and the employee must aim to provide as much prior notice and information as possible."
+        },
+        "termination": {
+          "termination_process": "There are several complex laws relating to termination processes in Australia. To ensure the correct process is followed, employers must adhere to the key areas below to ensure the termination of an employee for the right reasons.\nCapacity: If an employee lacks the ability or capacity to complete the job\nPerformance: Unsatisfactory performance of the employee, which is outlined clearly to the employee with the opportunity for them to rectify their conduct\nMisconduct: Failing to adhere to workplace standards, or if the employee is involved in serious misconduct\nRedundancy: If the job the employee is completing is no longer necessary for the business, or technological change has made their role unnecessary\nEmployees must have completed 6 months of service (12 months for a small company) before they can make an unfair dismissal claim.\nAn additional legal requirement for the employer is to provide the employee with an employment termination letter that must include confirmation of:\nReason for the termination\nDate of the employee’s last day of work\nThe fixed number of payments or entitlements and any unpaid wages the employee will receive as final pay",
+          "notice_period": "The Fair Work Act 2009 stipulates that the minimum notice period for termination varies based on the length of employment:\nLess than 12 months of employment: 1 week’s notice\n1-3 years of employment: 2 weeks’ notice\n3-5 years of employment: 3 weeks’ notice\n5 + years of employment: 4 weeks’ notice\nIn addition, if an employee is over the age of 45 and has completed at least 2 years of continuous service, an additional week of notice is required.\nHowever, it is common practice in Australia for the award/contract/workplace agreement to have 4 weeks’ notice instead of the minimum required by law. Despite the minimum notice periods provided in the Fair Work Act 2009, employees who have no notice period specified in their contract of employment may be entitled to what is referred to as ‘a reasonable period of notice’.\nThe ‘reasonable period of notice’ will set a notice period of greater than the norm, and minimum, for employees with long lengths of service and/or where equivalent jobs/skills are in short supply.",
+          "severance_pay": "The entitlement to severance as a result of termination because of redundancy is based on a sliding scale and calculated by reference to the length of the employee’s period of continuous service on termination.\nPeriod of continuous service\tPay\nLess than 12 months of service\t0\n12 months to less than 2 years of service\t4 weeks’ pay\n2 years of service to less than 3 years of service\t6 weeks’ pay\n3 years of service to less than 4 years of service\t7 weeks’ pay\n4 years of service to less than 5 years of service\t8 weeks’ pay\n5 years of service to less than 6 years of service\t10 weeks’ pay\n6 years of service to less than 7 years of service\t11 weeks’ pay\n7 years of service to less than 8 years of service\t13 weeks’ pay\n8 years of service to less than 9 years of service\t14 weeks’ pay\n9 years of service to less than 10 years of service\t16 weeks’ pay\n10 years and over\t12 weeks’ pay\nThere are some exceptions to this entitlement. An employment contract, enterprise agreement, or modern award may also specify a greater entitlement.",
+          "probation_period": "The commonly used probation period is 3-6 months (12 months for a small company), although this can be greater or less depending on the award, contract, or workplace agreement. The Fair Work Act does not refer to probation periods. Still, it stipulates that the award, contract, or workplace agreement must clearly specify the period of probation set and how and when performance is to be reviewed."
+        },
+        "visa": {
+          "general_info": "Under the Migration Act 1958 and the Migration Regulations 1994, employers have a legal obligation to ensure all employees have the right to work in Australia. Even if they already live in Australia and are not Australian citizens, they may be permanent residents or New Zealand citizens on a special class of visa that allows them to remain in Australia indefinitely or have a temporary visa. All these types of visas need to be checked regularly by the employer via the Department of Home Affairs’ online verification system, the Visa Entitlement Verification Online (VEVO).\nSuppose employers cannot find the appropriate person with the required skills/experience etc., for a job. In that case, applications can be made to sponsor workers temporarily or permanently. However, skilled workers must generally be included on the “Skilled Occupations List,” and the length of sponsorship is set by the length of time in the sponsored visa.\n\nThere are several ways to sponsor a skilled foreign worker:\n\nSponsor a skilled worker for permanent migration through the Employer Nomination Scheme (ENS) or the Regional Sponsored Migration Scheme (RSMS).\nSponsor a worker on a temporary visa through the Temporary Skill Shortage visa (subclass 482), which allows overseas people to come to Australia to work for up to 4 years.\nTake over the sponsorship of temporary migrants already in Australia on skilled work visas.\nEnter a labor agreement that allows you to employ several overseas skilled workers on a permanent or temporary basis by entering a formal labor agreement with the Australian government if the job is not on the Skilled Occupations List."
+        },
+        "vat": {
+          "general": "The standard rate of GST in Australia is 10.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "ATO",
+            "dates": "Small withholders up to AUD: 25,000 pa – 28 days from quarter end\nMedium withholders AUD 25,001- 1000,000 pa- 21 days from EOM\nLarge withholders >100,000 pa – Monday/Thursday about 1 week from payment",
+            "methods": "EFT/BPAY/Australia Post – can use wire as well\nAUD"
+          },
+          {
+            "authority_payment": "Workers compensation",
+            "dates": "Annually",
+            "methods": "BPAY\nAUD"
+          },
+          {
+            "authority_payment": "Superannuation\nSuper Funds",
+            "dates": "Monthly or quarterly.\nIf quarterly, 28th day after the end of the each quarter",
+            "methods": "Direct Debit/EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "NSW Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "Direct Debit/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "VIC State Revenue Office\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "Direct Debit/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "QLD Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month\n14th of January of bi-annual\n21st of July if annual",
+            "methods": "EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "TAS Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "Revenue SA\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "EFT/BPAY\nAUD"
+          },
+          {
+            "authority_payment": "NT Office of State Revenue\nPayroll tax",
+            "dates": "7th of the following month.\n21st of July if annual",
+            "methods": "EFT\nAUD"
+          }
+        ]
+      }
+    },
+    {
+      "country": "Australia Northern Territory",
+      "url": "https://www.papayaglobal.com/countrypedia/country/australia-northern-territory/",
+      "scraped_at": "2025-08-24T17:35:54.042Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    },
+    {
+      "country": "Australia Australian Capital Territory",
+      "url": "https://www.papayaglobal.com/countrypedia/country/australia-australian-capital-territory/",
+      "scraped_at": "2025-08-24T17:36:03.368Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    }
+  ]
+}

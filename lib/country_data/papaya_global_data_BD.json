@@ -1,0 +1,118 @@
+{
+  "scraped_at": "2025-08-24T17:38:43.708Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Bangladesh",
+      "url": "https://www.papayaglobal.com/countrypedia/country/bangladesh/",
+      "scraped_at": "2025-08-24T17:38:43.699Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "There are no mandatory social insurance contributions for the employer",
+              "description": ""
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "There are no mandatory social insurance contributions for the employee",
+              "description": ""
+            },
+            {
+              "rate": "Employee Income Tax*",
+              "description": "Annual"
+            },
+            {
+              "rate": "0%",
+              "description": "In come up to 350,000 Tk"
+            },
+            {
+              "rate": "5%",
+              "description": "On the next 100,000 Tk"
+            },
+            {
+              "rate": "10%",
+              "description": "On the next 400,000 Tk"
+            },
+            {
+              "rate": "15%",
+              "description": "On the next 500,000 Tk"
+            },
+            {
+              "rate": "20%",
+              "description": "On the next 500,000 Tk"
+            },
+            {
+              "rate": "25%",
+              "description": "On the next 2,000,000 Tk"
+            },
+            {
+              "rate": "30%",
+              "description": "On income exceeding 3,850,000 Tk"
+            },
+            {
+              "rate": "Taxpayers’ category",
+              "description": "Tax free limit"
+            },
+            {
+              "rate": "For female taxpayers",
+              "description": "400,000 Tk"
+            },
+            {
+              "rate": "For taxpayers aged 65 years and above",
+              "description": "400,000 Tk"
+            },
+            {
+              "rate": "Individuals with disability",
+              "description": "475,000 Tk"
+            },
+            {
+              "rate": "For gazetted war-wounded freedom fighters",
+              "description": "500,000 Tk"
+            },
+            {
+              "rate": "Non-Residents who are not Bangladeshi citizens",
+              "description": "Flat rate of 30%"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "In Bangladesh, the National Minimum Wage Board determines the minimum wage for each sector every five years. The current minimum wage is across sectors is up to BDT 12,500 per month for those in the garment industry.",
+        "payroll": {
+          "payroll_cycle": "In Bangladesh, the payroll cycle can be daily, weekly, bi-weekly and monthly. Employees salary must be paid by the end of the seventh day after the final day on which the payment is due, according to Bangladesh’s Employee Rights and Labor Law. The same rules are applied for those employees whose employment has been ended by the employer.",
+          "13th_&_14th_salaries": "Employees who have completed at least one year of service are entitled to two festival bonuses each year. Each bonus should not be more than the basic salary."
+        },
+        "working_hours": {
+          "general": "The standard workweek in Bangladesh is Sunday to Thursday, 9 hours per day, and a weekly maximum of 48 hours.",
+          "overtime": "Additional hours can be worked providing this has been made clear in the employment contract. For certain worker types, overtime is limited to 2 hours per day and paid at a rate of 200% salary."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to 1 day annual leave for every 18 days of work per calendar year (certain industries calculate leave entitlement differently).",
+          "public_holidays": "Although Bangladesh has 21 days of national holidays each year, employees are only entitled to take 11 of them off as paid holidays, and it is the employer’s choice as to which ones.\nPublic holidays that fall on a weekend are lost.\nCertain religious holidays are determined by the lunar cycle and will be confirmed nearer the date of the holiday.\nDate \tDay\tHoliday\tNotes\n14 Feb 2025\tFriday\tShab-e-Barat\t\n21 Feb 2025\tFriday\tShaheed Day\t\n17 Mar 2025\tMonday\tSheikh Mujibur Rahman’s Birthday\t\n26 Mar 2025\tWednesday\tIndependence Day\t\n27 Mar 2025\tThursday\tLaylat al-Qadr\t\n28 Mar 2025\tFriday\tJumatul Bidah\t\n31 Mar 2025\tMonday\tEid-ul-Fitr\t\n1 Apr 2025\tTuesday\tEid-ul-Fitr\t\n2 Apr 2025\tWednesday\tEid-ul-Fitr\t\n14 Apr 2025\tMonday\tBengali New Year’s Day\t\n1 May 2025\tThursday\tLabour/May Day\t\n5 May 2025\tMonday\tBuddha Purnima (Boishakhi Purnima)\t\n6 Jun 2025\tFriday\tEid ul Adha\tTentative\n7 Jun 2025\tSaturday\tEid ul Adha Holiday\tTentative\n8 Jun 2025\tSunday\tEid ul Adha Holiday\tTentative\n6 Jul 2025\tSunday\tAshura\t\n15 Aug 2025\tFriday\tNational Mourning Day\t\n16 Aug 2025\tSaturday\tShuba Janmashtami\t\n5 Sep 2025\tFriday\tEid-e-Milad-un-Nabi\t\n2 Oct 2025\tThursday\tVijaya Dashami\t\n16 Dec 2025\tTuesday\tVictory Day\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "Employees are generally entitled to 14 days of paid sick leave per year, paid by the employer, however, this is an annual entitlement and cannot be carried over from year to year.\nAll employees must present a medical certificate for all absences to receive sick leave and pay.\nCasual Leave\nEmployees are entitled to 10 days paid leave per year for urgent matters such as sudden illness, minor accidents and urgent personal issues. This leave does not accumulate nor carry forward into the following year if unused.",
+          "maternity_leave": "Female employees who have worked for at least six months are entitled to 8 weeks of paid maternity leave before the birth and 8 weeks of paid leave after the birth paid by the employer. Women who have worked less than six months or who already have two other surviving children are generally eligible for unpaid leave.\nWomen are also forbidden to work for eight weeks after the birth of a child.\nWomen who suffer a miscarriage before the commencement of maternity leave are entitled to 4 weeks paid leave with no deductions from wages during this period.",
+          "paternity_leave": "There is no provision for paternity leave in Bangladesh. However, some companies do choose to create a paid paternity leave policy.",
+          "parental_leave": "There is no provision for parental leave.",
+          "other_leave": "There is no provision for other leave in Bangladesh."
+        },
+        "termination": {
+          "termination_process": "Employees with at least one year of service are generally entitled to one month’s notice or pay in lieu of notice and 30 days salary for every year of service.",
+          "notice_period": "The notice period is 120 days or payment in lieu of notice can be given. Employees who resign must give 60 days notice.\nNo notice is required to be given during the probationary period.",
+          "severance_pay": "Employees who are terminated or resign having completed at least one year with an employer are entitled to severance pay (gratuity) of 30 days’ salary for each completed year of service.",
+          "probation_period": "Probation periods is a minimum of 3 months and a maximum of 6 months."
+        },
+        "visa": {
+          "general_info": "All foreigners entering Bangladesh require a visa. There are many types of visas for prospective foreign nationals, including business, investor, employment, and NGO working visas. The duration of stay will be worked out by the embassy at which one is applying following a review of required documentation, generally, a valid passport, two passport-size photographs, an application form, and the visa fee.\n\nIf expats are going to work in Bangladesh, a work permit is also required. Government bodies tasked with issuing these permits include the Bangladesh Investment Development Authority, the Bangladesh Export Processing Zone Authority, and the NGO Affairs Bureau. The prospective employer will confirm which body to contact."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Bangladesh is 15%."
+        }
+      }
+    }
+  ]
+}

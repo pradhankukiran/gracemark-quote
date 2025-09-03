@@ -1,0 +1,78 @@
+{
+  "scraped_at": "2025-08-24T18:07:09.421Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Georgia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/georgia/",
+      "scraped_at": "2025-08-24T18:07:09.411Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "2.00%",
+              "description": "Pension (not applicable for workers whose permanent residence is not in Georgia)"
+            },
+            {
+              "rate": "2.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "2.00%",
+              "description": "Pension"
+            },
+            {
+              "rate": "2.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "20.00%",
+              "description": "Flat Rate"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "In Georgia, the national minimum wage is dependent on the employer contract/Collective Bargaining agreement in place.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Georgia is generally monthly and payments must be made on the same day of the month and no later than the last working day of the month.",
+          "13th_salary": "In Georgia, a 13th-month salary is not mandatory, however, the employer can pay bonuses at their discretion."
+        },
+        "working_hours": {
+          "general": "The standard working week in Georgia consists of 40 hours a week, typically 8 hours per day for a five-day working week. The working week can be increased to 48 hours per week in specific sectors.\nA record of working hours should be maintained unless it is impossible to do so due to the specific nature of the work.",
+          "overtime": "A limit of 2 hours per day, 4 hours overtime per week, paid at a rate of 125% salary, or compensated with additional time off."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The annual leave entitlement for a full-time employee is 24 working days per year.\nWorkers in hazardous roles might be eligible for an additional 10 paid calendar days off per year.\nUpon the completion of 11 months of service within a single organization, workers are eligible to take a further 15 days of unpaid vacation leave.\nCarryover of unused days is permitted into the next year (but not longer than 2 consecutive years) if it is deemed that allowing workers to use the full leave entitlement within the current year will have a negative impact on the business. Worker’s consent must be given before proceeding with this.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n2 Jan 2025\tThursday\tNew Year’s Holiday\t\n7 Jan 2025\tTuesday\tOrthodox Christmas Day\t\n19 Jan 2025\tSunday\tOrthodox Epiphany\t\n3 Mar 2025\tMonday\tMother`s Day\t\n8 Mar 2025\tSaturday\tInternational Women’s Day\t\n9 Apr 2025\tWednesday\tIndependence Restoration Day\t\n18 Apr 2025\tFriday\tOrthodox Good Friday\t\n21 Apr 2025\tMonday\tOrthodox Easter Monday\t\n9 May 2025\tFriday\tVictory Day\t\n12 May 2025\tMonday\tSt Andrew’s Day\t\n26 May 2025\tMonday\tIndependence Day\t\n28 Aug 2025\tThursday\tDay of the Assumption of Mary\t\n14 Oct 2025\tTuesday\tSvetitskhovloba\t\n23 Nov 2025\tSunday\tSt George’s Day",
+          "sick_days": "The employer is obligated to pay regular salary for temporary incapacity up to a period of 40 consecutive calendar days or a total incapacity period not exceeding 60 calendar days per 6-month period.\nA sickness certificate is required from day 1 from an authorized medical physician in order to receive payment during leave.",
+          "maternity_leave": "Mothers are entitled to 126 days of pregnancy and childbirth leave or 143 days in case of complications or the birth of twins. Employees receive 100% of their daily wage (up to a total of 2,000 GEL).\nThey also receive 604 days of additional maternity leave.\nStarting in 2023, a one-time assistance of 1,000 GEL is provided to every third and subsequent newborn.",
+          "paternity_leave": "In Georgia, paternity leave is the same as parental leave.",
+          "parental_leave": "Fifty-seven days can be taken from an employee’s maternity leave and be put towards childcare leave. This can be used by either the mother or father.\nUpon the employee’s request, the employer may grant an employee an additional two weeks’ leave per year to care for a child under 5 years old.",
+          "other_leave": "Depending on the collective agreement/employment contract terms, an employee may be allowed additional leave types upon approval of the employer and employee for the following:\nAdopter’s leave: a person who adopts a child under the age of 10 is entitled to paid leave based on the employee’s average salary\nChildcare leave: a mother or father can take paid leave (pay is equal to the minimum wage) and varies based on the age of the child: up to two children under the age of 14 – three days of leave, three or more children under the age of 14- six days of leave\nCare Leave: For parents with a disabled child- the mother or father can take off an additional day of work each month until the child reaches the age of 18. This leave is also compensated based on the minimum wage"
+        },
+        "termination": {
+          "termination_process": "Employment agreements can be terminated for a number of reasons including change in economic circumstances, organizational changes requiring downsizing, role incompatibility of an employee’s qualifications or professional skills, long-term incapacity for work, other objective circumstances justifying the termination of an employment agreement.",
+          "notice_period": "The notice period for both an employer and employee is 30 calendar days. No notice is required during the probation period.\nNotice must be given in writing.",
+          "severance_pay": "An employee is entitled to at least one or two month’s salary as severance pay upon dismissal; the exact rate of pay will depend on the termination reasoning.",
+          "probation_period": "The probationary period in Georgia should be stipulated within the employment agreement and must not exceed six months."
+        },
+        "visa": {
+          "general_info": "Individuals from 98 countries can enter Georgia without a visa for one year, however, those who want to remain longer, and work must obtain an immigration visa.\nFor work purposes, people need to obtain a Type D visa for immigration. There are also options for short-term or long-term visas. The most requested visa includes the C and D type visa.\nForeign nationals traveling to Georgia on business typically use the C Visa unless they are visa exempt. Business visitors are generally permitted to stay in Georgia for up to 90 days in any 180 days, depending on their nationality.\nThe C3 or D1 visa categories are suitable for short-term work, depending on the nature and duration of the planned activities in Georgia.\nFor broader/longer-term work activities, the D1 visa can be combined with a work/residence permit and secured in the country. The permit is generally issued for one year initially. However, exceptions are made based on employment contracts or assignment letters with longer validity at the discretion of the State Service Development Agency. The permit can be extended for up to six years after which the foreign national may qualify for permanent residence."
+        },
+        "vat": {
+          "general_info": "General\n\nThe standard rate of VAT in Georgia is 18.00%."
+        }
+      }
+    }
+  ]
+}

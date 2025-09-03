@@ -1,0 +1,95 @@
+{
+  "scraped_at": "2025-08-24T18:13:41.151Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Croatia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/croatia/",
+      "scraped_at": "2025-08-24T18:13:41.143Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "16.50%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "16.50%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "15.00%",
+              "description": "Generation Solidarity including pension (Pillar I), annual maximum contribution of 87,000 EUR"
+            },
+            {
+              "rate": "5.00%",
+              "description": "Individual Capital including pension (Pillar II), monthly cap of 7,300 EUR, applicable for both pillar I and II payments."
+            },
+            {
+              "rate": "20.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": "(Annual amounts)"
+            },
+            {
+              "rate": "15.00%-23.60%",
+              "description": "Up to  €50,400"
+            },
+            {
+              "rate": "25.00%-35.40%",
+              "description": "€50,400 and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The monthly minimum wage is 970 EUR.",
+        "payroll": {
+          "payroll_cycle": "Salaries are paid monthly and no later than the 15th of the following month.",
+          "13th_salary": "There are no provisions in the law regarding 13th salaries."
+        },
+        "working_hours": {
+          "general": "The standard workweek is 5 days and consists of a maximum of 40 hours. Employers must be granted written permission from employees to increase their working hours.",
+          "overtime": "All work in excess of the standard workweek is to be paid as overtime and is regulated by the employment contract or collective bargaining agreements. The maximum number of overtime hours in a week is 10 or 180 hours annually. Collective Agreements can extend overtime hours to a maximum of 250 hours per year.\nAll overtime hours are paid at an overtime compensation rate which is stipulated in the employment contract or collective bargaining agreements."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In accordance with Article 81 of the Labour Act (OF 93/14, 127/17, 98/19) employees are entitled to a minimum of four weeks (20 working days) of paid vacation each year following completion of six months of employment.\nAn employee is entitled to one-twelfth of the annual paid leave for each full month of service if:\nin the calendar year in which the employment is established, no entitlement to annual paid leave has been acquired because the work lasted less than six months\nemployment has been terminated before the expiry of the six months of service\nthe employment is terminated before 1 July or during the calendar year, the employee has been employed by several employers\nDuring the annual paid leave, the employee is entitled to full compensation equal to the amount of the average salary that has been paid (including salary-in-kind) within the last three months prior to the time of the annual leave.\nMinor employees and employees who are subject to harmful impacts (such as firemen, mine and explosive handlers, divers, etc.) are entitled to an increased annual paid leave of ﬁve weeks (25 days).",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost. Employees who are required to work on a public holiday are entitled to extra pay, which is typically negotiated in the bargaining agreement.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n6 Jan 2025\tMonday\tEpiphany\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n30 May 2025\tFriday\tStatehood Day\t\n19 Jun 2025\tThursday\tCorpus Christi\t\n22 Jun 2025\tSunday\tAnti-Fascist Resistance Day\t\n5 Aug 2025\tTuesday\tVictory & Homeland Thanksgiving Day\t\n15 Aug 2025\tFriday\tAssumption Day\t\n1 Nov 2025\tSaturday\tAll Saints’ Day\t\n18 Nov 2025\tTuesday\tRemembrance Day\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tSt Stephen’s Day",
+          "sick_days": "An employee receives up to 42 days of sick leave per year and is paid by the employer at the rate of 70% of the regular salary. Any sickness exceeding 42 days is paid by the employer and reimbursed by Croatia’s health insurance fund (HZZO).",
+          "maternity_leave": "Pregnant employees are entitled to:\n28 days of paid maternity leave before the due date (increasing to 45 days in special circumstances, based on a medical assessment).\nAfter the birth of a child, the employee is entitled to 70 days of paid maternity leave.\nAfter 70 days, the mother can continue the maternity leave until the child is six months old (unpaid, although employers generally do pay this as an additional benefit) or choose to share the maternity leave with the father.",
+          "paternity_leave": "Paternity leave consists of 10 working days of paid paternity leave per child to fathers or equivalent second parents, regardless of their marital or family status. The leave increases to 15 working days when the working parent has twins or multiples. The 10 days of leave cannot be transferred to any other parent and may only be taken within six months from the birth of their child or the placement for adoption.  During such leave, second parents are entitled to their full salary paid by the Croatian government.",
+          "parental_leave": "Following the first six months after birth, which are covered under maternity leave, parents are entitled to parental leave. Each parent can take 4 months per child for the first two kids and 15 months for any subsequent children or twins but must be taken before the child is eight years old."
+        },
+        "termination": {
+          "termination_process": "The termination process is standard in Croatia with notice periods required unless an employer can provide sufficient cause for dismissal without notice (due to misconduct, disobedience, lack of skill, neglect of duties, or absence without permission).\nIf the reason is misconduct, notice must be in writing and with documented meetings and discussions prior to a final termination decision.",
+          "notice_period": "The notice period for a temporary or permanent employee is dependent on the employee’s length of service:\nDuring probation, 7 days notice are required\n2 weeks for employees with a year of employment\n6 weeks for employees with two years of employment\n8 weeks for employees with five years of employment\n10 weeks for employees with 10 years of employment\n12 weeks for employees with over 20 years of employment",
+          "severance_pay": "Severance pay is dependent on the length of employment. Severance pay for employees with two or more years of employment is paid as 1/3 of the employee’s average salary for the last 3 months of employment for each year of service at a maximum of six months of the employee’s salary.",
+          "probation_period": "The probation period is dependent on the type of role and is stipulated within the employment agreement. In general, probation periods cannot be longer than 6 months. The probation period can be prolonged if the employee is absent during the originally agreed period (e.g., due to sick leave or maternity leave)."
+        },
+        "common_benefits": [
+          "Homeworking Allowance: 50-70 EUR per month",
+          "Christmas bonus",
+          "Meal allowance",
+          "Supplementary health and travel insurance plans",
+          "Voluntary pension insurance contributions",
+          "Professional training allowance",
+          "Company phone provided/ mobile phone allowance",
+          "Company car (mostly for management and executives)"
+        ],
+        "visa": {
+          "general_info": "Croatia’s immigration system provides several options for employers of foreign nationals. Croatia is a member of the European Union. Requirements, processing times, employment eligibility, and benefits for accompanying family members vary by permit type.\n\nBusiness visitors require a Short-Term Visa (Type C Visa) to enter Croatia unless they are visa-exempt based on their nationality or hold a suitable alternate visa. Visas are issued for single, dual, or multiple entries at the discretion of the consular authorities. Business visitors must limit their stay to 90 days in any 180 days.\nThe main work authorization categories are the Work Registration Certificate, a registration process for short-term work permit-exempt activities, and the Stay and Work Permit, suitable for a broad range of work activities. The Stay and Work Permit is issued for up to one year initially and can be renewed.\nCroatia also offers a one-year Digital Nomad temporary stay permit for foreign nationals seeking to work remotely from Croatia without local company sponsorship."
+        },
+        "vat": {
+          "general": "25%  is the standard rate."
+        }
+      }
+    }
+  ]
+}

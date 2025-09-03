@@ -1,0 +1,109 @@
+{
+  "scraped_at": "2025-08-24T18:16:21.882Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Italy",
+      "url": "https://www.papayaglobal.com/countrypedia/country/italy/",
+      "scraped_at": "2025-08-24T18:16:21.873Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "29.00% – 32.00%",
+              "description": "Social Security (including pensions, disability and survivors’ benefits, sick leave, maternity, paternity, parental leave)"
+            },
+            {
+              "rate": "0.40%- 1.00%",
+              "description": "Injuries at Work Insurance (INAIL)- varies by Occupation"
+            },
+            {
+              "rate": "8.00%",
+              "description": "TFR (Severance pay)"
+            },
+            {
+              "rate": "29.40%-41.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "10.00%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "10.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "23.00%",
+              "description": "Up to 28,000 EUR Annually"
+            },
+            {
+              "rate": "35.00%",
+              "description": "28,001 – 50,000 EUR Annually"
+            },
+            {
+              "rate": "43.00%",
+              "description": "Over 50,000.01 EUR Annually"
+            },
+            {
+              "rate": "1.23%-3.33%",
+              "description": "Regional Tax"
+            },
+            {
+              "rate": "0.00%-0.90%",
+              "description": "Municipal Tax"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "There is no statutory minimum wage in Italy. The sector usually sets minimum wages for each contractual level in the relevant national collective agreements (NCAs). The average minimum wage resulting from these CBAs is approximately 7-9 EUR per hour.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Italy is monthly, payment must be made by no later than the 15th of the following month.",
+          "13th_salary": "Under Italian law, salary calculations are paid in 12 monthly installments. The additional 13th installment (“tredicesima”) is paid out each year alongside the December salary.\nSome NCAs also include a 14th monthly installment, normally paid in June."
+        },
+        "working_hours": {
+          "general": "Standard working hours in Italy are 8 hours per day, 40 hours per week.",
+          "overtime": "All work more than the standard working hours per week is to be paid as overtime and is regulated by employment contract/collective agreements, etc. In general, overtime maximum limits paid are as set in the NCA."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Minimum leave is determined by the applicable collective agreement, which generally provides paid annual leave of not less than four weeks per year.",
+          "public_holidays": "If a public holiday falls on a Sunday, the day is carried over to Monday or paid in lieu.\nIn addition to the below national holidays there may be regional holidays that workers are also entitled to take off.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n6 Jan 2025\tMonday\tEpiphany\t\n20 Apr 2025\tSunday\tEaster Sunday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n25 Apr 2025\tFriday\tLiberation Day\t\n1 May 2025\tThursday\tInternational Workers Day\t\n2 Jun 2025\tMonday\tRepublic Day\t\n15 Aug 2025\tFriday\tAssumption Day\t\n1 Nov 2025\tSaturday\tAll Saints Day\t\n8 Dec 2025\tMonday\tImmaculate Conception\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tSt. Stephen’s Day",
+          "sick_days": "Employees in Italy are entitled to paid sick leave, paid for by the employer and subsequently the government.\nFor the first two periods of sickness per year, the employer pays the first three days at 100.00% of the regular salary rate of pay. This reduces to 66.00% for the third period of sickness and 50.00% for the fourth. Any subsequent sickness in one year is unpaid.\nThe employee continues to receive 100.00% of the regular salary rate of pay from the fourth day onwards, paid as 50.00% by the employer and 50.00% by the Italian government from days 4 to 21. From day 22 up to 180 days, the government pays 66.00%, and the employers’ payment reduces to 34.00%. Employees are required to provide a medical certificate from a doctor from the first day of their illness each illness will be indicted by a different code.",
+          "maternity_leave": "All female employees are entitled to 5 months of paid maternity leave, generally taken two months before the due date until three months after childbirth. The maternity leave before the due date can start at an earlier date than two months if the employee’s work is dangerous for her health or that of the unborn child or delayed until after childbirth.\nThe employee is entitled to 80.00% of her regular salary during maternity leave, which the employer pays and is subsequently reimbursed by the INPS.\nIn addition, a new mother can take up to six months of unpaid leave after maternity leave. Alternatively, if a mother chooses not to take parental leave after maternity leave, she can work 6 hours a day until the child is one year old.\nMothers whose income was lower than 8,145 EUR prior to maternity leave will have their maternity indemnity increased by three months.",
+          "paternity_leave": "The father is entitled to receive 100.00% of the regular salary and compulsory paternity leave of 10 days within five months of the child’s birth.",
+          "parental_leave": "In Italy, an employee can take up to 10 months of unpaid parental leave.\nWith effect from 1st January 2023, the government issued a new law that introduces an extra month of parental leave, paid with an allowance equal to 80% of the employee’s salary. This month of enhanced parental leave must be used, alternatively by either parent, before the child reaches the age of six.",
+          "other_leave": "Bereavement Leave – In the event of the death or serious illness of a family member (up to the second degree), paid leave is granted up to a maximum of 3 days per year. The days of leave may be used by the employee within seven days of the death.\nThe worker is required to document the event with the relevant certification, the worker must inform the employer in advance of the event giving entitlement to the leave and the days on which it will be used.\nWedding Leave – Employees are eligible for a one-time period of 15 calendar days in the event of marriage."
+        },
+        "termination": {
+          "termination_process": "Termination must fall under one of the below specific causes:\nMutual Termination Agreement is often best practice as it is common practice for workers to challenge termination, and additional severance is customarily paid to the worker.\nTermination is prohibited for the following: discrimination, retaliation, during pregnancy, maternity leave until the child is one years old, during sick leave and disabled employees in certain circumstances.",
+          "notice_period": "The length of the notice period is determined by the applicable collective bargaining agreement and is dependent on enrollment level, category, and tenure. The employer may pay in lieu of notice. Garden leave is not possible under Italian Law.",
+          "severance_pay": "In Italy, severance pay is applicable if the employer made the termination for authorized causes. Upon termination, the employee must be paid the TFR (Trattamento di fine rapporto), which the employer defers each month. The TFR is calculated according to the formula of a year’s overall salary divided by 13.5, plus 1.50% for each year of service plus compensation for inflation. Please note this is the minimum required, and workers typically receive more than the minimum to sign a settlement agreement.",
+          "probation_period": "Statutory probation periods in Italy are set per the job role of the employee. For employees with no managerial responsibilities, the probation period is three months, whereas for all other employees/managers/supervisors, etc. the probation period is between 3 to 6 months.\nHowever, the probation period is commonly set in the relevant contract."
+        },
+        "common_benefits": [
+          "Mobile phone allowance, approx. 100.00 EUR",
+          "Meal vouchers — electronic vouchers (non-taxable up to €8 in value each for each working day), paper vouchers (non-taxable up to €4 in value for each working day)",
+          "Supplemental health care, between 100 – 300 EUR per month",
+          "Car allowances, between 500 EUR – 1,000 EUR per month",
+          "Wellness allowance, between 100 – 150 EUR per month"
+        ],
+        "visa": {
+          "general_info": "Any foreigners coming to work in Italy require a work visa, a national visa, or a D-Visa, which allows entry into Italy within eight days of arriving in the country. However, additional permission is required (a residence permit – permesso di soggiorno) to stay in Italy. The potential employer must make all visa applications via a Nulla Osta document at the company province’s (Preffetura’s) Immigration Office (Sportello Unico d’Immigrazione – SUI.\nThe Italian government has a limited number of approved work permits and only accepts work permit applications occasionally (for a few months every one or two years), depending on the status of Italy’s job market at that time. (Decreto Flussi)."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Italy is 22.00%."
+        }
+      }
+    }
+  ]
+}

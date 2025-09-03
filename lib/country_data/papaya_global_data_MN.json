@@ -1,0 +1,118 @@
+{
+  "scraped_at": "2025-08-24T18:23:05.528Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Mongolia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/mongolia/",
+      "scraped_at": "2025-08-24T18:23:05.519Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "8.5%",
+              "description": "Pension Insurance"
+            },
+            {
+              "rate": "1.0%",
+              "description": "Benefit Insurance, applied on income up to 6,600,000 MNT monthly."
+            },
+            {
+              "rate": "2.0%",
+              "description": "Social Health Insurance (SHI), applied on income up to 6,600,000 MNT monthly."
+            },
+            {
+              "rate": "0.5% to 2.5%",
+              "description": "Industrial accident and occupational disease insurance (varies depending on industry)"
+            },
+            {
+              "rate": "0.5%",
+              "description": "Unemployment insurance"
+            },
+            {
+              "rate": "12.50%- 14.50%",
+              "description": "Total Employer Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "8.5%",
+              "description": "Pension Insurance, capped at MNT 910,800 per month"
+            },
+            {
+              "rate": "1.0%",
+              "description": "Benefit Insurance , capped at MNT 910,800 per month"
+            },
+            {
+              "rate": "2.0%",
+              "description": "Social Health Insurance (SHI), capped at MNT 910,800 per month"
+            },
+            {
+              "rate": "0.2%",
+              "description": "Unemployment insurance, capped at MNT 420,000 per month"
+            },
+            {
+              "rate": "11.70%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": "Annual"
+            },
+            {
+              "rate": "10.00%",
+              "description": "Up to 120 million MNT"
+            },
+            {
+              "rate": "15.00%",
+              "description": "120 million – 180 million MNT"
+            },
+            {
+              "rate": "20.00%",
+              "description": "Above 180 million MNT"
+            },
+            {
+              "rate": "20.00%",
+              "description": "Non-residents are taxed at a flat rate on Mongolian-sourced income."
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The monthly minimum wage is MNT 4,714 per hour or 792,000 MNT per month.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Mongolia is monthly, and salaries must be paid by the 5th of the following month; however, wages are typically paid between the 25th and last day of the month.",
+          "13th_salary": "There are no provisions in the law regarding 13th salaries."
+        },
+        "working_hours": {
+          "general": "A standard full-time working week in Mongolia consists of 40 hours per week or 8 hours per day. Employees are entitled to two consecutive days of rest generally on Saturday and Sunday.\nThe new labor law states that employees should not work more than 56 hours per week.\nThe new labor law requires employers to provide extra pay to employees who work during night hours (10pm-6am) if time off in lieu is not provided. The pay amount must be not less than 1.2 times the respective hourly salary rate. In addition, employers are responsible for covering expenses in relation to preventive medical examinations of full-time night shift workers.",
+          "overtime": "All working hours beyond standard working hours are to be paid as overtime and are regulated by employment contracts/collective agreements etc. Overtime must be agreed upon before the commencement of any overtime working hours.\nOvertime is paid at 150% of the basic salary rate and at 200% of the basic salary if an employee works on a public holiday. Time off in lieu of overtime work completed may be offered as an alternative to financial compensation.\nThe New Labour Law states the maximum overtime per day should not exceed 4 hours."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to 15 days of paid annual leave. For employees under the age of 18, the entitlement is 20 days.\nDepending on the length of employment, employees are entitled to additional annual leave days:\n6-10 years of employment: 3 working days\n11-15 years of employment: 5 working days\n16-20 years of employment: 7 working days\n21-25 years of employment: 9 working days\n25-31 years of employment: 11 working days\n32 years or more: 14 working days\nThe new labor law states that employees who were unable to take their annual leave in an annual leave cycle due to an urgent business necessity should be paid an allowance of 1.5 times their respective standard annual vacation pay. Under the new law, new employees are entitled to an annual vacation from the 7th month of the commencement of employment. Furthermore, employees are entitled to 10 consecutive calendar days of leave at least once out of the minimum 15 calendar days leave.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n1 Mar 2025\tSaturday\tTsagaan Sar\t\n2 Mar 2025\tSunday\tTsagaan Sar Holiday\t\n3 Mar 2025\tMonday\tTsagaan Sar Holiday\t\n8 Mar 2025\tSaturday\tInternational Women’s Day\t\n1 Jun 2025\tSunday\tChildren’s Day\t\n4 Jun 2025\tWednesday\tBuddha Day\t\n11 Jul 2025\tFriday\tNaadam Holiday\t\n12 Jul 2025\tSaturday\tNaadam Holiday\t\n13 Jul 2025\tSunday\tNaadam Holiday\t\n14 Jul 2025\tMonday\tNaadam Holiday\t\n15 Jul 2025\tTuesday\tNaadam Holiday\t\n21 Nov 2025\tFriday\tChinggis Khaan’s Birthday\t\n26 Nov 2025\tWednesday\tRepublic Day\t\n29 Dec 2025\tMonday\tIndependence Day",
+          "sick_days": "Employees are entitled to sick leave for the duration of the illness, sick leave is unpaid.",
+          "maternity_leave": "Pregnant employees are entitled to receive 120 days of maternity leave. The maternity leave must begin 60 days before the birth of the child with the remaining 60 days taken after the birth.\nEligible employees (those who have made at least twelve social security contributions with at least 6 monthly contributions in the six months prior to taking maternity leave) receive payments through Mongolia’s social insurance program equivalent to 70% of the average salary and income over the last 12 months.\nAn adopting mother is entitled to equal leave as a mother who gives birth to a child up to the child reaching 60 days. This law equally applies to single fathers with a newborn.",
+          "paternity_leave": "The new labor law provides a father with a newborn shall be provided at least 10 working days of paid leave, which is equal to the average salary for the respective period.",
+          "parental_leave": "Childcare leave is granted to mothers and single fathers with children under three years old. During this leave, the employer is responsible for making social insurance payments on the employee’s behalf.",
+          "other_leave": "There is no other statutory leave in Mongolia."
+        },
+        "termination": {
+          "termination_process": "Mongolia makes a distinction between employment agreements and employment contracts. The conditions and requirements for terminating an agreement or a contract vary.\nAn employment agreement can be terminated under the following circumstances:\nBy mutual agreement of the employer and employee\nUpon the death of either the employer or employee\nExpiration of the employment agreement without extension\nIf required by law\nAn improperly dismissed employee is reinstated to the position (the displaced employee must be provided with another job if possible)\nThe employee is called to active military service\nA court sentences the employee to a punishment that prevents the employee from working\nAt the initiative of either the employer or employee\nAn employee generally must provide 30 days of notice to an employer unless otherwise agreed.\nAn employer can terminate an employment agreement for the following reasons:\nThe business is liquidated\nThe employee does not meet the job requirements due to a lack of professional qualifications, skills, or health reasons\nThe employee has reached retirement age and is eligible for a pension\nThe employee has repeatedly violated the employer’s disciplinary rules or has committed a severe violation\nThe employee breaches fiduciary responsibility\nThe employee gets another job\nOther grounds established in the agreement",
+          "notice_period": "The notice period in Mongolia is generally 30 days for economic redundancy or incompetency and 45 days in all other cases.",
+          "severance_pay": "Severance pay is generally one month’s wages on dismissal.",
+          "probation_period": "The maximum length of probation is generally three months."
+        },
+        "visa": {
+          "general_info": "On 24 December 2021, the Parliament of Mongolia passed the Labour Migration Law (the “LML”) effective from 01 July 2022. Once the LML is effective, its preceding law, the Law on Sending Labour Force Abroad and Receiving Labour Force and Specialists From Abroad (12 April, 2001), shall no longer be in force.\n\nEmployers are required to submit an application for a work permit of a foreign employee on behalf of the employee to the labor authority after they are permitted to invite the foreign employee. The labor authority issues a work permit to the foreign employee for up to one year subject to the job position and terms of the employment agreement. Detailed procedures for granting work permits shall be approved by the Ministry of Labor and Social Protection.\n\nThe work permit shall specify the full name and nationality of the foreign employee, name of the employer, the workplace location, and validity period of the work permit.\nExtension of a work permit of a foreign employee: A work permit granted to a foreign employee can be extended subject to applicable regulations. The continuous employment of a foreign employee in an assistant position in Mongolia shall not exceed a period of 5 years."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Mongolia is 10%."
+        }
+      }
+    }
+  ]
+}

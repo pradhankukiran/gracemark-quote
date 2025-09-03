@@ -1,0 +1,90 @@
+{
+  "scraped_at": "2025-08-24T18:10:09.589Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Guatemala",
+      "url": "https://www.papayaglobal.com/countrypedia/country/guatemala/",
+      "scraped_at": "2025-08-24T18:10:09.581Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "1.00%",
+              "description": "Workers Recreational Institute (IRTRA)"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Professional Training Institute (INTECAP)"
+            },
+            {
+              "rate": "10.67%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "12.67%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "4.83%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "4.83%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "5.00%",
+              "description": "Up to 300,000"
+            },
+            {
+              "rate": "7.00%",
+              "description": "Over 300,000"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum monthly salary in Guatemala is as follows:\nEconomic districts 1:\nAgricultural activities: 3,593.55 GTQ\nNon-Agricultural activities: 3,723.05 GTQ\nExport and Maquila activities: 3,278.59 GTQ\nEconomic districts 2:\nAgricultural activities: 3,436.86 GTQ\nNon-Agricultural activities: 3,550.60 GTQ",
+        "payroll": {
+          "payroll_cycle": "Salaries are paid on a monthly, bi-monthly, weekly, daily, or hourly basis, depending on the type of work conducted by the employee and what is agreed upon in the employment contract.",
+          "13th_salary": "Salaried employees should receive two bonuses a year equivalent to one months’ salary each as a 13th and 14th-month payment. The bonus 14 (“Bono 14”) is payable in July of each year and a Christmas bonus is payable in December."
+        },
+        "working_hours": {
+          "general": "The standard working day in Guatemala is 8 hours per day, 44 hours per week and cannot exceed 12 hours per day. However, working hours do not apply to high-level executives or domestic employees.\nNight-time work has a maximum of 36 hours per week with six hours a day between 6 p.m. and 6 a.m. If the shift is mixed with day and night-time work, the maximum is increased to 42 hours per week.",
+          "overtime": "All hours over 44 hours in one work week are considered overtime and are paid at a rate of 150% of the regular pay."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "15 days, after completing 12 months of continuous employment with the employer.\nAny unused days do not carry over and will be lost. Holiday is paid at a rate of 130% salary, paid to the employee before their leave.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost, with the exception of Army Day that moves to a Friday or Monday when falling on a Sunday.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n17 Apr 2025\tThursday\tGood Thursday\t\n18 Apr 2025\tFriday\tGood Friday\t\n1 May 2025\tThursday\tLabor Day\t\n30 Jun 2025\tMonday\tArmy Day\t\n15 Aug 2025\tFriday\tAsunción de la Virgen Day\t\n15 Sep 2025\tMonday\tIndependence Day\t\n20 Oct 2025\tMonday\tRevolution Day\t\n1 Nov 2025\tSaturday\tAll Saints’ Day\t\n24 Dec 2025\tWednesday\tChristmas Eve\t\n25 Dec 2025\tThursday\tChristmas Day\t\n31 Dec 2025\tWednesday\tNew Year’s Eve\tHalf a day off",
+          "sick_days": "Sick pay will be paid either by the Guatemalan Institute of Social Security (Instituto Guatemalteco de Seguridad Social) (IGSS) under its own regulations or by the employer if the IGSS regulated benefits do not cover the employee, the illness, or the injury.\nThe length and payment calculation of sick pay is dependent on the employee’s length of employment:\n2–6 months of employment entitles the employee to one month of paid sick leave paid at a rate of 50% of the employee’s regular salary\n6–9 months of employment entitles the employee to two months of paid sick leave paid at a rate of 50% of the employee’s regular salary\n9+ months of employment entitles the employee to three months of paid sick leave paid at a rate of 50% of the employee’s regular salary\nIn addition, the employer may seek to fill the employee’s duties temporarily, which can be terminated upon the employee’s return.",
+          "maternity_leave": "Pregnant employees in Guatemala are generally entitled to 12 weeks of maternity leave starting 30 days before the expected due date.\nIn the event of a miscarriage or stillbirth, the mother is entitled to 42 days of paid leave.",
+          "paternity_leave": "There are no provisions in the law regarding paternity leave.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "Depending on the collective agreement/employment contract terms, an employee may be allowed additional leave types approved between the employer and employee, for the following:\nBereavement leave– employees are entitled to three days of paid leave in the event of the death of an immediate member of the family\nWedding– employees are entitled to five days of paid leave for their wedding\nLabor union leader– a union’s executive committee member, is entitled to up to six days of paid leave to carry out union duties"
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to how the employment agreement and collective agreement are in place and is based on the type of contract and reason for termination.",
+          "notice_period": "When the periods of notice are determined in accordance with the Employment Contracts Act, the employer and the employee may agree on the periods of notice (no longer than six months). Collective agreements may contain provisions on periods of notice. If the periods of notice in the collective agreement differ from the statutory periods of notice, the employer and the employee must observe the periods of notice laid down in the collective agreement.\nThe amount of notice is dependent on the length of service and reason for termination. If the employer terminates the contract, the notice period is as follows:\nFor employees with employment service of up to 6 months- 1 weeks’ notice\nFor employees with between 6 months and 1 year of employment service- at least 10 days’ notice\nFor employees with between 1- and 5 years’ employment service – at least 2 weeks’ notice\nFor employees with more than five years’ employment service- 1 month’s notice",
+          "severance_pay": "Employees receive severance if they are terminated without just cause and have 30 days to make a claim to a court. Should the employer be unable to justify the reason in court, the employee receives up to 12 months of severance pay but cannot return to their previous job/role/employer.\nAlso, employers cannot terminate trade union members, female employees during pregnancy or maternity leave, or immediately after childbirth, and those during a collective dispute or illegal shutdown of a business.\nShould employees be terminated in the event of force majeure, death, or economic reasons, the severance payment is generally agreed at an amount equal to between two days and four months of the regular salary rate of pay.",
+          "probation_period": "The probation period in Guatemala is generally two months."
+        },
+        "visa": {
+          "general_info": "If a foreign national comes to Guatemala for paid work in a paid activity, it creates a relationship involving dependence on and management by a Guatemalan employer. In that case, the foreign national must apply for a migrant worker’s residence and work permit.\nFollowing the elimination of the Business Visa, business travelers may now enter Guatemala under the category of Tourist or Traveler to perform consulting and advisory activities. Visa nationals must obtain the appropriate entry visa to enter ​Guatemala but are no longer required to apply for a Business Visa after arrival. The allowable consecutive stay as a business visitor is up to 90 days, with the possibility of a 90-day extension.\nOnce the foreign national has obtained a migrant worker’s residence permit (or has filed the corresponding application for migrant worker’s residence with the Guatemalan Institute of Immigration (Instituto Guatemalteco de Migración)), the foreign national must apply for a work permit with the Labor Ministry.\nThe main work authorization option is the Temporary Residence and Work Permit.\nThe Temporary Residence authorization is granted for an initial stay of up to five years, renewable for the same term. The corresponding work permit is valid for one year, renewable annually.​​​"
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Guatemala is 12%."
+        }
+      }
+    }
+  ]
+}

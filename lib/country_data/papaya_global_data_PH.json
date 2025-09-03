@@ -1,0 +1,146 @@
+{
+  "scraped_at": "2025-08-24T18:32:52.772Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Philippines",
+      "url": "https://www.papayaglobal.com/countrypedia/country/philippines/",
+      "scraped_at": "2025-08-24T18:32:52.756Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "10.00%",
+              "description": "Social Security System (SSS), applied on income between 5,000 to 35,000 PHP monthly."
+            },
+            {
+              "rate": "2.50%",
+              "description": "Philippine Health Insurance Corporation (PHIC), applied on a monthly basic salary as:\n10,000 PHP = Monthly premium of 500 PHP\n10,000 – 99,999.99 PHP = Monthly premium of 500 – 5,000 PHP\n100,000 PHP = Monthly premium of 5,000 PHP"
+            },
+            {
+              "rate": "1.00%/2.00%",
+              "description": "Home Development Mutual Fund (HDMF) (Pag-ibig), applied on a monthly compensation of 1,500 PHP and below/Over 1,500 PHP"
+            },
+            {
+              "rate": "13.50%/14.50%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "5.00%",
+              "description": "Social Security System, applied on income between 5,000 to 35,000 PHP monthly"
+            },
+            {
+              "rate": "2.50%",
+              "description": "Philippine Health Insurance Corporation (PHIC), applied on a monthly basic salary as:\n\n10,000 PHP = Monthly premium of 500 PHP\n10,000 – 99,999.99 PHP = Monthly premium of 500 – 5,000 PHP\n100,000 PHP = Monthly premium of 5,000 PHP"
+            },
+            {
+              "rate": "1.00%/2.00%",
+              "description": "Home Development Mutual Fund (HDMF) (Pag-ibig), applied on a monthly compensation of 1,500 PHP and below/Over 1,500 PHP"
+            },
+            {
+              "rate": "Up to 8.50%/9.50%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.0%",
+              "description": "up to 250,000 PHP"
+            },
+            {
+              "rate": "15.0%",
+              "description": "250,000 – 400,000 PHP"
+            },
+            {
+              "rate": "20%",
+              "description": "400,000 – 800,000 PHP"
+            },
+            {
+              "rate": "25%",
+              "description": "800,000 – 2,000,000 PHP"
+            },
+            {
+              "rate": "30%",
+              "description": "2,000,000 – 8,000,000 PHP"
+            },
+            {
+              "rate": "35%",
+              "description": "8,000,000 PHP and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The National Minimum Wage in the Philippines is set per sector/industry up to:\n645 PHP per day for Non-Agriculture.\n608 PHP per day for Agricultural workers.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in the Philippines is generally semi-monthly. Wages shall be paid at least once every two weeks or twice a month at intervals not exceeding sixteen days.",
+          "13th_salary": "A 13th salary must be paid on or before 24th December and is equivalent to one month’s pay (Aguinaldo). Employers may choose to pay half in June and half in December."
+        },
+        "working_hours": {
+          "general": "A standard work day is 8 hours, 40-48 hours per week, across 5 or 6 days per week.",
+          "overtime": "Hours in excess of the regular workweek are considered overtime and are regulated by the employment contract or collective agreements. In general, overtime is paid at the rate of 125% of the regular pay. On regular holidays, double salary must be given. On special holidays, a minimum of 30% additional pay must be given. There is no limit to overtime hours.\nEmployees who work night shifts, between 10pm and 6am, are entitled to an additional 10% of the regular hourly wage for each hour of work performed during the night shift.\nSenior managers are excluded from overtime pay."
+        },
+        "leave": {
+          "general_info": "Annual Leave (vacation)\n\nPaid leave is a minimum of 5 working days per year after the completion of 1 year of employment.\n\nIf no carryover policy is in place, unused leave should be paid out.\n\nPublic Holidays\n\nIf a regular holiday falls on a Sunday in the Philippines, the holiday will be observed on the following Monday. If a regular holiday falls on Sunday the holiday will moved to the following Monday.\n\n‘Regular Holidays’ are non-working paid days off. ‘Special Holidays’ are non-working unpaid days off, however, if someone works on this day salary must be paid.\n\nWork on regular holidays are subject to additional 100% holiday rate for first 8 hours and additional 260% of hourly rate on overtime work after 8 hours.\n\nFor work on Special Non-Working holiday which falls on a weekend, work on this day is subject to 150% overtime rate for first 8 hours and additional 195% of hourly rate on overtime work after 8 hours.\n\nSome religious holidays are determined by the lunar cycle and will show as ‘Tentative’ until they are confirmed nearer the date of the holiday.\n\nIn addition to the listed National holidays, there could be extra local holidays that workers will be entitled to take off depending on where they are living.\n\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\tRegular Holiday\n29 Jan 2025\tWednesday\tChinese New Year\tSpecial Non-Working Day\n1 Apr 2025\tTuesday\tEid Al-Fitr\tRegular Holiday\n9 Apr 2025\tWednesday\tAraw ng Kagitingan\tRegular Holiday\n17 Apr 2025\tThursday\tMaundy Thursday\tRegular Holiday\n18 Apr 2025\tFriday\tGood Friday\tRegular Holiday\n19 Apr 2025\tSaturday\tBlack Saturday\tSpecial Non-Working Day\n1 May 2025\tThursday\tLabor Day\tRegular Holiday\n12 May 2025\tMonday\tElection Day\tSpecial Non-Working Day\n 2 Jul 2025\tWednesday\tPassig Day\tSpecial Non-Working Day (in Passig only)\n6 Jun 2025\tFriday\tEidul Adha\tRegular Holiday\n12 Jun 2025\tThursday\tIndependence Day\tRegular Holiday\n27 Jul 2025\tSunday\tIglesia Ni Cristo Founding Anniversary\tSpecial Non-Working Day\n21 Aug 2025\tThursday\tNinoy Aquino Day\tSpecial Non-Working Day\n25 Aug 2025\tMonday\tNational Heroes Day\tRegular Holiday\n31 Oct 2025\tFriday\tAll Saints’ Day Eve\tSpecial Non-Working Day\n1 Nov 2025\tSaturday\tAll Saints’ Day\tSpecial Non-Working Day\n30 Nov 2025\tSunday\tBonifacio Day\tRegular Holiday\n8 Dec 2025\tMonday\tFeast of the Immaculate Conception of Mary\tSpecial Non-Working Day\n24 Dec 2025\tWednesday\tChristmas Eve\tSpecial Non-Working Day\n25 Dec 2025\tThursday\tChristmas Day\tRegular Holiday\n30 Dec 2025\tTuesday\tRizal Day\tRegular Holiday\n31 Dec 2025\tWednesday\tLast Day of the Year\tSpecial Non-Working Day\n\n \n\nSick Days\n\nThere is no legal requirement to provide paid or unpaid sick leave. Workers can use their annual leave days to cover sickness. Many employers will create their own sickness policy above the statutory requirement.\n\nEmployees who have made contributions to the Social Security System (SSS) for a minimum of 3 months within the preceding 12 months can claim the equivalent to 90% of their average daily salary in the scenario that they are hospitalized for more than 3 days. Employers will make the initial payment once the employee has used all the paid sick leave allowance and will then be reimbursed by the Social Security System.\n\nSpecial Leave for Women\n\nFemales employees who have at least six months of continuous service are entitled to 2 months leave with full pay for treatment/surgery of gynecological disorders. A medical certification is required for eligibility.\n\nMaternity Leave\n\nFemale employees who have completed at least one year of service are entitled to 105 calendar days maternity leave. For single mothers, the entitlement is increased to 120 calendar days leave. If the worker has made at least three monthly contributions to the Social Security System in the 12-month period immediately preceding her childbirth or miscarriage, they will be paid a daily maternity leave benefit equivalent to 100% of the average daily salary. The employer will make the full payment and will be reimbursed by the Social Security System up to a cap of PHP 70,000.\n\nMothers can also choose to take an additional 30 days of maternity leave without pay.\n\nWorkers should inform their employer of pregnancy and expected due date at least 30 days before the intended date of leave. A medical certificate should also be provided to support the leave application.\n\nPaternity Leave\n\nFathers who are married to the mother are entitled to paid paternity leave of 7 calendar days from the child’s date of birth. Payment is made by the employer and reimbursed by the Social Security System.\n\nAdditionally, the mother can choose to allocate up to 7 days of her paid maternity leave benefit to the child’s father, regardless of whether they are married or not.\n\nParental Leave\n\nSolo parents with at least 1 year of service are entitled to 7 working days per year paid parental leave to care for children under the age of 18.\n\nDomestic Violence Leave\n\nA female employee who falls victim of domestic violence is entitled to paid leaves of up to 10 days paid leave to attend medical and legal concerns.\n\nService Incentive Leave (SIL)\n\nEmployees who have rendered at least one year of service are entitled to 5 days of paid leave per year, which can be used for personal reasons, vacation or sick leave. Unused SIL can be converted to cash at the end of the year."
+        },
+        "termination": {
+          "termination_process": "Terminating employment is possible for ‘just’ or ‘authorized’ causes as set out in the Labour Law and providing the correct legal procedure is followed. The burden is on the employer to prove the lawfulness of the employee’s dismissal in the proper forum.\n‘Just’ causes include serious misconduct, willful disobedience, gross and habitual neglect of duties, fraud or willful breach of trust and commission of a crime.\n‘Authorized’ causes are of two types – business reasons and health (diseases of a long term nature). The business reasons are installation of labor-saving devices, redundancy, retrenchment and closure or cessation of operation.\nWhere dismissal is based on a ‘just’ cause, the employer must give the employee two written notices and a hearing or opportunity to be heard before terminating the employment. A minimum of 14 days should be given to the worker to answer the written notice/warning letter with an explanation on the allegations and include the schedule of when and where the hearing will take place. In the notice, the company must list all the grounds and what improvements the company is expecting from the employee. The company can issue another letter after 60 days if there has been no improvement from the employee. The notice letters should be signed by the employee.\nWhere dismissal is based on ‘authorized’ causes the employer must report the list of separated employees in the Department of Labor and Employment (DOLE) website.\nThe BIR 2316 form (Withholding Tax reporting of the employee) is a compulsory tax form that must be completed upon termination before final payment is released to the worker. Requirements for other documents, such as Quitclaim and resignation letters, can vary according to the specific policies and set up.\nIt is possible to also use a Mutual Termination Agreement when separating a worker.",
+          "notice_period": "A minimum of 30 days’ notice period is required by law, to be provided in writing.\nIt is possible for the Employer to pay in lieu of notice.",
+          "severance_pay": "Severance pay is applicable if the employer initiated the termination for ‘authorized’ causes and is equal to 1 months’ pay for every year of employment. If service is less than 1 year but more than 6 months, it will be treated as 1 year of service.",
+          "probation_period": "Employees on probation will be undergo a probationary period typically starting from a period of 30 days and not exceeding 180 calendar days. Once the employee has reached an employment of 6 months, the employee is considered a “regular employee” even without such formal documentation."
+        },
+        "visa": {
+          "general_info": "Any foreigners coming to work in the Philippines are required by the Bureau of Immigration (BI) to secure a work visa.\nDifferent work visas/permits are available depending on the individual’s circumstances, skills, and work type. The following documentation must be referenced, completed, and returned to the government agencies to fulfill this application.\nFor a work visa, the following documents need to be completed:\n\n9(g) Pre-Arranged Employee Commercial Visa\n9(g) Pre-Arranged Employee Non-Commercial Visa\nSpecial Non-Immigrant Visa or 47(A)(2)\nSpecial Non-Immigrant Visa under EO 226, as amended by RA 8756 (ROHQ)\n\nFor work permits:\n\nSpecial Work Permit (SWP)\nProvisional Work Permit (PWP)\nAlien Employment Permit (AEP)"
+        },
+        "remote_work": "The Telecommuting Act that which applies to all employers and employees in the private sector that implement a telecommuting program.\nThe terms and conditions of telecommuting shall not be less than the minimum labor standards, or less than any applicable company policy or practice, individual contract, or collective bargaining agreement.\nTelecommuting employees should be treated fairly and afforded the same treatment as employees who work at the regular workplace.\nAny facilities or equipment or supplies that are necessary for the completion of work, are considered ordinary and necessary costs for the employer.\nThe employer should report the implementation of telecommuting arrangements to the DOLE (Department of Labor and Employment ).",
+        "vat": {
+          "general_info": "The standard rate of VAT in the Philippines is 12%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "BAR",
+            "dates": "On the 10th",
+            "methods": ""
+          },
+          {
+            "authority_payment": "Social security",
+            "dates": "By the company ID but usually done on the 10th as well",
+            "methods": ""
+          },
+          {
+            "authority_payment": "Philippines health",
+            "dates": "By the company ID but usually done on the 10th as well",
+            "methods": ""
+          },
+          {
+            "authority_payment": "HDMN",
+            "dates": "On the 10th",
+            "methods": ""
+          },
+          {
+            "authority_payment": "Private health care",
+            "dates": "",
+            "methods": "Payments depend on the provider and are based on the insurance plan.\n\nif there is an employee share its deducted in the payroll. Payment are prepaid by the company to the provider on an annual basis."
+          },
+          {
+            "authority_payment": "Retirement plan",
+            "dates": "Annually",
+            "methods": "payments made by the employer once a year."
+          },
+          {
+            "authority_payment": "13th salary",
+            "dates": "Annually; usually paid in December before Christmas",
+            "methods": ""
+          }
+        ]
+      }
+    }
+  ]
+}

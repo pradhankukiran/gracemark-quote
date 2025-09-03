@@ -1,0 +1,142 @@
+{
+  "scraped_at": "2025-08-24T17:57:31.337Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Costa Rica",
+      "url": "https://www.papayaglobal.com/countrypedia/country/costa-rica/",
+      "scraped_at": "2025-08-24T17:57:31.327Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "9.25%",
+              "description": "Healthcare & Maternity (SEM)"
+            },
+            {
+              "rate": "5.42%",
+              "description": "Basic Pension Scheme (IBM)"
+            },
+            {
+              "rate": "0.25%",
+              "description": "Banco Popular Employer Fee"
+            },
+            {
+              "rate": "5.00%",
+              "description": "Family Assignations"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Social Aid (IMAS)"
+            },
+            {
+              "rate": "1.50%",
+              "description": "Training Fund (INA)"
+            },
+            {
+              "rate": "0.25%",
+              "description": "Contribution from Banco Popular"
+            },
+            {
+              "rate": "1.50%",
+              "description": "Labor Capitalization Fund"
+            },
+            {
+              "rate": "2.00%",
+              "description": "Complementary Pension Fund"
+            },
+            {
+              "rate": "1.00%",
+              "description": "National Insurance Institute (INS)"
+            },
+            {
+              "rate": "*5.00%",
+              "description": "Solidarity Association (optional, not included in total cost)"
+            },
+            {
+              "rate": "26.67%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "5.50%",
+              "description": "Healthcare & Maternity (SEM)"
+            },
+            {
+              "rate": "4.17%",
+              "description": "Disability, Old Age & Death Benefits (IVM)"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Contribution from Banco Popular"
+            },
+            {
+              "rate": "10.67%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "0 – 922,000 CRC Monthly"
+            },
+            {
+              "rate": "10.00%",
+              "description": "922,001 – 1,363,000 CRC Monthly"
+            },
+            {
+              "rate": "15.00%",
+              "description": "1,363,001– 2,392,000 CRC Monthly"
+            },
+            {
+              "rate": "20.00%",
+              "description": "2,392,001 – 4,783,000 CRC Monthly"
+            },
+            {
+              "rate": "25.00%",
+              "description": "4,783,001 CRC Monthly and above"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "General\nThe daily minimum wage is:\nUnskilled workers = CRC 12,236.95\nSemi-skilled workers = CRC 13,306.79\nSkilled workers = CRC 13,713.20\nSpecialized workers = CRC 15,983.95",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Costa Rica is generally monthly and payments are to be made once each month.",
+          "13th_salary": "In Costa Rica, it is mandatory to pay a 13th-month salary payment (Christmas bonus-Aguinaldo); the employer must make the payment by 20th December each year."
+        },
+        "working_hours": {
+          "general": "The standard workweek in Costa Rica is 8 hours per day, 48 hours per week. Nighttime workers, 7 p.m.-5 a.m. may only work a maximum of 36 weekly hours.",
+          "overtime": "Over 48 hours in a week is considered overtime and is paid at 150% of the regular wages. Pay for work on holidays is at 200%. The maximum overtime allowed to perform daily is 4 hours.\nCertain roles, like managerial and supervisory positions, may be exempt from overtime limits based on their contractual obligations and responsibilities.​"
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In Costa Rica, the paid annual leave entitlement is dependent on the years of service that the employee has served. The standard paid leave entitlement is 14 days per year for employees with 50 weeks of continuous employment. If the employee has fewer than 50 weeks of employment, they are entitled to one day of leave per month.\nEmployees are not entitled to accumulate or carry over any leave unless it is agreed upon by the employer and the employee in a written agreement.",
+          "public_holidays": "Depending on the holiday, each year the Government will decide if public holidays falling on weekends will be moved to a weekday or will be lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n11 Apr 2025\tFriday\tJuan Santamaria’s Day\t\n17 Apr 2025\tThursday\tHoly Thursday\t\n18 Apr 2025\tFriday\tHoly Friday\t\n19 Apr 2025\tSaturday\tGood Saturday\t\n1 May 2025\tThursday\tLabor Day\t\n25 Jul 2025\tFriday\tAnexion del Partido de Nicoya\t\n2 Aug 2025\tSaturday\tOur Lady of Angels Day\t\n15 Aug 2025\tFriday\tMary’s Assumption and Mother’s Day\t\n31 Aug 2025\tSunday\tAfro-Costa Rican Culture Day\t\n15 Sep 2025\tMonday\tIndependence Day\t\n1 Dec 2025\tMonday\tAbolition of the Army Day\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "During the first 3 days of sickness, the employer must pay the worker 50% of their regular salary. From day 4 of sickness onwards (up to a period of 26 weeks) the Social Security (CCSS) pays 60% of the normal daily wage and the employer is not obligated to pay anything additional.\nThe employee must submit a medical certificate to the Social Security administration to receive payment within 48 hours of the start of the sick leave.",
+          "maternity_leave": "Pregnant employees are entitled to receive four months of paid maternity leave; 1 month before the due date and three months after the due date.\nThe maternity payment responsibility is shared equally between the employer and the CCSS (Costa Rican Social Security Fund) for the full four months.",
+          "paternity_leave": "Fathers are entitled to two days of paternity leave each week for the first four weeks following the birth of their child, the cost is shared evenly between employers and social security.",
+          "parental_leave": "Private sector employees are not entitled to receive parental leave.",
+          "other_leave": "Marriage Leave – employees are entitled to 1 day of paid leave for their own wedding.\nBereavement Leave – in the event of the death of an immediate family member, an employee is entitled to 3 days of paid leave."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment agreement or collective agreement in place and is based on the type of contract and reason for termination.\nIndividual employment contracts can be terminated:\nBy law\nBy mutual consent of the parties\nBy either party of the employment contract within the terms and conditions provided by the law\nEmployers may terminate employment contracts by dismissal for reasons related to the employee (e.g. professional inadequacy, as a disciplinary sanction) or not associated with the employee (e.g. job cancellation).\nIf the employer requests a dismissal letter, the employer is obligated to present one whatever the cause of termination was.",
+          "notice_period": "In Costa Rica, the notice period for a temporary or permanent employee is dependent on the employee’s length of service as below:\n0-3 months: No notice required\n3-6 months: 1 week\n6 months-1 year: 15 days\n1 year+: 1 month",
+          "severance_pay": "In Costa Rica, the severance pay is dependent on the employee’s length of service as below:\n3 to 6 months: 7 days\n6 months to 1 year: 14 days\n1 year: 19.5 days\n2 years: 20 days\n3 years: 20.5 days\n4 years: 21 days\n5 years: 21.24 days\n6 years: 21.5 days\n7 – 9 years: 22 days\n10 years: 21.5 days\n11 years: 21 days\n12 years: 20.5 days\n13 years+ 21",
+          "probation_period": "The probationary period in Costa Rica is dependent on the type of role and is stipulated within the employment agreement. In general, probation periods are three months in which it is possible to end the contract without any justification or compensation being paid. It is not permitted to include a probation period in a fixed term contract."
+        },
+        "visa": {
+          "general_info": "Costa Rica’s immigration system provides several options for employers of foreign nationals, including mechanisms for business visits, short-term assignments or employment, long-term temporary employment, and adjustment of status to permanent residence.\nA business entry authorization allows foreign nationals to perform a wide range of business and professional activities in Costa Rica for up to 30 or 90 days (depending on nationality), provided they do not receive remuneration locally. Visa-exempt nationals may receive the business entry authorization upon arrival, while visa nationals require either a Consular or a Restricted Entry Visa, depending on their nationality. The Restricted Visa Commission must approve a Restricted Entry Visa in Costa Rica before a consulate may issue it.\nForeign nationals seeking to conduct business or work activities for more than 30 or 90 days (depending on nationality) or seeking to conduct any locally remunerated activity in Costa Rica require work authorization. The Short-Stay Visa is used by skilled foreign nationals seeking to conduct business or professional activities for more than 30 or 90 days (depending on nationality) or short-term remunerated work in Costa Rica. It permits work initially from six months to one year.\nThe primary category of work authorization is the Temporary Residence (either for accredited or non-accredited companies), which is typically granted for two years. Companies accredited by immigration authorities in Costa Rica receive benefits such as a special processing desk for immigration applications with shorter processing times and the ability to work during the processing of their immigration applications.\nCompanies can register with the General Directorate of Migration and Foreigners and by so doing, receive special treatment that can see reduced deadlines for the processing of residence applications."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Costa Rica is 13.00%."
+        }
+      }
+    }
+  ]
+}

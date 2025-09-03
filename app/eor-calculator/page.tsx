@@ -5,7 +5,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, Heart } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft, Heart, Trash2 } from "lucide-react"
 import Link from "next/link"
 
 import { useEORForm } from "./hooks/useEORForm"
@@ -43,6 +44,7 @@ export default function EORCalculatorPage() {
     updateFormData,
     updateValidationError,
     clearAllData,
+    clearStoredData,
     clearValidationErrors,
     isFormValid,
     updateBenefitSelection,
@@ -409,6 +411,7 @@ export default function EORCalculatorPage() {
                   usdConversionError={usdConversionError}
                   onCalculate={calculateQuote}
                   onClear={handleClearAll}
+                  onClearStorage={clearStoredData}
                   enableComparison={formData.enableComparison}
                 />
               </CardContent>

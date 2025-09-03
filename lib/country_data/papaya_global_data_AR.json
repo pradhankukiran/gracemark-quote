@@ -1,0 +1,176 @@
+{
+  "scraped_at": "2025-08-24T17:34:41.397Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Argentina",
+      "url": "https://www.papayaglobal.com/countrypedia/country/argentina/",
+      "scraped_at": "2025-08-24T17:34:41.384Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "12.16%",
+              "description": "Pension Fund"
+            },
+            {
+              "rate": "6.00%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "6.00%",
+              "description": "National Employment Fund"
+            },
+            {
+              "rate": "2.00%-5.00%",
+              "description": "Injury Insurance"
+            },
+            {
+              "rate": "176 ARS",
+              "description": "Life Insurance"
+            },
+            {
+              "rate": "26.16% – 29.16% +176 ARS",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "11.00%",
+              "description": "Pension Fund (applied on salary between 7,003.68 to 1,471,616.10 ARS Monthly)"
+            },
+            {
+              "rate": "3.00%",
+              "description": "Social Security (applied on salary between 7,003.68 to 1,471,616.10 ARS Monthly)"
+            },
+            {
+              "rate": "3.00%",
+              "description": "Health Insurance (applied on salary between 7,003.68 to 1,471,616.10 ARS Monthly)"
+            },
+            {
+              "rate": "17.00%",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": [
+            {
+              "rate": "5.00%",
+              "description": "Up to 1,200,000 ARS per month"
+            },
+            {
+              "rate": "9.00%",
+              "description": "1,200,000 – 2,400,000 ARS per month"
+            },
+            {
+              "rate": "12.00%",
+              "description": "2,400,000 – 3,600,000 ARS per month"
+            },
+            {
+              "rate": "15.00%",
+              "description": "3,600,000- 5,400,000 ARS per month"
+            },
+            {
+              "rate": "19.00%",
+              "description": "5,400,000 – 10,800,000 ARS per month"
+            },
+            {
+              "rate": "23.00%",
+              "description": "10,800,000 – 16,200,000 ARS per month"
+            },
+            {
+              "rate": "27.00%",
+              "description": "16,200,000 – 24,300,000 ARS per month"
+            },
+            {
+              "rate": "31.00%",
+              "description": "24,300,000 – 36,450,000 ARS per month"
+            },
+            {
+              "rate": "35.00%",
+              "description": "36,450,000 ARS and above per month"
+            }
+          ]
+        },
+        "minimum_wage": "General\nThe national minimum wage is 296,832 ARS per month",
+        "payroll": {
+          "payroll_cycle": "Payment is dependent on the type of contract in place and per Sections 126 and 128 of the Argentina Employment Contract Law. Payments are made as follows:\nMonthly employees are to be paid at the end of each calendar month\nEmployees with daily or hourly wages must be paid weekly or bi-weekly\nPersonnel who are paid per project must be paid weekly or bi-weekly\nPayments must be made within four working days for monthly or bi-weekly employees and three working days for weekly employees.\n13th Salary\nArgentinian local law states employees are entitled to receive an additional month’s salary, a 13th month salary: Aguinaldo. This 13th-month salary is payable in two semi-annual installments, which are due for payment before June 30th and December 18th, respectively.\nThe amount of each installment is equal to 50.00% of the highest monthly wage received during the previous 6-month period."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Income Tax Withholding",
+            "paid_to": "Administración Federal de Ingresos Públicos",
+            "due_date": "Between 8 to 11 of the following month.\n\nThe date is driven by the last digit of the tax ID number",
+            "method": "Electronic payment"
+          },
+          {
+            "authority_payment": "National Pension",
+            "paid_to": "Administración Federal de Ingresos Públicos",
+            "due_date": "Between 8 to 11 of the following month.\n\nThe date is driven by the last digit of the tax ID number",
+            "method": "Electronic payment"
+          },
+          {
+            "authority_payment": "National Social Security",
+            "paid_to": "Administración Federal de Ingresos Públicos",
+            "due_date": "Between 8 to 11 of the following month.\n\nThe date is driven by the last digit of the tax ID number",
+            "method": "Electronic payment"
+          },
+          {
+            "authority_payment": "National Health Insurance",
+            "paid_to": "Administración Federal de Ingresos Públicos",
+            "due_date": "Between 8 to 11 of the following month.\n\nThe date is driven by the last digit of the tax ID number",
+            "method": "Electronic payment"
+          },
+          {
+            "authority_payment": "ART",
+            "paid_to": "Administración Federal de Ingresos Públicos",
+            "due_date": "Between 8 to 11 of the following month.\n\nThe date is driven by the last digit of the tax ID number",
+            "method": "Electronic payment"
+          },
+          {
+            "authority_payment": "Mandatory collective life insurance",
+            "paid_to": "Administración Federal de Ingresos Públicos",
+            "due_date": "Between 8 to 11 of the following month.\n\nThe date is driven by the last digit of the tax ID number",
+            "method": "Electronic payment"
+          }
+        ],
+        "working_hours": {
+          "general": "The Employment Contract Law states that working hours shall not exceed 8 hours per day and 48 hours per week excluding rest time. However, laws associated with work considered unhealthy or with night shifts (9 pm – 6 am) limit employees to 7 hours of work.",
+          "overtime": "Overtime hours must not exceed 3 hours per day, 30 hours per month, or 200 hours per year unless prior authorization from the relevant labor authority has been agreed.\nOvertime worked on weekdays is paid at an additional 50% of the salary, whereas overtime worked on a Saturday afternoon, Sunday, or public holiday would be paid at double the salary.\nDirectors and Managers are generally exempt from the application of rules on working hours and overtime.​"
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees who have worked for an employer for more than six months are entitled to 2 weeks (14 calendar days) of annual leave. The amount of holiday entitlement increases with the length of continuous employment, up to a maximum of 35 calendar days.\nNew employees are entitled to 1 day of leave for every 20 days worked.\nThe entitled paid vacation for employees in Argentina is dependent on their time with the employer:\nEmployees who have worked for the same employer for less than five years are entitled to 14 calendar days leave\nEmployees who have worked for the same employer for 5–10 years are entitled to 21 calendar days leave\nEmployees who have worked for the same employer for 10–20 years are entitled to 28 calendar days leave\nEmployees who have worked for the same employer for more than 20 years are entitled to 35 calendar days leave\nDuring annual leave, the employer must pay the employee full salary as well as any other entitled benefits. Annual leave is calculated by dividing the salary payment by 25 and multiplying it by the number of days of holiday to which the employee is entitled.",
+          "public_holidays": "National holidays that fall on Tuesdays and Wednesdays are moved to the previous Monday and holidays that fall on Thursdays or Fridays are moved to the following Monday.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n3 Mar 2025\tMonday\tCarnival\t\n4 Mar 2025\tTuesday\tCarnival\t\n24 Mar 2025\tMonday\tDay of Truth and Justice\t\n2 Apr 2025\tWednesday\tVeterans Day and tribute to the fallen in the Malvinas War\t\n18 Apr 2025\tFriday\tGood Friday\t\n1 May 2025\tThursday\tLabor Day\t\n25 May 2025\tSunday\tMay Revolution\t\n16 Jun 2025\tMonday\tPassing into Immortality of General Don Martín Miguel de Güemes\tMoved from 17 June 2025.\n20 Jun 2025\tFriday\tPassage to the Immortality of General Manuel Belgrano\t\n9 Jul 2025\tWednesday\tIndependence Day\t\n18 Aug 2025\tMonday\tPassage to the Immortality of General José de San Martín\tMoved from 17 August 2025\n13 Oct 2025\tMonday\tDay of Respect for Cultural Diversity\tMoved from 12 October 2025\n20 Nov 2025\tWednesday\tNational Sovereignty Day\t\n8 Dec 2025\tMonday\tDay of the Immaculate Conception of Mary\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "If an employee has worked for a company for less than five years, they are entitled to a maximum of 3 months of paid sick leave. Once they have worked for a company for more than five years, the paid sick leave is extended to 6 months.\nThe employer is primarily responsible for paying regular salary during sickness absence. When absence is due to work-related accident, injury or illness. The Employment Risk Insurance (which is compulsory insurance for employers) typically covers any treatment, sick pay or rehabilitation.\nWorkers must notify their employer’s from day 1 of illness and provide a medical certificate.",
+          "maternity_leave": "Maternity leave is 90 days of which the mother must take at least 30 days before the birth of the child. Commonly, the leave is split 45 days on either side of the delivery.\nThe Argentine Social Security system pays maternity leave.",
+          "paternity_leave": "The non birthing partner is entitled to 2 consecutive calendar days of paternity leave, paid by the employer.",
+          "parental_leave": "There are no provisions for Parental leave in Argentina.",
+          "other_leave": "Employees also receive paid Special Leave under the following circumstances:\nMarriage Leave – an employee is entitled to 10 consecutive days’ leave for their marriage. A marriage certificate must be provided.\nBereavement Leave – an employee is entitled to 3 consecutive days’ leave for the death of a child, parent, spouse or other close family members.\nStudy Leave – an employee is entitled to 2 consecutive days’ leave per exam, with a maximum of 10 days leave per year."
+        },
+        "termination": {
+          "termination_process": "The employer must justify any termination with notice unless it is through mutual agreement, the employee’s failure to fulfill their work requirements, severe misconduct, or economic factors.",
+          "notice_period": "Employees who have worked for the same company for more than three months but less than five years must provide 1 month’s notice.\nEmployees who have worked for the same company for more than five years must provide 2 months’ notice.\nDuring the probation period 15 days notice must be given.",
+          "severance_pay": "An employee who is dismissed without reasonable cause is entitled to statutory severance of 1 month’s salary for each year of service, or period longer than 3 months. This amount is calculated using the employee’s highest monthly, regular compensation received in the last 12 months of work. This baseline cannot be more than 3 times the monthly payment, which is the average of all compensation set out in the applicable CBA at the time of the dismissal. This average is periodically published.\nIf the employee is not subject to a CBA (typically senior employees), the limits applicable to the activity in which they perform duties still apply. In no case will the amount of the compensation payable be less than 1 month of salary. Currently in the Vizotti case, the Supreme Court of Justice has raised the basis for calculating compensation subject to a limit, establishing that it will be 67% of the employee’s monthly and usual compensation, the amount to be multiplied by the employee’s years of service based on constitutional reasons and in cases where the application of the legal limit imposes a reduction to the severance payment of more than 33%.\nThis severance payment may be reduced or increased in other types of termination (e.g., force majeure and lack or reduction of work, death of the employee, employer bankruptcy, employee retirement, employee illness, or employee pregnancy).\nFurther, on December 13, 2019, the administration enacted Decree No. 34/2019 to protect the employment market. Specifically, it implemented double compensation in the event of dismissal without cause, which is effective until June 2022. Recently, by means of Decree No. 886/2021, the national government increased severance based on the timing of the dismissal, as follows:\n(i) Severance payment will be increased by 75% if the dismissal occurs between January 2022 and February 2022 (ii) Will be increased by 50% if the dismissal occurs between March 2022 and April 2022, and (iii) by 25% if the dismissal occurs between May 2022 and June 2022.\nThis regime applies to those employees who were employed on or before December 13, 2019, and are dismissed without cause between December 14, 2019, and June 30, 2022. In case of dismissal without cause during the employment emergency period, the dismissed employee is entitled to receive an increased severance payment in accordance with the current legislation, covering all the compensatory items originated by such wrongful termination.\nDismissal with cause any of the parties may terminate the contract, which results in no severance payments. This is a very difficult standard.",
+          "probation_period": "A maximum probation period of up to months can be used. During this period, should the employer or the employee decide to terminate the contract without cause, the employer has no obligation to pay severance but must notify the employee of the termination at least 15 days in advance."
+        },
+        "common_benefits": [
+          "Gym Allowance – 5,000 to  7,000 ARS monthly.",
+          "Meal Vouchers – 6,000 ARS monthly.",
+          "Transportation Allowance – 200 to 300 ARS per day, depending on distance between workers home and office.",
+          "Internet Allowance – 2,500 ARS monthly.",
+          "Mobile Allowance –  3,000 ARS monthly.",
+          "Private Health Insurance – 10.000 to 12.000 ARS monthly for employee-only cover. The age, extent of cover, and medical history can also impact the cost."
+        ],
+        "visa": {
+          "general_info": "There are three categories of residence in Argentina: transitory, temporary, and permanent residence:\n\nThe transitory residence is generally for individuals living in Argentina for less than three months and does not allow work except for technical residents.\nTechnical Residency is granted to foreigners who perform technical or professional activities. Individuals can obtain this residency at the Argentinean Consulate in their home country/territory or after arriving as a tourist.\nBusiness residency is issued to foreigners who have been invited by a company that is established in Argentina. The individual can request this residency at the Argentinean Consulate of the foreigner’s home country/territory only. This type of residence is for business use. It is a 60-day residency, extended upon the Immigration Office’s discretion.\n\nTemporary residency is for foreigners who want to live in the country/territory for an extended period. They can work, study, live, etc. A work residence is the residence type applied to foreigners employed by a local company long term. The Work Residence is valid for one year and this can be extended indefinitely.\n\nPermanent Residence is for those foreigners who want to live in the country/territory permanently."
+        },
+        "vat": {
+          "general": "The rate of VAT in Argentina is 21%."
+        }
+      }
+    }
+  ]
+}

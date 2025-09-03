@@ -1,0 +1,89 @@
+{
+  "scraped_at": "2025-08-24T18:15:54.526Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Iceland",
+      "url": "https://www.papayaglobal.com/countrypedia/country/iceland/",
+      "scraped_at": "2025-08-24T18:15:54.516Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "6.35%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "11.00-13.00%",
+              "description": "Pension (If employees choose to contribute higher rate than the 4% minimum, the employer must contribute 2% extra to pension savings.)"
+            },
+            {
+              "rate": "17.40%-19.40%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "4.00%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "4.00%-11.00%",
+              "description": "Pension (Employees may make a higher contribution to their pension fund than 4%, to a maximum 11%)"
+            },
+            {
+              "rate": "8.00%-15.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "31.45%",
+              "description": "0-409,986 ISK"
+            },
+            {
+              "rate": "37.95%",
+              "description": "409,986-1,151,012 ISK"
+            },
+            {
+              "rate": "46.25%",
+              "description": "Above 1,151,012ISK"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "Iceland does not have an official government-mandated minimum wage. Instead, wages are determined through collective bargaining agreements between employers and unions. According to the Icelandic Store and Office Workers’ Union, the minimum wage in 2024 is approximately ISK 368,000 per month, which is about $2,680.",
+        "payroll": {
+          "payroll_cycle": "In Iceland, the payroll cycle is typically monthly. Employees are usually paid by the 1st of the following month.",
+          "13th_salary": "In Iceland, there are no legal provisions requiring employers to pay a 13th or 14th salary. However, employees receive two holiday bonuses per year, one paid between 1 May and 15 August and the second one paid on 1 December. In the case of the summer holiday bonus, this is 10.17% of annual income and it is paid on a pro rata basis if an employee has not completed 12 months of service at the time of payment. To be eligible to receive the December holiday bonus, an employee must have at least 12 months of service with the current employer. The December bonus is a fixed rate of approximately ISK 82,000."
+        },
+        "working_hours": {
+          "general": "A typical office workweek in Iceland runs from Monday to Friday, totaling 37.5 hours per week, excluding a half-hour lunch break. Employers are prohibited from scheduling workdays longer than 13 hours.\nEmployees are entitled to a continuous rest period of 11 hours within any 24-hour period. Additionally, depending on the nature of the work and the employment contract, Sundays should generally be observed as a day of rest.",
+          "overtime": "Any work beyond eight hours per day is considered overtime unless the employment contract explicitly states that the salary compensates for occasional overtime. If the contract includes provisions for overtime, employees can request their employer to specify the number of hours included before overtime pay begins.\nOvertime is calculated at 0.875% of the monthly salary per hour for the first 162.5 hours of overtime per month. Any overtime exceeding 162.5 hours is paid at 1.0385% of the monthly salary per hour.\nEmployees can request to convert overtime into extra holiday days instead of pay, with one hour of overtime equating to one hour and forty minutes of holiday. If an employee is called into work on a Saturday or Sunday, they are entitled to four hours of overtime pay just for showing up, regardless of the task’s duration."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The minimum annual leave entitlement in Iceland, according to the Holiday Allowance Act, is 24 days. However, many collective bargaining agreements provide for 25 to 30 days of vacation per year.\nVacation is accrued over one year to be taken in the following year, with the vacation year running from May 1 to April 30. Employees who have not worked a full year are entitled to proportional vacation, earning two vacation days for each month worked during the earning year.\nVacation and vacation pay increase with length of service. Employees accumulate paid holiday, with a minimum entitlement of 24 weekdays of paid leave. Holiday pay is 10.17% of total wages. After five years in the same line of work, this increases to 25 weekdays and 10.64% of total wages. After five years with the same employer, it increases to 27 weekdays and 11.59% of total wages. After ten years with the same employer, it reaches 30 weekdays and 13.04% of total wages.\nFixed Christmas bonuses are payable on December 1, and holiday bonuses are payable in summer, between May 1 and August 15. If an employee has worked only part of the year, their bonus will be proportional to their time in service. The bonus is paid together with the salary in the corresponding month.",
+          "public_holidays": "Public holidays falling on the weekend are usually lost.",
+          "sick_days": "During their first year with a new employer, employees are entitled to two days of paid sick leave per month. After one year, they are entitled to two months of paid sick leave. Employers have the right to request a doctor’s note to verify the illness. After 21 consecutive days of illness, sick pay is provided through social security.\nAfter five years with the same employer, employees are entitled to four months of paid sick leave, and this increases to six months after ten years. If an employee changes employers after five years, they are still entitled to at least two months of paid sick leave with the new employer.",
+          "parental_leave": "In Iceland, there is no separate maternity or paternity leave; instead, there is parental leave, which lasts for 12 months. This allows both parents to take six months off work each, with one month transferable between them. Mothers may take up to one month off work before the baby arrives and must take at least two weeks of parental leave following the birth.\nThe standard monthly parental leave payment is 80% of the salary, capped at ISK 600,000 before taxes. The payments is covered by the Parental Leave Fund (Fæðingarorlofssjóður)\nDuring parental leave, the employment contract and all benefits remain intact.\nAdditionally, parents are entitled to take up to four months of unpaid leave to care for a child until the child is eight years old.",
+          "other_leave": "Carers’ Leave-In Iceland, employees can take up to 24 days of paid leave per year to care for sick children, as specified by collective bargaining agreements. For broader family care, while there are no legal entitlements, the Equal Status Act requires employers to accommodate employees’ family responsibilities. Most agreements outline specific leave days for family care."
+        },
+        "termination": {
+          "termination_process": "Either the employee or the employer can terminate the employment contract, but notice must be given in writing. The notice period starts at the beginning of the following month and typically lasts three months, unless both parties agree to a different period, with a minimum of one month.\nEmployers do not need to state a reason for termination, but it must not violate employee protections such as those related to pregnancy, trade union representation, family responsibilities, or sickness absence. Employees are generally expected to work during the notice period unless otherwise agreed.\nIf formal notice is not given by the last working day of the month, the notice period is pushed to the next month. The employment contract remains in effect until the end of the notice period, maintaining all rights and obligations, unless both parties agree to end the relationship sooner.",
+          "notice_period": "A three-month notice period is common in Iceland. The minimum notice period is one month, with no upper limit specified.",
+          "severance_pay": "There is no statutory right to severance pay in Iceland. However, employees are entitled to their regular salary and any additional contractual benefits during the notice period, as specified in their employment terms.\nEmployers not bound by collective agreements may choose to offer severance packages, which can include severance pay, education, or release from work duties. These packages are typically based on one to 24 months of salary, considering factors such as seniority, age, and social circumstances.\nThe right to such benefits usually requires the employee to sign a termination agreement, waiving the right to pursue legal action under the Employment Act. These agreements can be made before or after the employee receives notice.",
+          "probation_period": "An employment contract may contain a probationary period up to a maximum of 3 months"
+        },
+        "visa": {
+          "general_info": "Nationals of the member states of the European Economic Area (EEA), European Free Trade Association (EFTA), and the Faroe Islands do not need a work permit in Iceland. Nationals from other countries outside these regions require a work permit to work.\n\nApplications for work permits, including the necessary supporting documentation, must be submitted to the Directorate of Immigration, which forwards the application to the Directorate of Labour, provided that the conditions for issuing a residence permit are met.\n\nForeign nationals from outside the EEA and EFTA who plan to stay in Iceland for more than three months must have a valid residence permit. Those from the EEA and EFTA states do not need a special residence permit to stay in Iceland for more than three months (or up to six months if seeking employment) but must register with Registers Iceland and fulfill certain conditions under Article 89 of Act No. 80/2016 on Foreigners.\n\nCitizens of other Nordic countries (Denmark, Finland, Sweden, and Norway) can stay in Iceland without a residence permit. Work permits are valid for one or two years, depending on the employee category.\n\nThe processing time can vary, but at least three months should be allowed, and the current fee for residence permits for work purposes is ISK 15,000.\n\nEmployers must verify that an employee holds a valid work and residence permit and keep a copy of the relevant documents for 12 months after employment termination. Employers hiring individuals without the required permits can face sanctions such as fines.\n\nAll residents must have an Icelandic Identification Number, known as “Kennitala,” which is issued automatically by the Directorate of Immigration when an application for a work/residence permit is lodged. This number is necessary for tax purposes, opening a bank account, or even taking membership at a local gym."
+        }
+      }
+    }
+  ]
+}

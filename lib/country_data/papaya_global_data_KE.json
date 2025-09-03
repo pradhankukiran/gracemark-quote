@@ -1,0 +1,107 @@
+{
+  "scraped_at": "2025-08-24T18:17:50.473Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Kenya",
+      "url": "https://www.papayaglobal.com/countrypedia/country/kenya/",
+      "scraped_at": "2025-08-24T18:17:50.464Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "6.00%",
+              "description": "National Social Security Fund (NSSF) –\n\nTier 1 applied on income up to 8,000 KES (a minimum contribution of 480 KES Monthly)\n\nTier 2 applied on income between 8,000 KES – 72,000 KES  (a minimum contribution of 3,840 KES Monthly)"
+            },
+            {
+              "rate": "1.50%",
+              "description": "National Housing Development Fund (NHDF)"
+            },
+            {
+              "rate": "50 KES per employee",
+              "description": "National Industrial Training Levy (NITA)"
+            },
+            {
+              "rate": "7.5%+50 KES",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "6.00%",
+              "description": "National Social Security Fund (NSSF) –\n\nTier 1 applied on income up to 8,000 KES (a minimum contribution of 480 KES Monthly)\n\nTier 2 applied on income between 8,000 KES – 72,000 KES  (a minimum contribution of 3,840 KES Monthly)"
+            },
+            {
+              "rate": "1.50%",
+              "description": "National Housing Development Fund (NHDF)"
+            },
+            {
+              "rate": "2.75%",
+              "description": "Social Health Authority (SHA)"
+            },
+            {
+              "rate": "10.25%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "income_tax": [
+            {
+              "rate": "10.00%",
+              "description": "On the first 288,000 KES per year"
+            },
+            {
+              "rate": "25.00%",
+              "description": "On the next 100,000 KES per year"
+            },
+            {
+              "rate": "30.00%",
+              "description": "On the next 5,612,000 KES per year"
+            },
+            {
+              "rate": "32.5%",
+              "description": "On the next 3,600,000 KES per year"
+            },
+            {
+              "rate": "35.00%",
+              "description": "On all income over 9,600,000 per year"
+            }
+          ]
+        },
+        "minimum_wage": "The general monthly minimum wage is 15,201.65 KES.\nSpecific industries and cities might have a higher minimum wage in place e.g.  for cleaners, gardeners, security guards, cashier or heavy commercial driver.",
+        "payroll": {
+          "payroll_cycle": "In Kenya, the payroll frequency is monthly. Work between the first and last day of the month is typically paid on the last day of the month. Casual employees are to be paid at the end of the workday.",
+          "13th_salary": "There are no provisions in the law."
+        },
+        "working_hours": {
+          "general": "The standard workweek in Kenya is 45 hours per week.\nThe New Labour Law states that employees should not work more than 56 hours per week and the maximum overtime per day should not exceed 4 hours. There are also new laws for shift work patterns.",
+          "overtime": "Overtime is paid at the rate of 150% of regular pay.\nThe New Labour Law requires employers to provide extra pay to El Salvador employees who work during night hours (between 10pm and 6am) if time off in lieu is not provided. The pay amount must be not less than 1.2 times the regular hourly salary."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "An employee is entitled to a minimum of 21 working days of paid annual leave per year. Employers typically decide to implement policies which allows workers to use leave from the start of employment.\nWith the employee’s consent, it is possible to divide the minimum annual leave entitlement into different parts to be taken at different intervals, however, the Labour Law  does entitle an employee to 10 consecutive calendar days of leave at least once out of the minimum 15 calendar days leave.",
+          "public_holidays": "Public holidays that fall on a Sunday are moved to the following Monday as a day off in lieu.\nThe religious holidays are determined by the lunar cycle and will be confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n30 Mar 2025\tSunday\tIdd ul Fitr\t\n31 Mar 2025\tMonday\tIdd ul Fitr\t\n1 Apr 2025\tTuesday\tIdd ul Fitr\t\n2 Apr 2025\tWednesday\tIdd ul Fitr\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n1 Jun 2025\tSunday\tMadaraka Day\t\n2 Jun 2025\tMonday\tMadaraka Day Holiday\tDay Off in Lieu\n6 Jun 2025\tFriday\tIdd ul Azha\t\n10 Oct 2025\tFriday\tMazingira Day\t\n20 Oct 2025\tMonday\tDiwali\tTentative\n12 Dec 2025\tFriday\tMashujaa/Jamhuri Day\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day",
+          "sick_days": "After two consecutive months of service, employees are entitled to sick leave of up to 30 days at full salary followed by 15 days at half salary in each period of 12 consecutive months of service.\nAll sickness leave requires a professional medical certificate of incapacity to work.",
+          "maternity_leave": "Women are entitled to three months of maternity leave paid at 100% of the regular pay rate. To be eligible, the woman must give at least seven days’ notice to their employer when the leave is intended to be taken and must provide a medical certificate. In the event of adoption, the same laws for maternity and paternity leave apply. However, instead of seven days’ notice, 14 days’ notice must be given to the employer.",
+          "paternity_leave": "Fathers are entitled to two weeks of paid paternity leave.",
+          "parental_leave": "Fathers are entitled to 2 weeks paid paternity leave.",
+          "other_leave": "Parents who are preparing to adopt a child are eligible for one month of pre-adoptive leave with full pay. Parents must provide 14 days’ notice to their employer and show the relevant adoption papers."
+        },
+        "termination": {
+          "termination_process": "Employers can terminate employees’ employment for the following reasons –performance, redundancy, and any other substantial reason that may justify dismissal,or worker misconduct. It requires notice and a written explanation for the termination. If the reason is misconduct, a warning needs to be given with the employee given a chance to explain his/her actions.\nWhen the employer initiates the termination of an employment agreement, the employer must pay final wages on the termination date.",
+          "notice_period": "Notice periods in Kenya are as follows:\nEmployees terminated during the probationary period should be given at least seven days’ notice.\nIf the employee is being paid daily, notice is not required.\nIf the employee is being paid periodically (weekly or bi-weekly), the notice is one week or two weeks, accordingly.\nIf the employee is being paid monthly  a month’s notice is required.",
+          "severance_pay": "Severance pay is payable at the rate of 15 days for every year worked and is only payable in cases where termination is on account of redundancy. In cases of termination for other reasons other than redundancy, service pay is payable at a rate equal to that of severance pay.",
+          "probation_period": "The probation period in Kenya is cannot be more than to six months, and can be extended up to an additional 6 months, with the employee’s consent. A probationary contract must be in writing and state it is for a probationary period. If the employer dismisses the employee during this time, seven days’ notice or payment in lieu must be given. A probationary worker’s base salary must be the same as the base salary of the same position."
+        },
+        "visa": {
+          "general_info": "Kenya’s immigration system provides several options for employers of foreign nationals. Most​ business travelers must apply for an eVisa to enter the country. Port-of-entry immigration officers will determine the authorized length of stay in Kenya, which is usually a maximum of 30 days, extendable twice for 30 days each at the Immigration Department in Kenya for a maximum of​ 9​0 days​.​\n\nThe Special Pass allows foreign nationals to conduct work activities for up to 90 days. Special Pass applications are filed at the Kenya Immigration Department Headquarters before the foreign national travels to Kenya.\n\nThe long-term work permit (Class D Permit) is suitable for skilled and experienced professionals or technical workers and it requires sponsorship from a Kenyan legal entity. Work permits are issued for one or two years ​and can be renewed for similar periods.​​"
+        },
+        "vat": {
+          "general_info": "General\n\nThe standard VAT rate is 16%."
+        }
+      }
+    }
+  ]
+}

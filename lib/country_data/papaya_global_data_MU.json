@@ -1,0 +1,183 @@
+{
+  "scraped_at": "2025-08-24T18:23:36.142Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Mauritius",
+      "url": "https://www.papayaglobal.com/countrypedia/country/mauritius/",
+      "scraped_at": "2025-08-24T18:23:36.128Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "3.00%",
+              "description": "Contribution Sociale Generalisee (CSG) (An employee, other than a public sector employee, earning a basic wage or salary not exceeding MUR 50,000 in a month."
+            },
+            {
+              "rate": "6.00%",
+              "description": "Contribution Sociale Generalisee (CSG) An employee other than a public sector employee earning a basic wage or salary exceeding MUR 50,000 in a month."
+            },
+            {
+              "rate": "2.50%",
+              "description": "National Savings Fund (NSF) -threshold MUR 24,315"
+            },
+            {
+              "rate": "6.00%",
+              "description": "National Pension Fund"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Training Levy"
+            },
+            {
+              "rate": "12.50%-15.50%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "1.50%",
+              "description": "Contribution Sociale Generalisee (CSG) (An employee, other than a public sector employee, earning a basic wage or salary not exceeding MUR 50,000 in a month."
+            },
+            {
+              "rate": "3.00%",
+              "description": "Contribution Sociale Generalisee (CSG) An employee other than a public sector employee earning a basic wage or salary exceeding MUR 50,000 in a month."
+            },
+            {
+              "rate": "n/a",
+              "description": "Contribution Sociale Generalisee (CSG) Public sector employee earning a basic wage or salary not exceeding MUR 50,000 in a month."
+            },
+            {
+              "rate": "n/a",
+              "description": "Contribution Sociale Generalisee (CSG) Public sector employee earning a basic wage or salary exceeding MUR 50,000 in a month."
+            },
+            {
+              "rate": "n/a",
+              "description": "Contribution Sociale Generalisee (CSG) An employee who is in the domestic service earning a basic wage or salary not exceeding MUR 3,000 in aggregate in a month from one or more employers."
+            },
+            {
+              "rate": "1.00%",
+              "description": "National Savings Fund (NSF) – threshold MUR 24,315"
+            },
+            {
+              "rate": "3.00%",
+              "description": "National Pension Fund"
+            },
+            {
+              "rate": "5.50% – 7.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": "Annual"
+            },
+            {
+              "rate": "0%",
+              "description": "Up to 390,000 MUR"
+            },
+            {
+              "rate": "2%",
+              "description": "390,001 – 430,000 MUR"
+            },
+            {
+              "rate": "4%",
+              "description": "430,001 – 470,000 MUR"
+            },
+            {
+              "rate": "6%",
+              "description": "470,001 – 530,000 MUR"
+            },
+            {
+              "rate": "8%",
+              "description": "530,001 – 590,000 MUR"
+            },
+            {
+              "rate": "10%",
+              "description": "590,001 – 890,000 MUR"
+            },
+            {
+              "rate": "12%",
+              "description": "890,001 – 1,190,000 MUR"
+            },
+            {
+              "rate": "14%",
+              "description": "1,190,001 – 1,490,000 MUR"
+            },
+            {
+              "rate": "16%",
+              "description": "1,490,001 – 1,890,000 MUR"
+            },
+            {
+              "rate": "18%",
+              "description": "1,890,001 – 2,390,000 MUR"
+            },
+            {
+              "rate": "20%",
+              "description": "Over 2,390,000 MUR"
+            },
+            {
+              "rate": "Income exemption thresholds:",
+              "description": ""
+            },
+            {
+              "rate": "An individual with no dependents",
+              "description": "325,000 MUR"
+            },
+            {
+              "rate": "An individual with 1 dependent",
+              "description": "110,000 MUR"
+            },
+            {
+              "rate": "An individual with 2 dependents",
+              "description": "190,000 MUR"
+            },
+            {
+              "rate": "An individual with 3 dependents",
+              "description": "275,000 MUR"
+            },
+            {
+              "rate": "An individual with 4 or more dependents",
+              "description": "355,000 MUR"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The National minimum monthly wage, payable to full-time employees, is 17,110 MUR.",
+        "payroll": {
+          "payroll_cycle": "The typical payroll cycle in Mauritius is a monthly basis.",
+          "13th_salary": "There is a statutory requirement to provide a 13th salary. The employer shall pay the employee, either an end-of-year bonus equivalent to 1/12 of the annual earnings figure or a gratuity in accordance with the End of Year Gratuity Act 2001, (whichever is the higher), as long as the employee has been in continuous employment for the whole or part of the year and is still in employment as of 31 December of that year.\n75% of this expected bonus is payable no later than 5 working days before 25 December and the balance no later than the last working day of the year."
+        },
+        "working_hours": {
+          "general": "The standard workweek in Mauritius is 45 hours per week, 9 hours per day for five days in a week, or eight hours per day for six days in a week.",
+          "overtime": "All work exceeding the standard working hours a week is to be paid as overtime. Overtime is paid at 150% of the regular hourly salary rate. Should an employee be required to work for more than 2 hours after having completed the normal day’s work on any day of the week, the employer must provide an adequate free meal or be paid a meal allowance of 85.00 MAU."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are generally entitled to a minimum of 20 working days of paid annual leave once one year of service has been completed plus an additional 2 days leave per year.\nPrior to that once an employee has been employed for 6 months, the employee is entitled to one day leave per month for the remaining six months of the year, i.e., 6 days paid annual leave.",
+          "public_holidays": "Should an employee be requested to work on a public holiday or a rest day, the overtime should be paid at 200% of the regular salary hourly rate for the first 8 hours, thereafter at 300%.\nEach year the government may decide near the holiday period if a public holiday falling on a weekend will be moved to a weekday or will be lost.\nCertain religious holidays are determined by the lunar cycle and will be confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n2 Jan 2025\tThursday\tNew Year’s Day Holiday\t\n29 Jan 2025\tWednesday\tChinese Spring Festival\t\n1 Feb 2025\tSaturday\tAbolition of Slavery\t\n11 Feb 2025\tTuesday\tThaipoosam Cavadee\t\n26 Feb 2025\tWednesday\tMaha Shivaratree\t\n12 Mar 2025\tWednesday\tIndependence & Republic Day\t\n30 Mar 2025\tSunday\tUgaadi\t\n31 Mar 2025\tMonday\tEid al-Fitr\t\n1 Apr 2025\tTuesday\tEid al-Fitr\t\n2 Apr 2025\tWednesday\tEid al-Fitr\t\n1 May 2025\tThursday\tLabour Day\t\n28 Aug 2025\tThursday\tGanesh Chaturthi\t\n6 Jun 2025\tFriday\tEid al-Adha\t\n7 Jun 2025\tSaturday\tEid al-Adha\t\n8 Jun 2025\tSunday\tEid al-Adha\t\n20 Oct 2025\tMonday\tDivali\t\n1 Nov 2025\tSaturday\tAll Saint’s Day\t\n2 Nov 2025\tSunday\tArrival of Indentured Labourers\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "An employee is entitled to 15 working days 100% paid sickness absence per year (covered by the employer), following the completion of 12 months of service.\nAll employees must alert the employer on the first day of sickness and provide a medical certificate by the fourth day (at the latest).\nIn 2022, a new provision regarding leave to take care of a sick child has been introduced, whereby an employee earning a monthly basic salary equal to or less than MUR 50,000 is allowed to take up to 10 days’ paid leave during every period of 12 consecutive months to be calculated at the chosen option against annual, sick, or vacation leaves.",
+          "maternity_leave": "Female employees are entitled to 16 weeks of paid maternity leave in Mauritius, (following completion of one year of service) with the requirement to take at least 8 weeks after the birth.\nMothers who give birth to multiple babies from the same pregnancy or to a premature baby are entitled to an additional 2 weeks of employer-paid maternity leave.\nMaternity confirmation certificates must be provided before any maternity leave can commence.",
+          "paternity_leave": "In Mauritius a father is entitled to 4 consecutive calendar weeks of paid paternity following the birth.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "6 days paid leave for an employee’s first marriage\n3 days paid leave for the marriage of an employee’s child\n3 days paid leave for bereavement of a direct relative"
+        },
+        "termination": {
+          "termination_process": "Employers can terminate a fix term contract by giving the following reasons – business, personal, or employees misconduct. It requires notice and a written explanation for the termination (as required by the Workers’ Rights Act (WRA)).\nIn addition, the employer must pay the employee an end-of-year bonus equivalent to 1/12 of his yearly earnings on the last working day when:\n(a) the contract of determinate duration ends before the 31 December of any year\n(b)the contract is terminated in the course of the year for any reason\n(c) the employee resigns in the year after having been in continuous employment for at least 8 months\nIt is common to use a mutual term agreement to end the employment relationship. The terms of this agreement vary case by case.",
+          "notice_period": "The statutory notice period has stipulated in the Workers’ Rights Act (WRA) that an employer must give a minimum of 30 days notice prior to dismissal, although longer notice periods are often stipulated in the employment contract.",
+          "severance_pay": "In general, employees are entitled to severance pay based on length of service and reason for termination. In accordance with the Workers’ Rights Act (WRA) where the employer terminates an employee’s employment without justification, the worker may claim severance allowance against the employer if they have completed continuous employment for at least 12 months.\nSeverance allowance is calculated based on three months’ remuneration per year of service in that employment.",
+          "probation_period": "The standard probation period in Mauritius ranges from one to three months."
+        },
+        "visa": {
+          "general_info": "A foreign employee requires a work permit to start working in Mauritius but must also obtain a residence permit. An occupation is a package of both residence and work permit, allowing people to work and live in Mauritius. Obtaining an occupation permit in Mauritius is only possible when being a sponsored professional, self-employed worker, or an investor. Alternatively, a regular work permit that comes with a separate residence permit can be applied for.\n\nHowever, the Minister of Finance has announced immigration measures in the 2022 budget aimed at making the country’s immigration system more investor friendly. The announced measures include, the introduction of work and residence permit eligibility rights and benefits for residential property owners and shareholders of companies in Mauritius; assisting businesses to recruit foreign national graduates of local tertiary institutions under the Young Professional Occupation Permit; enabling entrepreneurs and students completing their studies to apply for a Premium Visa, which allows work for companies outside Mauritius while in Mauritius; and expediting the issuance of work permits. These measures are likely to pass and be implemented into law over the next 12 months."
+        },
+        "remote_work": "The Government of Mauritius passed the Workers’ Rights (Working from Home “WFH”) Regulations imposing that the employer may require an employee to work from home by providing a notice of 48 hours. An employee may equally make a request to work from home, and the employer has the discretion to whether approve or deny the request.\nThe employer and the employee should enter into a work from home agreement in compliance with the WFH Regulations.\nA remote employee is entitled to compensation for applicable work-related expenses such as electricity, water, telecommunication, disturbance allowance for work performed during working hours, etc.\nA remote employee is required to inform the employer of the proposed remote work premises. With authorization of the remote employee and prior notice, the employer may have access to the remote work premises in order to install, maintain or retrieve any working tools and equipment, deliver or collect working materials, conduct a suitable risk assessment to identify any risk to the health and safety of the remote worker where appropriate.",
+        "vat": {
+          "general": "The Standard rate of VAT in Mauritius is 15%."
+        }
+      }
+    }
+  ]
+}

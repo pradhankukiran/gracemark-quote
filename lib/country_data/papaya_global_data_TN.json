@@ -1,0 +1,122 @@
+{
+  "scraped_at": "2025-08-24T18:47:27.529Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Tunisia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/tunisia/",
+      "scraped_at": "2025-08-24T18:47:27.520Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "Rates may change based on the sector.",
+              "description": ""
+            },
+            {
+              "rate": "16.57%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "0.5%",
+              "description": "Work Insurance"
+            },
+            {
+              "rate": "1.0%",
+              "description": "Housing Levy"
+            },
+            {
+              "rate": "2.0% (1% for manufacturing industrial companies)",
+              "description": "Development Levy"
+            },
+            {
+              "rate": "20.07%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "9.18%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "9.18%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": "Annual"
+            },
+            {
+              "rate": "0%",
+              "description": "0-5,000 TND"
+            },
+            {
+              "rate": "15%",
+              "description": "5,000 – 10,000 TND"
+            },
+            {
+              "rate": "25%",
+              "description": "10,000 – 20,000 TND"
+            },
+            {
+              "rate": "30%",
+              "description": "20,000 – 30,000 TND"
+            },
+            {
+              "rate": "33%",
+              "description": "30,000 – 40,000 TND"
+            },
+            {
+              "rate": "36%",
+              "description": "40,000 – 50,000 TND"
+            },
+            {
+              "rate": "38%",
+              "description": "50,000 – 70,000 TND"
+            },
+            {
+              "rate": "40%",
+              "description": "Above 70,000 TND"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "Non-Agriculture sectors – 528.320 per month (based on 48 hours) and 448.238 per month (based on 40 hours).\nIndustrial and Agricultural workers – 20.320 per day\n",
+        "payroll": {
+          "payroll_cycle": "Employees are paid either weekly or monthly no later than the end of the month.",
+          "13th_salary": "Not required."
+        },
+        "working_hours": {
+          "general": "A work week consists of 5 days and should not exceed 48 hours.",
+          "overtime": "A workday should not exceed 10 hours per day or 60 hours per week."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees receive one vacation day per month. After one year of work, they will accumulate 12 working days as paid time off.",
+          "public_holidays": "There are 15 public holidays.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n20 Mar 2025\tThursday\tIndependence Day\t\n30 Mar 2025\tSunday\tEid al-Fitr\t\n31 Mar 2025\tMonday\tEid al-Fitr\t\n1 Apr 2025\tTuesday\tEid al-Fitr\t\n2 Apr 2025\tWednesday\tEid al-Fitr\t\n9 Apr 2025\tWednesday\tMartyrs’ Day\t\n1 May 2025\tThursday\tLabour Day\t\n6 Jun 2025\tFriday\tEid al-Adha\t\n26 Jun 2025\tThursday\tIslamic New Year\t\n25 Jul 2025\tFriday\tRepublic Day\t\n13 Aug 2025\tWednesday\tWomen’s Day\t\n4 Sep 2025\tThursday\tThe Prophet’s Birthday\t\n15 Oct 2025\tWednesday\tEvacuation Day\t\n17 Dec 2025\tWednesday\tRevolution & Youth Day",
+          "sick_days": "For an employee to receive sickness benefits, they must have at least 50 days of covered employment in the last two quarters or 80 days in the last fourth quarters before sickness began. The insured employee receives 66.7% of their daily average earnings for 180 days after a five-day waiting period. For up to 180 days a year for each next year, they receive 50%.",
+          "maternity_leave": "Female employees receive 30 days of leave. In order to receive 66.7% of their daily earnings, the employee must have contributed to social insurance for at least 80 days in the four quarters leading up to the birth.",
+          "paternity_leave": "Fathers receive one day of paid leave within the first seven days following the birth of the child.",
+          "parental_leave": "A lump sum of the insured’s daily average quarterly earnings is given.",
+          "other_leave": "Work-related injury leave: There is no qualifying period, but the accident must be reported to the employer within 48 hours and be assessed. The injured employer will receive 66.7% of their average daily earnings for the highest-paid period before the disability began. Payments will be given after a three-day waiting period and last until the employee has recovered."
+        },
+        "termination": {
+          "termination_process": "For an employer to terminate an employer, they must present a significant and just cause, and in respect for legal, regulatory, and collective agreement procedures. In discipline procedure, the employer must send a questionnaire to the employee and to summon him to a discipline council, where  the employee has the right to appeal their case before.",
+          "notice_period": "For indefinite contracts, the employer must provide one month’s notice, given in writing. The notice period might be longer (2 or 3 months) depending on the category of the CBA the worker belongs to.",
+          "severance_pay": "Employees are entitled to severance pay, except in cases of serious fault on the employee’s part. Payment is calculated as one day’s pay for each month of employment. The maximum amount of severance is three months’ pay.",
+          "probation_period": "Depending on the type of employment the probation period is set by sectoral collective agreements, and ranges from 3 months to one year, depending on the professional category the employee belongs."
+        },
+        "visa": {
+          "general_info": "A residence visa is required for all foreigners residing in Tunisia for more than 3 consecutive months or 6 non-consecutive months in one year. There are two types of residence visas:\n\nTemporary Residence Visa – A one-year visa that is intended for foreigners who do not wish to set up a permanent residence.\nPermanent Residence Visa – Permanent resident visas are given to foreigners who have been living in Tunisia on a temporary basis for five uninterrupted years.\n\nA residence permit is normally granted for a period of 2 years on a renewable basis. These permits must be renewed with each new work contract. Residence permit renewals can be valid for up to 5 years."
+        },
+        "vat": {
+          "general": "The standard rate is 19%."
+        }
+      }
+    }
+  ]
+}

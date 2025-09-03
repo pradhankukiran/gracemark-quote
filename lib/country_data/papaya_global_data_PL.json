@@ -1,0 +1,142 @@
+{
+  "scraped_at": "2025-08-24T18:36:24.934Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Poland",
+      "url": "https://www.papayaglobal.com/countrypedia/country/poland/",
+      "scraped_at": "2025-08-24T18:36:24.921Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "9.76%",
+              "description": "Retirement Pension (applied on salary up to  260,190.00 PLN annually)"
+            },
+            {
+              "rate": "6.50%",
+              "description": "Disability Fund (applied on salary up to  260,190.00 PLN annually)"
+            },
+            {
+              "rate": "0.67% – 3.33%",
+              "description": "Accident Fund"
+            },
+            {
+              "rate": "2.45%",
+              "description": "Labor Fund"
+            },
+            {
+              "rate": "0.10%",
+              "description": "Guaranteed Employee Benefits Fund"
+            },
+            {
+              "rate": "19.48% – 22.14%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "9.76%",
+              "description": "Retirement Pension (applied on salary up to  234,720.00 PLN)"
+            },
+            {
+              "rate": "1.50%",
+              "description": "Disability Fund (applied on salary up to  260,190.00 PLN annually)"
+            },
+            {
+              "rate": "2.45%",
+              "description": "Sickness Fund"
+            },
+            {
+              "rate": "9.00%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "22.71%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0%",
+              "description": "0-30,000 PLN annually"
+            },
+            {
+              "rate": "12.00%",
+              "description": "30,001 -120,000 PLN annually"
+            },
+            {
+              "rate": "32.00%",
+              "description": "Over 120,000 PLN annually"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage is PLN 4,666 per month, the hourly minimum wage rate is PLN 30.50.",
+        "payroll": {
+          "payroll_cycle": "Salaries are paid on a monthly basis and employees must receive their salary no later than the 10th of the following month.",
+          "13th_salary": "There is no legal requirement for 13th-month payments."
+        },
+        "working_hours": {
+          "general": "The standard working week in Poland can be no longer than 40 hours per week, eight hours per day.",
+          "overtime": "The maximum number of overtime hours is 48 hours per working week. Annual overtime cannot exceed 150 hours. Overtime is due after working the maximum hours of 45 hours per week and is paid at the statutory rate of 200.00% of the employee’s regular pay if the overtime is at night, on Sundays, or on non-working days. Overtime is paid at 150.00% of the employee’s regular income if overtime is performed during any other time. Overtime can also be given as time off in lieu.\nOvertime exemptions might be in place for certain managerial positions.",
+          "time_&_attendance": "Employers are obligated to record the working hours of workers."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The length of paid annual leave in Poland depends on the employee’s seniority. The employee will acquire the right to 20 or 26 days of paid annual leave depending on their working experience:\nEmployees who have worked fewer than 10 years are entitled to 20 working days of annual leave\nEmployees who have worked 10 years or more are entitled to 26 working days of annual leave\nIn addition, the calculation of an employee’s seniority includes not only years of employment but also secondary and higher education.\nUnused annual leave days can be transferred to the following year, but must be taken by September 30th of the following year.\nWorkers with children under the age of 14 are entitled to two additional days of leave at the rate of 80%. These days can only be taken by one parent within the same year and if unused these days do not carry over into the next year.\nSome occupations, such as teachers or those working in the academic industry may be entitled to a longer length of paid leave, which can extend to 36 days a year.",
+          "public_holidays": "When a public holiday falls on a Saturday, another day off must be given to the worker in lieu on a day chosen by the employee.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n6 Jan 2025\tMonday\tEpiphany\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n3 May 2025\tSaturday\tConstitution Day\tWorker’s are entitled to a Day Off in Lieu\n19 Jun 2025\tThursday\tCorpus Christi\t\n15 Aug 2025\tFriday\tAssumption Day\t\n1 Nov 2025\tSaturday\tAll Saints’ Day\t\n11 Nov 2025\tTuesday\tIndependence Day\t\n24 Dec 2025\tWednesday\tChristmas Eve\tAdded as a public holiday effective from 2025.\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\t2nd Day of Christmas",
+          "sick_days": "All employees are entitled to paid sick leave linked to the number of years completed service and the employee’s age, as specified in the employment contract.\nEmployees under 50 years old are entitled to up to 33 days of paid sick leave, paid by the employer. Should the sick leave continue past day 33, Social Security (ZUS) will take on the payments from day 34 onwards.\nEmployees older than 50 years are entitled to up to 14 days of paid sick leave, paid by the employer. Should the sick leave continue past day 14, Social Security (ZUS) will take on the payments from day 15 onwards.\nSick leave is paid by the employer at a rate of 80% of the average salary in the past 12 months or at 100%  if the illness occurs during pregnancy or is caused by an accident on the way to or from work. Sick leave caused by an accident at work or due to the employee’s sick child/sick relative is also paid for by Social Security (ZUS).",
+          "maternity_leave": "Female employees are entitled to maternity leave periods linked to the number of children born/adopted as follows:\n20 weeks for the birth of one child/adoption of one child\n31 weeks for two children, 33 weeks for three children, 35 weeks for four children\n37 weeks for five or more children\nThe Social Security Institute covers all maternity pay at 100% of the employee’s regular salary rate.\nMaternity leave cannot start earlier than six weeks before the due date but can start later or even after birth and continue straight after. Employees should take a minimum of 14 weeks of maternity leave after childbirth before returning to work, and they have the option to transfer any untaken leave beyond 14 weeks to the child’s father.\nAdoption Leave may be used by both the adoptive father and the adoptive mother. However, under the labor code, the leave can’t be taken simultaneously by both parents.",
+          "paternity_leave": "Fathers are entitled to 2 weeks of paid paternity leave within the first 24 months after the child’s birth or from the date of adoption before the child is seven years old. An employee can take the leave in a maximum of two installments of one week each, and Social Security pays the leave at a rate of 100.00% of the employee’s regular salary.",
+          "parental_leave": "In Poland, the parental leave period spans either 41 or 43 weeks. The duration of parental leave hinges on the number of children born or adopted at once, and it’s available to both male and female employees as well as adoptive parents upon the completion of maternity leave.\nParents have the flexibility to divide this leave according to their preferences, but each parent has an exclusive right to a 9-week portion. For instance, if the child’s mother opts to utilize the entire parental leave, she can claim a maximum of 32 weeks, leaving the remaining 9 weeks exclusively for the other parent. It’s important to note that regulations do not permit the transfer of the extra 9 weeks to the other parent, such as in cases of single parents raising children.\nParents also have the option to take parental leave concurrently, meaning both parents can be on leave at the same time, provided that the total leave taken doesn’t exceed the standard entitlement. Additionally, parental leave can be split into a maximum of 5 segments and must be utilized by the end of the calendar year in which the child reaches the age of 6.\nTo initiate parental leave, employees must submit an application at least 21 days before the intended start date. These applications can be submitted in either written or electronic form.\nDuring the initial six weeks (eight weeks in the case of multiple children or three weeks for adopting older children), the leave is paid at 100% of the employee’s salary. Subsequently, for the remaining duration, it’s covered by Social Security and paid at 60% of the employee’s salary. However, if the employee submits an official written request for parental leave no later than 21 days after the child’s birth, the pay rate increases to 80% of the employee’s salary, and Social Security covers it for the entire leave period.\nPremature Births Leave\nAs of 19 March 2025, additional maternity leave is in place for parents of prematurely born babies, which can be used immediately following the maternity leave and will be granted to an employed mother of the baby as well as the father raising the child. The length of the leave will depend on the week of pregnancy in which the baby was born and time of hospitalisation after birth and will be as follows:\nfor babies born before the 28th week of pregnancy or with a birth weight not exceeding 1000 g – one week of additional maternity leave for each week of hospitalization of the baby up to the lapse of the 15th week following the birth.\nfor babies born after the lapse of the 28th week of pregnancy and before the lapse of the 37th week of pregnancy and with a birth weight exceeding 1000 g – one week of additional maternity leave for each week of hospitalization of the baby up to the lapse of the 8th week following the birth.\nfor babies born after the lapse of the 37th week of pregnancy and after the baby’s hospitalisation, provided that the hospitalization after birth lasts at least two consecutive days whereas the first day falls between the 5th and 28th day after the birth – one week of additional maternity leave for each week of hospitalization of the baby in the period from the 5th day following birth until the lapse of the 8th week following the birth.\nThe request for an additional maternity leave should be submitted to the employer together with a medical certificate confirming the week of pregnancy when the baby was born, birth weight and time of hospitalisation of the baby. The employee on the additional maternity leave is entitled to a maternity allowance of 100% of the allowance calculation base.\nThis leave can also be taken by legal guardians as well as foster and adoptive parents.",
+          "other_leave": "Depending on the collective agreement/employment contract terms, an employee may be allowed additional leave types for the following:\nDisability Leave: A person classified as having a severe or moderate degree of disability is entitled to an additional ten days of annual leave. After working one year and after being classified in one of the above degrees of disability, the person acquires the right.\nMilitary Leave: Employees are entitled to unpaid military leave to perform their duties.\nChildcare Leave: An employee raising at least one child aged up to 14 years is entitled to two paid days off a year, covered in full by the employer. Additionally, employees who have worked for at least six months are entitled to a further three years of unpaid childcare leave until the child is five-years-old (18-years-old if the child is disabled).\nSpecial event leave: Employees are entitled to 2 paid days off for close family member life events, such as a wedding, a child’s birth, or a funeral."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment agreement and collective agreement in place and is based on the type of contract and reason for termination.",
+          "notice_period": "In Poland, the notice period for a temporary or permanent employee is dependent on the employee’s length of service as below:\n0 – 6 months of service – 2 weeks’ notice\n6 months – 3 years of service – 1 month’s notice\nMore than 3 years of service – 3 months’ notice\nDuring probationary period the notice period is as follows:\nContract for up to 2 weeks notice =  3 working days\nContract for more than 2 weeks and less than 3 months = 1 week notice\nContract for 3 months =notice of 2 weeks\nNotice period is regulated by Polish labour law, it can be changed provided that both sides agree to it.",
+          "severance_pay": "For employers with more than 20 employees or for employees who have been dismissed by fault of the employer, the severance pay is dependent on the employee’s length of service as below:\n1 month severance pay – less than two years of employment\nTwo months’ severance pay – between two and eight years of employment\nThree months’ severance pay – over eight years of employment\nThe maximum amount of severance pay, is set at 15 times the minimum wage.",
+          "probation_period": "Probation or trial periods are generally set within the employee’s employment contract, however, standard practice in Poland is three months."
+        },
+        "common_benefits": [
+          "Health Allowance: Between 50-200 EUR per month",
+          "Car Allowance: Between 100-500 EUR per month",
+          "Work From Home allowance: 50-100 EUR per month",
+          "Home Office setup: 1,000 EUR per annum",
+          "Phone Allowance: 20-100 EUR per month"
+        ],
+        "visa": {
+          "general_info": "If you are a non-EU resident who wishes to work in Poland, you must first obtain a work permit. The work permit is only applicable to the job at the time of application. A new application will need to be sought should the employee change jobs. A work permit is only valid for three years.\nPoland has five different types of work visas:\n\nType A – If you find employment based on an employment contract or civil law contract with an employer with an office registered in Poland. This is the most popular work permit.\nType B – This work permit is valid if you are a board member and residing in Poland for a total period that exceeds six months within 12 subsequent months.\nType C –You can apply for this work permit if you are sent to Poland by a foreign employer for more than 30 days in a calendar year to work for the foreign employer’s subsidiary or branch office in the country.\nType D – You are eligible for this visa if a foreign employer sends you to work in export services temporarily. The foreign employer must not have a branch or subsidiary of its own in Poland.\nType E – You can apply for this visa if you take up work-related tasks that do not fall into any of the above four categories."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Poland is 23.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Urząd Skarbowy (Tax Office)",
+            "paid_to": "PIT-4",
+            "due_date": "20th day of each month",
+            "method": "Wire transfer"
+          },
+          {
+            "authority_payment": "Social Insurance Institution",
+            "paid_to": "ZUS",
+            "due_date": "15th day of each month",
+            "method": "Wire transfer"
+          },
+          {
+            "authority_payment": "National Disabled Persons Rehabilitation Fund",
+            "paid_to": "PFRON",
+            "due_date": "20th day of each month",
+            "method": "Wire transfer"
+          }
+        ]
+      }
+    }
+  ]
+}

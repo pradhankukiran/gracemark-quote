@@ -1,0 +1,110 @@
+{
+  "scraped_at": "2025-08-24T18:22:13.262Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Madagascar",
+      "url": "https://www.papayaglobal.com/countrypedia/country/madagascar/",
+      "scraped_at": "2025-08-24T18:22:13.253Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "13.00%",
+              "description": "Pension, applied on up to 8 times the legal minimum wage (MGA 1,910,400 per month)."
+            },
+            {
+              "rate": "5.00%",
+              "description": "Health Insurance, applied on up to 8 times the legal minimum wage (MGA 1,910,400 per month)."
+            },
+            {
+              "rate": "Varies",
+              "description": "Workers Compensation, determined based on the level of occupational risk, applied on up to 8 times the legal minimum wage (MGA 1,910,400 per month)."
+            },
+            {
+              "rate": "18.00%",
+              "description": "Total Employer Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "1.00%",
+              "description": "Social Security, applied on up to 8 times the legal minimum wage (MGA 1,910,400 per month)."
+            },
+            {
+              "rate": "1.00%",
+              "description": "Health Insurance, applied on up to 8 times the legal minimum wage (MGA 1,910,400 per month)."
+            },
+            {
+              "rate": "1.00%",
+              "description": "Professional Training Funds, applied on up to 8 times the legal minimum wage (MGA 1,910,400 per month)."
+            },
+            {
+              "rate": "3.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "3,000 MGA",
+              "description": "Up to 350,000 MGA"
+            },
+            {
+              "rate": "5%",
+              "description": "350,001-400,000 MGA"
+            },
+            {
+              "rate": "10%",
+              "description": "400,001-500,000 MGA"
+            },
+            {
+              "rate": "15%",
+              "description": "500,001-600,000 MGA"
+            },
+            {
+              "rate": "20%",
+              "description": "Above 600,000 MGA"
+            }
+          ],
+          "income_tax": []
+        },
+        "working_hours": {
+          "general": "The standard workweek in Madagascar is generally 8 hours per day, 40 hours, with a lunch break between noon and 1pm Monday to Friday.\nEmployers are legally required to maintain accurate records of their employees’ working time.",
+          "overtime": "All employees are entitled to 130% of their regular pay for the first 8 hours of overtime and 150% thereafter.\nEmployees who are in senior managerial roles are often exempt from overtime provisions."
+        },
+        "payroll": {
+          "payroll_cycle": "In Madagascar, the standard payroll cycle is monthly. Payments are generally made before the 8th of each month.",
+          "13th_salary": "In Madagascar, a 13th salary is a mandatory bonus under the law. This bonus amounts to 14% of the annual salary and is typically distributed pro-rated throughout the year, with the final payment usually made in December."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In Madagascar, employees are entitled to 2.5 calendar days of paid leave per month of service, which totals 30 working days annually for those who have worked a full year.\nAccrual and Usage: Vacation leave accrues throughout the employment period. The timing of when leave is taken is determined by mutual agreement between the employer and employee, considering company regulations and operational needs.\nMandatory Leave Period: At least 15 consecutive days of the annual vacation entitlement must be taken within a three-month period.\nUnused Leave: Unused leave can be carried over, but it must be used either by the end of the current year or within a three-year period.\nProbationary Periods: Employees may not take vacation leave during probationary periods.",
+          "public_holidays": "In Madagascar, if a public holiday falls on a weekend it is usually moved to the following Monday.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n8 Mar 2025\tSaturday\tInternational Women’s Day\t\n29 Mar 2025\tSaturday\tMartyrs’ Day\t\n31 Mar 2025\tMonday\tEid al-Fitr\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n29 May 2025\tThursday\tAscension Day\t\n6 Jun 2025\tFriday\tEid al-Adha\t\n9 Jun 2025\tMonday\tWhit Monday\t\n26 Jun 2025\tThursday\tIndependence Day\t\n15 Aug 2025\tFriday\tAssumption Day\t\n1 Nov 2025\tSaturday\tAll Saints’ Day\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "Every employee working in Madagascar is entitled to at least 5 days of paid sick leave per year.\nA certified health certificate must be provided.",
+          "maternity_leave": "In Madagascar, female employees are entitled to 14 weeks of paid maternity leave. This includes 8 weeks of postnatal leave. If there are complications or sickness resulting from pregnancy or birth, the maternity leave can be extended by an additional 3 weeks with a medical certificate.\nDuring maternity leave, employees receive 100% of their average salary, with Social Security covering 50% and the employer covering the other 50%.",
+          "paternity_leave": "In Madagascar, fathers are entitled to 10 working days of paid paternity leave following the birth of a child. This leave is provided to support new fathers in spending time with their newborns and assisting the mother during the early days after childbirth.",
+          "parental_leave": "There is no additional parental leave granted under the law.",
+          "other_leave": "The labor code provides Family Events Leave of up to 10 days of unpaid leave per year for family-related events including marriage, birth or death of a close relative"
+        },
+        "termination": {
+          "termination_process": "In Madagascar, termination can occur for just causes such as economic, technical, or organizational reasons, serious misconduct, repeated misconduct, or force majeure. Employers must provide advance notice, which varies based on the employee’s job category and length of service: 8 days for unskilled workers, 1 month for skilled workers, and 3 months for managers. Additionally, severance pay is generally required for terminations due to economic, technical, organizational, or force majeure reasons, calculated based on the employee’s length of service and salary.",
+          "notice_period": "In Madagascar, when resigning employees typically must give 1 months notice unless otherwise specified in the employment agreement.\nThe notice period when terminating employment varies based on the employee’s employment category and length of service:\nLength of Service\tEmployee Category\tMinimum Notice Period\nDuring Probation\t\tNo notice required\nLess than 6 months\t\t1 day\nLess than 1 year\tWorker\t8 days\nLess than 1 year\tEmployee\t15 days\nLess than 1 year\tSupervisor/Cadre\t1 month\n1 to 5 years\tWorker\t15 days\n1 to 5 years\tEmployee\t1 month\n1 to 5 years\tSupervisor/Cadre\t2 months\nMore than 5 years\tWorker\t1 month\nMore than 5 years\tEmployee\t2 months\nMore than 5 years\tSupervisor/Cadre\t3 months",
+          "severance_pay": "Under certain termination scenarios, severance pay might be mandatory e.g. economic reasons. Severance pay is calculated based on the employee’s length of service and their salary at 10 days’ wages for each year of service, capped at 6 months’ of wages.\nSeverance pay is not required if the employee resigns voluntarily or if the resignation is due to justified reasons.",
+          "probation_period": "In Madagascar, the minimum probation period is considered to be 3 months and the maximum allowed is 6 months."
+        },
+        "visa": {
+          "general_info": "Process for Obtaining a Work Visa for Employees in Madagascar:\n\nJob Offer: Ensure you have extended a job offer to the prospective employee.\nDocument Preparation: Assist your employee in gathering the necessary documents, including:\nA stamped employment contract from the Ministry of Public Service, Labor Administration Reform, and Social Laws (MFPTLS).\nA work permit issued by the MFPTLS.\nA certificate of employment from your company.\nYour company’s registration certificate from the Registrar of Companies (RCS).\nYour company’s Tax Identification Number (TIN) and statistics cards.\nTwo recent passport-sized photos of the employee.\nThe employee’s valid passport with at least one year of validity.\nA clean criminal record certificate for the employee.\nProof of required vaccinations (e.g., hepatitis A, typhoid).\nA letter of intent from the employee explaining their reason for moving to Madagascar.\nVisa Application: Guide your employee to submit the visa application form along with the required documents to the nearest Malagasy embassy or consulate. Ensure the applicable visa fee is paid.\nVisa Interview: Prepare your employee for a visa interview if required.\nVisa Issuance: Once approved, the embassy or consulate will issue the work visa.\nResidency Permit: Upon the employee’s arrival in Madagascar, assist them in applying for a residency permit to legally reside and work in the country."
+        },
+        "minimum_wage": "The minimum wage in Madagascar varies depending on the sector and tenure of the employee.",
+        "vat": {
+          "general_info": "The Value Added Tax (VAT) rate in Madagascar is generally 20%. However, the VAT rate for exports of goods and services is 0%.\n\nA reduced VAT rate of 5% applies to locally produced butane gas."
+        }
+      }
+    }
+  ]
+}

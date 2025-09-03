@@ -1,0 +1,101 @@
+{
+  "scraped_at": "2025-08-24T18:46:07.290Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "El Salvador",
+      "url": "https://www.papayaglobal.com/countrypedia/country/el-salvador/",
+      "scraped_at": "2025-08-24T18:46:07.281Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "7.50%",
+              "description": "Social Security (up to a maximum monthly cap of 1,000 USD\nemployees who have salaries above 1,000 USD the Employer’s social security contribution applicable is 51.49 USD"
+            },
+            {
+              "rate": "7.75%",
+              "description": "AEP -Pension Fund (maximum 6,523.20 USD)"
+            },
+            {
+              "rate": "1.00%",
+              "description": "INESAFORP (applicable to companies with more than ten employees, based on an employee monthly salary of less than 1,000 USD per month)"
+            },
+            {
+              "rate": "15.25% – 16.25%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "3.00%",
+              "description": "Social Security (up to a maximum monthly cap of 1,000 USD\nemployees who have salaries above 1,000 USD the Employee’s social security contribution applicable is 30.00 USD"
+            },
+            {
+              "rate": "7.25%",
+              "description": "AEP (Pension Fund)"
+            },
+            {
+              "rate": "10.25%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0%",
+              "description": "Up to 4,064.00 USD"
+            },
+            {
+              "rate": "10% + $212.12",
+              "description": "4,064.00 – 9,142.86 USD"
+            },
+            {
+              "rate": "20% + $720",
+              "description": "9,142.86 – 22,857.14 USD"
+            },
+            {
+              "rate": "30% + $3,462.86",
+              "description": "Over 22,857.12 USD"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "There is no single national minimum wage in El Salvador. The sector determines the minimum wage that the employee belongs to. National Minimum wages range from 243.46 USD for agriculture employees to 365.00 USD for industry and commerce service employees.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in El Salvador can be weekly, bi-weekly, or monthly, and payments must be made on the same day of the month and no later than one working day following the end of the pay cycle.",
+          "13th_salary": "In El Salvador, it is common to pay a 13th-month salary payment to employees in December as a Christmas bonus. The payment is to be made around 20th December and the amount depends on the years of service. The employer pays 15 days of salary to employees with one to three years of service, 19 days of salary for three to ten years of service, and 21 days for more than ten years of service."
+        },
+        "working_hours": {
+          "general": "The standard working week in El Salvador consists of 44 hours a week, typically 8 hours per day over five and a half days.",
+          "overtime": "All work above the standard weekly working hours is paid as overtime and regulated by the employment contract/collective agreements. There are no maximums in relation to the number of hours allowed except in the case of minors.\nAll overtime hours in excess of 44 hours a week are generally paid at an overtime compensation rate of 200% of the employee’s regular salary payment."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Once an employee has been employed for at least one year (or worked more than 200 days in the year), they are entitled to 15 days of paid annual leave. The annual leave is calculated from December 12-December 12. Paid time off is paid at a rate of 130% of the employee’s regular salary rate of pay and paid to the employee before their leave.\nAny unused vacation days cannot be compensated financially and will be lost.",
+          "public_holidays": "There are 11 public holidays in El Salvador.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n17 Apr 2025\tThursday\tMaundy Thursday\t\n18 Apr 2025\tFriday\tGood Friday\t\n19 Apr 2025\tSaturday\tEaster Saturday\t\n1 May 2025\tThursday\tLabour Day\t\n10 May 2025\tSaturday\tMother’s Day\t\n17 Jun 2025\tTuesday\tFather’s Day\t\n4 Aug 2025\tMonday\tFiestas Patronales Holiday\tRegional Holiday (San Salvador)\n5 Aug 2025\tTuesday\tFiestas Patronales Holiday\tRegional Holiday (San Salvador)\n6 Aug 2025\tWednesday\tFeast of San Salvador\t\n15 Sep 2025\tMonday\tIndependence Day\t\n2 Nov 2025\tSunday\tAll Souls’ Day\t\n24 Dec 2025\tWednesday\tChristmas Eve\t\n25 Dec 2025\tThursday\tChristmas Day\t\n31 Dec 2025\tWednesday\tNew Year’s Eve",
+          "sick_days": "The amount of sick leave an employee is entitled to in El Salvador is determined by years of service:\n1-5 months of employment entitles the employee to 75% of the basic salary for 20 days\nFive months to 1 year of employment service entitles the employee to 75.00% of the basic pay for 40 days\nOne year or more of employment entitles the employee to 75% of the basic pay for 60 days",
+          "maternity_leave": "In El Salvador, female employees are entitled to receive up to 16 weeks of paid maternity leave, calculated at the rate of 75% of their regular wages. The employee must provide a medical certificate confirming the pregnancy status and expected due date.\nEmployees must take at least six weeks of leave before the expected due date and up to 10 weeks after the child is born. The employee can request to extend the maternity leave if there are any pregnancy-related illnesses/complications.\nFor the health and safety of the employee, she cannot be assigned any physical work after the fourth month of pregnancy.\nNew legislation effective January 2023 will require private-sector companies with 100 or more employees to provide daycare services for the children of employees by mid-2024.  Even though the law on employer-paid daycare services takes effect on January 1, 2023, private companies will have 18 months from that date to establish the benefit (an earlier deadline applies for public companies).",
+          "paternity_leave": "In El Salvador, fathers are entitled to three days of paternity leave which the employee must take within the first 15 days of the child’s birth. The leave is paid at 100% of the employee’s regular salary.",
+          "parental_leave": "In El Salvador, employees who have suffered the loss of an immediate family member are entitled to one day of paid leave bereavement leave."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to how it is stipulated within the employment agreement/collective agreement and is based on the type of contract, length of service, and reason for termination.",
+          "notice_period": "In El Salvador, the notice period is stipulated in the employee’s employment contract/collection agreement; it is not a statutory obligation. However, it is common practice to request that an employee provides a minimum of 7 days’ notice once they have completed their probation.",
+          "severance_pay": "Severance pay in El Salvador is subject to specific regulations and will vary depending on the reasons that led to the termination of the employment. For instance, severance is not provided in case of resignation by the employee or when the employment contract’s duration term has elapsed. If severance is required, it is generally calculated as 30 days of salary for each year of service.‍",
+          "probation_period": "El Salvador’s probationary period depends on the type of role and is stipulated within the employment agreement. In general, probation periods can be no more than 30 days."
+        },
+        "visa": {
+          "general_info": "All foreign nationals seeking to work in El Salvador must obtain a work permit and a temporary residence permit in the country. The work permit and temporary residence permit are valid for an initial period of one or two years and can be extended for up to five years.\nNationals of Central American countries can apply directly for permanent residence. Nationals of Spain or Latin American Spanish-speaking countries can apply for permanent residency after one year of holding a temporary residence permit. All other foreign nationals can apply for permanent residence after three consecutive renewals of their temporary residence permit."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in El Salvador is 13%."
+        }
+      }
+    }
+  ]
+}

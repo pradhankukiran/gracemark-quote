@@ -1,0 +1,136 @@
+{
+  "scraped_at": "2025-08-24T18:01:05.081Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Denmark",
+      "url": "https://www.papayaglobal.com/countrypedia/country/denmark/",
+      "scraped_at": "2025-08-24T18:01:05.068Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "2,376.00 DKK\n(annually) for full time employee",
+              "description": "Mandatory Social Security (ATP)"
+            },
+            {
+              "rate": "5,334.00 DKK",
+              "description": "Public social security schemes (estimated)"
+            },
+            {
+              "rate": "5,000.00 DKK",
+              "description": "Industrial injuries insurance (varies significantly per industry)"
+            },
+            {
+              "rate": "1,350.00 DKK",
+              "description": "Maternity Leave Fund"
+            },
+            {
+              "rate": "1%",
+              "description": "Holiday Bonus (accrued each month & paid out in May)."
+            },
+            {
+              "rate": "14,026.00 DKK +1%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "1,188 DKK",
+              "description": "Mandatory Social Security (ATP)"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "",
+              "description": "National/ State Tax"
+            },
+            {
+              "rate": "12.10%",
+              "description": "Bottom Tax"
+            },
+            {
+              "rate": "15%",
+              "description": "Top Tax (15% of part of the top tax base Exceeding 588,900)"
+            },
+            {
+              "rate": "",
+              "description": "Local Tax"
+            },
+            {
+              "rate": "8.00%",
+              "description": "Labor Market Tax"
+            },
+            {
+              "rate": "24.971%",
+              "description": "Municipal Tax (average)\nShare Tax"
+            },
+            {
+              "rate": "",
+              "description": "Church Tax"
+            },
+            {
+              "rate": "0.92%",
+              "description": "Church tax average\nChurch tax average, Church tax is imposed by municipalities and is only charged for members of the Danish State Church (Lutheran). When registering in Denmark, all individuals should explicitly state if they should not be comprised."
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage is decided through the Collective Bargaining Agreements of each sector. The average minimum wage across different sectors covered by CBAs is approximately DKK 110 per hour and circa DKK 17,000 per month.\nFor foreign nationals working in Denmark, the Government has set a minimum salary under the pay-limit scheme at 514,000 DKK per year.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Denmark is generally monthly and employers must make payments on the same day of each month before the end of the month.",
+          "13th_salary": "There is no legal requirement to pay a 13th-month salary payment, however, it is common for employers to offer bonuses."
+        },
+        "working_hours": {
+          "general": "A general working week for a Danish employee is five days, working on average 37.5 hours per week. According to the Working Time Directive Act, the maximum working time is 48 hours per week, calculated as an average over four months.",
+          "overtime": "A maximum of 48 hours can be worked per week including overtime. Overtime hours in excess of 37 hours a week are paid at an overtime compensation rate between 150-200% of the employees’ regular pay rate, depending on the Collective Bargaining Agreement in place. Overtime pay is not mandatory unless stated in a Collective Agreement."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In Denmark, the standard paid leave entitlement for full-time employees is 25 working days per year, accrued at the rate of 2.08 days of paid leave for each month of service. It is common to give 5 additional days’ leave as an added benefit. Holidays are divided into 3 weeks  consisting of the main holiday plus an additional 2 called residual holidays.\nThe Danish Holiday Act operates with two different systems for pay during holidays. An employee is either entitled to pay during the holiday i.e. payment of the usual salary and a holiday supplement of 1%, or, a holiday allowance consisting of 12.5% of the employee’s salary or wages (for blue-collar workers). The holiday allowance must be deposited with FerieKonto (administrator of the holiday allowance) so that the money is available to be paid out to the employee.\nThe paid leave entitlement is accumulated from 1 September through to 31 August. However, the period for taking leave is extended by four months giving a use period of 16 months in total e.g.  leave earnt between 1 September 2022 to 31 August 2023 may be taken up to and including 31 December 2023, though this is still subject to approval from the employer.\nWorkers must use at least 20 days leave per year, any remaining days can be carried over into the following year. If special circumstances prevent the employee from taking accrued paid holiday before the holiday period expires then up to four weeks of paid holiday can be transferred to the next holiday period.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n17 Apr 2025\tThursday\tMaundy Thursday\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n29 May 2025\tThursday\tAscension Day\t\n9 Jun 2025\tMonday\tWhit Monday\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\t2nd Day of Christmas",
+          "sick_days": "The Salaried Employees Act and most Collective Agreements outline that workers are generally entitled to receive their usual remuneration during sickness.\nThe first 30 days are paid by the employer. Further leave is paid by the authorities (usually the employer will continue to pay the full compensation and then claim a refund from the authorities for the amount corresponding to the sickness benefit rates from the local municipality).\nAs a general rule, employees will receive sickness benefits for a maximum of 22 weeks in a nine-month period.\nTo be eligible for sickness benefits, workers must have been employed continuously for the eight weeks prior to sickness absence and  during that time worked for a total of at least 74 hours.\nEmployers must notify the municipality of their employee’s absence due to illness within the specified time period.\nMaternity Leave:\nThe mother is entitled to 4 weeks’ maternity leave before the expected date of birth – however, the mother is entitled to longer maternity leave if this is stated in their terms of employment.\nFollowing childbirth, mothers are entitled to 24 weeks of leave, which is categorized as follows:\n2 weeks of parental benefits immediately after childbirth.\n8 weeks of parental benefits before the child reaches 10 weeks of age.\n14 weeks of parental benefits to be used before the child turns one year old. (5 weeks of this period can be postponed until the child reaches nine years if specific conditions are met.)\nEffective May 1st, 2024, parents who have two or more live-born children at the same birth are each entitled to 13 weeks of extra leave. Adopters who adopt two or more children born at the same birth are also entitled to 13 weeks of additional leave if the children are under the age of 1 year at the time of adoption\nFull-time employees (those working 37 hours a week with a monthly salary exceeding DKK 19,728) will receive the highest unemployment benefit of DKK 4,550 (2023) per week before tax during their leave.\nTo qualify for maternity leave or parental leave, employees must work a minimum of 40 hours per month for at least three months.\nParental Leave:\nFathers or co-mothers are also entitled to 24 weeks of leave after the child’s birth, consisting of:\n2 weeks of compulsory leave immediately after the birth.\n22 weeks of flexible leave, which can be used within the first year after the child’s birth, with exceptions for special circumstances.\nThe 9 weeks of leave within the first year cannot be transferred to the other parent and must be taken within one year.\nThe remaining 13 weeks can be transferred to the mother and utilized until the child reaches one year of age. This period can be extended or postponed until the child reaches nine years, subject to specific conditions.\nThese regulations ensure that both parents have the opportunity to take time off to care for their child during the crucial early stages of life.",
+          "other_leave": "National Military or Civil Service Leave – In Denmark, employees between 18 and 30 are liable to be called up for the national military or civil service by ballot, while both men and women can volunteer for national service. The normal period of service is four months. Employees must be granted leave by the employer during national service and are protected against dismissal regarding requesting or taking such leave."
+        },
+        "termination": {
+          "termination_process": "In Denmark, if an employee is over 1 year of service, they are protected from unfair dismissal. This means that in order for a dismissal to be lawful, a fair process must have been followed. Employee misconduct, such as lack of cooperation or underperformance – will be subject to a PIP plan with the objective to help and provide guidance to the employee to improve performance.\nThe client must have clear objectives agreed with the employee, a fair and reasonable time frame to achieve, arrangement for review meetings to discuss, review.",
+          "notice_period": "The Danish Salaried Employees Act specifies the notice of termination that must be given by the employer as follows:\nDuring the Probation Period = 14 days notice\n0 – 6 months service = 1 month notice\n6 months – 3 years service = 3 months notice\n 3 – 6 years service = 4 months notice\n6 – 9 years service = 5 months notice\n9+ years service = 6 months notice\nWorkers must give 1 month written notice to terminate, regardless of the length of the employment.\nNotice of termination will always be applied from the last business day of the month.",
+          "severance_pay": "Severance payments equal to 1 month’s pay might apply to workers with at least 12 years of continuous service. Workers with 17 years of continuous service can claim severance pay of 3 months salary.\nThere is no severance pay rights for workers who have less than 12 years service.",
+          "probation_period": "The probationary period in Denmark is dependent on the type of role and is stipulated within the employment agreement. In general, probation periods are up to 3 months.\nThe probationary period for Fixed Term contracts cannot be more than one-quarter of their duration. It is not allowed to agree on further probationary periods in connection with the extension or renewal of Fixed Term contracts"
+        },
+        "common_benefits": [
+          "Private Health Insurance – 1,000 to 2,000 DKK per month",
+          "Pension Scheme – 5 to 10% of base salary",
+          "Commuting Allowance (between home and work) – 500 to 3000 DKK per month",
+          "Mobile Phone/ Internet Allowance – Employees in Denmark get phone and Internet subscription with a maximum cost of 258,33 DKK per month which are taxable for the employee through their salary.",
+          "Additional Annual Leave – 5 days"
+        ],
+        "visa": {
+          "general_info": "Danish law provides many options for employers of foreign nationals.\nDenmark is a member of the European Union (EU) and the Schengen Area. Nationals of Finland, Iceland, Norway, and Sweden are free to reside, study and work in Denmark. However, suppose the employee is an EU/EEA or Swiss citizen and intends to live in Denmark for more than three months. In that case, the employee must apply for a registration certificate at the International Citizen Service or the State Administration (in Danish: “Statsforvaltningen”) upon arrival in Denmark.\n\nEmployers must meet the new threshold for new work permits under the pay limit scheme.  Extensions of existing work permits may continue to use salaries from the initial application.\n\nIf the employee is a citizen of a country outside the EU/EEA or Switzerland, the employee must apply for a residence and work permit before entering Denmark. Suppose the employee already resides legally in Denmark. In that case, the employee can submit their application for a residence and work permit at newtodenmark.dk, at a Danish police station, or the Citizen Centre of the Danish Agency for International Recruitment and Integration.\n\nWith effect from May 2023, the Schengen Area countries have implemented a new digital system (EES) to track the entry and exit of non-EU citizens at their borders."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Denmark is 25%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Payroll tax withholding",
+            "paid_to": "A-Tax",
+            "due_date": "10/12 of the following month",
+            "method": "Wire"
+          },
+          {
+            "authority_payment": "Employer Contribution",
+            "paid_to": "AM bidrag",
+            "due_date": "10/12 of the following month",
+            "method": "Wire"
+          }
+        ]
+      }
+    }
+  ]
+}

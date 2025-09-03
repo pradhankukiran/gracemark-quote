@@ -1,0 +1,40 @@
+{
+  "scraped_at": "2025-08-24T18:25:08.876Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Namibia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/namibia/",
+      "scraped_at": "2025-08-24T18:25:08.871Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [],
+          "employee_contributions": [],
+          "income_tax": []
+        },
+        "payroll": {
+          "payroll_frequency": "The Payroll frequency is generally monthly"
+        },
+        "working_hours": {
+          "working_hours": "In accordance with Labour Act, 2007, ordinary hours per week are 45. The daily working hours cannot exceed 9 hours per day if the employee works 5 days or less per week. Where the employee works 6 days, working hours cannot exceed 8 hours per day. Children below the age of 14 years are not allowed to work.",
+          "overtime": "An employer cannot ask the employee to do overtime unless otherwise agreed in the written agreement. Overtime must not exceed 10 hours a week and 3 hours per day. The employer must pay an employee at a rate of at least one and one-half times (150%) of the employee’s hourly basic wage for overtime. Where the employee ordinarily works on a Sunday or on a public holiday, he/she must be paid at a rate of at least double (200%) the employee’s hourly basic wage for overtime.\nThe periods of work are to be fixed in such a way that where an employee has continuously worked for 5 hours, he/she must be given a meal interval for at least 1 hour. This meal interval can be decreased to half an hour where the employee agrees and the Labour Department has been notified of such an agreement. The meal interval is not regarded as time worked unless the employee is a security officer, works in an emergency healthcare services, or is of any class designated by the Minster of Labour, and has to work up to 60 hours a week."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The number of annual leave days is calculated by taking the number of agreed weekly working days multiplied by four. Thus, a 5 day working week set up is entitled to 20 working days annual leave, a 6 day working week set up is entitled to is 24 working days annual leave.\nEmployers can decide their own policy on carryover of unused leave.",
+          "public_holidays": "Namibia’s Public Holidays Act, Act 26 of 1990 provides for 12 public holidays annually. If a public holiday falls on a Sunday the following Monday will be a public holiday, unless the Monday is already a public holiday. The President may declare any day in a particular year as a public holiday by proclamation in the Government Gazette.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n21 Mar 2025\tFriday\tIndependence Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tWorkers’ Day\t\n4 May 2025\tSunday\tCassinga Day\t\n5 May 2025\tMonday\tCassinga Day Holiday\tDay Off in Lieu\n25 May 2025\tSunday\tAfrica Day\t\n26 May 2025\tMonday\tAfrica Day Holiday\tDay Off in Lieu\n28 May 2025\tWednesday\tGenocide Remembrance Day\t\n29 May 2025\tThursday\tAscension Day\t\n26 Aug 2025\tTuesday\tHeroes’ Day\t\n10 Dec 2025\tWednesday\tDay of the Namibian Women & International Human Rights Day\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tFamily Day",
+          "sick_leave": "The Labour Act, 2007 outline sick leave entitlement for employees according to a sick leave cycle of a consecutive period of 36 months i.e. calculated on three-year basis,as opposed to an annual one.\nEmployees who work five days during a week is entitled to 30 working days of sick leave. Employees on six days a week working set up is entitled to 36 working days of sick leave. Employees working fewer than five days during a week receive a proportional calculation of sick leave, with entitlement still at least 1-day sick leave for every 26 days worked during the employee’s first year of employment. After the first year of employment, a worker accrues up to 30/36 days of sick leave in one sick leave cycle (36 months). Employees who do not work a fixed number of days per week will have sick leave calculated annually based on the average number of days worked per week over the previous 12 months.\nThe employer pays sick leave at an amount equal to that employee’s daily remuneration for each day of absence of sick leave, providing a medical certificate has been shared after two consecutive days of illness.",
+          "maternity_leave": "In Namibia, a female employee with six months of continuous service is entitled to 12 weeks of maternity leave, comprising four weeks before and eight weeks after confinement. This period can be extended in case of birth complications.  The basic wage during maternity leave is paid by the Social Security Council."
+        },
+        "termination": {
+          "notice_period": "The Labour Act 2007 establishes the rules around notice and notice period when terminating workers. The notice of termination must be made in writing (unless the employee is illiterate, in which case the employee can give notice verbally) and state the reasons for termination and both employers and employees must give the follow notice periods:\nAt least 1 day notice when service length is four weeks or less.\nAt least 1 week notice when service length is more than four weeks but less than one year.\nAt least 1 month notice when service length is more than 1 year.\nIn lieu of giving notice, the employer can pay the employee the remuneration they would have received if the employee had worked during the period of notice.",
+          "severance": "Employers must give severance pay to employees who are dismissed or resigns/retires upon reaching the age of 65, as long as at least 12 months of continuous service have been completed. Severance pay does not need to be paid out where there were fair grounds for dismissal due to misconduct or poor performance.\nSeverance pay must be in an amount equal to at least 1 week’s remuneration for each year of continuous service with the employer. The payment of severance pay does not affect an employee’s right to any other amount that the employee is obliged to pay the employee. Where the contract of employment was terminated as a result of the employee’s death, then in the absence of a will, the employer must pay severance to the employee’s surviving spouse. Where there is no spouse, then to the children of the deceased employee and where there are no children, to the employee’s estate.",
+          "probation": "The labor law does not specify any specific length on probation period; each employer can determine this on their own within the Employment Contract."
+        }
+      }
+    }
+  ]
+}

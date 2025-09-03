@@ -1,0 +1,138 @@
+{
+  "scraped_at": "2025-08-24T18:15:14.286Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Israel",
+      "url": "https://www.papayaglobal.com/countrypedia/country/israel/",
+      "scraped_at": "2025-08-24T18:15:14.273Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "3.55%",
+              "description": "Social Security (on the first 7,522 ILS)"
+            },
+            {
+              "rate": "7.60%",
+              "description": "Social Security (on income between 7,522 ILS and 49,030 ILS)"
+            },
+            {
+              "rate": "8.33%",
+              "description": "Severance Pay"
+            },
+            {
+              "rate": "6.50%",
+              "description": "Pension Fund"
+            },
+            {
+              "rate": "Up to 21.78%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "0.40%",
+              "description": "Social Security (on the first 7,522 ILS)"
+            },
+            {
+              "rate": "7.00%",
+              "description": "Social Security (on income between 7,522 ILS and 49,030 ILS)"
+            },
+            {
+              "rate": "3.10%",
+              "description": "Health Insurance (on the first 7,522 ILS)"
+            },
+            {
+              "rate": "5.00%",
+              "description": "Health Insurance (on income between 7,522 ILS and 49,030 ILS)"
+            },
+            {
+              "rate": "6.00%",
+              "description": "Pension Fund"
+            },
+            {
+              "rate": "Up to 21.1%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "10%",
+              "description": "Up to 7,010 ILS monthly income"
+            },
+            {
+              "rate": "14.00%",
+              "description": "On income between 7,011 ILS-10,060 ILS monthly"
+            },
+            {
+              "rate": "20.00%",
+              "description": "On income between 10,061 ILS-16,150 ILS monthly"
+            },
+            {
+              "rate": "31.00%",
+              "description": "On income between 16,151 ILS-22,440 ILS monthly"
+            },
+            {
+              "rate": "35.00%",
+              "description": "On income between 22,441 ILS-46,690 ILS monthly"
+            },
+            {
+              "rate": "47.00%",
+              "description": "On income between 46,691 ILS-60,130 ILS monthly"
+            },
+            {
+              "rate": "50%",
+              "description": "60,131 ILS and above"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The monthly minimum wage in Israel is 5,880 ILS with effect from 1st April 2024. It  is set to increase next year to 6,000 ILS.",
+        "payroll": {
+          "payroll_cycle": "In Israel, the payroll cycle is typically monthly. All employees should receive a salary payment at least once a month, Salaries must be paid until the 9th of the following month.",
+          "13th_salary": "The 13th-month salary payment is not legally required in Israel.",
+          "recreation_payment": "An employee is entitled to a recreation payment after one year of service. The payment is usually made between July and September, and the amount of compensation is determined by law, updated annually, and corresponds to the number of years of employment."
+        },
+        "working_hours": {
+          "general": "Standard working hours in Israel consists of 42 hours per week and 7-9 hours per day depending on how many days per week are worked. Employees should receive at least 48 hours of rest per week, usually taken on Friday and Saturday, resulting in a working week of Sunday-Thursday.\nForcing an employee to work more than 12 hours a day or 16 overtime hours in a week is illegal.",
+          "overtime": "All working hours above the standard hours per week are to be paid as overtime and are regulated by the employment contract/collective agreements. It must also be mutually agreed upon between the employee and the employer before commencing any overtime working hours.\nThe working week may not exceed 42 hours, allocated over 5 or 6 days of work, provided that each working day does not exceed 9 hours of work.\nEmployees are entitled to overtime pay which is calculated daily as follows:\nFor the first two overtime hours, the overtime payment is calculated at 125.00% of the regular wage\nThe overtime pay is calculated at 150.00% of the regular wage for any additional work hours during the weekly day of rest\nSome companies pay a global monthly amount as compensation for overtime pay"
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees with a 5-day working week are entitled to a minimum of 12 working days of annual leave during their first five years of service. This entitlement increases to 17 working days from the sixth year up to the ninth year, and thereafter, to a maximum of 23 working days.\nAnnual leave payment is calculated at the regular salary pay rate.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nHolidays are based on religious association and days can be swapped out to align with one’s religious observance.\nDate\tDay\tHoliday\tNotes\n13 Apr 2025\tSunday\tPesach (Passover) – First Day\t\n19 Apr 2025\tSaturday\tPesach (Passover) – Last Day\t\n30 Apr 2025\tWednesday\tYom Hazikaron (Memorial day)\tHalf working day\n1 May 2025\tThursday\tYom Ha’Atzmaut (Independence Day)\t\n1 Jun 2025\tSunday\tShavuot Eve\tHalf working day\n2 Jun 2025\tMonday\tShavuot\t\n22 Sep 2025\tMonday\tRosh Hashana (New Year) Eve\tHalf working day\n23 Sep 2025\tTuesday\tRosh Hashana (New Year)\t\n24 Sep 2025\tWednesday\tRosh Hashana (New Year)\t\n1 Oct 2025\tWednesday\tYom Kippur (Day of Atonement) Eve\tHalf working day\n2 Oct 2025\tThursday\tYom Kippur (Day of Atonement)\t\n6 Oct 2025\tMonday\tSukkot Eve\tHalf working day\n7 Oct 2025\tTuesday\tSukkot\t\n13 Oct 2025\tMonday\tSukkot (Shemini Atzeret/Simchat Torah) Eve\tHalf working day\n14 Oct 2025\tTuesday\tSukkot (Shemini Atzeret/Simchat Torah)",
+          "sick_days": "Sick leave is accrued at a rate of 1.5 days per month with a maximum of 90 days total. Payment during sickness is dependent on the length of leave as follows:\nFor the first day of sick leave, the employee is not entitled to pay\nOn the second and third day of sickness, the employee is entitled to 50.00% of their regular pay\nFrom the 4th day onwards, the employee is entitled to 100.00% of their regular pay\nUpon return, the employee must provide a medical certificate from a medical professional.\nUnder the Sick Pay Law amendment an employee suffering from a malignant disease (cancer) or a condition that requires regular dialysis treatments, or who recovered from such a disease, is eligible for full sick pay (100%) from the first day of absence, if on leave from work to receive care or undergo periodic examinations for that condition. (up to a maximum of 90 days).\nEmployees must provide a medical certificate from a medical professional confirming the necessity of treatment or examination because of the condition.",
+          "maternity_leave": "Female employees are entitled to 26 weeks of maternity leave following the completion of one year of service within an organization. The employee may take up to seven weeks of leave before the predicted due date of the child and the remainder after the birth. Israel’s social security system compensates the maternity leave if the employee is eligible which generally equals 15 weeks of fully paid leave and 11 weeks of unpaid leave.\nEmployees who have worked for their employer for less than one year are entitled to only 15 weeks of maternity leave.\nAn employee may extend their maternity leave entitlement by three weeks in the case of multiple or complicated births. In the unfortunate circumstance that a mother loses her child after the birth, she may take unpaid maternity leave up to 60 days after the birth.\nFrom the 7th week of leave, the mother can choose to return to work and transfer the remaining maternity leave period to her spouse.",
+          "paternity_leave": "Following a partner going into labor and up to 24 hours following the birth, an employee is allowed to be absent from work for up to 5 days as paternity leave. The first three days of this leave will be paid from their accrued annual vacation and the remaining two days will be deducted from their accrued sick leave.",
+          "parental_leave": "Fathers can take days off after the birth of a child, but these days will be subtracted from the maternity leave.",
+          "bereavement_leave": "In Israel, in the event of a death of an immediate family member, the employee is entitled to up to seven calendar days of paid leave to grieve for their loss. The employer fully compensates bereavement leave once the employee has completed three months of service.\nIn Israel, employees serving on reserve duty must still be paid by their employer. Military service is mandatory in Israel."
+        },
+        "termination": {
+          "termination_process": "In Israel the standard termination process stipulates that employers must exercise their right to terminate an employee’s employment in good faith, for valid reasons, and in compliance with applicable law, any written employment contracts, workplace customs, and collective bargaining agreements.\nThe termination of employment procedure includes a hearing process. This means the employer is obligated to provide the worker with a hearing invitation in which the reasons for the intended termination of employment are detailed. The hearing should be scheduled so it leaves the worker enough time to prepare for it. The hearing should be conducted by the worker’s manager. During the hearing, the worker needs to receive a genuine opportunity to express their viewpoint regarding the intention of the employer to terminate their employment.\nOnce the hearing ends, the employer should take the time to consider the arguments raised by the worker seriously and in good faith. According to the Israeli National Labor Court ruling, the decision made by the employer cannot be made immediately after the hearing, but a reasonable time after, at least 48 hours from the time the hearing was held The decision made by the employer should be communicated to the worker in writing. It is recommended to provide the worker with a termination letter in person.\nAccording to the labor court’s decisions, in certain circumstances before deciding on termination of employment, employers are required to consider whether they can offer the employee an alternative position.\nUnder the Prior Notice Before Termination Law, employers must provide the employee with prior written notice when ending their employment.\nAn employer may choose to pay the employee in lieu of notice, which would be calculated as an equal salary payment to that which the employee would have received had the employee continued to work throughout the notice period.",
+          "notice_period": "The employee’s length of service determines the notice period in Israel.\nIf an employee has served 0-6 months of service, then one day’s notice is required for each month of employment. For each month of service following the sixth month of service until the first year of employment, an employee accumulates 2.5 days of notice. Following one year of service, a 30-day notice is required.",
+          "severance_pay": "In Israel, employees who are being dismissed are entitled to severance pay upon completing one year of service. The severance pay is calculated at one month’s salary multiplied by the number of years of employment (including work for part of a year).\nUnder the Section 14 Arrangement, the employer must carry out monthly contributions equivalent to 8.33% of the employee’s monthly salary payment towards the severance pay component. The accrued amount is to be released to the employee upon termination, even if the employee resigned without circumstances that would entitle the employee to severance pay if the employee was not subjected to the Section 14 Arrangement.",
+          "probation_period": "Probationary periods are permitted by Israeli law, and during this time the employee is considered a regular employee for all intents and purposes. The probationary period is stipulated in the employment contract or a collective agreement."
+        },
+        "common_benefits": [
+          "Mobile phones or mobile phone allowances can be provided as a taxable benefit.",
+          "Meal allowance or vouchers.",
+          "Study fund – it is very common to give employees a study fund. The employer contributes a monthly amount of up to 7.5% of the monthly salary and the employee contributes an amount of 2.5% of salary. After 6 years the accumulated amount in the fund may be released tax free. There is a tax-free ceiling set at 15,712 NIS which is annually updated.",
+          "Holiday gifts – it is common to give holiday gifts twice a year for the Rosh Hashana and Passover holidays. These gifts are taxed.",
+          "Additional annual leave – in some industries it is common to give additional annual leave beyond the legal minimum."
+        ],
+        "visa": {
+          "general_info": "For work or business purposes, a professional relocating to Israel should use the B/1 work visa (combined work permit and employment visa).\n\nThe B/1 work visa is a business visa granted to foreigners who have been approved to stay in Israel for a limited time for work. It is issued to experts, scientists, high-tech workers, and artists.\n\nIsraeli work visa requirements for this permit are as follows:\n\napproval from the Ministry of the Interior\nvisa interview\nverified certificate of good conduct\ncertification of medical exam performed by an approved clinic or hospital recognized by the mission\nbiometrics (fingerprints and photograph)\ncompleted Israeli work permit visa application form\ntwo passport-size photos\na signed document from the employer stating that they are offering a position of employment\n\nUpon arrival in Israel, customs will stamp the visa, validating it for 30 days. Extensions are then possible for up to one year and allow the foreigner to leave and enter Israel as many times as required.\n\nSpecialists working in academic or non-academic fields for more than three months will be issued the B/1 visa and require:\n\nA higher salary requirement (at least double the average wage)\nCV/resume\nAcademic certificates (if not in English, diplomas will need to be officially translated into Hebrew and notarized by an Israeli notary)\nCopy of passport (must be valid for a minimum of a year and three months from the start of the process)\nPower of attorney\nCompleted and signed application forms\nThree passport-size photos\nMarriage and birth certificates (for children under 18) for any accompanying family members (original with apostille)\nPolice clearance (issued within the last six months)\nMedical clearance (issued within the last three months)\n\nThe maximum stay and work period for these employees is five years and three months from the start date in Israel. The visa usually takes between two to three months to process."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Israel is 18.00%."
+        }
+      }
+    }
+  ]
+}

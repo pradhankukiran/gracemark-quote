@@ -1,0 +1,88 @@
+{
+  "scraped_at": "2025-08-24T18:10:25.895Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Hong Kong",
+      "url": "https://www.papayaglobal.com/countrypedia/country/hong-kong/",
+      "scraped_at": "2025-08-24T18:10:25.886Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5.00%",
+              "description": "Mandatory Provident Fund (MPF), applied on salary between  7,000 – 30,000 HK$ monthly. Employees earning more than HK$ 30,000 per month contribute a fixed amount of HK$ 1,500 each."
+            },
+            {
+              "rate": "Up to 2.00%",
+              "description": "Employment Insurance – the rate varies depending on the industry."
+            },
+            {
+              "rate": "7.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "5.00%",
+              "description": "Mandatory Provident Fund (MPF), applied on salary between  7,000 – 30,000 HK$ monthly. Employees earning more than HK$ 30,000 per month contribute a fixed amount of HK$ 1,500 each."
+            },
+            {
+              "rate": "5.00%",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The hourly minimum wage is  40.00 HKD.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Hong Kong is monthly with payments usually being made on the last working day of the month.",
+          "13th_salary": "In Hong Kong, it is customary to pay a 13th salary before the Chinese Lunar New Year or at the end of the year."
+        },
+        "working_hours": {
+          "general": "Working hours are typically 9 am to 6 pm Monday to Friday, however, there are no legislative requirements or limits on the maximum working hours except for a young person (age 15 to 18) in industrial settings who is limited to an 8 hour working day between the hours of 7 am to 7 pm with a maximum of 48 hours per week.",
+          "overtime": "Overtime regulations are not set out in law; the company policy is usually stated in either the employment contract or Collective Bargaining Agreement."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees who have been employed for at least 12 months are entitled to 7 days of paid annual leave. This increases by one day per additional year of employment until the total annual leave entitlement of 14 days is reached in the 9th year of employment.\nPublic Holidays\nPublic holidays that fall on a Sunday are moved to a weekday as a day off in lieu. Public holidays that fall on a Saturday are usually lost.\nThe number of statutory holidays under the employment ordinance will increase from 13 days to 17 days by 2030, with one additional statutory holiday added every 2 years.\nThe new statutory holidays will be: Easter Monday (starting from 1 January 2026) , Good Friday (starting from 1 January 2028), The day following Good Friday (starting from 1 January 2030).\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n29 Jan 2025\tWednesday\tLunar New Year’s Day\t\n30 Jan 2025\tThursday\tSecond day of Lunar New Year\t\n31 Jan 2025\tFriday\tThird day of Lunar New Year\t\n4 Apr 2025\tFriday\tChing Ming Festival\t\n18 Apr 2025\tFriday\tGood Friday\t\n19 Apr 2025\tSaturday\tDay following Good Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n5 May 2025\tMonday\tBirthday of the Buddha\t\n31 May 2025\tSaturday\tTuen Ng Festival\t\n1 Jul 2025\tTuesday\tHKSAR Establishment Day\t\n1 Oct 2025\tWednesday\tNational Day\t\n7 Oct 2025\tTuesday\tDay following Chinese Mid-Autumn Festival\t\n29 Oct 2025\tWednesday\tChung Yeung Festival\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day",
+          "sick_days": "During the first 12 months of employment employees accrue 2 paid sick days per month, increasing to 4 paid sick days per month after reaching one year of service, up to a maximum of 120 paid sickness days.\nSick pay is calculated at 80% of the average daily earnings earnt in the preceding 12-month period, prior to the first day of sickness. For employees with less than 12 months service, the calculation is based on the average earnings received since the employment start date.\nA medical certiﬁcate must be issued by a medical practitioner or registered dentist as proof of any sickness day the worker is claiming.",
+          "maternity_leave": "A pregnant employee who has been employed under a continuous contract for at least 40 weeks immediately before the commencement of scheduled maternity leave is entitled to 14 weeks of paid maternity leave. An additional 14 weeks of leave might be available for cases of complicated or multiple births . Maternity leave should commence between two to four weeks before the due date.\nThe employer pays the maternity leave period based on a calculation of four-fifths of their average daily wages earned in the 12-month period preceding the first day of the maternity leave (for those with less than 12 months service the shorter calculation period will be used). The 11 to 14 weeks of maternity leave is capped at 80,000 HKD and the employer can apply to the Government for reimbursement of these 4 weeks.",
+          "paternity_leave": "Male employees are entitled to 5 days of paternity leave providing they have been employed under a continuous contract for no less than 40 weeks before the first day of Paternity leave. Leave may be taken in one go or on separate days, within the period of four weeks prior to the expected date of delivery and 10 weeks following the actual birth of the child.\nPaternity pay is at a rate of four-fifths of the average daily wages earned in the 12-month period preceding the first day of paternity leave (for those with less than 12 months service the shorter calculation period will be used).\nAdvance notice must be given before taking paternity leave. Where at least 3 months notice before the expected date of delivery has been given the father may take paternity leave immediately after informing his employer of the actual leave dates. However, if 3 months advance notice was not given, the employee must notify the employer of his dates of paternity leave at least 5 days before taking leave.",
+          "parental_leave": "There is no additional statutory parental leave in Hong Kong.\nOther Leave\nThere is no additional statutory other leave e.g. Marriage or Bereavement in Hong Kong, though some companies choose to create their own policy."
+        },
+        "termination": {
+          "termination_process": "Under the Employment Ordinance, (Cap. 57) grounds for termination include: va; the conduct of the employee;  the capability or qualifications of the employee to perform their job (a PIP process will usually be required first); and any other reason of substance which in the opinion of the court or the Labour Tribunal would be sufficient cause to warrant the dismissal of the employee or a variation to the terms of that contract of employment. Please note redundancy is NOT a valid reason for termination under the EOR model. An MTA must be agreed upon between the legal employer, the end client, and the worker.\nIt is considered best practice for the employer to document performance or operational reasons internally to mitigate the risk of disputes or claims of unlawful dismissal.\nTermination is prohibited for the following workers: workers on maternity leave, certified medical leave, workers on annual leave or other statutory leave\nDismissals that appear discriminatory, retaliatory, or violate statutory protections (e,g termination of a pregnant employee without proper procedure) may be challenged at the Labor Tribunal or under the Equal Opportunities Commission.",
+          "notice_period": "Notice periods within Hong Kong are generally 30 days, although employers can specify longer notice periods within the employment contract.",
+          "severance_pay": "SThe statutory formula for severance pay is: (Last full month’s wages × 2/3 × years of service), with the monthly wage capped at HK$22,500. Any period of employment over 3 months within a year is rounded up to a full year for calculation purposes. For example, if an employee earns HK$30,000 per month and has 5.5 years of service, the calculation would use the capped amount (HK$22,500) and treat the service as 6 full years, resulting in a severance pay of HK$90,000.\nWhile employers are only required to comply with the statutory minimum when valid reasons to terminate; it is recommended that employers provide workers with an enhanced severance package, A common market practice is to offer one month’s salary per year of service, uncapped, especially for long-serving or senior employees. Some employers also provide ex gratia payments as a gesture of goodwill to maintain a positive relationship and mitigate the risk of post-termination disputes or reputational damage.\nSeverance pay is not required when an employee resigns voluntarily.",
+          "probation_period": "During the first month of probation, no notice required by either party (unless the contract states otherwise) After the first month of probation, the minimum statutory notice is 7 days unless the contract states a longer period."
+        },
+        "common_benefits": [
+          "Private medical insurance",
+          "Bonus",
+          "Additional annual leave",
+          "Housing/Rental allowance",
+          "Company Car",
+          "Holiday Journey Allowance (vacation allowance)",
+          "Equity options"
+        ],
+        "visa": {
+          "general_info": "Foreign nationals normally require a visa before entering Hong Kong to take up employment. A local sponsor, usually the employing company, is required to support the employment visa application.\nUnder the existing immigration policy, a person seeking to enter Hong Kong for employment should possess a particular skill, knowledge, or value experience, which is not readily available in Hong Kong.\nApplicants who wish to possess a working visa for Hong Kong need a graduate degree unless they are considerably experienced in a specialized field or have relevant experience in the position they are applying for.\n\nIf the person’s spouse and dependent family also decide to relocate to Hong Kong, they will require dependent visas. A spouse entering Hong Kong on a dependent visa can now take up employment in Hong Kong and no longer requires a separate employment visa if they wish to work in Hong Kong."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Hong Kong is 0%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "MPF trustee (depending on the MPF provider selected by the Company)",
+            "dates": "Monthly; 10th of the following month",
+            "methods": "Payments can be made from ICP’s trust account or local account owned by client.  Direct debit can be set up by using local account owned by client."
+          }
+        ]
+      }
+    }
+  ]
+}

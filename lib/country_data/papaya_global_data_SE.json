@@ -1,0 +1,119 @@
+{
+  "scraped_at": "2025-08-24T18:42:27.886Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Sweden",
+      "url": "https://www.papayaglobal.com/countrypedia/country/sweden/",
+      "scraped_at": "2025-08-24T18:42:27.871Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "3.55%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "2.60%",
+              "description": "Parental Insurance"
+            },
+            {
+              "rate": "10.21%",
+              "description": "Retirement Pension*"
+            },
+            {
+              "rate": "0.60%",
+              "description": "Survivors Pension"
+            },
+            {
+              "rate": "2.65%",
+              "description": "Labor Market Fee"
+            },
+            {
+              "rate": "0.20%",
+              "description": "Occupational Injury"
+            },
+            {
+              "rate": "11.62%",
+              "description": "General Payroll Tax (10.21% total contribution for employees born between 1938-1955 and 2003–2005)"
+            },
+            {
+              "rate": "31.42%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "7.00%",
+              "description": "Pension Insurance, applied on gross income up to SEK 599,250 per year."
+            },
+            {
+              "rate": "7.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": "Please refer to government income tax tables for full range of taxes (in Swedish). There are six tax tables based on:\n• Where the employee lives in Sweden\n• Column 1 refers to salaries, fees, and similar remuneration, used for\nemployees under age 65 (1st of January)\n• Column 2 refers to pensions and other benefits and are used for those over age 65\n• Column 3 refers to salaries, fees, and similar remuneration, used for employees over age 65 (1st of January)\n• Column 4-6 refers to sick pay, unemployment pay, pensions, or other benefits\n\n• For monthly income over SEK 80 000 tables show % rates for tax deductions"
+            },
+            {
+              "rate": "State Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "Up to SEK 625,800"
+            },
+            {
+              "rate": "20.00%",
+              "description": "Above SEK 625,800"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "In Sweden, there is no official national minimum. Minimum wages are stipulated within the collective bargaining agreements through the trade unions of the employee.",
+        "payroll": {
+          "payroll_cycle": "In Sweden, the payroll frequency is typically monthly. Employers usually make the payment of salaries on the 25th of each month.",
+          "13th_salary": "In Sweden, 13th-month payments are not legally mandatory. Employers can pay bonuses at their discretion."
+        },
+        "working_hours": {
+          "general": "The standard working week consists of 40 hours over the course of five days, following the commencement of five consecutive working hours, an employee must be allowed a break.",
+          "overtime": "All work more than the standard working hours per week is to be paid as overtime and is regulated by employment contract/collective agreements. When an employee is requested to work overtime or work on holidays, there are maximums in relation to the number of hours allowed. These maximums are 48 hours per week, an average of 50 hours per month, or 200 hours annually over four months.\nAll overtime hours exceeding 40 hours a week are paid at an overtime compensation rate; this rate is stipulated in the employment contract/collective agreements.\nFor overtime worked on weekdays before 8.00 pm, hours are compensated at the monthly salary divided by 94 for each additional hour of work. For hours worked after 8.00 pm or on weekends, hours are compensated at the monthly salary rate divided by 72 for each additional hour worked.\nEmployees who hold a managerial or comparable role or organize their working schedule are generally not entitled to overtime compensation. Including overtime pay in the gross salary is sometimes an option for non-managerial roles as well.",
+          "time_&_attendance": "Employers are legally required to record total working hours, overtime, on-call standby and compensation provided."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to 25 working days of paid vacation each year after one year of work at the company at a 2.08 monthly accrual. It is common to give 30 days per year. During the first year of employment the employees accrue 25 working days to be used in the second year of employment.\nThe Annual leave accrual cycle is from April 31st to March 31st of the following year.\nAny unused vacation days above 20 days can be carried over to the following year. Once accrued, a maximum of 30 vacation days can be held for up to five years. Vacation pay accounts for 12% of an employee’s gross annual salary. Cash out of unused vacation days is possible upon termination only.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n6 Jan 2025\tMonday\tEpiphany\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tMay Day\t\n29 May 2025\tThursday\tAscension Day\t\n6 Jun 2025\tFriday\tNational Day\t\n21 Jun 2025\tSaturday\tMidsummer Day\t\n1 Nov 2025\tSaturday\tAll Saint’s Day\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day",
+          "sick_days": "In Sweden, the first day of sickness is unpaid. Day 2 to 14 of sick leave is paid by  the employer. Sickness of more than 14 days is paid by the Social Security (Försäkringskassan).\nGenerally, sick leave is compensated at a rate of 80% of the employee’s regular pay rate, depending on the length of the sickness.",
+          "maternity_leave": "Maternity leave falls under the broader Parental Leave system (foraldraledighet) which gives 480 days of paid parental leave split as 240 days between both parents (if applicable) following the birth of their child.\nMothers are entitled to take maternity leave at least 7 weeks before and 7 weeks after the birth (these weeks are deducted from the 480 days parental leave entitlement).\nAdditional details can be found in the below Parental Leave section.",
+          "paternity_leave": "Fathers, or the second parent, are entitled to take 10 paid working days of temporary parental benefit within the first 60 days following the birth. This leave is paid for by the Swedish Social Insurance Agency at approximately 80% of the worker’s salary.\nAdditional leave entitlement falls under the broader Parental Leave system (foraldraledighet) which gives 480 days of paid parental leave split as 240 days between both parents (if applicable) following the birth of their child.\nNote that the 10 days temporary parental benefit is in addition to the Parental leave of 480 days and is not deducted from it.",
+          "parental_leave": "Following the birth, parents can access a combined total of 480 days leave, of which at least 90 days must be reserved for each parent to take and cannot be transferred (if these days are not taken by each parent they will be lost). These 90 days can be taken all at once, intermittently or part time. The remainder of the 480 day leave period can be transferred between parents.\nParents can take a maximum of 60 days of this leave at the same time as each other (commonly referred to as “double days”) until the child reaches one years of age. Parents can choose to take leave in one continuous period or divide it into several blocks, with a maximum of three periods allowed each year (unless the employers agrees to allow it being used in more than 3 periods).\nParental Leave benefits can be used up until the child turns 12 years old or completes year 5 of compulsory school. Employees also have the option to use the Parental Leave entitlement to reduce their working hours until the child is eight years of age.\nParents can also hand over 45 days (with joint custody) of their parental benefits  to another relative (the sole guardian can transfer up to 90 days)\nWorkers should give their employers at least two months advance notice on their intention to take parental leave.\nThe first 390 days of leave is paid at 80% of the workers income (capped at SEK 1,116 per day in 2025) providing the worker has at least 240 consecutive service days before the birth. Parents who are not eligible might still be entitled to receive the basic level payment (SEK 250 per day).\nThe remaining 90 days are paid at a minimum flat rate (SEK 180 per day in 2025).",
+          "other_leave": "In Sweden, there may be several types of other leave entitlements available under a respective Collective Bargaining Agreement or mandated within a company policy or Employment Contract."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to how the employment agreement and collective agreement are in place and is based on the type of contract and reason for termination. However, no termination due to economic reasons or long-term disability can occur without negotiations with unions.",
+          "notice_period": "For employers with a Collective Agreement, notice periods are stipulated in the employment contract; the notice period is commonly 1 month.\nFor employees without a Collective Agreement, the notice period is dependent on the employee’s service as follows:\nDuring Probation period = 2 weeks notice\nLess than 2 years service = 1 month of notice\n2 to 4 years service = 2 months of notice\n4 to 6 years service = 3 months of notice\n6 to 8 years service = 4 months of notice\n8 – 10 years service = 5 months of notice\n10+ years of service = 6 months of notice\nWorkers who resign must give 1 month notice, regardless of their length of service.",
+          "severance_pay": "Severance is not mandatory in Sweden unless stated as part of an applicable Collective Agreement or employment contract.",
+          "probation_period": "The probationary period can be a maximum of 6 months. The period can be shorter and the employee can become permanently employed before the probationary period is complete. If a probationary period is not terminated after six months, the employment will automatically become permanent.\nThe probationary period must be stated in the employment contract. The employee needs to be informed two weeks at the latest before the period ends if he or she will be permanently employed. Salaries and other benefits are the same during a probationary period."
+        },
+        "common_benefits": [
+          "Private pension between 5-10%",
+          "Health insurance allowance for private health insurance. The average for senior individuals is around SEK 4,000 per year",
+          "Life insurance approximately SEK 4,000 per year",
+          "Home office between SEK 500 – 1000",
+          "Gym allowance between SEK 200 – 350 per month",
+          "Meal allowance between SEK 50 – 70 per day"
+        ],
+        "visa": {
+          "general_info": "Generally, citizens from countries outside the EU must apply for a work permit to work in Sweden. There are a few exceptions to the rule. Citizens of Australia, Canada, Hong Kong, Japan, New Zealand, and South Korea aged 18–30 can also apply for a working holiday visa for up to one year.\n\nFor employment that lasts less than three months, citizens of certain countries must have a work permit and a visa.\nTo qualify for a work permit, you must have received an official offer of employment from a Swedish employer. The job must also:\n\nHave been advertised in the EU/EEA for at least ten days\nOffer terms of employment that match those set by Swedish collective agreements or those that are customary within the occupation or industry\nPay a minimum monthly salary of SEK 13,000 before taxes\n\nYou must also hold a valid passport in your home country."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Sweden is 25.00%."
+        }
+      }
+    }
+  ]
+}

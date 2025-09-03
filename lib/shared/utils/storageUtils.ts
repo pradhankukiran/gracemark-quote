@@ -52,6 +52,7 @@ export const isSessionStorageAvailable = (): boolean => {
   }
 }
 
+
 /**
  * Safe sessionStorage.getItem with error handling
  */
@@ -138,6 +139,7 @@ export const safeSessionStorageRemove = (key: string): { success: boolean; error
   }
 }
 
+
 /**
  * Safely get and parse JSON from sessionStorage
  */
@@ -183,3 +185,4 @@ export const setJsonInSessionStorage = (key: string, data: unknown): { success: 
   const storageResult = safeSessionStorageSet(key, stringifyResult.json!)
   return storageResult
 }
+

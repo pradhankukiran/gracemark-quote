@@ -1,0 +1,97 @@
+{
+  "scraped_at": "2025-08-24T17:59:17.736Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Czech Republic",
+      "url": "https://www.papayaglobal.com/countrypedia/country/czech-republic/",
+      "scraped_at": "2025-08-24T17:59:17.725Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "24.80%",
+              "description": "Social Security (covers Pension, sickness and unemployment) applied on income above 2,234,736 CZK annually"
+            },
+            {
+              "rate": "9.00%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "33.80%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "7.10%",
+              "description": "Social Security (covers Pension, sickness and unemployment) applied on income above 2,234,736 CZK annually"
+            },
+            {
+              "rate": "4.50%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "11%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "15.00%",
+              "description": "Up to 1,676,052 CZK"
+            },
+            {
+              "rate": "23.00%",
+              "description": "1,676,052 CZK and above"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "In the Czech Republic, the national minimum wage is set at 20,800 CZK per month.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in the Czech Republic is generally monthly, and payments must be made on the same day of each month and no later than the following calendar month of the work performed.",
+          "13th_salary": "There is no legal requirement to pay a 13th-month salary. However, many employers pay a 13th-month salary bonus, which is typically performance-based."
+        },
+        "working_hours": {
+          "general": "The standard working week in the Czech Republic consists of 40 hours a week, 8 working hours per day (9 hours including an unpaid lunch break).",
+          "overtime": "All work above the standard weekly hours is considered to be overtime and is regulated by the employment contract/collective agreement. A maximum of 8 additional hours per week  and 150 hours a year can be worked as overtime\nAll overtime hours in excess of 40 hours per week are paid at an overtime compensation rate of 125% of the employee’s regular pay rate. For night or weekend working an additional 10% pay must be given, and those working on a public holiday are entitled to an additional 100% pay or a compensatory day off."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Full-time employees in the private sector are entitled to paid leave of 4 weeks (20 working days) per year.\nWorkers in the public sector, and certain other fields, are entitled to paid leave of 5 weeks (25 days) per year, and teachers receive an entitlement of 8 weeks per year. Further entitlement for leave is outlined in the employment contract/collective agreement.\nEmployees become eligible to take leave after 60 days of service has been worked with a single employer; the employer reserves the right to accept or deny any leave requests due to the demands of the business.\nWhere possible, all leave should be used within the allotted year, however it is possible to permit workers to carryover a portion of their unused leave into the next calendar year, carryover requests must be in writing and shared in advance with the employer.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tMay Day\t\n8 May 2025\tThursday\tLiberation Day\t\n5 Jul 2025\tSaturday\tSt Cyril and St Methodius Day\t\n6 Jul 2025\tSunday\tJan Hus Day\t\n28 Sep 2025\tSunday\tStatehood Day\t\n28 Oct 2025\tTuesday\tIndependence Day\t\n17 Nov 2025\tMonday\tFreedom and Democracy Day\t\n24 Dec 2025\tWednesday\tChristmas Eve\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\t2nd Day of Christmas",
+          "sick_days": "Employers must reimburse employees for their first 14 days of sickness. Starting from the 15th day, employees receive sick pay from the Government. Sick pay is 60% of the employee’s average pay for the first 30 days  (inclusive of the days the employer is responsible for), 66% from the 31st to the 60th day, and 72% from the 61st day onwards. Workers are eligible to take up to a total of 380 calendar days of sick leave.\nEmployers are obliged to collect sickness certificates from employees, maintain related records, and make all required reporting submissions to the Social Security authorities.",
+          "maternity_leave": "A woman is entitled to 28 weeks of maternity leave (37 weeks for multiple births); the employee must take a minimum of 14 weeks leave. The leave can start at least eight weeks before the expected due date, but no later than six weeks.\nMaternity payment starts alongside the maternity leave, calculated at 70% of the regular salary and paid by Social Security. The actual amount is dependent on the employee having worked at least 270 days in the last 24 months, together with the amount of contributions made by the employee to Social Security.\nMothers receive job protection from the beginning of the pregnancy until one year after the maternity leave ends.",
+          "paternity_leave": "New fathers (or those who have taken into their care a child under the age of seven), are eligible to receive paternal post-natal care benefit for 2 weeks.\nThis leave is paid at the rate of 70% of the employee’s regular salary. The paternity leave must begin within six weeks after the birth of the child and must be used on one block. To be eligible for this leave, contributions must have been made to the Social Security for 270 days in the two years prior.\nMothers can also choose to transfer a portion of their maternity leave to the father once the child has reached seven weeks of age. The father will receive parental pay during this leave.\nEmployees cannot be terminated during Paternity leave.",
+          "parental_leave": "Parents are entitled to take parental leave up until the child turns three years old (or 4 years old is the employer agrees). Parents are given a joint parental allowance for the entire period of the leave regardless of how long is taken.",
+          "other_leave": "Depending on the collective agreement/employment contract terms, an employee may be allowed additional leave types, as approved between the employer and employee:\nCare Leave: Employees are entitled to up to nine days of care leave if caring for a child under the age of 10 or providing care to a sick family member. This leave is paid by the Social Security at a rate of 60% of the employee’s gross salary for up to 9 days. Single parents who are caring for a child can access extended paid leave of up to 16 days until the child reaches the age of 16.\nLong term Care Leave: In the event that a family member who lives in the same house as the worker spends at least 7 days in the hospital and requires daycare for at least 30 days or more, employees are entitled to long-term attendance allowance to care for this family member, providing that written consent is provided by the person who is cared for. Leave can be for up to 90 calendar days with payment of 60% of their gross salary paid by Social Secuirty.\nWedding Leave: Employees are entitled to 2 days of leave for their wedding, of which one day is paid.\nBereavement Leave: In the event of the death of an immediate member, an employee is entitled to bereavement leave of up to three days paid leave.\nJury Duty: All employers must provide their full-time employees, unpaid leave for their duty as jurors or as a witness in a case, responding to a subpoena or acting as a plaintiff or defendant in the courts. Employees must provide a copy of the jury summons to the employer as evidence of the requirement.\nMilitary Leave: Employees are entitled to leave to take part in compulsory service in the armed forces, such as compulsory military service, substitute military service, military exercises, and another service in the armed forces, and to take part in civilian service."
+        },
+        "termination": {
+          "termination_process": "The termination process is standard in the Czech Republic with notice periods required unless an employer can provide sufficient cause for dismissal without notice (due to misconduct, disobedience, lack of skill, neglect of duties, or absence without permission). Termination with cause is possible under the grounds of dismissal laid out in the Czech Labour code. Just termination reasons include redundancy, business insolvency,  or closes down, certain employee’s health conditions, failure of the worker to meet the requirements of the position or severe breaches of company policies.",
+          "notice_period": "In the Czech Republic, the notice period must commence from the first day of the month following the delivery of the notice and must be at least two months. This can be extended upon an agreement between the employer and the employee in writing.",
+          "severance_pay": "Severance pay is dependent on the employee’s length of service as specified below:\n1 year of employment: 1 month’s gross salary\n2 years of employment: 2 months’ gross salary\n3+ years of employment: 3 months’ gross salary",
+          "probation_period": "The Czech Republic’s probationary period depends on the type of role and is stipulated within the employment agreement. In general, probation periods for regular salaried employees is 3 consecutive months, and for chief officers up to 6 months."
+        },
+        "common_benefits": [
+          "Wellness Allowance – approximately 600 EUR per year",
+          "Meal Allowance –  100 to 300 EUR per month",
+          "Health Allowance – 200 to 500 EUR per month",
+          "Additional Annual Leave – 5 additional days per year"
+        ],
+        "visa": {
+          "general_info": "Business visitors to the Czech Republic typically use a local version of the Schengen C Visa, which foreign nationals must obtain before arrival in the Czech Republic unless they are visa exempt based on their nationality. The Schengen Area limits stay to 90 days within any 180 days, counted cumulatively across the Schengen Area.\nThe main work authorization category is the Employee Card, a combined work and residence permit for highly skilled local hires. For intracompany transfers, assignments, and secondments, it must be combined with a separate work permit. The Employee Card can be issued for up to two years and is renewable."
+        },
+        "remote_work": "Working from home in the Czech Republic is subject to labor law regulations, governed by Act No. 262/2006, the Labour Code.\nAccording to the Labour Code, remote work is generally permitted for all employees, provided that they have a written agreement with the employer. Working from home can only be implemented under an individual written agreement with an employee. The legislation covers various aspects, such as the procedures for terminating such agreements and reimbursing expenses associated with working from home. Employers are obliged to provide all employees with the required working equipment and supplies (typically IT and office equipment) regardless of the employee’s place of work. Alternatively, the employer may agree that the employee will be reimbursed for purchasing supplies.",
+        "vat": {
+          "general": "The standard rate of VAT in the Czech Republic is 21.00%."
+        }
+      }
+    }
+  ]
+}

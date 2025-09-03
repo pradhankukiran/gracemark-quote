@@ -1,0 +1,90 @@
+{
+  "scraped_at": "2025-08-24T18:41:35.178Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Saudi Arabia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/saudi-arabia/",
+      "scraped_at": "2025-08-24T18:41:35.167Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "9.00%",
+              "description": "Social Insurance Tax for Saudi employees, includes pension applied on income between 1,500 and 45,000 SAR monthly. Foreign workers are exempt from contributions to social insurance."
+            },
+            {
+              "rate": "1.00%",
+              "description": "Unemployment Insurance Tax for Saudi employees, applied on income between 1,500 and 45,000 SAR monthly. Foreign workers are exempt from contributions to unemployment insurance."
+            },
+            {
+              "rate": "2.00%",
+              "description": "Occupational Hazard"
+            },
+            {
+              "rate": "2% to 12.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "9.00%",
+              "description": "Social Insurance Tax for Saudi employees, includes pension, applied on income between 1,500 SAR-45,000 SAR. Foreign workers are exempt from contributions to social insurance."
+            },
+            {
+              "rate": "1.00%",
+              "description": "Unemployment Insurance Tax for Saudi employees, applied on income between 1,500 SAR-45,000 SAR. Foreign workers are exempt from contributions to unemployment insurance."
+            },
+            {
+              "rate": "9.75%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "There is no individual income tax regime in Saudi Arabia, earnings from employment are not subject to income tax."
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The national minimum wage in Saudi Arabia is 4,000 SAR per month.",
+        "payroll": {
+          "payroll_cycle": "In Saudi Arabia, the payroll frequency is weekly or monthly. The employer must make the payment for weekly employees once a week and make payments for monthly paid employees at least once a month.",
+          "13th_salary": "13th-month payments are not mandatory. However, employers can pay performance-based bonuses at their discretion."
+        },
+        "working_hours": {
+          "general": "The working week in Saudi Arabia is typically 48 hours, 8 hours per day, 5 days per week. The working day may decrease to 6 hours a day during the period of Ramadan.",
+          "overtime": "All work exceeding the standard working hours per week is to be paid as overtime and is regulated by employment contracts/collective agreements. Daily hours cannot exceed 11 hours. From the 8th hour the worker must be paid at a rate of 150% salary. Timesheets are required when an overtime set up is required.\nExemptions are in place depending on the type of worker e.g. persons occupying high positions of authority in management and policy."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In Saudi Arabia (Article 109 of the Labor Law), the annual leave entitlement is dependent on the employee’s seniority as follows:\n21 days of annual leave for employees with one to five years of service\n30 days of annual leave for employees with more than five years of service\nEmployees may carryover any untaken leave to the following vacation leave with the employer’s written consent.\nEmployees may request ten additional days of unpaid leave per year, subject to the employer’s approval.",
+          "public_holidays": "The local government decides each year if holidays falling on the weekend are lost or moved to a working day in lieu.\nReligious holidays are determined by the lunar cycle and will show as tentative until they are confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNotes\n22 Feb 2025\tSaturday\tFounding Day\t\n30 Mar 2025\tSunday\tEid al-Fitr\t\n31 Mar 2025\tMonday\tEid al-Fitr\t\n1 Apr 2025\tTuesday\tEid al-Fitr\t\n2 Apr 2025\tWednesday\tEid al-Fitr\t\n5 Jun 2025\tThursday\tArafat Day\t\n6 Jun 2025\tFriday\tEid al-Adha\t\n7 Jun 2025\tSaturday\tEid al-Adha\t\n8 Jun 2025\tSunday\tEid al-Adha\t\n23 Sep 2025\tTuesday\tNational Day",
+          "sick_days": "In accordance with Article 117 of the Labor Law, employees are entitled to 120 days of sick leave per year whether sickness is continuous or intermittent, as follows:\nFull pay for the first 30 days of illness\n1/3 pay for the next 60 days of illness\nUnpaid leave for a further 30 days of illness\nSick leave is paid by the Employer.\nEmployees are required to provide a medical certificate for all sick days.",
+          "maternity_leave": "Female employees are entitled to 10 weeks of paid maternity leave commencing four weeks before the expected due date. It is not permitted to work during the 6 weeks immediately following the birth.\nPayment of maternity leave is made by the Employer, at a rate dependent on the employee’s seniority. Employees with at least 1 year service are paid at a rate of 50% pay. Employees with at least 3 years of service are paid at a rate of 100% regular pay.\nMaternity compensation is provided to all contributors, regardless of whether they are Saudi or non-Saudi. This compensation is paid from the beginning of the month of birth for a duration of three months, with an additional month if the child is born sick or disabled.\nEmployees receiving full pay during maternity leave are not permitted to also take the payment of annual leave in the same year. However, employees receiving 50% pay may also take half of their paid annual leave entitlement in the same year.",
+          "paternity_leave": "The father/partner is entitled to 3 days of paid paternity leave after the child’s birth (Article 113 of the Labour Law).",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "Depending on the collective agreement/employment contract terms, an employee may be allowed additional leave types, once approved between the employer and employee, for the following:\nBereavement leave: In the event of the death of an immediate member, an employee is entitled to 2 days of bereavement leave.\nMarriage leave: An employee is entitled to 3 days of leave in the event of their wedding.\nHajj leave/Pilgrimage leave: As per Article 114 of the Labor Law, an employee is entitled to 10 to 15 days (including the Eid Al-Adha holiday) to perform Hajj if the employee has completed at least 2 consecutive years of service with the employer. However, this entitlement arises only if the employee has not performed Haj previously."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment set up and is  based on the type of employment contract and reason for termination.\nThe justifiable reasons for dismissal include misconduct, unauthorized absence, failure to perform job duties deemed essential, failure to comply with rules for health and safety, assaulting the employer, disclosure of industrial or trade secrets. When using fixed term contracts, justified dismissal can also be by non renewal of the contract at the end date, termination as specified in the contract’s terms, conversion of the contract to an indefinite term or expiration of the work permit (for expatriate employees).\nWhere the dismissal reason given is found to be illegitimate, the employee will be entitled to additional compensation: if the contract is for a fixed term, the employee will be entitled to his wages for the remaining period of his contract. If the contract was for an indefinite term, the employee will be entitled to 15 days wages for each year of service.  in both cases the minimum compensation may not be less than two months’ wages.\nIt is also possible to end employment via a Mutual Termination Agreement providing there is written consent from the employee.\nIt is not permitted to terminate workers whilst they are on maternity or medical leave.",
+          "notice_period": "In Saudi Arabia, the notice period is dependent on the type of contract in place.\nFor termination or resignation of an indefinite term contract (open-ended and paid monthly), 60 days’ notice is required. For other workers, 30 days notice is required.",
+          "probation_period": "In Saudi Arabia, the probation periods may vary depending on the employment contract in place. However, the probation period is typically 90 days and may be extended subject to the employee’s written consent but cannot exceed 180 days.",
+          "severance_pay": "End of Service Benefits (EOSB) is payable only at the end of the employment relationship, not before. Both Saudi and Non-Saudi employees are entitled to EOSB.\nIf the employer ends the employment, the benefit is calculated by adding ½ a month’s wage for each of the first 5 years and 1 month’s wage for each subsequent year of service. For fractions of a year, the employee is entitled to proportionate EOSB. EOSB is calculated on the basis of the employee’s last salary.\nIf the employee resigns, they are entitled to 1/3 of the award after service of no less than 2 consecutive years and not more than 5 years of service. 2/3 if their service is in excess of 5 successive years, but less than 10 years; and to the full award if their service amounts to 10 or more years.\nIf an employee is called to military service or cannot work because of force majeure, they are entitled to EOSB. Female employees are entitled to EOSB if they resign within 6 months of marriage or within 3 months of childbirth."
+        },
+        "visa": {
+          "general_info": "For an employee to acquire a work visa in Saudi Arabia, a third-party national must be sponsored by an employer. The employer must be registered with the Ministry of Interior and a file is opened with all the information on the employer’s foreign employees. Saudi Arabia’s quota system and nationalization program can make the process of employing a foreign national relatively complex and restrictive. Applicable procedures involve a home-country consular process followed by several post-arrival steps before final residency rights are granted.\n\nBusiness travelers typically apply for a Business Visit Visa at a Saudi consular post once they receive a government-approved letter of invitation from a sponsor in Saudi Arabia. Business Visit Visas are usually valid for three months (single entry) or 12 months (multiple entry), or up to five years (multiple entry) for citizens of countries that signed bilateral visa agreements with Saudi Arabia. The maximum allowable duration of stay under a single-entry visa for three and six months is 30 days; for visas with other validities it is 90 days.\n\nThere is no longer a short-term work option in Saudi Arabia. For long-term work, foreign nationals can apply for a Work Permit and Resident ID Card, which is valid for up to one year with the possibility of extensions.\nThis does not apply to citizens from Bahrain, United Arab Emirates, Kuwait, and Oman. Citizens from these countries may enter with their ID.\n\nThere is a new short-term work visa for certain foreign nationals, available via an online platform, Qiwa. This new visa enables qualified employees to work in Saudi Arabia for a visa-sponsoring entity for up to 90 days per visa issuance in one year. During the course of the one-year period (i.e. from the date of first entry into KSA), it will be possible to reapply for new temporary work visas at the end of each 90-day period. To apply, employers will need to be classified as at least “medium-green” in the Saudisation scheme, comply with obligations in the Wage Protection System, and ensure that foreign workers have valid work authorization.\n\nThe quota will be limited to 50 visas per employer and visas will not be transferrable to other entities. It is expected that many employers will take advantage of the new temporary work visa, as businesses in the KSA have been seeking a legally compliant solution for short-term work assignments.\n\nMore foreign national-friendly programs are expected in Saudi Arabia in the future as additional foreign labor will be needed to fill positions in the NEOM – a cross-border city in northwest Saudi Arabia that is planned to be built by 2025."
+        },
+        "vat": {
+          "general": "The standard of VAT in Saudi Arabia is 15.00%."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "scraped_at": "2025-08-24T18:20:31.025Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Morocco",
+      "url": "https://www.papayaglobal.com/countrypedia/country/morocco/",
+      "scraped_at": "2025-08-24T18:20:31.005Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "6.40%",
+              "description": "Family Allocation"
+            },
+            {
+              "rate": "8.60%",
+              "description": "Social Allocation/Benefits (ceiling of 6,000 MAD)"
+            },
+            {
+              "rate": "4.11%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "1.60%",
+              "description": "Professional Training Tax"
+            },
+            {
+              "rate": "1.50%",
+              "description": "Social Solidarity (only for companies with annual net profits of 1 million to 5 million MAD)"
+            },
+            {
+              "rate": "2.50%",
+              "description": "Social Solidarity (only for companies with annual net profits of 5 million to 10 million MAD)"
+            },
+            {
+              "rate": "3.50%",
+              "description": "Social Solidarity (only for companies with annual net profits of 10 million to 40 million MAD)"
+            },
+            {
+              "rate": "5.00%",
+              "description": "Social Solidarity (only for companies with annual net profits in excess of 40 million MAD)"
+            },
+            {
+              "rate": "20.71% to 25.71%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "4.29%",
+              "description": "Social Allocation/Benefits"
+            },
+            {
+              "rate": "2.26%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "1.5%",
+              "description": "Social Solidarity (only for individuals earning 120,000 MAD annually)"
+            },
+            {
+              "rate": "6.55% – 8.05%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "Exempt",
+              "description": "0 to 40,000"
+            },
+            {
+              "rate": "10.0%",
+              "description": "40,001 – 60,000 MAD"
+            },
+            {
+              "rate": "20.0%",
+              "description": "60,001 – 80,000 MAD"
+            },
+            {
+              "rate": "30.0%",
+              "description": "80,001 – 100,000 MAD"
+            },
+            {
+              "rate": "34.0%",
+              "description": "100,001 – 180,000 MAD"
+            },
+            {
+              "rate": "37.0%",
+              "description": "Above 180,000 MAD"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wages in Morocco are set according to collective bargaining agreements/unions/employment contracts and vary according to the type of work being undertaken:",
+        "payroll": {
+          "payroll_cycle": "In Morocco, the payroll frequency is generally monthly. Work is typically paid on the last day of the month.",
+          "13th_salary": "Although there are no provisions in the law regarding 13th salaries, it is common practice to pay 13th-month bonuses and/or seniority bonuses."
+        },
+        "working_hours": {
+          "general": "In accordance with Law Article 184 “code du travail” (Labor Code), the standard working hours per week are 44 hours, with a maximum of 10 hours per day.",
+          "overtime": "All working hours of more than the standard working hours per week are to be paid as overtime and are regulated by employment contracts/collective agreements. It must also be mutually agreed upon before any overtime work is done.\nIn general, maximum overtime limits must not exceed 138 hours over four months and 250 hours annually.\nOvertime hours are paid at a rate of 125% of the regular salary for overtime between the hours of 6 am and 9 pm and increase to 150% of the typical salary for overtime between the hours of 9 pm and 6 am (night-time work).\nAny overtime work required on a weekend/rest day/Sunday is compensated at between 150% and 200% of the regular salary rate of pay, dependent on the employee’s collective agreement/contract."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "After six months of continuous service, an employee accumulates 1.5 days of leave per month up to a standard entitlement of 18 paid days of annual leave. This can be increased to 24 days per year for employees under the age of 18 years old.\nThe duration of paid annual leave is increased by one and a half days every five years until a maximum of 30 days of annual leave is reached.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nReligious holidays are determined by the lunar cycle and will show as tentative until they are confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNotes\n11 Jan 2025\tSaturday\tAnniversary of the Independence Manifesto\t\n14 Jan 2025\tTuesday\tAmazigh New Year\t\n30 Mar 2025\tSunday\tEid al Fitr\t\n31 Mar 2025\tMonday\tEid al Fitr\t\n1 Apr 2025\tTuesday\tEid al Fitr\t\n2 Apr 2025\tWednesday\tEid al Fitr\t\n1 May 2025\tThursday\tLabour Day\t\n7 Jun 2025\tSaturday\tEid Al Adha\t\n8 Jun 2025\tSunday\tEid Al Adha\t\n9 Jun 2025\tMonday\tEid Al Adha Holiday\tDay Off in Lieu\n27 Jun 2025\tFriday\tIslamic New Year\t\n30 Jul 2025\tWednesday\tFeast of the Throne\t\n14 Aug 2025\tThursday\tAnniversary of the Recovery Oued Ed-Dahab\t\n20 Aug 2025\tWednesday\tRevolution of the King and the People\t\n21 Aug 2025\tThursday\tYouth Day\t\n5 Sep 2025\tFriday\tProphet Muhammad’s Birthday\t\n6 Nov 2025\tThursday\tGreen March Day\t\n18 Nov 2025\tTuesday\tIndependence Day",
+          "sick_days": "Employees are entitled to four days (or eight half days) of paid sick leave per year. If the absence lasts more than four days, the employee must inform the employer of the probable duration of absence and provide a medical certificate justifying the absence reason. An employer has the right to request the employee resign if they have more than 180 consecutive days sick during one year.",
+          "maternity_leave": "Pregnant employees receive 14 weeks of paid maternity leave, seven weeks before birth, and seven weeks after. The maternity payment is at the rate of the regular salary rate and paid by the employer. Mothers can also request to take up to a year of additional unpaid leave.",
+          "paternity_leave": "Fathers are entitled to three days of paid paternity leave within the first month of the child’s birth.",
+          "parental_leave": "There is no parental leave apart from maternity and paternity leave.",
+          "other_leave": "Depending on the collective agreement/employment contract terms, an employee may be allowed additional leave for:\nMarriage Leave: an employee is entitled to up to 4 days’ leave when they get married.\nBereavement Leave: an employee is entitled to up to 3 days of bereavement leave in the death of an immediate family member.",
+          "care_leave": "Leave for surgery on the spouse or dependent child: 2 days.\nLeave for Circumcision: 2 days."
+        },
+        "termination": {
+          "termination_process": "Employers can terminate a fix term contract for the following reasons – business, personal, or worker’s misconduct. It requires notice and a written explanation for the termination. If the reason is misconduct, a warning needs to be given and the employee gets a chance to explain actions.",
+          "notice_period": "Collective agreements may contain provisions on notice periods. If notice periods in the collective agreement differ from the statutory notice periods, the employer and the employee observe the notice periods in the collective agreement.\nThe amount of notice is dependent on the function of the employee and the length of service. If the employer terminates the contract, the notice period is as follows:\nFor executives and similar positions:\nFor less than 1 year of service, the notice period is one month\nBetween 1 year to 5 years’ service, the notice period is two months\nMore than five years’ service, the notice period is three months\nFor employees:\nLess than one year of service the notice period is eight days\nOne year to 5 years’ service the notice period is one month\nMore than five years’ service, the notice period is two months",
+          "severance_pay": "Employers should pay severance pay (if applicable) if an employee has at least six months’ service at 96 hours of salary per year of service, increasing to 144 hours per year after five years of service, 192 hours per year after ten years, and 240 hours per year after 15 years.\nThe severance hourly rate is calculated based on the average wages received during the 52 weeks preceding the termination of the contract.",
+          "probation_period": "All employees are subject to a 1-week trial period for any role. The following probation period differs dependent on job position/status, i.e., 15 days for blue-collar workers, 45 days for white-collar workers, and three months for management."
+        },
+        "visa": {
+          "general_info": "Foreigners wishing to work in Morocco must obtain a work permit (attestation de travail) from the National Agency for the Promotion and Employment of Skills (Agence Nationale de Promotion de l’Emploi et des Competences) more commonly known as ANAPEC, before entering the country. The documents required for getting a work permit include:\n\nApplication forms with the appropriate stamps\nPassport copies\nPhotographs, passport-size\nEmployment contract copy (legalized by the government office)\nCopies of degrees and diplomas\n\nThe Ministry of Labour and Professional Integration requires all employers seeking to sponsor foreign nationals for employment in Morocco via the online portal Taechir. Upon completing the online application process, the system will generate three copies of E-Work Permit forms which must be printed, stamped, and signed by the foreign national and the authorized signatory of the sponsoring entity. Both signatures must be certified by a notary public or legalized by the respective Moroccan consular post abroad.\n\nOnce finalized, the foreigner must submit the original forms and all documentary requirements to the Moroccan Department of Employment for approval.\nOnce this is complete, the foreigner may enter the country to commence work."
+        },
+        "vat": {
+          "general": "The Standard rate of VAT Morocco is 20%."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "scraped_at": "2025-08-24T18:30:47.829Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Oman",
+      "url": "https://www.papayaglobal.com/countrypedia/country/oman/",
+      "scraped_at": "2025-08-24T18:30:47.818Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "10.50%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Occupational Injury and Disease"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Job Security Fund"
+            },
+            {
+              "rate": "12.50%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "7.00%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Job Security Fund"
+            },
+            {
+              "rate": "8.00%",
+              "description": "Total Employee Cost\n\n*There are no payroll contributions for foreign/expatriate workers"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "Oman does not have personal income tax.",
+              "description": ""
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "In Oman, the minimum wage is 325 OMR per month of which 225 OMR must be salary and the remaining 100 OMR must be paid as a bonus.",
+        "payroll": {
+          "payroll_cycle": "In Oman, the payroll frequency is typically monthly. The employer must make salary payments at least once a month.",
+          "13th_salary": "There is no legal requirement for employers to pay a 13th-month payment."
+        },
+        "working_hours": {
+          "general": "In Oman, the standard work week consists of 45 hours per week, nine hours a day. However, work hours are reduced to 30 hours a week, 6 hours a day during Ramadan.",
+          "overtime": "All work above the standard weekly hours is paid as overtime and regulated by employment contracts/collective agreements. When an employee is requested to work overtime or on holidays, the maximum is set at 12 hours a day. Overtime expectations should be stated in the employment agreement. It is not possible to include overtime pay within the salary.\nManagers are exempt from overtime limits and do not need to receive additional pay.\nAll overtime hours in excess of 45 hours a week are paid at an overtime compensation rate of 125% of the employee’s regular wage for daylight hours and 150% for hours worked at night."
+        },
+        "leave": {
+          "public_holidays": "The local government decides each year if holidays falling on the weekend are lost or moved to a working day in lieu.\nReligious holidays are determined by the lunar cycle and will show as tentative until they are confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNotes\n11 Jan 2025\tSaturday\tAscension Day\t\n30 Jan 2025\tThursday\tIsra’a Wal Mi’raj\t\n29 Mar 2025\tSaturday\tEid al-Fitr\t\n30 Mar 2025\tSunday\tEid al-Fitr\t\n31 Mar 2025\tMonday\tEid al-Fitr\t\n1 Apr 2025\tTuesday\tEid al-Fitr Holiday\t\n2 Apr 2025\tWednesday\tEid al-Fitr Holiday\t\n3 Apr 2025\tThursday\tEid al-Fitr Holiday\t\n5 Jun 2025\tThursday\tArafah Day\t\n7 Jun 2025\tSaturday\tEid al-Adha\t\n8 Jun 2025\tSunday\tEid al-Adha Holiday\t\n9 Jun 2025\tMonday\tEid al-Adha Holiday\t\n29 Jun 2025\tSunday\tIslamic New Year\t\n5 Sep 2025\tFriday\tProphet Muhammad’s Birthday\tTentative\n18 Nov 2025\tTuesday\tNational Day\t\n19 Nov 2025\tWednesday\tNational Day Holiday",
+          "sick_days": "An employee is entitled to 10 days of sick leave compensated by the employer at 100% of their regular income. Any sickness in excess of two weeks is paid by Social Security at a reduced rate as follows:\nWeek 3-4 of sickness – 75% of their wages\nWeek 5-6 of sickness – 50% of their wages\nWeek 7-10 of sickness– 25% of their wages",
+          "maternity_leave": "Per Article 83, Part 5 of the Labor Law of Oman, women working in the private sector are entitled to 50 days of maternity leave covering periods before and after delivery, with compensation at 100% of their regular income. An employee is entitled to maternity leave three times throughout her employment in one organization. Civil Service Law No. 120/2004 allows female employees working in the public sector to take maternity leave up to five times throughout their service.",
+          "paternity_leave": "In Oman, there are no provisions in the law regarding paternity leave.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "Bereavement leave: for the death of a father, mother, spouse, sibling, grandparent, or child, an employee is entitled to three days of leave. For the death of an aunt or uncle, two days’ leave is granted. In the event of a working Muslim woman losing her husband, the leave entitlement is increased to 130 days.\nWedding leave: an employee is entitled to 3 days.\nHajj Pilgrimage: an employee gets 15 days of leave to perform the Hajj Pilgrimage once during their employment following one year of service.\nExam leave: granted to employees in Oman for the opportunity to study in one of the schools, institutes, colleges, or universities. The leave entitlement for study leave is 15 days."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment and collective agreement in place and on the type of contract and reason for termination. Employers must have sufficient grounds for terminating an employee and must provide a formal notice period and end-of-service gratuity.\nAn employer may terminate an employment contract without notice and without payment of end-of-service gratuity on the grounds of gross misconduct in circumstances specified in Article 40 of the Labor Law. An employer may not terminate an employment contract without good cause.",
+          "notice_period": "The notice period in Oman is a minimum of one month where the employee receives a monthly salary and 15 days in all other cases unless a longer period is agreed upon in the employment contract.\nAll notices must be provided in writing.",
+          "severance_pay": "The end of service gratuity is based on the employee’s final salary. The employee is entitled to one month’s pay per each year worked.",
+          "probation_period": "In Oman, the probation period must not exceed three months."
+        },
+        "visa": {
+          "general_info": "Foreigners are usually requested to obtain entry visas to travel to Oman. Visas for Oman are broadly categorized as a tourist visa, employment visa, relative/friend visit visa, family joining/resident visa, investor and student resident visa, and transit visa.\n\nThey can be issued as single-entry, double-entry, or multiple-entry visas for visits up to 90 days in periods of 180 days. The single-entry visa grants one-time entrance, whereas double-entry visa holders may travel twice in predetermined timeframes. A multiple-entry visa allows for consecutive visits to the country."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Oman is 5%."
+        }
+      }
+    }
+  ]
+}

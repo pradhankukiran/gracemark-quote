@@ -1,0 +1,107 @@
+{
+  "scraped_at": "2025-08-24T18:26:00.655Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Nigeria",
+      "url": "https://www.papayaglobal.com/countrypedia/country/nigeria/",
+      "scraped_at": "2025-08-24T18:26:00.647Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "10.00%",
+              "description": "Pension (applicable to employers with more than fifteen employees)"
+            },
+            {
+              "rate": "1.00%",
+              "description": "National Social Insurance Trust Fund (NSITF)"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Industrial Training Fund (ITF) (applicable to all employers with a minimum of five employees or annual turnover of 50 million NGN)"
+            },
+            {
+              "rate": "1.00% to 12.00%",
+              "description": "Total Employer Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "8.00%",
+              "description": "Pension"
+            },
+            {
+              "rate": "2.50%",
+              "description": "Housing Fund applicable to employees earning more than 3,000 NGN per year)"
+            },
+            {
+              "rate": "8.00% to 10.50%",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": [
+            {
+              "rate": "7.00%",
+              "description": "First 300,000 NGN Annually"
+            },
+            {
+              "rate": "11.00%",
+              "description": "Next 300,000 NGN Annually"
+            },
+            {
+              "rate": "15.00%",
+              "description": "Next 500,000 NGN Annually"
+            },
+            {
+              "rate": "19.00%",
+              "description": "Next 500,000 NGN Annually"
+            },
+            {
+              "rate": "21.00%",
+              "description": "Next 1.6 million NGN Annually"
+            },
+            {
+              "rate": "24.00%",
+              "description": "Above 3.2 million NGN Annually"
+            }
+          ]
+        },
+        "minimum_wage": "The national minimum wage in Nigeria is currently 70,000 NGN per month.",
+        "payroll": {
+          "payroll_cycle": "In Nigeria, the payroll frequency is monthly, bi-weekly or weekly. The payment for salaries is to be made at least once a month.",
+          "13th_salary": "There are no statutory requirements for 13th-month salary payments. However, bonuses are common at the discretion of the employer."
+        },
+        "working_hours": {
+          "general": "The standard working week in Nigeria consists of 48 hours, 8 hours per day. A 40-hour workweek with 8 hours per day is common as well.",
+          "overtime": "There is no legal mandate on how much overtime pay to give but the terms of overtime should be laid out in the employment contract."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "If an employee has been employed for 12 months, they are entitled to 6 days of paid annual leave. It is common to give 7 days from the first day of work. Unused leave can be carried over at the discretion of the employer.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost unless a day off in lieu has been mandated by the government.\nReligious holidays are determined by the lunar cycle and will show as tentative until they are confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n30 Mar 2025\tSunday\tId el Fitr\t\n31 Mar 2025\tMonday\tId el Fitr\t\n1 Apr 2025\tTuesday\tId el Fitr\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n6 Jun 2025\tFriday\tId el Kabir\t\n9 Jun 2025\tMonday\tId el Kabir Holiday\t\n12 Jun 2025\tThursday\tDemocracy Day\t\n15 Jul 2025\tTuesday\tDay in honour of President Muhammadu Buhari.\t\n4 Sep 2025\tThursday\tId el Maulud\tTentative\n1 Oct 2025\tWednesday\tNational Day\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day",
+          "sick_days": "Employees are entitled to 12 days of paid sick leave per year following the presentation of a medical certificate after two days of absence. This is paid at full salary by the employer.",
+          "maternity_leave": "Female employees within the public sector are entitled to 16 weeks of maternity leave at 100.00% of the employee’s average pay rate. In contrast, private-sector employees are entitled to 12 weeks of paid maternity leave at 50.00% of the employee’s average salary. Employees receive this entitlement following six months of consecutive service within the company.",
+          "paternity_leave": "There is a 14 working days paternity leave for men.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "There are no provisions in the law for additional statutory leave."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to how the employment agreement and collective agreement are in place and is based on the type of contract and reason for termination. Employment can be terminated at any time by either the employer or the employee providing notice is given.",
+          "notice_period": "In Nigeria, the notice period of an employee is dependent on their seniority, as follows:\nOne day notice is required for three months of service or less\nOne week’s notice is required for three months to 2 years of service.\nTwo weeks’ notice is 1required for 2 years to 5 years of service.\nOne month’s notice is required for five or more years of service.",
+          "severance_pay": "For manual and clerical workers (who are covered by the labor act), redundancy pay is mandatory. The law does not stipulate the amount to be paid as redundancy pay, and it is negotiated by the parties. For employees not covered by the labor act, severance pay is usually subject to the provisions of the employment contract or collective agreement.",
+          "probation_period": "No probation period is required but it is common to use 3-6 months."
+        },
+        "visa": {
+          "general_info": "Nigeria’s immigration system provides several options for employers of foreign nationals. Nigeria is a member of the Economic Community of West African States (ECOWAS). Its immigration program provides ECOWAS-specific provisions. Requirements, processing times, employment eligibility, and benefits for accompanying family members vary by permit type.\n\nBusiness visitors from non-ECOWAS member states may use the business visa for stays of up to 90 days. This visa can be extended in Nigeria for another 30 to 90 days at the authorities’ discretion.\n\nECOWAS nationals are visa-exempt and may enter Nigeria with a valid passport.\n\nNon-ECOWAS nationals require an extension and to pay the corresponding fee for any stay beyond 56 cumulative days in 12 months.\nThe Temporary Work Permit is suitable for foreign nationals undertaking short-term technical assignments (e.g., after-sales installation, maintenance, repairs of machines, and equipment). It permits a single entry to Nigeria for work for up to 90 days.\n\nThe Combined Expatriate Residence Permit and Aliens Card (CERPAC) or the Temporary Work Permit (TWP) are suitable for foreign nationals undertaking work depending on their intended length of stay."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Nigeria is 7.50%."
+        }
+      }
+    }
+  ]
+}

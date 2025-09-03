@@ -1,0 +1,139 @@
+{
+  "scraped_at": "2025-08-24T18:03:27.083Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Spain",
+      "url": "https://www.papayaglobal.com/countrypedia/country/spain/",
+      "scraped_at": "2025-08-24T18:03:27.069Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "24.27%",
+              "description": "Social Security (includes pension* and Intergenerational Equity Mechanism (MEI), minimum monthly base is 1,260 EUR  and the maximum is 4,909.50 EUR)"
+            },
+            {
+              "rate": "5.50%",
+              "description": "Unemployment"
+            },
+            {
+              "rate": "0.20%",
+              "description": "Salary Guarantee Fund"
+            },
+            {
+              "rate": "0.60%",
+              "description": "Professional Training"
+            },
+            {
+              "rate": "2.05%",
+              "description": "Work Accident Insurance, rates may vary according to the specific insurance policy and might be subject to caps."
+            },
+            {
+              "rate": "0.76%-0.97%",
+              "description": "Solidarity contribution, only applied on earnings above the maximum base (€4,909.50 per month), the applied rate varies according to the level of earnings above the maximum base."
+            },
+            {
+              "rate": "17 – 50 EUR per month",
+              "description": "Remote Working Allowance (minimum), must be applied when home working 30% or more of the time. The required rate can vary depending on set up and CBA."
+            },
+            {
+              "rate": "33.59%+ 50 EUR/Month",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "4.83%",
+              "description": "Social Security (including Intergenerational Equity Mechanism (MEI), minimum monthly base is 1,260 EUR  and the maximum is 4,909.50 EUR)"
+            },
+            {
+              "rate": "1.55%",
+              "description": "Unemployment (minimum monthly base is 1,260 EUR  and the maximum is 4,909.50 EUR)"
+            },
+            {
+              "rate": "0.10%",
+              "description": "Professional Training (minimum monthly base is 1,260 EUR  and the maximum is 4,909.50 EUR)"
+            },
+            {
+              "rate": "0.16%-0.20%",
+              "description": "Solidarity contribution, only applied on earnings above the maximum base (€4,909.50 per month), the applied rate varies according to the level of earnings above the maximum base."
+            },
+            {
+              "rate": "6.68%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "19.00%",
+              "description": "0.00 EUR – 12,450.00 EUR Annually"
+            },
+            {
+              "rate": "24.00%",
+              "description": "12,450.00 EUR – 20,200 EUR Annually"
+            },
+            {
+              "rate": "30.00%",
+              "description": "20,201.00 EUR – 35,200 EUR Annually"
+            },
+            {
+              "rate": "37.00%",
+              "description": "35,200.00 EUR – 60,000 EUR Annually"
+            },
+            {
+              "rate": "45.00%",
+              "description": "60,000.00 EUR – 300,000.00 EUR Annually"
+            },
+            {
+              "rate": "47.00%",
+              "description": "300,000.00 EUR and over Annually"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "In Spain, minimum wages are fixed per industry sector in the collective bargaining agreements; however, in general, the minimum wage used in Spain is 1,184 EUR per month in 14 payments.\nThe minimum wage of temporary employees, as well as seasonal workers who work for the same company for less than 120 days, cannot be less than 56.08 EUR per day.",
+        "payroll": {
+          "payroll_cycle": "In Spain, the payroll frequency is monthly and paid typically on the last day of the month.",
+          "13th_salary": "13th and 14th month salary payments are mandatory in Spain. This is usually paid within the 12 monthly salary payments."
+        },
+        "working_hours": {
+          "general": "The standard working week in Spain can be no longer than 40 hours a week (8 hours per day). The Council of Ministers has approved a draft bill to reduce the maximum legal working week from 40 to 37.5 hours on average, without reducing pay. Companies and Collective Agreements will have until 31 December 2025 to adapt their regulations and ensure compliance with the new regulations.\nThe typical Spanish working day is from 8:30-9:00am until approximately 2:00pm followed by a closing for siesta. Operating hours resume from 4:00-5:00pm until around 8:00 pm. Under certain Collective Agreements, during the month of August workers have the right to work a reduced working week of 36 hours, with the hours made up during the year.\nThe Spanish Worker’s Statute Royal Decree-Law 8/2019 requires all employees to record their effective daily working hours by clocking in and out when they have a break or at the end of the working day.",
+          "overtime": "Overtime regulations may vary according to industry.\nWhite collar workers are typically limited to a 40-hour working week. If this is surpassed, compensation of overtime is compulsory (usually at a rate of 175%). The maximum number of overtime hours a single employee can work is 80 additional hours per year. Overtime work hours and payments are strictly regulated following collective agreements. Overtime is voluntary for the worker."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees in Spain are entitled to 30 calendar days (22 business days) of paid annual leave in any given year. A Collective Bargaining Agreement may grant additional vacation entitlements.\nWorkers should use their full vacation balance within the allotted year. Exceptions allowing carryover are in place where leave could not be used due to justifiable reasons such as temporary incapacity to work which permits these vacation days to be used at the end of the period of disability, even if the calendar year has ended, for up to 18 months after the end of the year in which they originated.",
+          "public_holidays": "Workers are entitled to 14 paid public holidays per year including national, regional and local holidays.\nNational Holidays falling on the weekend are lost. Some regions and municipalities might declare giving the next working day off in lieu; workers should verify Reginal and Municipal holiday dates with their local authority.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\tNational\n6 Jan 2025\tMonday\tEpiphany\tNational\n3 Feb 2025\tMonday\tRegional Day\tTenerife\n28 Feb 2025\tThursday\tRegional Day\tAndalusia\n1 Mar 2025\tSaturday\tRegional Day\tBalearic Islands\n19 Mar 2025\tWednesday\tSt Joseph’s Day\tMurcia, Comunidad Valenciana\n17 Apr 2025\tThursday\tJueves Santo\tAndalusia, Asturias, Balearic Islands, Canarias, Cantabria, Castille-La Mancha, Castilla y León, Extremadura, Galicia, Madrid, Murcia, Navarra, País Vasco, La Rioja.\n18 Apr 2025\tFriday\tGood Friday\tNational\n21 Apr 2025\tMonday\tEaster Monday\tCatalonia, Navarra, País Vasco, La Rioja, Comunidad Valenciana\n23 Apr 2025\tWednesday\tAragon, Castile and Leon Regional Holiday\tAragon, Castile and Leon, Castilla y León\n1 May 2025\tThursday\tLabour Day\tNational\n2 May 2025\tFriday\tRegional Holiday\tMadrid\n17 May 2025\tSaturday\tGalician Literature Day\tGalicia\n30 May 2025\tThursday\tRegional Day\tCanarias\n31 May 2025\tSaturday\tCastile- La Mancha Regional Holiday\tCastile-La Mancha\n9 Jun 2025\tMonday\tRegional Day\tMurcia, La Rioja\n19 Jun 2025\tThursday\tCorpus Christi\tCastile-La Mancha\n24 Jun 2025\tTuesday\tSt John’s Day\tCatalonia, Comunidad Valenciana\n5 Jul 2025\tSaturday\tRegional Day\tEl Hierro\n25 Jul 2025\tFriday\tNational Day of Galicia/Saint James’ Day\tGalicia/Basque Country, Madrid & Navarra, País Vasco\n28 Jul 2025\tMonday\tDay of Cantabrian Institutions\tCantabria\n5 Aug 2025\tTuesday\tRegional Day\tLa Palma\n15 Aug 2025\tFriday\tAssumption of Mary\tNational\n8 Sep 2025\tMonday\tRegional Day\tAsturias, Gran Canarias, Extremadura\n11 Sep 2025\tThursday\tNational day of Catalonia\tCatalonia\n15 Sep 2025\tMonday\tRegional Day/La Bien Aparecida\tLanzarote/Cantabria\n19 Sep 2025\tFriday\tRegional Day\tFuerteventura\n6 Oct 2025\tMonday\tRegional Day\tLa Gomera\n9 Oct 2025\tWednesday\tRegional Day\tComunidad Valenciana\n13 Oct 2025\tMonday\tLunes Festivo Nacional\tAndalusia, Asturias, Castilla y León, Extremadura\n1 Nov 2025\tSaturday\tAll Saints’ Day\tNational\n6 Dec 2025\tSaturday\tConstitution Day\tNational\n8 Dec 2025\tMonday\tImmaculate Conception\tNational\n25 Dec 2025\tThursday\tChristmas Day\tNational\n26 Dec 2025\tFriday\tSt Stephen’s Day\tBalearic Islands & Catalonia",
+          "sick_days": "In cases of sick leave due to common illness or non-work-related injury, employees must provide a medical certificate and will be entitled to the following salary payments:\nDay 1-3 of incapacity = unpaid (3 days)\nDay 4–20 of incapacity = 60% of the salary calculation base* (12 days)\nDay 21 & over of incapacity = paid at a rate of 75% of the salary calculation base* (up to a period of 18 months depending on INSS approval).\n*Calculation base is the result of dividing the amount of the worker’s contribution basis (the monthly gross salary but capped at an annual maximum amount on which the Social Security rates are levied; for 2025 the cap is 4,909.50 EUR per month) corresponding to the month before the illness by the number of days to which this contribution applies (this divider will actually be 30 days, if the employee receives a fixed monthly salary).\nThe Employer covers the cost of sick leave until day 15, from the 16th day the employer continues to make the salary payment but can reclaim it from the Social Security Administration (INSS).\nA Collective Bargaining Agreement might provide enhanced terms to the above sickness entitlements. The National Social Security Institute (INSS) will send medical sick leave reports for temporary incapacity directly electronically to companies, via the “INSS EMPRESAS” filing mechanism on the RED system.",
+          "maternity_leave": "A pregnant employee is entitled to 16 weeks of maternity leave, with the potential to increase to 18 weeks in the event of a complicated delivery or for multiple births.\nThe 16 weeks of maternity leave consist of of two periods:\nCompulsory leave for the first six weeks after the birth\nRemaining leave for the additional 10 weeks of a full absence, or 20 weeks of half-day absences, which may be taken any time up to one year later (with 15 days’ notice)\nIt is also common to take two weeks of breastfeeding leave after the end of the maternity leave\nThe maternity pay is managed and paid by the Social Security System Health Insurance Fund. The Social Security benefits are paid to employees on maternity leave calculated as a monthly benefit equal to 100% of the salary, up to the maximum base of 4,909.50 EUR per month.\nIn the case of disability of a child, an adopted child, or a foster care child, employees on maternity leave are entitled to have two additional weeks of leave.\nAll pregnant women are entitled to healthcare before, during and after the birth, and must visit the healthcare center with their Sistema Nacional de Salud (National Health Service) user’s card to receive them.",
+          "paternity_leave": "Fathers who have paid Social Security contributions for a minimum of 180 working days within the past 7 years or 360 total days in his entire professional life, is entitled to 16 weeks of paid paternity leave (extended to 18 weeks for multiple births). The first 6 weeks leave after the birth are compulsory and must be taken as time off. The remaining 10 weeks (or 20 weeks of half-day absences) can be taken from the end of the 6 weeks until the child turns one years old.\nThe Paternity pay is managed and paid by the Social Security System, calculated as a monthly benefit equal to 100% of the salary, up to the maximum base of 4,909.50 EUR per month. During this period, the employer is still liable to contribute to certain taxes that pertain to the salary payments.\nFor same-sex couples, both parents are entitled to paid leave. One applies for paternity leave benefits and the other for maternity leave benefits. However, in order to qualify for paid benefits, it is essential that each parent has the correct legal association with the child.\nParental Leave\nEmployees are entitled to take unpaid parental leave (providing at least 10 days notice), up until the minor child reaches eight years of age and for up to eight weeks continuously or over several blocks.",
+          "other_leave": "Workers are entitled to additional special leave (unless the Collective Bargaining Agreement outlines a different policy) for the following:\nCare Leave: Employees are entitled to up to two years of unpaid leave to assist a seriously ill household or family member.\nFamily Nursing & Hospitalisation Leave: Employees are entitled to 5 days of paid leave to care for family members and second degree relatives with a serious illness, hospitalisation or surgery. The company is permitted to ask the worker to provide a proof of hospitalisation.\nBereavement Leave: Employees are entitled to 2 days of paid leave (4 days if travel is required) for the death of a family member.\nHouse Moving Leave: If an employee is moving to a new home, they are entitled to 1 day’s leave.\nMarriage Leave: Employees are entitled to up to 15 days’ leave in case of marriage.\nJudicial Leave: Employees are entitled to paid leave to perform their public or personal obligations (in court) if necessary. A written notice is required.\nUnion Leave: When performing trade union or workers’ representative activities, employees can be granted additional leave, as established by law or collective agreement."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment agreement and collective agreement in place and is based on the type of contract and reason for termination.",
+          "notice_period": "Notice periods in Spain are generally set at a minimum of 15 calendar days. Alternatively, employers can utilize payment in lieu of notice.\nDuring the probation period no notice needs to be given.",
+          "severance_pay": "For fair individual redundancy: 20 days or 33 days of salary pay per year of service.\nFor collective layoffs, this payment is usually increased through collective consultations.\nFor fair disciplinary dismissal: no severance required.",
+          "probation_period": "Probation or trial periods are generally set within the Collective Bargaining Agreement; with the common minimum of 2 or 3 months for non-high qualified workers and a maximum of 6 months (180 days) for high categorized workers."
+        },
+        "common_benefits": [
+          "Food allowance/vouchers",
+          "Health insurance/allowance, between 50-150 EUR per month",
+          "Home working allowance – 55 to 100 EUR per month."
+        ],
+        "visa": {
+          "general_info": "A work visa allows foreigners to enter, stay, and work in Spain. An employee must apply for the work visa in person, and applications must have been submitted at least 90 days before travel.\n\nIf the position is to fill a highly skilled role or the candidate is a non-EU citizen, employers need to apply for a work visa from the Ministry of Labor prior to appointment. The embassy or consulate will then issue the work and residence visa after the Ministry of Labor has approved the application.\n\nIn Spain, there is a specific work visa for seasonal workers, but obtaining a visa is the same. However, seasonal workers must prove that they have accommodations arranged, travel costs are taken care of, and that they will be returning to their respective country once the job has been completed."
+        },
+        "remote_work": "Remote working set ups have become very common in Spain in recent years. It is recommended to give all homebased employees a Home Working allowance of at least €50 (and up to €100 per month is common depending on the job requirements) Euros per month. This applies when home working 30% or more of the time. Certain Sectors and Collective Bargaining Agreements make this allowance a mandatory requirement e.g. the banking sector. This allowance is taxable.",
+        "vat": {
+          "general": "The standard VAT rate in Spain is 21%."
+        }
+      }
+    }
+  ]
+}

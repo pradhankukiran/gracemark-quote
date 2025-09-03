@@ -1,6 +1,6 @@
 import { memo } from "react"
 import { Button } from "@/components/ui/button"
-import { Calculator, RotateCcw, Loader2, AlertCircle } from "lucide-react"
+import { Calculator, RotateCcw, Loader2, AlertCircle, Trash2 } from "lucide-react"
 
 interface FormActionsProps {
   isCalculating: boolean
@@ -9,6 +9,7 @@ interface FormActionsProps {
   usdConversionError: string | null
   onCalculate: () => void
   onClear: () => void
+  onClearStorage?: () => void
   enableComparison: boolean
 }
 
@@ -19,6 +20,7 @@ export const FormActions = memo(({
   usdConversionError,
   onCalculate,
   onClear,
+  onClearStorage,
   enableComparison,
 }: FormActionsProps) => {
   return (
@@ -44,7 +46,19 @@ export const FormActions = memo(({
       )}
 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 pt-4">
-        <div className="hidden sm:block"></div>
+        <div className="flex items-center gap-2">
+          {onClearStorage && (
+            <Button
+              onClick={onClearStorage}
+              variant="ghost"
+              size="sm"
+              className="text-xs text-slate-500 hover:text-red-600 hover:bg-red-50"
+            >
+              <Trash2 className="mr-1 h-3 w-3" />
+              Clear Saved Data
+            </Button>
+          )}
+        </div>
         <Button
           onClick={onCalculate}
           disabled={isCalculating || !isFormValid}

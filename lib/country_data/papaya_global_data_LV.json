@@ -1,0 +1,85 @@
+{
+  "scraped_at": "2025-08-24T18:20:05.236Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Latvia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/latvia/",
+      "scraped_at": "2025-08-24T18:20:05.226Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "23.59%",
+              "description": "National Social Insurance and Solidarity Tax (NSIC) for employment with a company registered in Latvia/EU/EEA (split rate) income maximum 105,300 EUR Annually"
+            },
+            {
+              "rate": "20.77%",
+              "description": "National Social Insurance and Solidarity Tax (NSIC) for employment with a company registered in Latvia/EU/EEA (employee eligible for retirement-split rate)"
+            },
+            {
+              "rate": "20.77% to 23.59%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "10.50%",
+              "description": "National Social Insurance and Solidarity Tax (NSIC) for employment with a company registered in Latvia/EU/EEA (split rate) income maximum 105,300 EUR annually"
+            },
+            {
+              "rate": "9.25%",
+              "description": "National Social Insurance and Solidarity Tax (NSIC) for employment with a company registered in Latvia/EU/EEA (employee eligible for retirement-split rate)"
+            },
+            {
+              "rate": "9.25% to 10.50%",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": [
+            {
+              "rate": "25.50%",
+              "description": "On income up to 105,300 EUR annually"
+            },
+            {
+              "rate": "33.00%",
+              "description": "On income above 105,300 EUR annually"
+            }
+          ]
+        },
+        "minimum_wage": "The cabinet determines the minimum monthly salary in Latvia. The monthly minimum wage is 740 EUR.",
+        "payroll": {
+          "payroll_cycle": "In Latvia, the payroll frequency is generally monthly. However, the employer must make payment in Latvia no less than twice a month unless the employee and employer have agreed on payment once a month.",
+          "13th_salary": "There is no statutory requirement to provide a 13th salary."
+        },
+        "working_hours": {
+          "general": "The standard workweek in Latvia consists of 8 hours a day, 40 hours per week.",
+          "overtime": "Any work done above regular hours or on a public holiday is considered overtime and must also be mutually agreed upon prior to the commencement of any overtime work. Overtime hours are paid at a rate of 200% of the regular salary rate of pay."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to annual leave if they have been employed for at least six consecutive months. Such leave may not be fewer than 20 days (four calendar weeks), not including public holidays. Employees under 18 years of age are entitled to annual paid leave of one month.\nWith the agreement of the employee and the employer, annual paid leave in the current year may be granted in parts, but one part of the leave in the current year shall not be fewer than two uninterrupted calendar weeks. With written agreement, up to 2 weeks of unused leave can carry over into the next calendar year only.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost, with the exception of Army Day which moves to a Friday or Monday when falling on a Sunday.\nThe length of the working day immediately before a public holiday is reduced by 1 hour.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n5 May 2025\tMonday\tIndependence Restoration Day\t\n23 Jun 2025\tMonday\tMidsummer’s Eve\t\n24 Jun 2025\tTuesday\tSt John’s Day\t\n18 Nov 2025\tTuesday\tIndependence Day\t\n24 Dec 2025\tWednesday\tChristmas Eve\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\t2nd Day of Christmas\t\n31 Dec 2025\tWednesday\tNew Year’s Eve",
+          "sick_days": "The first day of sickness is unpaid.\nThe employer pays day two & three at 75% salary and day four to 10 at 80% salary.\nFrom day 11 onwards sick pay is compensated by the state.",
+          "maternity_leave": "The first part is paid for 56 or 70 calendar days of maternity leave. Benefits for 70 calendar days are paid if employees have been medically registered as pregnant up to the 12th week of pregnancy. The second part of the benefits is paid for 56 or 70 calendar days after the birth of the child.\nBenefits for 70 calendar days are paid if the employee has experienced health problems during pregnancy, birthing, in the post-natal period, or two or more babies have been born.\nThe longest period for which maternity benefits can be received is 140 calendar days.",
+          "parental_leave": "Paternity benefits (paternitātes pabalsts) are granted to the child’s father and also granted to one of the two adopters of a child under 3 years.\nFor children born on or after 1 January 2023, the total duration of the parental benefit will be set in months counted from the date of birth.\nThe total period of parental benefit will be made up of the basic and non-transferable parts of the parental benefit. The non-transferable part will be two months for each parent.\nParents will be alble to choose between:\nReceiving the total benefit for the time period of 13 months from the day of the child’s birth:\nThe basic 9-month portion must be used by one parent until the child is one year old. This 9-month period also includes the period of maternity allowance.\nThe two-month non-transferable part can be used by the mother until the child reaches the age of eight.\nThe father can use the two-month non-transferable part until the child reaches the age of eight.\nIf you choose a period of 13 months, the amount of parental allowance is 60 % of the claimant’s average contributory salary.\n(If you are not on parental leave and continue to work, you can get 50% of the basic amount of the parental benefit. The non-transferable part of the allowance can only be received if you are on parental leave or do not earn an income as a self-employed person).\nOr\nTo receive the total benefit for the time period of 19 months from the day of the child’s birth:\nThe basic 15-month allowance must be used by one parent until the child reaches the age of one-and-a-half years. This 15-month period also includes the period of maternity allowance.\nThe mother can use the two-month non-transferable part until the child reaches the age of eight.\nThe father can use the two-month non-transferable part until the child reaches the age of eight.\nIf you choose a period of 19 months, the amount of parental allowance is 43.75 % of the claimant’s average contributory salary.\n(If you are not on parental leave and continue to work, you can get 50 % of the basic parental allowance. The non-transferable part of the allowance can only be received while on parental leave or without income as a self-employed person).\nMaternity and parental benefits for the same child cannot be received at the same time. If the mother of the child has been awarded maternity allowance, the parent will be able to receive the basic part of the parental allowance from the day after the end date of the maternity allowance. The amount of maternity benefit is 80% of the claimant’s average contribution salary."
+        },
+        "termination": {
+          "termination_process": "Employers can terminate a fixed term contract by giving the following reasons – business, personal, or worker’s misconduct. It requires notice and a written explanation for the termination. If the reason is misconduct, a warning needs to be given and the employee gets a chance to explain their actions. The issue is that if employee didn’t want to sign and write the explanation, then it must be notice signed with witnesses to validate actions of employee (the limit of explanations for termination the agreement is three).",
+          "notice_period": "The statutory notice period must be at least one month. During the probation period notice is with 3 days written notice.",
+          "severance_pay": "In Latvia, statutory severance pay is dependent on the length of service:\nOne month pay for employees with up to 5 years of service\nTwo months’ pay for employees with between 5 and 10 years of service\nThree months’ salary for employees with 10 to 20 years\nFour months’ pay for employees with over 20 years of service",
+          "probation_period": "Under an indefinite employment contract probation leave is typically up to three months. However, within a collective agreement, parties can agree on a probationary period of more than three months but no more than six months without reducing the overall level of protection of employees.\nUnder a definite term contract it is possible to provide a probationary period of:\nUp to 1 (one) month for employment contracts for up to 6 (six) months\nUp to 2 (two) months for employment contracts for up to 1 (one) year"
+        },
+        "visa": {
+          "general_info": "Latvian law provides many options for employers of foreign nationals. Latvia is a member of the European Union (EU) and the Schengen Area. Requirements, processing times, employment eligibility, and benefits for accompanying family members vary by visa classification.\n\nBusiness visitors to Latvia typically use a local version of the Schengen C Visa, unless they are visa-exempt based on their nationality. The Schengen Area limits stay to 90 days within 180 days.\nThe main work authorization categories are the Residence Permit with Work Authorization, available to many foreign national workers.\n\nThe EU Blue Card is suitable for highly skilled, locally hired employees who meet a salary threshold. The (EU) Intracompany Transferee (ICT) Permit is available for intracompany transfers of managers, specialists, or trainees from outside the EU.\n\nThe application process always requires an in-country application with the Office of Migration and Citizenship Affairs (OCMA). If the intended stay is under 90 days, foreign nationals may also request a residence permit, thereby choosing between a visa and a residence permit."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Latvia is 21%."
+        }
+      }
+    }
+  ]
+}

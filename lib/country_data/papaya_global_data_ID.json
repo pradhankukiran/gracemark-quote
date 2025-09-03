@@ -1,0 +1,79 @@
+{
+  "scraped_at": "2025-08-24T18:14:22.312Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Indonesia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/indonesia/",
+      "scraped_at": "2025-08-24T18:14:22.300Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [],
+          "employee_contributions": [],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage requirement varies based on the local government regulations ranging from IDR 2,169,348 per month in Central Java to IDR 5,396,760 per month in DKI Jakarta.\nHourly wages for part-time workers\nIndonesia has sought to reform its labor laws through the Omnibus Law and has since abolished the sectorial minimum wage through Government Regulation 36 of 2021 and introduced an hourly wage for part-time workers.\nThe formula for determining the hourly wage: Hourly wage = monthly wage/126\nTo calculate the daily wage:\nSix working days/week: Daily wage = monthly wage/25\nFive working days/week: Daily wage = monthly wage/21\nThe employer and employee are allowed to set their agreement, but the final salary should not be lower than the calculation using the aforementioned formulas.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Indonesia is generally monthly and is usually paid on the last working day of the month as agreed within the employment contract.",
+          "13th_salary": "In Indonesia, there is a mandatory religious holiday bonus called Tunjangan Hari Raya (THR), an additional one month’s salary payment made prior to the longest religious holiday (Hari Raya Idul Fitri for Muslim workers and Christmas for other faith workers). THR includes a base salary and fixed monthly allowance, but does not have to cover other payments such as bonuses. THR is prorated for employees who have not completed a full year of service."
+        },
+        "working_hours": {
+          "general": "The working hours are arranged as follows:\nEmployees with 6 work days a week- 7 hours a day, 40 hours a week.\nEmployees with 5 work days a week – 8 hours per day, 40 hours a week.\nThese working hours rules do not apply to certain businesses and are usually regulated with a ministerial decision.\nOn working days, an employer shall arrange a rest period during work for its employees of not less than half an hour after the employee has been working for no more than four consecutive hours.\nEmployers are required to track the working time of all employees, regardless of their position, to ensure proper overtime compensation.",
+          "overtime": "All work above the standard working week is to be paid as overtime and is regulated by the Employment Contract/Collective Agreements. The maximum number of overtime hours is 4 per day and 18 per week.\nOvertime worked during weekdays is paid at 150% of the regular hourly wage for the first overtime hour, increasing to 200% for every subsequent overtime hour.\nSuppose employees work overtime on a weekly rest day or any public holiday scheduled for a weekly rest day while working a six-day workweek. In that case, the overtime pay is calculated as follows:\nFor the first to the 7th hour of overtime, the employee is entitled to 200% of the regular hourly wage\nFor the 8th hour of overtime, the employee is entitled to 300% of the regular hourly wage\nFor the 9th to 10th hour of overtime, the employee is entitled to 400% of the regular hourly wage\nIf employees work overtime on a weekly rest day when working a six-day work week, the overtime pay is calculated as follows:\nFor the first to the 5th hour of overtime, the employee is entitled to 200% of the regular hourly wage\nFor the 6th hour of overtime, the employee is entitled to 300% of the regular hourly wage\nFor the 7th to the 8th hour of overtime, the employee is entitled to 400% of the regular hourly wage\nIf employees work overtime on a weekly rest day or a public holiday working a five-day workweek, the overtime pay is calculated as follows:\nFor the first to the 8th hour of overtime, the employee is entitled to 200% of the regular hourly wage\nFor the 9th hour of overtime, the employee is entitled to 300% of the regular hourly wage\nFor the 10th to the 11th hour of overtime, the employee is entitled to 400% of the regular hourly wage\nAll employees are entitled to overtime pay if they work beyond standard hours, there are no specific exemptions for managers or supervisors. However, where a role exemption is in place, it must be stated in the employment agreement, company regulations or collective labor agreement. If this is not specified the employee will automatically be entitled to receive overtime pay.\nEmployers are required to track the working time of all employees, regardless of their position, to ensure proper overtime compensation is paid out."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Paid leave in Indonesia is set in the employment contract as at least 12 working days of paid annual leave per year after completing one full year of employment.\nEmployees who have been working for six consecutive years for the same employer are entitled to one month of leave in the seventh year of service and one month of leave in the eighth year of service.\nUnused leave of up to 6 days can be carried over into the new vacation year but must be used within the first 6 months of the year.",
+          "public_holidays": "Each year the government may decide if public holidays falling on weekends will be moved to a weekday or will be lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n27 Jan 2025\tMonday\tIsra Mi’raj Prophet Mohammad SAW\t\n28 Jan 2025\tTuesday\tShared Leave\tShared Leaves are optional\n29 Jan 2025\tWednesday\tChinese New Year (Imlek)\t\n28 Mar 2025\tFriday\tShared Leave\tShared Leaves are optional\n29 Mar 2025\tSaturday\tBali’s official day of Silence – Hindu New Year\t\n31 Mar 2025\tMonday\tAidil Fitri\t\n1 Apr 2025\tTuesday\tAidil Fitri\t\n2 Apr 2025\tWednesday\tShared Leave\tShared Leaves are optional\n3 Apr 2025\tThursday\tShared Leave\tShared Leaves are optional\n4 Apr 2025\tFriday\tShared Leave\tShared Leaves are optional\n7 Apr 2025\tMonday\tShared Leave\tShared Leaves are optional\n18 Apr 2025\tFriday\tGood Friday\t\n20 Apr 2025\tSunday\tEaster Day\t\n1 May 2025\tThursday\tInternational Labour Day\t\n12 May 2025\tMonday\tWaisak Day\t\n13 May 2025\tTuesday\tShared Leave\tShared Leaves are optional\n29 May 2025\tThursday\tThe Ascension of Jesus Christ\t\n30 May 2025\tFriday\tShared Leave\tShared Leaves are optional\n1 Jun 2025\tSunday\tFive Principle Day\t\n6 Jun 2025\tFriday\tIdul Adha\t\n9 Jun 2025\tMonday\tShared Leave\tShared Leaves are optional\n27 Jun 2025\tFriday\tIslamic New Year\t\n17 Aug 2025\tSunday\tIndonesian National Independence Day\t\n18 Aug 2025\tMonday\tIndonesian National Independence Day Holiday\t\n5 Sep 2025\tFriday\tBirthday of the Prophet Muhammad\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tShared Leave\tShared Leaves are optional",
+          "sick_days": "When employees are sick or injured, they are entitled to paid sick leave provided they show a medical confirmation of their ill health. Employees can also have long-term sick leave lasting for longer than one year. A doctor should recommend such leave in writing.\nPayment to employees on prolonged sick leave is as follows:\n100.00% in the first four months paid by the employer\n75.00% in the fourth to eighth months paid by the employer\n50.00% in the eighth to twelfth months paid by the employer\n25.00% of wages from one year until termination, paid by the employer",
+          "maternity_leave": "Employees are entitled to 3 months of fully paid maternity leave, with 1.5 months used before the expected delivery date and 1.5 months used after the birth. The maternity leave is paid by the employer at 100% of the regular salary rate of pay.\nMothers can take up to an additional three months of maternity leave if there are health complications for the mother or newborn, supported by a medical certificate. The first four months are paid at 100% of the salary, and the remaining two months are paid at 75% salary.\nWomen who experience a miscarriage are entitled to 1.5 months of paid leave, which can be extended with a medical certificate.",
+          "paternity_leave": "Male employees are entitled to 2 days leave for the birth of their child or a miscarriage. This leave is paid by the employer at 100% salary.",
+          "parental_leave": "Employees are entitled to Family Care Leave to care for a sick family member, with a maximum of 2 days per incident and up to 14 days per year. This leave is unpaid, but some companies may provide paid leave.",
+          "other_leave": "Bereavement Leave: Employees are entitled to up to 2 days of paid leave due to the death of their spouse or child. 1 day of paid leave is given for the death of their parents, parent-in-law, children-in-law or member of the their household.\nMarriage Leave: 3 days paid leave for marriage or 2 days paid leave for the marriage of the employee’s child.\nCircumcision Leave: 2 days paid leave for the circumcision of the employee’s child.\nBaptism Leave: 2 days paid leave for the baptism of the employee’s child"
+        },
+        "termination": {
+          "termination_process": "In Indonesia, employers cannot dismiss employees at will. Termination of an employment contract by the employer must be based on valid reasons as specified in the Indonesian Manpower Law and other relevant regulations. The burden of proof for the validity of the termination rests with the employer. If the employee believes the termination is unjust, the decision can be challenged in the Labor Court, which will give the final ruling.\nValid reasons include violation of the employment agreement, the employee is ill for more than 12 months, the employee is absent from work for more than five days without a valid reason, provided he or she has been notified twice and a change in the company’s status, its merger with another business, or the acquisition of its ownership. I might be possible to dismiss based on poor performance but the process is strictly regulated and requires adherence to specific procedures including a documented Performance Improvement Plan (PIP) and three consecutive warning letters over a period of six months if the employee fails to improve.\nBefore an employee can be terminated, the employer must make a genuine effort to avoid the termination by negotiating with the employee and/or the employee’s labour union to find an accommodation such as a change in working hours, improved working methods, or coaching.\nIf termination cannot be avoided, the employer must explain the reasons for termination clearly in writing to the employee and/or the employee’s labour union.",
+          "notice_period": "Employers must generally give a written notice of termination at least 14 working days before the effective date of termination. For termination during a probationary period, the notice period is reduced to 7 working days or payment can be given in lieu of notice.\nEmployees must provide a minimum of 30 days written notice before their last working day.",
+          "severance_pay": "In Indonesia, severance pay is mandatory in certain circumstances such as company restructuring, bankruptcy, force majeure events not resulting in closure and early termination of a Fixed Term contract. Severance is paid at an amount determined by the employee’s length of service, according to the following:\nLess than 1 year of employment – 1-month wage\n1 year or more, but fewer than 2 years – 2 months’ wage\n2 years or more but fewer than 3 years – 3 months wage\n3 years of more, but fewer than four years – 4 months’ wage\n4 years or more, but fewer than 5 – 5 months’ wage\n5 years or more, but fewer than 6 – 6 months’ wage\n6 years or more, but fewer than 7 – 7 months’ wage\n7 years or more, but fewer than 8 – 8 months’ wage\n8 years or more – 9 months’ wage",
+          "probation_period": "The maximum permitted probationary period is 3 months and it cannot be extended further. There is no mandatory minimum period that is required to be used. Even when terminating during the probation period a valid reason for dismissal must be given.\nProbationary periods can only be used in permanent employment contracts, Fixed-term contracts cannot include a probationary period."
+        },
+        "common_benefits": [
+          "Meal allowance per month around IDR 100.000 – 190.000 (taxable)",
+          "Commuting expenses (from and to the office are around IDR 2.000.000 – 3.000.000 per month (taxable)",
+          "Gym membership is between IDR 300.000 – 500.000 per month (taxable)",
+          "Internet coverage is between IDR 200.000 – 500.000 per month (taxable)",
+          "Health Insurance"
+        ],
+        "visa": {
+          "general_info": "The government of Indonesia provides visa exemptions to nationals of 169 countries, including the United States, Canada, Australia, and Singapore.\nPreviously, for a foreign employee to enter Indonesia for work, they would need an individual work permit (IMTA). This has now been replaced with a notification from the Ministry of Manpower. Once an employee or business has obtained a notification, they can apply for an Indonesian visa. Foreigners will be issued a Visa Telex (visa index 312), which allows them to work and travel to Indonesia.\nThere are two types of visas for foreign nationals who intend to live and work in Indonesia.\nIzin Tinggal Terbatas or Electronic ITAS (e-ITAS) where employers need to apply for an ITAS on behalf of future employees. The ITAS grants employees the right to stay in Indonesia as well as open a bank account. They can also stay in the country and after three years, apply for a permanent residency. Before applying for the ITAS, the employee must also get a Visa Izin Tinggal Terbatas (VITAS) – an Indonesian limited-stay permit visa.\nThe Kartu Izin Tinggal Tetap (KITAP) is a visa an employee can also apply for which grants the employee a permanent residence permit (KITAP), but this is only available to people who have held an ITAS for three or more years."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Indonesia is 12%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Payroll Tax",
+            "paid_to": "Indonesian Tax Office",
+            "due_date": "10th of the following month",
+            "method": "E-filing system provided by Indonesian Tax Office (ITO)"
+          },
+          {
+            "authority_payment": "Social Security",
+            "paid_to": "Social security",
+            "due_date": "15th of the following month",
+            "method": ""
+          },
+          {
+            "authority_payment": "Health Tax",
+            "paid_to": "Health agency",
+            "due_date": "10th of the current month – new joiners need to be registered by the 10th",
+            "method": ""
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "scraped_at": "2025-08-24T19:06:05.816Z",
+  "summary": {
+    "total": 1,
+    "success": 0,
+    "failed": 1
+  },
+  "results": [
+    {
+      "country": "Kosovo",
+      "url": "https://www.papayaglobal.com/countrypedia/country/kosovo/",
+      "scraped_at": "2025-08-24T19:06:05.813Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    }
+  ]
+}

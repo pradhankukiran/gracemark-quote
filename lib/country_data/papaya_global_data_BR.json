@@ -1,0 +1,164 @@
+{
+  "scraped_at": "2025-08-24T17:41:34.460Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Brazil",
+      "url": "https://www.papayaglobal.com/countrypedia/country/brazil/",
+      "scraped_at": "2025-08-24T17:41:34.447Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "20.00% to 26.80%",
+              "description": "Social Security (INSS)"
+            },
+            {
+              "rate": "1, 2, or 3%",
+              "description": "Work Accident Insurance (RAT/SAT). 1% = Low risk, 2% = Medium risk, 3% = High risk."
+            },
+            {
+              "rate": "8.00%",
+              "description": "Employees Severance Indemnity Fund (FGTS)"
+            },
+            {
+              "rate": "0.2 – 5.8%",
+              "description": "Terceiros (3rd party institution), applied on income up to 338,880 BRL annually."
+            },
+            {
+              "rate": "2.75%",
+              "description": "Vacation Bonus"
+            },
+            {
+              "rate": "31.95 – 46.35%",
+              "description": "Total Employment Cost"
+            },
+            {
+              "rate": "Collective Bargaining Agreement (CBA)",
+              "description": "The majority of companies are subject to a CBA which require additional benefits to be given to workers including those listed below"
+            },
+            {
+              "rate": "20-50 BRL per working day",
+              "description": "Meal Vouchers"
+            },
+            {
+              "rate": "163.83  BRL per month",
+              "description": "Grocery Vouchers (mandatory in some CBAs and for lower income)"
+            },
+            {
+              "rate": "~ 350 BRL per month",
+              "description": "Transportation vouchers (sum will vary according to transportation distance)"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "7.50%",
+              "description": "Up to 1,518.00 BRL Social Security contribution"
+            },
+            {
+              "rate": "9.00%",
+              "description": "1,518.01 BRL to 2,793.88 BRL Social Security contribution"
+            },
+            {
+              "rate": "12.00%",
+              "description": "2,793.88 BRL to 4,190.83 BRL Social Security contribution"
+            },
+            {
+              "rate": "14.00%",
+              "description": "4,190.83 to 8,517.42 BRL Social Security contribution"
+            },
+            {
+              "rate": "7.50% – 14.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "Up to 27,110.40 BRL annually"
+            },
+            {
+              "rate": "7.50%",
+              "description": "27,110.41 – 33,919.81 BRL annually"
+            },
+            {
+              "rate": "15.00%",
+              "description": "33,919.81 to 45,012.60 BRL annually"
+            },
+            {
+              "rate": "22.50%",
+              "description": "45,012.60 to 55,976.16 BRL annually"
+            },
+            {
+              "rate": "27.50%",
+              "description": "55,976.16 and above annually"
+            },
+            {
+              "rate": "25%",
+              "description": "Flat rate for Non-residents, taxed exclusively at source on their Brazilian-sourced income."
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The national minimum wage is 1,518 Brazilian reals monthly.",
+        "payroll": {
+          "13th_salary": "In Brazil, employees receive a mandatory 13th-month salary payment at the end of the year, often referred to as the Christmas bonus. Full payment is given to employees who have worked for the entire 12 months. However, those who have worked for a portion of the year will receive a payment proportional to their period of employment.\nThis 13th-month payment is typically made in two installments. The first installment, which corresponds to the six months of work up to that point, is due by November 30th. This payment is exempt from mandatory deductions.\nThe second installment is due by December 20th and is subject to INSS contributions and withholding tax.\nIf an employer chooses to make the 13th-month payment in a single installment, it must be paid by November 30th. It’s important to note that collective bargaining agreements take precedence over individual employment agreements."
+        },
+        "working_hours": {
+          "general": "Standard working hours within Brazil are 44 hours per week, 8 hours per day. This is typically spread over 5 working days, from Monday to Friday, or 6 working days (8 hours a day from Monday to Friday and 4 hours on Saturdays).\nEmployers must provide meals break of 15 minutes for 4 to 6 hour workday shifts, and 1 hour break for over 6 hours of workday shifts.\nThe maximum weekly and daily working hours can differ as stipulated in employment contract/collective bargaining agreements.",
+          "overtime": "All work that exceeds the standard 44 hours a week is to be paid as overtime and is regulated by the employment contract/collective agreements, etc. In general, overtime maximum limits are set at 2 hours per day and paid at 150.00% of the standard salary rate.\nWork on a holiday is paid at the rate of up to 200.00% of the regular pay. Working at night (between 10:00 PM and 5:00 AM) is compensated at a rate of at least 120%, each hour of night work is considered to last for 52.5 minutes. Managers are not entitled to overtime pay."
+        },
+        "leave": {
+          "public_holidays": "In Brazil, local holidays are observed in addition to the national holidays listed below. These local holidays are optional for employers to grant as time off for their employees. Furthermore, employers have the discretion to designate these holidays as paid or unpaid leave. Public holidays falling on weekends are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n25 Jan 2025\tSaturday\tCity Anniversary\tMandatory for the employees in Sao Paulo\n3 Mar 2025\tMonday\tCarnival\tNon Mandatory but common practice to give as a day off.\n4 Mar 2025\tTuesday\tCarnival\tNon Mandatory but common practice to give as a day off.\n5 Mar 2025\tWednesday\tAsh Wednesday\tNon Mandatory but common practice to give as a half day off in the morning.\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tTiradentes Day\t\n1 May 2025\tThursday\tLabor Day\t\n19 Jun 2025\tThursday\tCorpus Christi\tOptional holiday (ponto facultativos)\n9 Jul 2025\tWednesday\tConstitutionalist Revolution\t\n7 Sep 2025\tSunday\tIndependence Day\t\n12 Oct 2025\tSunday\t Festividad de la Virgen Aparecida\t\n2 Nov 2025\tSunday\tAll Saints Day\t\n15 Nov 2025\tSaturday\tRepublic Day\t\n20 Nov 2025\tThursday\tBlack Consciousness Day\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "All employees are entitled to paid sick leave and must provide a medical certificate within 48 hours of the first day of sickness.\nThe first 15 days of sick leave are paid by the employer (at a rate of 100% of the usual salary rate), and then the leave is paid by Social Security (INSS). However, the INSS rate does not correspond to the actual salary; it is a specific INSS-based calculation based on contributions made and capped at a maximum monthly salary limit of 7,786.02 BRL (2024). During the employee’s sick leave, the employer is still required to pay Social Security contributions.",
+          "maternity_leave": "All female employees, including those adopting a child, are eligible for maternity benefits. The INSS (Social Security Agency) will provide these benefits for a duration of 120 days, during which the employee’s job is secure and cannot be terminated. The employer is obligated to pay the employee’s salary, which will be reimbursed by the INSS at a later date.\nIf the employer is enrolled in the government scheme (Empresa Cidada), the maternity leave period can be extended to 180 days. Throughout the maternity leave, the employer will continue to make social contributions on behalf of the employee. Furthermore, the employee will continue to accrue annual leave, receive the 13th salary, and their job security is ensured.\nMaternity leave can commence anytime from the 8th month of pregnancy. CLT employees are required to submit a request, along with a doctor’s notice, to the HR department. The HR department is then responsible for notifying the INSS of the request.",
+          "paternity_leave": "Fathers are entitled to a mandatory paid paternity leave of 5 consecutive days following the birth or adoption of a child. If the employer is enrolled in the government program (Empresa Cidada), and meets certain requirements established by this program, the paternity leave can be extended to 20 consecutive days.",
+          "parental_leave": "There is no additional parental leave in Brazil."
+        },
+        "termination": {
+          "termination_process": "The termination process is standard in Brazil, with notice periods required unless an employer can provide sufficient cause for dismissal without notice (due to misconduct, disobedience, etc.). Lack of notice of termination must be in writing and sent to the relevant governmental authorities.",
+          "notice_period": "In general, notice periods in Brazil are stipulated within the employment contract/collective agreement and are linked to the reason for termination and the employee’s length of service. For employees with one year of service, the employer must provide 30 days’ notice. For employees with over one year of service, the employer must provide 30 days’ notice plus three additional days for each year of service (maximum of 60 additional days).\nEmployee termination must require the employee to give 30 days’ notice.\nShould the termination be with mutual consent, the required notice period may be halved.",
+          "severance_pay": "In case of termination without cause, the employee is entitled to severance, amounting to the equivalent of 40 percent of the balance in the employee’s Unemployment Guarantee Fund (Fundo de Garantia por Tempo de Serviço or FGTS), accrued during the employment relationship.\nAdditional payments will be due, such as one month’s salary if the termination takes place in the 30 days before the expected date of the collective bargaining agreement for the following period; payout of accrued vacation plus 1/3 vacation bonus; pro-rated 13 months’ pay; and other payments required by the applicable collective bargaining agreement or contract. In case of termination with cause, accrued unused vacation plus vacation bonus and other payments required by the applicable collective bargaining agreement or contract are still required, but there will be no FGTS payout or an additional one month’s salary. In case of termination by mutual agreement, the company must pay half of the notice and 20 percent of the FGTS balance, as opposed to 40 percent when the termination is on the company’s initiative. The employee will be allowed to withdraw 80 percent of the balance of the FGTS fund, as opposed to 100 percent when the termination is on the company’s initiative, but they are not entitled to unemployment benefits in this type of termination.",
+          "probation_period": "The probation period in Brazil for Indefinite employees is set to 45 days with the ability to extend to a maximum period of 90 days in total.\nEmployers can terminate employment at the end of the probationary period and must pay final compensation, including unused vacation pay and proportional 13th-month salary. The details of the probation period should be documented in the employment contract."
+        },
+        "common_benefits": [
+          "Phone allowance – 50 to 100 USD per month",
+          "Home office allowance – 70 to 120 USD per month",
+          "Gas/auto allowance – typically 7% of the monthly salary depending on Collective Agreement terms.",
+          "Gym & Wellness allowance – 100-200 USD per month",
+          "Profit sharing (also known as PPR or PLR) is a common practice in large companies in Brazil"
+        ],
+        "visa": {
+          "general_info": "Any foreigners coming to work in Brazil will need a residence permit (either temporary or permanent) and a work visa (Autorizaçao de Trabalho). The prospective employer in Brazil must apply for a work permit at the Brazilian Ministry of Labor and Employment (Ministério do Trabalho e Emprego) by submitting the work contract and a set of other required documentation. Once the approval of the application is received, the application for a work permit must be made to the Brazilian embassy or consulate in the future employee’s home country.\nFor both the Brazilian residence and work permits, the type of work visa required depends on the type of work activity involved in the role in Brazil. Different jobs and qualifications will require different work visas, both temporary and permanent visas.\nThe most applied-for visas are:\n\nTemporary work visa (Visto Temporario V) initially issued for two years (although a second two-year extension may be possible). After completing four years with the same company, should the employer wish, they may support the employee with applying for a permanent work visa.\nPermanent work visa (Visto Permanente) issued to foreigners who are entitled to permanent residence in Brazil. Usually, this applies to professional researchers or scientists (for activities exceeding two years), investors (provided the investment sum exceeds the reported required amount by the Brazilian Ministry of Labor and Employment)."
+        },
+        "remote_work": "The Brazilian Government passed the working hours legislation applicable to remote workers including those remote workers on a hybrid set up, regular, permanent, or casual basis. This requires employers to implement an electronic timekeeping system (after approval by their relevant union) for employees working remotely.\nLegislation and Collective Bargaining Agreements must also apply be applied to remote employees working outside of their employer’s jurisdiction (except if otherwise agreed by the parties).\nEmployers are not responsible for reimbursing expenses that a remote employee may incur to return to in-person work, when such teleworker chose to work in a location other than the one provided in their written teleworking agreement.\nEmployers are required to give priority to employees with disabilities and those with small children when allocating positions that can be performed remotely.\nThe teleworking regime should be expressly stipulated in the individual employment contracts. The teleworking regime applies to interns and apprentices on the same basis as regular employees, when expressly stipulated in their internship contract, and expressly agreed upon by the intern and the grantor and the educational institution.\nFood allowances and vouchers paid by the employer to the remote employees must be only used for food purchases in restaurants or other commercial establishments.",
+        "vat": {
+          "general": "The commonly used standard rate of VAT Imposto Sobre Circulação de Mercadorias e Serviços (ICMS) in Brazil is 17.00%; however, these differ slightly regionally.\nThe ICMS rate of 17.00% applies to the following states: Acre, Alagoas, Ceará, Espírito Santo, Goiás, Mato Grosso, Mato Grosso do Sul, Pará, Piauí, Rondônia, Roraima and Santa Catarina.\nThe ICMS rate of 18.00% applies to the following states: Amazonas, Amapá, Bahia, Distrito Federal, Maranhão, Minas Gerais, Paraíba, Paraná, Pernambuco, Rio Grande do Norte, Rio Grande do Sul, São Paulo, Sergipe and Tocantins.\nThe ICMS rate of 19.00% applies in Rio de Janeiro."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Income Tax (IRRF)",
+            "paid_to": "IRRF",
+            "due_date": "20th of the following month"
+          },
+          {
+            "authority_payment": "Social Security  (INSS)",
+            "paid_to": "INSS",
+            "due_date": "20th of the following month"
+          },
+          {
+            "authority_payment": "Guarentee Fund (FGTS)",
+            "paid_to": "FGTS",
+            "due_date": "7th of the following month"
+          }
+        ]
+      }
+    }
+  ]
+}

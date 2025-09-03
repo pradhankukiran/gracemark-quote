@@ -1,0 +1,17 @@
+{
+  "scraped_at": "2025-08-24T18:22:43.503Z",
+  "summary": {
+    "total": 1,
+    "success": 0,
+    "failed": 1
+  },
+  "results": [
+    {
+      "country": "North Macedonia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/north-macedonia/",
+      "scraped_at": "2025-08-24T18:22:43.500Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    }
+  ]
+}

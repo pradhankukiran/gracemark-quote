@@ -1,0 +1,101 @@
+{
+  "scraped_at": "2025-08-24T17:37:39.377Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Bosnia and Herzegovina",
+      "url": "https://www.papayaglobal.com/countrypedia/country/bosnia-and-herzegovina/",
+      "scraped_at": "2025-08-24T17:37:39.367Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "6.00%",
+              "description": "Social Security -Pension and Invalid insurance"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Social Security -Health Insurance"
+            },
+            {
+              "rate": "0.5%",
+              "description": "Social Security -Unemployment Insurance"
+            },
+            {
+              "rate": "0.5%",
+              "description": "Natural Disasters Fund"
+            },
+            {
+              "rate": "0.01%",
+              "description": "Water Fund"
+            },
+            {
+              "rate": "10.50%",
+              "description": "Total Employment Cost *"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "17.00%",
+              "description": "Social Security -Pension and Invalid insurance"
+            },
+            {
+              "rate": "12.50%",
+              "description": "Social Security -Health Insurance"
+            },
+            {
+              "rate": "1.5%",
+              "description": "Social Security – Unemployment Insurance"
+            },
+            {
+              "rate": "31.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "10.00%",
+              "description": "Flat Rate *"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "In Bosnia and Herzegovina the minimum wage is:\nRepublika Srpska – A three-tiered system is in place:\nTier 1: 900 BAM  per month for basic jobs.\nTier 2: 1,000 BAM per month for qualified workers.\nTier 3: 1,100 BAM per month for higher-skilled workers.",
+        "payroll": {
+          "payroll_cycle": "In Bosnia and Herzegovina the payroll cycle is generally monthly.",
+          "13th_salary": "There is no statutory requirement to provide a 13th salary."
+        },
+        "working_hours": {
+          "general": "The standard workweek is limited to 40 hours per week with the working week lasting five days (Monday-Friday).\nIn the Federation of Bosnia and Herzegovina a woman working full working hours after having used her maternity leave shall be entitled to be absent from work twice daily for a duration of one hour each time for the purpose of nursing the child until the child reaches one year of age.\nIn the Republic of Srpska, if a woman starts work before the expiry of the whole maternity leave period (12 or 18 months, respectively), she shall be entitled to additional 60 minutes of breaks during working hours in order to breastfeed the child.\nIn the District of Brcko, a woman who after maternity leave works her normal hours of work shall be entitled to be absent from work for one hour twice a day to breastfeed the child, counted as normal hours of work until the child reaches one year of age.",
+          "overtime": "All work exceeding the standard working hours a week is to be paid as overtime and is regulated by employment contract/collective agreements. When an employee is requested to work overtime or work on holidays, there is a maximum number of hours allowed. The maximum differs per region as below:\nFederation of Bosnia and Herzegovina: A pregnant woman, mother, or an adoptive parent with a child of up to three years of age or a self-sustaining parent or adoptive parent with a child of up to six years of age may work overtime if she/he provides a written statement of voluntary consent to such work.\nRepublic of Srpska: No overtime work shall be ordered for pregnant women, a mother of a child of up to three years of age, and single parents or single adoptive parent of a child under six years of age. Exceptionally, these employees may work overtime if he/she provides a written statement of his/her voluntary consent to do it.\nDistrict of Brsko: A pregnant women, a mother, an adoptive parent with a child of up to one year of age, or a single parent or single adoptive parent with a child of up to two years of age may work overtime if he/she agrees in writing of his/her own free will to such hours of work.\nAccording to collective agreement for Bosnia & Herzegovina, overtime is paid at a rate of 125% of the net hourly rate. Work on a day of weekly rest is paid at least 115% of the net hourly rate. Work on national holidays is paid at 40% of the net hourly rate.\nAccording to collective agreement for RS, overtime work is paid at a salary rate of 130%. Work on public holidays and other days on which no work is done by law is paid at a salary rate of 150%."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to 20 working days of paid annual leave and no more than 30 working days as stipulated in the employment contract and labour law.\nAnnual leave may be used in two segments. The first part shall be used for a duration of at least 12 working days in the course of a calendar year. The remaining days above the 12 days that must be used within the year can carryover to be used by no later than 30 June of the following year. Employees are entitled to be absent from work for up to four days in a calendar year to meet his religious and/or tradition-related needs e.g. to celebrate religious holidays, of which two of these days shall be paid.",
+          "public_holidays": "Date\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\tNational\n2 Jan 2025\tThursday\tNew Year’s Holiday\tNational\n6 Jan 2025\tMonday\tOrthodox Christmas Eve\tRepublika Srpska\n7 Jan 2025\tTuesday\tOrthodox Christmas Day\tRepublika Srpska\n9 Jan 2025\tThursday\tRepublic Day\tRepublika Srpska\n14 Jan 2025\tTuesday\tOrthodox New Year’s Day\tRepublika Srpska\n1 Mar 2025\tSaturday\tIndependence Day\tFederation of Bosnia & Herzegovina\n30 Mar 2025\tSunday\tRamadan Bajram\tFederation of Bosnia & Herzegovina\n18 Apr 2025\tFriday\tOrthodox Good Friday\tRepublika Srpska\n21 Apr 2025\tMonday\tCatholic & Orthodox Easter Monday\tNational\n1 May 2025\tThursday\tLabour Day\tNational\n2 May 2025\tFriday\tLabour Day Holiday\tNational\n9 May 2025\tFriday\tDay of Victory over Fascism\tRepublika Srpska\n6 Jun 2025\tFriday\tKurban Bajram\tFederation of Bosnia & Herzegovina\n28 Jun 2025\tSaturday\tSt Vitus Day\tRepublika Srpska\n1 Nov 2025\tSaturday\tAll Saint’s Day\tFederation of Bosnia & Herzegovina\n21 Nov 2025\tFriday\tSigning of Peace Agreement\tRepublika Srpska\n25 Nov 2025\tTuesday\tNational Day\tFederation of Bosnia & Herzegovina\n24 Dec 2025\tWednesday\tCatholic Christmas Eve\tNational Holiday in certain areas only including Sarajevo\n25 Dec 2025\tThursday\tCatholic Christmas Day\tFederation of Bosnia & Herzegovina",
+          "sick_days": "All sick days are paid. In RS, the 1st month of sick leave is paid by the employer after which the Social Security takes over. In Federation of B&G the first 42 days is paid by the employer, after that the Social Security fund takes over payment.\nA sick note must be provided as soon as possible as proof of illness, even if the sick leave was just one day.",
+          "maternity_leave": "Female employees are generally entitled to up to twelve months of maternity leave with a minimum number of days as below:\nIn the Federation of Bosnia and Herzegovina a woman may not take shorter maternity leave than 42 days following the birth of the child.\nIn the Republic of Srpska a woman may not start work before 60 days have expired after childbirth.\nIn the District of Brcko a woman may have seven days before the presumed date of confinement and 42 days after childbirth.\nFollowing completion of the maternity leave, she may work half-time until her children are two years old or the father may work half-time instead if the mother returns to full time work. The employee is entitled to maternity pay under labour law with a salary of between 50-80% of their regular wage, dependent upon the various cantonal regulations of the Federation of Bosnia and Herzegovina.\nIn Republika Srpska and the District of Brcko the employee is also entitled to an additional six months of leave if she has twins or for every child from her third child on and is entitled to 100% of her regular salary compensation.",
+          "paternity_leave": "In the Federation of Bosnia and Herzegovina a father is entitled to unpaid leave up to seven working days in one calendar year and in the Republic of Srpska/District of Brsko, it is up to three working days within one calendar year.",
+          "parental_leave": "There is no other parental leave in Federation of Bosnia and Herzegovina."
+        },
+        "termination": {
+          "termination_process": "Employers can terminate a fix term contract by giving the following reasons – business, personal, or workers misconduct. It requires notice and a written explanation for the termination. If the reason is misconduct, a warning needs to be given and the employee gets a chance to explain actions.\nBefore the termination for misconduct, an employee must receive one written and two verbal warnings. If another violation is made within 12 months of the third warning, the employer can dismiss an employee without notice or severance pay. The dismissal must be given in writing , In case misconduct is reason for ending fixed term it all must be well supported by evidence – what is the cause, warnings, etc. In case closing of business is case, employee is entitled to severance pay.",
+          "notice_period": "In Bosnia and Herzegovina, employees are required to give a minimum of seven days’ notice, and a maximum of 30 days’ notice. Employers are required to give a minimum notice period of 14 days and a maximum of 3 months’ notice. During probation, either party can terminate by giving seven days notice.\nIn Republic Srpska, the minimum notice period for termination of employment by the employer is 30 days. The minimum notice period for termination of employment by the worker is 15 calendar days. During probation, either party can terminate by giving seven days notice.",
+          "severance_pay": "In Bosnia and Herzegovina, an employee who has worked for at least two years is generally entitled to a severance payment, the amount of which is usually fixed in the collective agreement. In addition, the payment may not be less than 1/3rd of the employee’s average monthly salary for each year of employment or more than six average salaries.",
+          "probation_period": "In Bosnia and Herzegovina, probationary periods must be no longer than six months."
+        },
+        "visa": {
+          "general_info": "A short-stay visa is issued to a foreign citizen who wants to visit Bosnia for 90 days within any 180 days period. This visa is issued for one, two, or multiple entries. You can get a Bosnian short-stay visa for the following purposes:\n\nTourism\nBusiness meetings\nMedical treatment\nFamily visits\nPolitical events\nSports events\nEducational training, etc.\n\nWith a short stay visa you cannot apply for a temporary residence permit.\nA long-stay visa is issued to a foreign citizen who wants to stay in Bosnia for six to twelve months. This visa is issued with one, two, or multiple entries. A long-stay visa is issued for the following purposes:\n\nWork\nStudy\nMedical treatment\nBusiness\nFamily reunion\nResearch work, etc.\n\nIf a longer stay than one year in Bosnia is required, a long-stay visa must be applied together with a temporary residence permit."
+        },
+        "vat": {
+          "general": "The standard VAT rate is 17% and the VAT regime applies equally throughout the country of Bosnia and Herzegovina. There is no reduced VAT rate in Bosnia and Herzegovina."
+        }
+      }
+    }
+  ]
+}

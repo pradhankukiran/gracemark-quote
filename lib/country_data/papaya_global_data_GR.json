@@ -1,0 +1,145 @@
+{
+  "scraped_at": "2025-08-24T18:08:13.904Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Greece",
+      "url": "https://www.papayaglobal.com/countrypedia/country/greece/",
+      "scraped_at": "2025-08-24T18:08:13.890Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "13.33%",
+              "description": "Pension Fund"
+            },
+            {
+              "rate": "4.30%",
+              "description": "Healthcare (applied on salary up to  EUR 7,572.62 monthly)"
+            },
+            {
+              "rate": "0.25%",
+              "description": "Health in Benefit (applied on salary up to  EUR 7,572.62 monthly)"
+            },
+            {
+              "rate": "3.00%",
+              "description": "Supplementary Insurance (applied on salary up to  EUR 7,572.62 monthly)"
+            },
+            {
+              "rate": "1.41%",
+              "description": "Unemployment (applied on salary up to  EUR 7,572.62 monthly)"
+            },
+            {
+              "rate": "20 EUR per year",
+              "description": "EFKA summer campsite programs"
+            },
+            {
+              "rate": "22.29%+ 20 EUR/year",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "6.67%",
+              "description": "Pension Fund (applied on salary up to  EUR 7,572.62 monthly)"
+            },
+            {
+              "rate": "2.15%",
+              "description": "Healthcare (applied on salary up to  EUR 7,572.62 monthly)"
+            },
+            {
+              "rate": "0.40%",
+              "description": "Health in Benefit (applied on salary up to  EUR 7,572.62 monthly)"
+            },
+            {
+              "rate": "3.00%",
+              "description": "Supplementary Insurance (applied on salary up to  EUR 7,572.62 monthly)"
+            },
+            {
+              "rate": "1.65%",
+              "description": "Unemployment (applied on salary up to  EUR 7,572.62 monthly)"
+            },
+            {
+              "rate": "13.87%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "9.00%",
+              "description": "0 – 10,000"
+            },
+            {
+              "rate": "22.00%",
+              "description": "10,001 – 20,0000"
+            },
+            {
+              "rate": "28.00%",
+              "description": "20,001 – 30,000"
+            },
+            {
+              "rate": "36.00%",
+              "description": "30,001 – 40,000"
+            },
+            {
+              "rate": "44.00%",
+              "description": "Over 40,001"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage is 968 EUR per month.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Greece is generally monthly, and payments must be made in Greece on the same day of the month and no later than the last working day of the month.",
+          "13th_&_14th_salaries": "According to Greek law, all employees in the private sectors are entitled to two additional monthly salaries divided into three payments – Christmas (one full monthly salary), Easter (half a monthly salary), and Vacation Bonus (half a monthly salary) and all the above bonus payments must be paid only in cash and not be paid in kind.\nThe payment of the Christmas Bonus must be made by December 21st. In case the Christmas Bonus is not paid on time, the employees should apply to the relevant Labor Inspectorate. The Labor Inspectors of SEPE are responsible for the imposition of the relevant fines."
+        },
+        "working_hours": {
+          "general": "The standard working week in Greece consists of 40 hours a week, typically eight hours a day for a five-day working week. The working week can be increased to 48 hours per week if agreed upon by the employer and the employee.",
+          "overtime": "All work above standard weekly working hours is overtime regulated by employment contracts or collective agreements. When an employee is requested to work overtime or work on holidays, the maximum is 48 hours per week inclusive of overtime over four months. There are also different maximum working hours for minors.\nOvertime hours exceeding 40 hours per week and one additional hour per working day are paid at 120.00% of the employee’s basic salary rate for daytime hours and 125.00% of the employee’s basic salary for night time work for the first hour and a rate of 140% salary for a further two hours. 150 overtime hours can be worked per year."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "During the first calendar year of employment, in a five-day employment schedule. employees are entitled to a proportionate holiday entitlement of 20 working days for a full year, rounded up for shorter employment periods.\nAfter completing twelve months, the entitlement increases to 21 working days.\nIn the third year, employees can access their full holiday entitlement at any time, with a total of 22 working days after 24 months of service.\nEmployees with over 12 years of service with any employer, or over 10 years with the same employer, are entitled to 25 working days. After 25 years of service, this increases to 26 working days.",
+          "public_holidays": "Public holidays when falling on a weekend are moved to the following working day as a day off.",
+          "sick_days": "Employees who provide a medical certificate within 48 hours are entitled to an amount of paid sick leave dependent on the number of years of completed service.\nDuring the first year of employment, employees are entitled to 15 days of paid sick leave.\nEmployees who have completed between one and four years of service are entitled to one month of paid sick leave\nEmployees who have completed between four and ten years of service are entitled to three months of paid sick leave\nEmployees who have completed between ten and fifteen years of service are entitled to four months of paid sick leave\nEmployees who have completed more than fifteen years of service are entitled to six months of paid sick leave\nEmployees are entitled to receive 50% of their regular pay for the first three days of illness, paid by the employer. After this period, Social Security will cover 50% of the employee’s pay for any additional sick days, with the payment made directly to the employee. The employer, however, continues to compensate the employee with full pay for the  total duration of the illness according to their tenure. Once the employee receives 50% of his salary from the Social Security payment, they are required to notify the employer, and the corresponding amount will be deducted from their next payslip.",
+          "maternity_leave": "Pregnant employees are entitled to 119 calendar days of maternity leave. This includes 56 days prior to the due date, funded jointly by the employer and EFKA, and 63 days following the birth of the child, funded entirely by EFKA.. In order for an employee to receive payment from the Social Organization must have 200 insurance stamps before the 56 days begun.\nThe employer covers the first 25 days of absence (considered sick leave) if the employee has been with the company for over a year, or 13 days if the employee has been with the company for less than a year. Any additional days are funded by the social organization (EFKA).\nIt’s important to note that these days are part of the employee’s accumulated sick leave. If the employee has already used their allotted sick leave earlier in the year, they will not receive additional pay from the employer. However, EFKA will step in to cover the payment, ensuring the employee receives their full entitlement.\nThe payment from EFKA for maternity leave is capped. It is calculated based on the average daily earnings the employee has received over a defined period before maternity leave, usually during the previous year (the 12-month period before the leave).The payment per day is typically much lower than the employee’s full salary, as it is based on a set daily maximum determined by social security regulations, rather than the employee’s full salary.",
+          "paternity_leave": "Every working father is entitled to 14 working days of paid paternity leave funded fully by the employer, which must be taken upon the birth of the child. This leave may either:  a) be granted two days before the expected date of delivery, in which case the remaining 12 days are granted in whole or in part within 30 days from the date of birth or b) granted after the date of birth. Paternity leave is compulsorily granted by the employer and does not depend on previous employment or seniority or on the employee’s marital or family status. In case of adoption or fostering of a child up to eight years of age, paternity leave is granted from the time the child joins the family",
+          "parental_leave": "Parental leave is available to any parent having completed one year of service, equal to four months (continuously or intermittently, as agreed with the employer) until the child reaches eight years old. Payable by EFKA up to 2 months.\nChildcare leave is available for 30 months after birth or adoption, entitling an employee to a reduction in the daily working hours by one hour (paid) or 18 months of a reduction of two hours in the daily working hours during the first 12 months. This reduces to one less working hour in the remaining six months or 3.5 months of paid leave taken in one period.",
+          "other_leave": "Depending on the collective agreement/employment contract terms, an employee may be allowed additional leave types on approval between the employer and employee for the following:\nMarriage Leave: Employees are entitled to up to five paid days when getting married\nBereavement Leave: Employees are entitled to paid leave of two days due to the death of a member of the immediate family\nCaretaker Leave: Each employee who completed six months of employment with the employer is entitled to five days unpaid leave per year to take care of a relative or other person living in the same home with the employee\nSchool Leave: For every child up to 18 years of age who attends school, both parents (full-time or part-time employees) may be absent from work (without any deductions from their salaries and upon their employers’ permission) for some hours or a full day and up to four working days per year\nLeave in case of sickness of dependent family members: Employees are entitled to a maximum of six days’ unpaid leave per year (used continuously or intermittently) if a child or other dependent member of their family is sick The days are increased to eight if the employee has two children and 14 if the employee has three or more children.\nElection Leave: This leave is granted to employees who are on a five-day weekly work regime. National Election Day is a day off for employees with the right to vote in another city which is 200-400 kilometers away. If their voting city is over 400km away, a two-day leave is granted. For employees who need to travel to and from an island with no road access, the number of permitted days will be examined on a case-by-case basis, depending on the distance and the special conditions of travel. However, leave cannot exceed three days.\n."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment agreement and collective agreement in place and based on the type of contract and reason for termination. To terminate an employee on an indefinite contract, an employer must provide a written notice of termination, and the employee must have been registered with the Unified Social Security Fund (EFKA).",
+          "notice_period": "Collective agreements may contain provisions on notice periods if the notice periods in the collective agreement differ from the statutory periods of notice. In that case, the employer and the employee must observe the periods of notice laid down in the collective agreement.\nThe amount of notice is dependent on the length of service and reason for termination. If the contract is terminated by the employer, the notice period is as follows:\nEmployment duration of less than 12 months: No notice required.\nEmployment duration from 1 year to 2 years: A notice of 1 month is required.\nEmployment duration from 2 full years to 5 years: A notice of 2 months is required.\nEmployment duration from 5 full years to 10 years: A notice of 3 months is required.\nEmployment duration of more than 10 full years: A notice of 4 months is required.",
+          "severance_pay": "The amount of severance is based on the length of the employee’s service. After completing one year’s service, workers will be entitled to severancev as follows:",
+          "probation_period": "It is possible to have a probation period of up to 6 months, during which time a worker can be dismissed without notice or severance."
+        },
+        "visa": {
+          "visa": "Non-EU employees must acquire a Type D visa before arriving in Greece, allowing employees to stay in Greece for over 90 days to work. Once an employee has arrived in Greece, they must apply for a residence/work permit within 30 days at the local municipal office or police station. Work permits typically last one year, and any work permit renewal must be done at least 60 days before its expiration.\nBusiness visitors to Greece typically use a local version of the Schengen C Visa unless they are visa-exempt. The Schengen Area limits stay to 90 days in 180 days. Business visits must generally be limited to a few days; Greek authorities determine the exact duration of stay on a case-by-case basis.\nThe main work authorization categories are the Installation of Equipment Visa, suitable for short-term installation, testing, and maintenance of supplied items by technical staff under a service agreement; the Work and Residence Permit for Senior Employees, suitable for long-term work and residence under a local employment contract; the EU Blue Card, suitable for highly skilled local hires; and the EU Intra-Company Transferee (ICT) Permit, suitable for intra-company transfers of managers, specialists or trainees from outside the European Union."
+        },
+        "remote_work": "Employers are obliged by law to reimburse homebased workers, in addition to the regular salary amount, as follows:\nItem 1 – The minimum monthly reimbursement for the use of the home for employment purposes is 13 Euros net.\nItem 2 – The minimum reimbursement for communication is 10 Euros net (not applicable where Employers are paying for the worker’s phone/internet directly).\nItem 3 – The minimum reimbursement for the maintenance of equipment is 5 Euros net (not applicable if the equipment used by the worker has been provided by the Employer).\nWhere a worker has spent less than 22 days of the month at home (including as a result of sickness, annual leave, or strikes) the home allowance will be prorated by 1/22 per workday at home.",
+        "vat": {
+          "general": "The standard rate of VAT in Greece is 24%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "EFKA",
+            "paid_to": "Social security local office",
+            "due_date": "last working day of the following month",
+            "method": "There is a specific ID for this payment"
+          },
+          {
+            "authority_payment": "Tax",
+            "paid_to": "Local tax office",
+            "due_date": "last working day of the following two months",
+            "method": "There is a specific ID for this payment, changes for each payroll cycle"
+          }
+        ]
+      }
+    }
+  ]
+}

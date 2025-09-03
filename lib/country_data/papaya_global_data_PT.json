@@ -1,0 +1,160 @@
+{
+  "scraped_at": "2025-08-24T18:36:56.203Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Portugal",
+      "url": "https://www.papayaglobal.com/countrypedia/country/portugal/",
+      "scraped_at": "2025-08-24T18:36:56.187Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "23.75%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "1.88%",
+              "description": "Labor Accident Insurance"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Wage Guarantee Fund (WGF)"
+            },
+            {
+              "rate": "26.50%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "11.00%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "11.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "13%",
+              "description": "up to 8,059.00 EUR annually"
+            },
+            {
+              "rate": "18.00%",
+              "description": "8,059.01 EUR to 12,160.00 EUR annually"
+            },
+            {
+              "rate": "23.00%",
+              "description": "12,160.01 EUR to 17,233.00 EUR annually"
+            },
+            {
+              "rate": "26.00%",
+              "description": "17,233.01 EUR to 22,306.00 EUR annually"
+            },
+            {
+              "rate": "32.75%",
+              "description": "22,306.01 EUR to 28,400.00 EUR annually"
+            },
+            {
+              "rate": "37.00%",
+              "description": "28,400.01 EUR to 41,629.00 EUR annually"
+            },
+            {
+              "rate": "43.50%",
+              "description": "41,629.01 EUR to 44,897.00 EUR annually"
+            },
+            {
+              "rate": "45.00%",
+              "description": "44,987.01 EUR to 83,696.00 EUR annually"
+            },
+            {
+              "rate": "48.00%",
+              "description": "83,696.01 EUR and above annually"
+            },
+            {
+              "rate": "Solidarity Surcharge",
+              "description": ""
+            },
+            {
+              "rate": "2.50%",
+              "description": "Additional solidarity surcharge applied on income exceeding EUR 80,000 annually."
+            },
+            {
+              "rate": "5.00%",
+              "description": "Additional solidarity surcharge applied on income exceeding EUR 250,000 annually."
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The National Minimum Wage in Portugal is 870EUR per month (12,180 EUR  per year), based on a 14-months calculation.\nFor the autonomous region of Azores, the minimum wage is 913.50 EUR per month (12,789 per year).\nFor the autonomous region of Madeira, the minimum wage is 915 EUR per month (12,810 per year).",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Portugal is generally a monthly cycle, with wages paid at the last day working day of each month.",
+          "13th_salary": "There are mandatory 13th and 14th salary payments in Portugal, which are paid out in June (for holidays) and December (for Christmas), or can be paid within the 12 regular salaries."
+        },
+        "working_hours": {
+          "general": "The standard working hours in Portugal are 40 hours per week, 8 hours per day.\nThe maximum weekly and daily working hours can differ as stipulated in employment contract/collective bargaining agreements.\nWorking time and attendance must be recorded by all workers.",
+          "overtime": "Overtime cannot exceed 2 hours per day and the total working hours in a week should not exceed 48 hours.\nThe first 100 overtime hours are paid at a rate of:\n125% salary for the first hour on week days.\n137.5% salary for additional hours on week days.\n150% salary  on weekends public holidays.\nAbove 100 overtime hours are paid at a rate of:\n150% salary for the first hour on week days.\n175% salary for additional hours on week days.\n200% salary  on weekends and public holidays.\nOvertime on Sunday requires weekend overtime pay + a compensatory rest day within the following 3 working days.\nCertain high-earning managerial or professional roles may be exempt from overtime pay requirements.​ Employees in specific sectors like healthcare, emergency services, and hospitality might be subject to different overtime rules due to the nature of their work.​"
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Annual paid leave is a minimum of 22 working days, following completion of 1-year service. During the first year of employment, an employee is entitled to 20 days of leave, accumulated as two days per month.\nThe leave can be carried forward into the next year and typically must be used by 30th April; however, within the same calendar year there may not be more than 30 days of holiday taken.",
+          "public_holidays": "In addition to the national holidays listed below, each one of the 308 municipalities (counties) has its own regional or local municipal public holiday (some of the main holidays are listed below). Workers are entitled to take off the local holiday that corresponds to their place of work; the holiday date should be verified through the local authority.\nPublic holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\tNational\n18 Apr 2025\tFriday\tGood Friday\tNational\n25 Apr 2025\tFriday\tLiberation Day\tNational\n1 May 2025\tThursday\tLabour Day\tNational\n9 May 2025\tFriday\tAscension Day\tHoliday in certain Regions only\n9 Jun 2025\tMonday\tRegion Day\tAzores\n10 Jun 2025\tTuesday\tNational Day\tNational\n13 Jun 2025\tFriday\tSt. Anthony’s Day\tHoliday in certain municipalities only\n19 Jun 2025\tThursday\tCorpus Christi\tNational\n24 Jun 2025\tTuesday\tSt. John’s Day\tHoliday in certain municipalities only\n29 Jun 2025\tSunday\tSt. Peter’s Day\tHoliday in certain municipalities only\n1 July 2025\tTuesday\tRegion Day\tMadeira\n4 July 2025\tFriday\tSt. Elizabeth’s Day\tCoimbra\n15 Aug 2025\tFriday\tAssumption Day\tNational\n20 Aug 2025\tWednesday\tMunicipal Day\tAlbufeira\n5 Oct 2025\tSunday\tRepublic Day\tNational\n1 Nov 2025\tSaturday\tAll Saints’ Day\tNational\n1 Dec 2025\tMonday\tIndependence Restoration Day\tNational\n8 Dec 2025\tMonday\tImmaculate Conception\tNational\n25 Dec 2025\tThursday\tChristmas Day\tNational",
+          "sick_days": "The first 3 days of sickness are unpaid. The worker can issue a self-declaration of sickness and communicate it to the employer. From day 4 onwards, the sick leave is paid for by the Social Security Institute.\nThe daily benefit is calculated by applying a percentage to the employee’s reference remuneration. This percentage varies according to the duration and nature of the illness:\nif the illness lasts for up to 30 days, the employee is entitled to 55% of the reference remuneration\nif the illness lasts between 31 and 90 days, the employee is entitled to 60% of the reference remuneration\nif the illness lasts between 91 to 365 days, the employee is entitled to 70% of the reference remuneration\nif the illness lasts more than 365 days, the employee is entitled to 75% of the reference remuneration\nThe period for which the benefit is granted depends on the duration of the illness and is also subject to the following maximum periods:\nup to 1,095 days in the case of employed workers, seafarers, and coastguard\nup to 365 days in the case of the self-employed and scientific research grant holders\nTo be entitled to receive the sickness benefit from the 4th day, the employee must have completed a service length of at least six calendar months, consecutive or otherwise. Additionally, Workers must provide a Certificate of Temporary Incapacity for Work (CIT) issued by a doctor as proof of incapacity, subject to a retroactivity period of up to 30 days, or, workers can to  self-declare incapacity by commitment of honor, through a digital service from the National or Regional Health Service and subject to a retroactivity period of up to 5 days.",
+          "maternity_leave": "Expectant mothers are entitled to 100% of their usual salary rate excluded from Social Security and tax contributions, paid directly by Social Security for 120 days.\nFor an employee to be eligible, they must have been employed for at least 80 days of the preceding 12 months before the expected due date.\nParental leave is granted for the birth of a child under Portuguese law. This may be shared between both parents in which case the total parental leave period may be 180 days and paid at 83.00% of the usual salary rate of pay. The mother is entitled to 30 days of parental leave before delivery and a minimum of six weeks following the birth.",
+          "paternity_leave": "Fathers can take paternity leave of up to 28 working days. At least 5 consecutive days must be taken within the 42 days following the child’s birth. The leave can be taken as a single period or in a series of days. After taking 28 days, the father is also eligible to take an additional 7 days leave, which must be partly used at the same time that the mother is on maternity leave.\nThis leave is paid by Social Security at 100% of the employee’s average salary in the last six months, exempt from Social Security and Tax contributions.",
+          "parental_leave": "After the required six weeks of maternity leave and 28 days of paternity leave, the couple can decide who takes the next 78 or 108 days. If the couple takes a total of 150 days, the leave is 80% paid, and if they choose 120 days, they will receive 100%.",
+          "other_leave": "Marriage Leave –  employees are entitled to 15 consecutive days of paid leave when getting married.\nBereavement Leave – employees are entitled to up to 5 consecutive days of paid leave in the case of a family bereavement.\nUrgent and Essential Care leave – employees are also entitled to 30 days of paid leave per year to provide urgent and essential care for a family member younger than 12 and 15 days for an older family member."
+        },
+        "termination": {
+          "termination_process": "Termination of employment by the employer unilaterally must be done with just cause, which can be either objective (economic-based) or subjective (disciplinary based). When disciplinary based, there should be a hearing to which the worker is entitled to reply in writing and may ask for a witness hearing, before being informed of the final decision from the employer.\nIf a termination is deemed to be unlawful, the worker could claim job reinstatement or monetary compensation as ruled by a court, typically 45 days of base remuneration plus seniority payments per each complete year of service.",
+          "notice_period": "Notice periods in are generally stipulated within the Employment Contract/Collective Agreement and are linked to the employee’s length of service.\nThe statutory notice period is:\nIndefinite Term/Open ended employment contracts\nWhen an Employee resigns:\n30 days’ notice when the contract lasts up to 2 years.\n60 days’ notice when the contract lasts more than 2 years.\nDuring probation, the employee can terminate the contract, without the need for just cause and without compensation to the employer, at any time during the probation period and without prior notice.\nWhen an employer terminates:\n15 days if the employment contract has less than a year.\n30 days if the employment contract has lasted between a year and five years.\n60 days if the employment contract has lasted between five and ten years.\n75 days if the employment contract has lasted more than ten years.\nDuring probation, the following notice periods apply for the employer:\n7 days’ notice if the trial/probation period lasted more than 60 days.\n30 days’ notice if the trial/probation period lasted more than 120 days.\nFixed Term employment contracts\nWhen an Employee resigns:\n8 days’ notice should be given when the employment contract approaches its full expiry date.\nWhen the employer terminates:\n15 days’ notice should be given when the employment contract approaches its full expiry date.\nUncertain Term contracts\nWhen an Employee resigns:\n15 days’ notice when the contract lasts up to 6 months.\n30 days’ notice when the contract lasts more than 6 months.\nDuring probation, the employee can terminate the contract, without the need for just cause and without compensation to the employer, at any time during the probation period and without prior notice.\nWhen an employer terminates:\n7 days’ notice when the contract lasts up to 6 months.\n30 days’ notice when the contract when the contract lasts between 6 months and 2 years.\n60 days notice when the contract lasts 2 years and more.\nDuring probation, the employer must provide the employee a 7 days’ notice.",
+          "severance_pay": "For both indefinite or fixed term contracts, fair dismissal based on objective grounds (i.e. redundancy) or dismissal due to unsuitability for the job results in a required severance payment.\nFor Indefinite Term contracts:\nAn employee with a seniority until May 1, 2023, will be entitled to statutory severance of 12 days per each year of service.\nAn employee with a seniority from May 1, 2023, will be entitled to statutory severance of 14 days per each year of service.\nFor Uncertain Term contracts an employee will be entitled to statutory severance of 24 days per year of service.\nHigher severance payments may be agreed upon and are common practice to avoid litigation.",
+          "probation_period": "Probation period for most employees is 90 days, 180 days for managers/complexity roles, and 240 days for senior management, directorate, and equivalent responsibility roles (the 240-day experimental period is not applicable within the scope of the EOR model).\nProbation period for Fixed Term employees is 15 to 30 days.\nProbation period for Uncertain Term employees is up to 180 days."
+        },
+        "common_benefits": [
+          "Meal vouchers – the meal allowance limit of tax exemption is €10.20 when paid by Meal Card and €6.00 when paid in Cash.",
+          "Private health insurance",
+          "Transportation allowance",
+          "Gym allowance",
+          "Private pension",
+          "Bonus",
+          "Additional leave"
+        ],
+        "visa": {
+          "general_info": "Any foreigners coming to work in Portugal for longer than six months need a residence certificate (Certificado de Registo). Most non-EU nationals will also need a Portuguese work permit before they can undertake employment in Portugal. In most cases, a Portuguese work permit is only granted when a job offer is confirmed, and once approved, they can continue the process of obtaining a Portuguese work visa or residence permit. After five years of residence in Portugal, you can claim Portuguese permanent residence, and after six years, Portuguese citizenship.\n\nPortugal has quotas to limit the number of jobs that go to third-country nationals to improve employment opportunities for EU nationals. Most jobs need to be advertised to Portuguese and EU/EFTA citizens for 30 days before the Institute for Employment and Vocational Training in Portugal (IEFP) will classify them as jobs that non-EU employees can freely fill."
+        },
+        "remote_work": "Remote working set ups are possible but there must be a written agreement in place to enact this remote work set up. In companies where there are 10 or more workers, employees with children up to 8 years old are entitled to work under a remote work regime (providing there is job and employer agreement). Employers must legally refrain from contacting employees during their rest period, except in cases of force majeure. This might include not contacting workers by phone, text or possibly even email. Work from home allowance is mandatory at a rate of 1 Euro per day worked, up to 22 EUR per month is exempt from tax.",
+        "vat": {
+          "general": "The standard rates of VAT in Portugal are 23.00% in Continental Portugal. In Azores, it is 18.00% and in Madeira, it is 22.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Social Security",
+            "paid_to": "Segurança Social",
+            "due_date": "20th of the month following the obligation (salary July is pay till 20th of august)",
+            "method": "Homebanking (only Portuguese account), ATM, check"
+          },
+          {
+            "authority_payment": "Tax and Customs authority",
+            "paid_to": "Atoridade Tributária e aduaneira",
+            "due_date": "20th of the month following the obligation (salary July is pay till 20th of august)",
+            "method": "Homebanking (only Portuguese account), ATM, check"
+          },
+          {
+            "authority_payment": "Compensation fund",
+            "paid_to": "Fundo de compensação",
+            "due_date": "20th of the month following the obligation (salary July is pay till 20th of august)",
+            "method": "Homebanking (only Portuguese account), ATM, check"
+          }
+        ]
+      }
+    }
+  ]
+}

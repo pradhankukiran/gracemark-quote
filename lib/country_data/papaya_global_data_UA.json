@@ -1,0 +1,92 @@
+{
+  "scraped_at": "2025-08-24T18:48:19.501Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Ukraine",
+      "url": "https://www.papayaglobal.com/countrypedia/country/ukraine/",
+      "scraped_at": "2025-08-24T18:48:19.492Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "22.00%",
+              "description": "Unified Social Contributions (maximum monthly contribution 120,000UAH)"
+            },
+            {
+              "rate": "22.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "0%",
+              "description": "Social Security"
+            },
+            {
+              "rate": "0%",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": [
+            {
+              "rate": "18%",
+              "description": "Flat rate"
+            },
+            {
+              "rate": "1.50%",
+              "description": "Military/Defense Levy"
+            },
+            {
+              "rate": "19.50%",
+              "description": "Combined Flat rate"
+            }
+          ]
+        },
+        "minimum_wage": "The minimum wage is 7,100 UAH per month.\nThe minimum wage will increase to UAH 8,000 as of  April 1st 2024.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Ukraine is bi-weekly and runs twice a month between the 15th and 20th of each month and the 31st and 7th of the following month.",
+          "13th_salary": "There are no provisions in the law regarding 13th salaries."
+        },
+        "working_hours": {
+          "general": "The standard workweek consists of 40 hours over the course of five days. An employer can also establish a working week for six days of seven hours.",
+          "overtime": "Work in excess of the standard weekly work hours is to be paid as overtime and is regulated by the employment contract or collective agreements. When an employee is requested to work overtime or work on holidays, there are maximums in relation to the number of hours allowed.\nThese maximums are 4 hours during two consecutive days and not more than 120 hours per year. All overtime hours in excess of 40 hours per week are paid at an overtime compensation rate of 200% of an employee’s regular hourly rate. The overtime work performed on a rest day can be compensated by another rest day in lieu of payment.\nEmployees who are pregnant or have children under the age of 3, employees under 18, and employees studying at school or college are forbidden from working overtime.\nEmployers must receive consent from women who have children between the ages of 3 and 14 and people with disabilities to work overtime.\nOvertime may be mandatory in the case of production disruptions due to accidents or to avoid production downtime."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to a minimum of 24 calendar days of paid annual leave after completing at least 6 months of continuous employment. The paid leave entitlement may increase for minors and employees with difficult and dangerous jobs. Unused days can be accumulated for future use.",
+          "public_holidays": "Public holidays falling on weekends are moved to another day in lieu.\nDate\tDay\tHoliday\tNotes\n1 Jan 2024\tMonday\tNew Year`s Day\t\n8 Mar 2024\tFriday\tInternational Women’s Day\t\n1 May 2024\tWednesday\tLabor Day\t\n6 May 2024\tMonday\tVelykden (Easter) Holiday\t\n8 May 2024\tWednesday\tVictory Day\t\n23 Jun 2024\tSunday\tTrinity Day\t\n24 Jun 2024\tMonday\tTrinity Day Holiday\tDay Off in Lieu\n28 Jun 2024\tFriday\tConstitution Day of Ukraine\t\n15 Jul 2024\tMonday\tDay of Ukrainian Statehood\t\n24 Aug 2024\tSaturday\tIndependence Day of Ukraine\t\n26 Aug 2024\tMonday\tIndependence Day of Ukraine Holiday\tDay Off in Lieu\n1 Oct 2024\tTue\tDay of Defenders\t\n25 Dec 2024\tWed\tChristmas Day",
+          "sick_days": "Employees are entitled to four months’ paid sick leave. The employer compensates the first five days of sick leave and the rest is compensated by the Social Insurance Fund.\nThe amount the Social Insurance Fund compensates an employee is dependent on the seniority of the employee:\nFewer than six months of employment: payment based on minimum wage\n0-3 years of employment: 50% of the employee’s average salary\n3-5 years of employment: 60% of the employee’s average salary\n5-8 years of employment: 70% of the employee’s average salary\n8+ years of employment: 100% of the employee’s average salary",
+          "maternity_leave": "The maternity leave entitlement in Ukraine allows an employee 126 paid calendar days of leave, 70 of which must be taken before the estimated due date of the child and 56 after the birth. For multiple births or complicated confinement, 140 days maternity is given.\nSocial Insurance Fund compensates maternity leave at 100% of an employee’s average salary capped by a maximum base salary for Social Single Fee.",
+          "paternity_leave": "There is no paid paternity leave in Ukraine, however, fathers can take two weeks of unpaid leave for the birth of a child. Fathers can also acquire leave from the mother’s maternity leave if she has returned to work. In order to do this, a father must apply to his employer and provide them with a copy of the child’s birth certificate, a document confirming family ties, and a certificate from the mother’s place of employment confirming her return to work.",
+          "parental_leave": "After maternity leave ends, mothers, fathers, and grandparents can take unpaid parental leave until the child turns 3 years old.",
+          "other_leave": "Depending on the collective agreement or the terms of the employment contract, an employee may be allowed additional leave types upon approval between the employer and employee:\nBereavement: An employee is entitled to bereavement leave of up to 7 days for the death of an immediate family member.\nMarriage: An employee is entitled to 10 days of leave in the event of their wedding.\nStudy: Employees are entitled to paid study leave which is compensated by the employer. The length of the leave is dependent on the duration of the exam period."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the employment agreement and Collective Agreement and is based on the type of contract and reason for termination. In general, an employee’s rights are strongly protected by legislation and pregnant women, women with children under three years of age, and pre-pension employees are all protected against dismissal.",
+          "notice_period": "The notice period is dependent on the individual initiating the termination and must be given in writing:\n2 months’ notice when the employer initiates the termination\n14 days written notice when the employee initiates the termination\nTermination by mutual agreement has no notice period requirement",
+          "severance_pay": "A statutory severance payment of not less than one average monthly salary is required if the dismissal has been taken by the employer on the following grounds: redundancy, refusal of employee to transfer to another location and continue to work due to changes in essential working conditions, employee unsuitability for the job or position, reinstatement of an employee who previously occupied the position; or work cannot be provided to the employee due to destruction of employer’s property.",
+          "probation_period": "The probation period is dependent on the job role of the employee. The probation period for a non-qualified employee is one month and three months for specialists and managers."
+        },
+        "common_benefits": [
+          "Bonus",
+          "Medical insurance – for employees and their families",
+          "Life insurance",
+          "Meal allowance",
+          "Car allowance",
+          "Mobile phone expenses"
+        ],
+        "visa": {
+          "visa": "Ukrainian immigration law provides limited options for employers of foreign nationals. Nationals of Azerbaijan, Armenia, Belarus, Georgia, Moldova, Russia, and Uzbekistan are D visa-exempt. Nationals of North Macedonia are D visa-exempt for specific purposes of stay, including employment and family reunification. Requirements, processing times, employment eligibility, and benefits for accompanying family members vary by the purpose of stay and visa classification.\nBusiness visitors to Ukraine generally require a C visa for a short-term stay unless they are visa exempt based on their nationality. C visas usually permit single, double, or multiple entries. They are granted for six months or a duration corresponding to the intended visit but no longer than five years. Business visitors must limit their stay to 90 days in a 180-day period.\nThey may apply for an exceptional extension of stay for a total stay of six months calculated from the initial entry if they can show compelling reasons and evidence of sufficient funds. The allowable activities under business visitor status are limited.\nThe main work authorization categories are the Work/Temporary Residence Permit for when the host entity is a Ukrainian company or the Accreditation Card/Temporary Residence Permit for when the host entity is a Ukraine-based representative office of a foreign company. Work permits can be issued between one and three years depending on the foreign national’s position, education, and salary, and can be renewed. Accreditation Cards are issued for up to three years and can also be renewed."
+        },
+        "remote_work": "Ukrainian law distinguishes between Home-based work and Remote work. Homebased work is defined as the work that is done from home or a designated location agreed upon between the employer and the employee. Such work arrangement is more structured as employer can inspect the employee’s remote workspace and employee is required to follow regular work hours (unless agreed otherwise). In addition, employment agreements should be established in writing and location may not be changed unless approved by the employer.\nRemote work is a more flexible option that allows employees to work from any location of the employee’s choosing and according to their own schedule. Remote work arrangements should be established in writing unless emergency circumstances preventing it (such as a pandemic).\nThe employer is required to provide remote and home-based work employees with the necessary tools and equipment to perform the job and reimburse related expenses to the employee\nAdditionally, flexible working hours may be available at the request of the employee. Also at the initiative of the employer when there is a substantial change in working conditions (with two months’ notice) or when there is a threat of epidemic or any emergency (no prior notice is needed).",
+        "vat": {
+          "general": "VAT is 20% standard rate."
+        }
+      }
+    }
+  ]
+}

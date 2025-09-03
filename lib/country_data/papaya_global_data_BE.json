@@ -1,0 +1,153 @@
+{
+  "scraped_at": "2025-08-24T17:38:53.525Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Belgium",
+      "url": "https://www.papayaglobal.com/countrypedia/country/belgium/",
+      "scraped_at": "2025-08-24T17:38:53.506Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "28.00%",
+              "description": "Social Security (includes coverage for Sickness, Unemployment, Accident Insurance & Pension) – White Collar workers"
+            },
+            {
+              "rate": "35.00%",
+              "description": "Social Security (includes coverage for Sickness, Unemployment, Accident Insurance & Pension) – Blue Collar workers"
+            },
+            {
+              "rate": "28.00%-35.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "13.07%",
+              "description": "(in % on gross wage at 100.00%) Social Security for white-collar workers"
+            },
+            {
+              "rate": "13.07%",
+              "description": "(in % on gross wage at 108.00%) Social Security for blue-collar workers"
+            },
+            {
+              "rate": "13.07%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "25%",
+              "description": "0.00 EUR – 15,820 EUR annually"
+            },
+            {
+              "rate": "40%",
+              "description": "15,820.01 EUR – 27,920 EUR annually"
+            },
+            {
+              "rate": "45%",
+              "description": "27,920.01 EUR – 48,320 EUR annually"
+            },
+            {
+              "rate": "50%",
+              "description": "48,320.01 EUR and above annually"
+            },
+            {
+              "rate": "10,910 EUR (on 2025 income)",
+              "description": "Tax free allowance per individual, further reductions on tax withholdings are available, these  include Childcare, Family reductions, reductions for other dependent relatives etc."
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "In Belgium, there is a GMMMI, a guaranteed average minimum monthly income, and an absolute minimal income level set at national level (in the absence of a sectoral minimum wage).\nThe GMMMI is based on monthly wage including other salary components received over the year, e.g. year-end bonus, variable pay etc. The current GMMMI figures are:\nFor workers aged 18 years and over: The minimum wage is €2,070.48 per month.\nFor workers at least 19 years old and at least 6 months of seniority: The minimum wage is €1,759.91 per month.\nFor workers at least 20 years old and at least 12 months of seniority: The minimum wage is €1,863.43 per month.",
+        "payroll": {
+          "payroll_cycle": "In Belgium, the payroll frequency is monthly for work between the first and last day of the month and is typically paid on the last day of the month.",
+          "13th_salary": "A 13th salary may apply depending on the Joint Labor Committee. For those employers who pay a 13th-month bonus, it is typically paid at the end of the year. In addition, some employers also add half of a 14th month’s pay.\nIn the first and last year of employment, the 13th-month bonus is paid pro-rata, assuming the employee doesn’t work a full calendar year."
+        },
+        "working_hours": {
+          "general": "The standard working week in Belgium can be no longer than 38 hours. After 38 hours, workers must be paid overtime (this generally does not apply if the employee is a senior executive or manager). The maximum working time per week may be lower in some industry sectors based on a collective bargaining agreement. There are several statutory exceptions to this rule.\nIn the case of shift work, it is possible to work up to 11 hours per day (50 hours per week) and in the case of continuous work, even up to 12 hours. Under certain conditions, employers may introduce flexible working time schedules with a weekly working time exceeding 38 hours, provided that the quarterly or yearly average remains at 38 hours per week. The daily minimum working time is three hours, but statutory exceptions exist. Working hours at night, on Sundays, or during public holidays is only allowed under strict legal conditions.",
+          "overtime": "Employees on full-time working contracts (a maximum of nine hours per day and 38 hours per week) are subject to the limits on working hours, which may only be exceeded in certain cases such as extraordinary multiplication of work or urgent tasks required by unforeseen circumstances.\nOvertime work must be reimbursed in two ways: (1) Paying higher rate of overtime at an additional 50% salary for overtime on weekdays and Saturdays and an additional 100% salary for Sundays and public holidays and (2) Providing catch-up rest for each hour performed in excess of weekly working hours, for example, someone who performs four overtime hours is entitled to four hours of catch-up rest to be used within the year.\nWorkers in management and trust positions might be exempt from overtime working rules."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees set up on a 5 day working week are entitled to 20 business days of annual leave. Those set up on a 6 day working week are entitled to 24 business days annual leave. Holiday is accrued based on the number of months worked during the previous calendar year (when starting a new job, a vacation certificate showing the accrued leave balance must be provided by the previous employer).\nEmployees are generally required to use all accrued leave within the designated 12-month period, as carryover of unused leave is typically not allowed. However, exceptions apply for employees unable to utilize their vacation days within this period due to circumstances such as work-related accidents, illnesses, maternity or paternity leave, adoption leave, prophylactic leave, or foster care leave. In these cases, employees may defer their vacation days until the end of the 24 months following the relevant vacation year.\nWorkers who have not accrued holiday in the previous year (i.e. due to unemployment, incapacity, suspension, or part time workers who increased working time by at least 20%) are entitled to supplemental vacation regulation of 1 week holiday after an initial period of 3 months of employment (interrupted or not) during the same calendar year for one or more employers. Regular salary will be paid during these holidays; however, this pay will be considered as an advance payment from for the double holiday pay (holiday bonus) workers are entitled to once they have accrued regular annual leave.",
+          "public_holidays": "Employees are entitled to remuneration for ten official public holidays. If a public holiday falls on a Sunday or on a day the employee does not usually work, the employer must grant a replacement rest day.\nDate\tDay\tHoliday\tNote\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n29 May 2025\tThursday\tAscension Day\t\n9 Jun 2025\tMonday\tWhit Monday\t\n21 Jul 2025\tMonday\tNational Day\t\n15 Aug 2025\tFriday\tAssumption Day\t\n1 Nov 2025\tSaturday\tAll Saints’ Day\t\n11 Nov 2025\tTuesday\tArmistice Day\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "In case of illness or a personal accident, the employee continues to receive their regular salary for thirty days of which the employer pays. After 30 days, the Health Insurance Fund will pay for further leave at 60% salary. All sick leave must be certified by a medical professional and a sickness certificate issued.",
+          "maternity_leave": "A pregnant employee is entitled to 15 weeks of maternity leave with the potential to increase to 19 weeks in the case of complicated or multiple births.\nMaternity leave consists of two periods: Prenatal leave and Postnatal Leave.\nA mother must take a minimum of one week’s leave before the expected due date but can take up to a maximum of six weeks of leave before the due date; this is the Prenatal Leave. A mother must also take a further nine weeks of leave following the birth of a child, the Postnatal Leave.\nEmployees are forbidden to perform work during the seven days preceding the presumed delivery date and within the nine weeks that begin on the day of delivery. The employee may take the remaining weeks either before or after childbirth. The employee is required to notify her employer at the latest seven weeks before the expected date of delivery (or nine weeks when multiple births are expected), a medical certificate attesting to this date.\nWomen receive maternity benefits while on maternity leave. This benefit, paid by the social security system Health Insurance Fund, equals 82.00% of the employee’s salary for the first 30 days and then reduces to 75.00% of their regular pay (which will be capped). During this period, the employer is not obliged to make any payments to the employee.",
+          "paternity_leave": "The father is entitled to 20 days of paid paternity leave. The 20 days of paid leave can be taken separately, in a row, or split up into 40 half-days.\nThe leave must be taken within the first four months after the birth. During the first 3 days of absence, the employee is paid a full salary by the employer. During the following 17 days, the employee receives benefits from their public health insurance at 82% of the (capped) salary.",
+          "parental_leave": "Parental leave can be requested at any time from the end of the post-natal maternity leave and can be taken once an agreement has been reached between the employee and employer, as follows:\nA single four-month period\nMultiple periods which are broken into at least one month each\nTemporarily reducing the working hours to 80% for a maximum of 20 months. This period can also be divided up into multiples of two-month periods.\nTemporarily reducing the working hours to 50% for a maximum of eight months. This period can also be divided up into multiples of two-month periods.\nTaking off half a day per week or one full day every two weeks. This can be done for a maximum of 40 months or divided into several periods of 10 months each. However, the employer has the right to refuse this scheme.\nAdoption & Foster Care Leave\nAn employee who takes in a child in his family as part of long-term foster care or adoption is entitled to an individual credit for parental leave of up to six weeks. This credit for six weeks is not transferable to the other adoptive parent.\nAdoption and foster care leave is paid in the same way. The first three days are paid by the employer at 100% of the wage, the next day is paid by the health insurance fund. Each individual parent is entitled to six weeks of basic pay (doubles in some cases) followed by an additional period which can be split between the two parents, (6+3= 9 weeks).\nOther Leave\nDepending on the various Joint Labor Committees, employees may be allowed additional leave types once approved between the employer and employee.\nFamily care or when assisting a seriously ill household or family members the following leaves are in place:\nAll employees (employed full-time or part-time) can entirely suspend their services for 12 months maximum per patient. These interruptions must be taken each time for periods of a minimum of one month and a maximum of three months.\nAll employees are entitled to reduce their benefits by 1/5 or 1/2 during 24 months maximum per patient. These benefit reduction periods must also be taken each time in periods of a minimum of one month and a maximum of three months.\nAll employees employed part-time whose average weekly working hours are at least equal to ¾ of the average weekly working hours of a full-time worker can reduce his or her benefits by up to half of full-time employment for a maximum period of 24 months per patient. These benefit reduction periods must also be taken each time in periods of a minimum of one month and a maximum of three months.\nJury Duty – Employees are entitled to paid time off to perform their jury leave duties.\nBereavement Leave – Employees are entitled to paid leave due to a death of a family member.\nMarriage Leave – Employees are entitled to leave for the marriage of the employee or family member.\nTraining days – employers with more than 20 employees, must allow workers to utilize 5 individual training days per year. Both formal training and informal training will count."
+        },
+        "termination": {
+          "termination_process": "The termination process varies depending on the employment agreement; the strictest form of dismissal is dismissal with notice. Employees who have been employed for at least six months have the right to know the reason for the termination.\nSome employees enjoy protection against dismissal, meaning that the employer may not dismiss them on some grounds; for example, pregnant women can not be dismissed because of their pregnancy.\nAn employee cannot be dismissed except for specific reasons provided by law (e.g. employee representatives in the Works Council and Committee for Prevention and Protection at Work (CPPW)).\nSome sectors have additional procedures (laid down in collective bargaining agreements) that could provide specific information and consultation rules, etc., which, even with multiple dismissals, do not fall under the European and national collective dismissal rules.\nWhen the employment contract ends, all wages that are still due must be paid without delay and are to be paid on the first payday following the date on which the employment contract ends at the very latest. (art. 11 of the Wage Protection Act).\nWhen a certain percentage of the workforce in a business is made redundant, collective agreements generally entitle them to additional compensations over and above the average unemployment benefits. Employees dismissed for serious cause or resigned employees will not (immediately) be entitled to unemployment benefits.",
+          "severance_pay": "Severance is only applicable when termination is made without notice by the employer.",
+          "probation_period": "It is not permitted to have a probation or trial period. Exceptions are in place for student hires, temporary workers, and temporary agency workers.\nDuring the first 6 months of employment it is possible to terminate a worker without invoking a reason or motive.",
+          "notice_period": "In case the employee terminates the employment contract, the maximum notice period amounts to 13 weeks. This notice period applies in case an employee with at least 8 years of seniority resigns.\nIn case the employer terminates the employment contract:\nNotice periods are dependent on the length of service/employment:\n0-3 months service = 1 week notice\n<4 months = 3 weeks\n<5 months = 4 weeks\n<6 months = 5 weeks\n6-9 months = 6 weeks\n9-12 months = 7 weeks\n12-15 months = 8 weeks\n18-21 months = 10 weeks\n21-24 months = 11 weeks\n2< years = notice continues to build each year, capped at 65 weeks notice.\nIt is also possible to pay in lieu of notice.\nDuring the notice period, the worker will be able to take time off to attend training or coaching, to encourage a “transition trajectory” with the goal of a quicker return to the labor market."
+        },
+        "common_benefits": [
+          "Gym/Wellness allowance – approximately 50-100 EUR per month",
+          "Hospitalization Insurance allowance – approximately 80 EUR per month",
+          "Additional leave – a total of 25 days is common to give",
+          "Meal vouchers –  This benefit is exempt from tax up to 8 EUR/day (1.09 EUR paid by employee and 6.91 EUR by the employer)",
+          "Additional Vacation – additional vacation days or policy e.g. granting seniority leave such as 1 additional vacation day for every 5 years seniority within the company, with a maximum of 5 days."
+        ],
+        "visa": {
+          "general_info": "EU nationals planning to stay in Belgium for less than three months should register with the relevant local authority upon arrival. If the period of stay is for more than three months, it will be necessary to obtain a registration certificate from your local authority.\n\nAfter living in Belgium for three years, EU citizens will need to transfer their health and social security coverage to their host country to apply for permanent residency.\nCitizens of non-EU countries require a visa and/or work permit.\n\nShort-term visas are for individuals staying less than 90 days in Belgium, while long-term visas are for those residing in Belgium for more than 90 days. The latter also requires a work permit, which the prospective employer must usually apply for ideally many months in advance.\n\nThe type of employee determines conditions and procedures for the application process. Applications are to be made in correlation to the region in which an employer will be working. An application must be submitted to the Economic Migration Department at least two months before the expiry date to extend a work permit."
+        },
+        "remote_work": "Under the law, homebased employees must be granted a monthly employer-paid, tax-free work from home allowance. This requirement applies to full time and part time employees working from home on a regular basis (at least one day per week/five days per month). The maximum tax free allowance is €148.73 per month.\nOffice expenses can be covered within this tax free allowance, including the use of office space, maintenance, insurance, property tax, snacks, office supplies, printer and computer equipment, utilities and additional reimbursements or provision of equipment.\nThe Belgian government passed legislation requiring employers with 20 or more employees to stipulate in writing the right for employees to disconnect after working hours, in either company Collective Bargaining Agreements (CBA) or in company level policies and regulations. The written rules should specify at a minimum that A general framework for the application of the right to disconnect. Guidelines for using digital tools in a way to protect employees’ resting times, their holidays, and their private/family lives.\nTraining and awareness plans for employees and managers on the prudent use of digital tools and the understanding of the risks associated with over connection.",
+        "vat": {
+          "general": "The standard rate of VAT in Belgium is 21%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Belgian social security contributions",
+            "paid_to": "Belgian social security authorities",
+            "due_date": "The Belgian social security contributions are due on a quarterly basis. The due date is the end of the month following the concerned quarter.",
+            "method": "Wire"
+          },
+          {
+            "authority_payment": "Advance payments on Belgian social security contributions",
+            "paid_to": "Belgian social security authorities",
+            "due_date": "The advance payments towards the Belgian social security contributions are due on a monthly basis. The due date is the 5th day following the concerned month. These advances are deducted from the quarterly balance (see above).",
+            "method": "Wire"
+          },
+          {
+            "authority_payment": "Belgian wage withholding taxes",
+            "paid_to": "Belgian tax authorities (“Team inning BV” in Dutch)",
+            "due_date": "The Belgian wage withholding taxes are due on a monthly basis. The due date is the 15th day following the concerned month.",
+            "method": "Wire"
+          },
+          {
+            "authority_payment": "Belgian labor accident insurance premium",
+            "paid_to": "The insurance company",
+            "due_date": "The insurance premiums are due on an annual basis. There is an advance payment (in the beginning of the year) and a settlement of the premium (at the end of the year).",
+            "method": "Wire"
+          },
+          {
+            "authority_payment": "Belgian external service prevention and protection at work premium",
+            "paid_to": "The insurance company",
+            "due_date": "The insurance premiums are due on an annual basis. There is an advance payment (in the beginning of the year) and a settlement of the premium (at the end of the year).",
+            "method": "Wire"
+          },
+          {
+            "authority_payment": "Group insurance",
+            "paid_to": "The insurance company or the insurance broker",
+            "due_date": "The insurance premiums are due on a monthly basis. The effective Due dates differ depending on contract between the insurance company and the employer",
+            "method": "Wire"
+          },
+          {
+            "authority_payment": "Health insurance (private company/optional)",
+            "paid_to": "The insurance company or the insurance broker",
+            "due_date": "The insurance premiums due dates depend on the contract between the insurance company and the employer. It can be on a monthly, quarterly or yearly basis.",
+            "method": "Wire"
+          }
+        ]
+      }
+    }
+  ]
+}

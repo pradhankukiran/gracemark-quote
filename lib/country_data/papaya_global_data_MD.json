@@ -1,0 +1,17 @@
+{
+  "scraped_at": "2025-08-24T18:20:48.891Z",
+  "summary": {
+    "total": 1,
+    "success": 0,
+    "failed": 1
+  },
+  "results": [
+    {
+      "country": "Moldova, Republic of",
+      "url": "https://www.papayaglobal.com/countrypedia/country/moldova-republic-of/",
+      "scraped_at": "2025-08-24T18:20:48.888Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    }
+  ]
+}

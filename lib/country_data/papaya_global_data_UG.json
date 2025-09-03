@@ -1,0 +1,44 @@
+{
+  "scraped_at": "2025-08-24T18:48:32.429Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Uganda",
+      "url": "https://www.papayaglobal.com/countrypedia/country/uganda/",
+      "scraped_at": "2025-08-24T18:48:32.423Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [],
+          "employee_contributions": [],
+          "income_tax": []
+        },
+        "payroll": {
+          "payroll_cycle": "Payroll frequency is biweekly or monthly, paid at the end of every fortnight or month. Hourly and daily workers must receive their pay at the end of the current day or week."
+        },
+        "working_hours": {
+          "general": "The standard workweek is 8 hours per day or 48 hours a week.",
+          "overtime": "When an employee works in excess of the standard workweek without a written agreement, the employee should be remunerated at the minimum rate of one and a half times of the normal hourly rate if the overtime is on the normal working days, and at two times the hourly rate where the overtime is worked on gazetted public holidays."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to a minimum of 21 working days of paid annual leave, accruing at a rate of seven days for each continuous period of four months of service. Employees may not relinquish their right to annual leave in exchange for monetary compensation. Failure to apply for leave within a certain year implies forfeiture of the employee’s right to leave, the alternative option is for the employer to defer the employee’s leave to another year. The maximum carry over of unused leave is one year. Leave is granted when the employee applies for it, an employer may not force an employee to go on leave.\nIn the event of termination, an employee is entitled to compensation for any unused annual leave.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost. Some religious holidays are determined by the lunar cycle and will show as ‘Tentative’ until they are confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n26 Jan 2025\tSunday\tLiberation Day\t\n16 Feb 2025\tSunday\tRemembrance of Archbishop Janani Luwum\t\n8 Mar 2025\tSaturday\tInternational Women’s Day\t\n30 Mar 2025\tSunday\tEid al-Fitr\t\n31 Mar 2025\tMonday\tEid al-Fitr\t\n1 Apr 2025\tTuesday\tEid al-Fitr\t\n2 Apr 2025\tWednesday\tEid al-Fitr\t\n18 Apr 2025\tMonday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n3 Jun 2025\tTuesday\tMartyr’s Day\t\n6 Jun 2025\tFriday\tEid al-Adha\t\n9 Jun 2025\tMonday\tNational Heroes Day\t\n9 Oct 2025\tThursday\tIndependence Day\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day",
+          "sick_leave": "If an employee is unable to work due to illness, they can take up to 2 months of sick leave per year. The first month of absence is paid by the employer at full pay and benefits. The second month of absence is unpaid. If an employee is still unable to work due to sickness at the end of the second month, the employer may terminate their employment.\nLeave entitlement applies to employees who work at least 16 hours per week and have completed at least one month of continuous service.\nEmployees must promptly notify their employer of their absence and provide a written certificate from a qualified medical practitioner.\nMaternity Leave\nFemale employees are entitled to 60 working days of paid maternity leave. They must provide at least seven days’ written notice before beginning their leave and returning to work afterward. Maternity leave can be extended by 20 additional workdays in exceptional circumstances, such as illness related to the pregnancy or childbirth.\nPaternity Leave\nMale employees are entitled to four paid days of paternity leave per year following the birth of a child or their wife’s miscarriage.",
+          "other_leave": "Employees are entitled to three paid days of compassionate leave on a single occasion and a maximum of six paid days in a given calendar year due to the death of a family member or dependent relative."
+        },
+        "termination": {
+          "termination_process": "Employers cannot terminate employees at will in Uganda and must have legitimate grounds for termination. Prior to termination, a fair hearing/consultation procedure should be followed, with the reasons for termination being explained.\nEmployers who terminate unfairly must compensate the affected employee with a basic compensation order for four weeks’ salary. If an employee is served a notice of termination by the employer, he or she may terminate the contract of employment before the end of the notice period without having to compensate the employer for the remainder of the notice period.",
+          "notice_period": "The required notice period depends on the employee’s length of service as follows:\nLess than six months of service: no notice required\nMore than six months but less than one year service: two weeks notice\nMore than 12 months but less than five years service: one month notice\nMore than five years but less than 10 years: two months notice\n10 years or more service: three months service\nThe employer can choose to Pay in Lieu of Notice.",
+          "severance_pay": "Employers are required to provide severance pay in the following circumstances:\nCases of unfair dismissal\nIf an employment contract is terminated due to the employer’s insolvency or death\nIf the employee dies while in the employ of the employer\nIf the employee terminates the contract due to physical incapacity\nTo qualify for severance pay, the affected employee must have completed a minimum of six months of continuous service. The amount of severance pay is negotiated between the employer and the employee or the labor union representing the employee.",
+          "probation_period": "The maximum probation period should be 6 months. An extension to the probation period might be possible with the workers consent. An employee may not be placed on probation twice by the same employer.\nDuring the probation period, either the employee or employer can terminate the employment contract by giving 14 days’ notice or by the employer paying seven days’ wages in lieu of notice."
+        },
+        "visa": {
+          "general_info": "Foreign nationals planning to work in Uganda, whether for paid employment or as volunteers, are required to obtain a work permit. It’s crucial for them to choose the appropriate type of work permit before commencing the application process. The following are the common types of work permits for paid employment in Uganda:\n\nClass A and A2: For government employees, diplomats and government contractors\nClass B: For foreign nationals who intend to invest in the agricultural industry\nClass C: For foreign nationals who intend to invest in the mining industry\nClass D: For foreign nationals who intend to engage in business or commerce in Uganda\nClass E: For manufacturers who plan to invest in or establish a manufacturing business in Uganda\nClass F: For working professionals who intend to practice their profession in Uganda\n\nThe duration of work permits in Uganda varies from six months to 36 months."
+        }
+      }
+    }
+  ]
+}

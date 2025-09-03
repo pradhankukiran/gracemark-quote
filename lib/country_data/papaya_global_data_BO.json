@@ -1,0 +1,102 @@
+{
+  "scraped_at": "2025-08-24T17:41:14.591Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Bolivia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/bolivia/",
+      "scraped_at": "2025-08-24T17:41:14.584Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "2.00%",
+              "description": "Housing"
+            },
+            {
+              "rate": "1.71%",
+              "description": "Professional Risk Premium"
+            },
+            {
+              "rate": "10.00%",
+              "description": "National Healthcare"
+            },
+            {
+              "rate": "3.00%",
+              "description": "Employer Solidarity Contribution"
+            },
+            {
+              "rate": "16.71%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "10.00%",
+              "description": "Long-term SSO Contribution (Disability, Old Age and Death)"
+            },
+            {
+              "rate": "1.71%",
+              "description": "Common Risk"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Pensionary Fund Commission"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Solidarity Contribution for Pension"
+            },
+            {
+              "rate": "12.71%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "13.00%",
+              "description": "Flat Rate"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The monthly minimum wage in Bolivia is 2,500 BOB.",
+        "payroll": {
+          "payroll_cycle": "Salaries are paid monthly on the last day working day of the month.",
+          "13th_salary": "A 13th salary is required at the end of the year and is equivalent to one month’s pay (Aguinaldo). The Christmas bonus is not subject to tax and social security contributions.\n14th-month is also a mandatory bonus if GDP is over 4.50% or makes annual profits. All employees must receive one additional monthly salary, subject to a cap of 25.00% of the company’s profits (Profit bonus (Prima)."
+        },
+        "working_hours": {
+          "general": "Standard working hours within Bolivia are 8 hours per day, up to a maximum of 6 working days.",
+          "overtime": "All work more than the standard working hours a week is to be paid as overtime and is regulated by employment contract/collective agreements. In general, overtime maximum limits are set at 2 hours per day and paid 200.00% of the standard salary rate."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Paid leave in Bolivia is outlined in the employment contract as a minimum of 15 days paid leave a year (following completion of 1-year service) in addition to public holidays.\nThis increases to 20 days paid leave once the employee has been employed for five years and increases after ten years of service to 30 days paid leave per year.",
+          "public_holidays": "There are 10 public holidays.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n22 Jan 2025\tWednesday\tPlurinational State Day\t\n3 Mar 2025\tMonday\tCarnival\t\n4 Mar 2025\tTuesday\tCarnival\t\n18 Apr 2025\tFriday\tGood Friday\t\n1 May 2025\tThursday\tLabour Day\t\n19 Jun 2025\tThursday\tCorpus Christi\t\n21 Jun 2025\tSaturday\tAymara New Year\t\n6 Aug 2025\tWednesday\tNational Day\t\n2 Nov 2025\tSunday\tAll Souls’ Day\t\n3 Nov 2025\tMonday\tAll Souls’ Day Holiday\tDay off in lieu\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "All employees are entitled to up to 26 weeks of paid sick leave per year and must provide a medical certificate within 48 hours of the first day of sickness.\nThe employer pays the sick pay at 100.00% of the regular salary rate (to be reimbursed at a rate of 75.00% from the social security) from the 5th day of sickness.",
+          "maternity_leave": "All female employees are eligible for maternity benefits, consisting of 90 days paid maternity leave, 45 days before the due date, and 45 days after.\nThe employer will pay the maternity benefit at 100.00% of the national minimum wage; the employer will receive a reimbursement of 90.00% from social security.",
+          "paternity_leave": "The father is entitled to mandatory paid paternity leave of 3 days.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "There is no other statutory leave in Bolivia."
+        },
+        "termination": {
+          "termination_process": "The termination process is standard in Bolivia based on the prescribed list of termination reasons contained within article 16 of the General Labour Law unless an employer can provide sufficient cause for dismissal without notice.\nNotice of termination must be in writing and sent to the relevant governmental authorities.",
+          "notice_period": "According to Bolivian labor law, there is no mandatory notice period.",
+          "severance_pay": "In Bolivia, severance pay is mandatory if applicable. Still, the amount differs based on the type of termination, i.e., termination by an employee, termination by mutual agreement, termination without cause, and termination with a cause in an indefinite term agreement and fixed-term agreement.\nIt is common for a severance payment to be calculated as one month’s regular salary payment for each completed year of service.",
+          "probation_period": "Probation periods in Bolivia for permanent employees are generally between 1 and 3 months."
+        },
+        "visa": {
+          "general_info": "Any foreigners coming to work in Bolivia will need to be registered with the Labor Ministry.\nForeign employees do not require work permits, but their work agreements must be registered with the Bolivian labor authorities within 90 days of signing. Employees need a special purpose visa to sign the agreement and a one-year residence visa."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Bolivia is 13.00%."
+        }
+      }
+    }
+  ]
+}

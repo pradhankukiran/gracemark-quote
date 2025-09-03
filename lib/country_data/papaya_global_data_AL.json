@@ -1,0 +1,103 @@
+{
+  "scraped_at": "2025-08-24T17:34:05.255Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Albania",
+      "url": "https://www.papayaglobal.com/countrypedia/country/albania/",
+      "scraped_at": "2025-08-24T17:34:05.245Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "15.00%",
+              "description": "Social Security (applied on salary between 34,000 and 149,954 ALL monthly)"
+            },
+            {
+              "rate": "1.70%",
+              "description": "Health Insurance (applied on salary between 34,000 and 149,954 ALL monthly)"
+            },
+            {
+              "rate": "16.70%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "9.50%",
+              "description": "Social Security (applied on salary between 34,000 and 149,954 ALL monthly)"
+            },
+            {
+              "rate": "1.70%",
+              "description": "Health Insurance (applied on salary between 34,000 and 149,954 ALL monthly)"
+            },
+            {
+              "rate": "11.20%",
+              "description": "Total Employee Cost"
+            }
+          ],
+          "income_tax": [
+            {
+              "rate": "Monthly income up to 50,000 ALL",
+              "description": ""
+            },
+            {
+              "rate": "0%",
+              "description": "0- 50,000 ALL"
+            },
+            {
+              "rate": "Monthly income of  50,000 ALL-60,000.00 ALL",
+              "description": ""
+            },
+            {
+              "rate": "0%\n13%",
+              "description": "on income up to 35,000 ALL\non income in excess of 35,000 ALL and up to 60,000 ALL"
+            },
+            {
+              "rate": "Monthly income exceeding 60,000.00 ALL",
+              "description": ""
+            },
+            {
+              "rate": "0%\n13%\n23%",
+              "description": "on income up to 30,000 ALL\non income between 30,000 ALL to 200,000 ALL\non income in excess of 200,000 ALL"
+            }
+          ]
+        },
+        "minimum_wage": "The national minimum wage in Albania is increased to 34,000 ALL with effect from September 2022.",
+        "payroll": {
+          "13th_salary": "There is no 13th salary in Albania."
+        },
+        "working_hours": {
+          "general": "Standard working hours within Albanian law are 40 hours a week, 8 hours per day for adults (except when an employee is under 18, which will reduce the maximum daily hours worked to 6 hours a day).",
+          "overtime": "All work above the standard 40 hours a week is to be paid at a minimum rate of 25% more than the standard pay rate. If the work is done during a weekend or public holiday, the minimum rate is 50% more than the standard pay rate. Overtime can be compensated with time off from work rather than payments on the same basis.\nCollective agreements and contracts regulate overtime, however, the labor code states that no employee can work more than 200 hours overtime in any one year. As per the Albanian Labor Code, the employer cannot request an employee to work overtime if they have already worked 48 hours in any one week, unless in exceptional circumstances. The restrictions state that these special circumstances cannot be longer than four months and the employee’s average working time cannot exceed 48 hours.\nThere are further restrictions for overtime e.g. night workers and the associated type of work to be performed and who is going to undertake the overtime, e.g. pregnant employees and those under 18 years of age."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The regulations regarding paid leave in Albania are set in the Albanian Labor Code, which states that an employee who has worked a full year is entitled to 28 calendar days (20 working days) of paid leave which the employee must take during the working year or within the first three months of the following year. Any employee with less than one year’s service will receive pro-rata leave days.\nAll leave requests must be provided to the employee at least 30 days before the leave start date.",
+          "public_holidays": "Holidays falling on the weekend are observed on the following working day(s).\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n2 Jan 2025\tThursday\tNew Year’s Holiday\t\n14 Mar 2025\tFriday\tSummer Day\t\n24 Mar 2025\tMonday\tNevruz Day\t\n31 Mar 2025\tMonday\tEid al-Fitr\tTentative\n21 Apr 2025\tMonday\tCatholic/Orthodox Easter\t\n1 May 2025\tThursday\tInternational Worker’s Day\t\n6 Jun 2025\tFriday\tEid al-Adha\tTentative\n5 Sep 2025\tFriday\tSaint Teresa Sanctification Day\t\n24 Nov 2025\tMonday\tAlphabet Day\t\n28 Nov 2025\tFriday\tFlag and Independence Day\t\n1 Dec 2025\tMonday\tLiberation Day\t\n8 Dec 2025\tMonday\tNational Youth Day\t\n25 Dec 2025\tWednesday\tChristmas Day",
+          "sick_days": "An employee can claim sick leave for the entire time of their illness until their doctor confirms that the employee is able to return.  For the first 14 days of sick leave, the employer is obligated to pay 80% of the employee’s salary.  From the 15th day onward, social insurance compensates the employee for 70% of their average salary for the past 6 months.",
+          "maternity_leave": "Expectant mothers (who have worked for 12 consecutive months) are entitled to up to a year of paid maternity leave, with a minimum of 35 days paid before birth and 63 days after delivery. After 63 days, the employee can remain on leave or return to work. Women who are expecting more than one child are entitled to 390 days of maternity leave.\nThe first six months of maternity pay is calculated at 80% of the employee’s average monthly salary from the previous year. The following six months’ maternity pay is reduced to 50%, as detailed in Article 104 of the Labor Code.",
+          "paternity_leave": "There is currently no statutory paternity leave in Albania. However, in October 2020, a proposed amendment was made to the Albanian Labor Code and Social Security Law (96.3) for fathers to be entitled to three days of paid leave.",
+          "parental_leave": "Parental leave in Albania is 12 days of paid leave to tend to a child.  Employees with children under three years old are entitled to an additional three days and can request additional unpaid leave for up to thirty days per year should it be required to care for the child.",
+          "bereavement_leave": "In the event of the death of an immediate family member, an employee is entitled to two days’ leave.\nChildcare leave\nIf a child is unwell, an employee with dependent children under the age of 3 is entitled to a maximum of 15 days of paid leave, which must be supported by a medical certificate. The employee is eligible for up to 30 days of additional unpaid leaves each year.  The leave is granted to the spouse who effectively cares for the child or it may be alternatively granted to the parents.",
+          "marriage_leave": "In the event of an employee’s marriage, the employee can take five days’ leave. For the union of a child, it is two days’ leave."
+        },
+        "termination": {
+          "termination_process": "There are several types of termination in Albania:\nTermination from the Employee Undefined employment Agreement: the employee has the obligation to communicate the event and submit in written form the resignation letter to the employer respecting the notification terms.\nTermination from the Employer Undefined Employment Agreement: in this case, the procedure to be followed by the employer is as follows:\nSend a written notification for the organization of a meeting with the employee at least 72 hours before the meeting and negotiate with him/her the reasons for the contract termination.\nThe written notification can be sent by e-mail.\nThe negotiation can take place at least 72 hours from the delivery of the notification. There is no specific provision in the Labor Code about the possibility to organize the meeting through online communication, but it is not prohibited. The only important thing is to prove it has taken place.\nDuring this conversation, the employer submits to the employee the reasons for his future decision and gives him/her the possibility to express his/her opinions.\nIt is possible that the employee fails to be present. In this case, it is important to prove (because you have the burden of proof) that he/she has received the written notification.\nAfter the negotiation, another written notification is sent to the employee in which he/she is notified of the termination of the contract. This new notification is sent within 48 hours up to one week, after the meeting.\nImmediate termination with justified reasons: justified reasons are considered as severe circumstances which do not allow—according to the principle of good faith—to the one who has asked for the termination to continue the employment relationship. Same procedure as above to be followed.\nTermination of Defined Employment Agreement: when such an agreement reaches the end of the agreed period and the employer/employee doesn’t wish to renew the contract, the employment is terminated without any further documentation.\nUnjustified dismissal from employer: the employee has the right to sue the employer within a period of 180 days.",
+          "notice_period": "Notice periods within Albania are as follows:\n2 weeks’ notice is required for employees leaving within the first six months of employment\n1 month’s notice is required for employees leaving between six months and two years of employment\n2 months’ notice is required for employees leaving within the second and fifth years of employment\n3 months’ notice is required for employees leaving after the first five years of employment\nDuring the probation period, 5 days notice is required",
+          "severance_pay": "Workers are entitled to the following payout upon termination:\nSalary during the notification period\nSeniority bonus when the employment lasted for more than 3 years. The seniority bonus is at least as much as a half-month salary over each full year of work calculated on the basis of the salary that exists at the end of the employment relationship. When the salary is variable, the remuneration is calculated above the average salary of the year\nUntaken annual leave on prorate basis\nAnnual bonuses or other compensations on prorate basis\n2. In case of immediate termination with justified reasons, the employer has to pay:\nSalary until the last working day\nUntaken annual leave on prorate basis",
+          "probation_period": "Probation periods in Albania are generally three months.\nDuring the probation period, the employment can be terminated by either the employer or employee with five days of notice."
+        },
+        "visa": {
+          "general_info": "All foreign visitors need a visa to enter Albania and a residence permit to live there.\n\nForeigners wishing to work in Albania, depending on their citizenship and the nature of work intended may require a different type of employment permit, a) a work registration certificate (for listed activities lasting no more than 60 or 90 days) b) employment declarations c) a work permit (planning to work and stay in Albania for more than 90 days in 180 days.)\n\nThe work permit is submitted to the Directory of Migration of the National Employment Service and is generally issued within ten days of the submission by the applicant. There are four main Albanian work permit categories:  Type A: permits for economic activities for both employers and employees, Type B: independent economic activity permits, Type C: permits for special occasions, and Type D: permanent work permits for eligible foreigners.\n\nExtended periods of stay and permanent stay may be granted but only through the provision of a residence permit. The residence permit is issued by the Regional Directorate of Borders and Migration and enables the holder to enter, stay, and exit the Republic of Albania."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Albania is 20%."
+        }
+      }
+    }
+  ]
+}

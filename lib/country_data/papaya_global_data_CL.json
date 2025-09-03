@@ -1,0 +1,132 @@
+{
+  "scraped_at": "2025-08-24T17:48:09.167Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Chile",
+      "url": "https://www.papayaglobal.com/countrypedia/country/chile/",
+      "scraped_at": "2025-08-24T17:48:09.156Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "2.40%",
+              "description": "Unemployment Insurance, capped at 126.6 * monthly UF rate (the rate increases to 3% when using a Fixed Term contract)"
+            },
+            {
+              "rate": "1.5%",
+              "description": "Disability & Survival Insurance (SIS), capped at 84.3 * monthly UF rate"
+            },
+            {
+              "rate": "0.95%",
+              "description": "Mutual – Work Accident Insurance, capped at 84.3 *  monthly UF rate (the rate can increase up to 7.73% for high risk industries)"
+            },
+            {
+              "rate": "Varies*",
+              "description": "Gratification (Profit Sharing)*"
+            },
+            {
+              "rate": "4.83%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "10.00%",
+              "description": "Pension (AFP), capped at 84.3 * monthly UF rate (after 2 years workers can choose an alternative private pension provider to enroll in, there are 7 institutions to choose from and the contribution will be 10% + the commission rate of the fund)."
+            },
+            {
+              "rate": "0.60%",
+              "description": "Unemployment Insurance, capped at 126.6 * monthly UF rate (no charge % is applied when using a Fixed Term contract)."
+            },
+            {
+              "rate": "7.00%",
+              "description": "Public Health Insurance, capped at 84.3 * monthly UF rate (alternatively, workers can choose to enroll in private health insurance)."
+            },
+            {
+              "rate": "17.60%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "Up to 13.5 UF"
+            },
+            {
+              "rate": "4.00%",
+              "description": "13.5 – 30 UF"
+            },
+            {
+              "rate": "8.00%",
+              "description": "30 – 50 UF"
+            },
+            {
+              "rate": "13.50%",
+              "description": "50 – 70 UF"
+            },
+            {
+              "rate": "23.00%",
+              "description": "70 – 90 UF"
+            },
+            {
+              "rate": "30.40%",
+              "description": "90 – 120 UF"
+            },
+            {
+              "rate": "35.00%",
+              "description": "120 – 310 UF"
+            },
+            {
+              "rate": "40.00%",
+              "description": "310 UF and Above"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The monthly minimum wage in Chile is $510,500 CLP.",
+        "payroll": {
+          "payroll_cycle": "Monthly",
+          "13th_salary": "There are no provisions in the law regarding 13th salaries."
+        },
+        "working_hours": {
+          "general": "A full workweek in Chile is 44 hours over 5 or 6 days. The employer has the right to extend the day by no more than 2 hours a day or 10 hours a week. The Chilean labor code recommends daily rest periods, a midday meal (as part of a break for at least half an hour), a weekly rest day on Sundays, and national holidays.\nEmployees delivering services providing technical support, working in public shops, or in the entertainment industry and therefore required to work on Sundays and national holidays, are provided with rest days on different days.\nIn 2023, Chile approved a 40-hour workweek law reducing the length of the working day to improve the quality of life of workers who are governed by the labor code.\nThis law will be implemented gradually as follows:\nOne year after implementation: the working week will be reduced from 45 to 44 hours.\nThree years after implementation: the working week will be reduced to 42 hours.\n5 years (in 2028) after implementation: the working week will be reduced to 40 hours.\nAlthough this law is set to be implemented gradually, many companies have already put a 40-hour work week into effect.",
+          "overtime": "Overtime is paid at a rate of 150% of the regular pay, including overtime at night, weekend and public holidays.​\n​Typically, workers in positions of trust or high responsibility are exempt from working hours regulations.​"
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees who have been employed for at least 1 year are entitled to 15 working days of paid leave. After working for 10 years, an extra day is added for every 3 years of service.",
+          "public_holidays": "In Chile, the 17 public holidays are split between ‘Mandatory’ and ‘Non-Mandatory’ days. ‘Mandatory’ means the worker must be given the day off and ‘Non-Mandatory’ means the employer can ask the employee to work, however, the worker will be entitled to receive an additional 50% salary for working on this holiday (calculated as Monthly salary * 0.00875 = amount to paid per hour).\nPublic holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\tMandatory\n18 Apr 2025\tFriday\tHoly Friday\tNon-Mandatory\n19 Apr 2025\tSaturday\tHoly Saturday\tNon-Mandatory\n1 May 2025\tThursday\tLabor Day\tMandatory\n21 May 2025\tWednesday\tGlorias Navales Day\tNon-Mandatory\n20 Jun 2025\tFriday\tIndigenous People’s Day\tNon-Mandatory\n29 Jun 2025\tSunday\tSaint Peter & Pablo\tMandatory\n16 Jul 2025\tWednesday\tCarmen Virgin’s Day\tNon-Mandatory\n15 Aug 2025\tFriday\tMary’s Assumption\tNon-Mandatory\n18 Sep 2025\tThursday\tIndependence Day\tMandatory\n19 Sep 2025\tFriday\tArmy Day\tMandatory\n13 Oct 2025\tMonday\tRace’s Day\tNon-Mandatory\n31 Oct 2025\tFriday\tChurch’s Day\tNon-Mandatory\n1 Nov 2025\tSaturday\tAll Saints Day\tNon-Mandatory\n8 Dec 2025\tMonday\tImmaculate Conception\tNon-Mandatory\n25 Dec 2025\tThursday\tChristmas Day\tMandatory",
+          "sick_days": "The first 3 days of sick leave is unpaid. From the 4th day, sick leave is paid by the Social Healthcare system (FONASA/ISAPRE), subject to caps.\nEmployees are entitled to sick leave if they provide a medical certificate within 2 days from the beginning of sick leave. The employer must then forward the certificate to the health insurance within 3 days. Eligibility is also conditional on the worker having six months of pension affiliation prior to the month in which the leave begins and three months of contributions within the six months prior to the initial date of the medical leave. For workers hired by day, shifts or days, it can be reduced to 1 month of continuous or discontinuous contributions within the 180 days prior to the medical leave.​",
+          "maternity_leave": "Maternity leave is split between 6 weeks leave before the birth (prenatal) and 12 weeks leave following the birth (postnatal). Following the completion of this leave, a further 12 weeks leave can be requested, which can be extended to 18 weeks where the mother decides to return to work on a half time basis.\nMaternity leave is paid for by the the Social Healthcare system (FONASA/ISAPRE), except if in the second period the employee decides to go back to work half time, the employer will be responsible to pay half of the salary for the period of working. During the Maternity leave,  workers must provide the “licencia medica” (medical absence certificate) to HR.\nDuring the pregnancy, the woman is not required to participate in activities that would endanger her health (i.e. heavy lifting). If this is a requirement of the job, the employer must reassign her to a different position during her pregnancy without pay reduction. Also during the entire pregnancy and up to eighteen months after the birth, the company may only terminate the employment contract of the mother with authorization of a labor court.",
+          "paternity_leave": "Fathers are entitled to 5 days of paternity leave, which is paid for by the the Social Healthcare system (FONASA/ISAPRE)\nAfter the 7th week from the birth, the mother can opt to transfer some or all of her maternity leave to the father.",
+          "parental_leave": "Female employees are entitled to 10 days of parental leave for a child under the age of 18. While the employee is entitled to be paid they must make up the time taken off at a later date.\nMothers are entitled to 1 hour per day of breastfeeding breaks, which can be split into two 30-minute breaks, when they have children under 2 years old.\nIf a child under 1 years old is sick, the mother is entitled to additional paid child care leave, providing the leave is supported by a medical certification.",
+          "other_leave": "Marriage Leave – Employers are entitled to 5 business days of leave with full pay; all days must be taken in one go. The days may be before or after the wedding date within 3 days of the wedding.\nBereavement Leave – For the death of an immediate family member (father, mother or sibling) the employee is entitled to 4 business days of paid leave. For the death of a spouse the employee is entitled to 7 calendar days of paid leave. For the death of an unborn child the worker is entitled to 7 business day of paid leave. For the death of a child the employee is entitled to 10 calendar days of paid leave."
+        },
+        "termination": {
+          "termination_process": "In order to terminate an employee, the cause must first be decided. By law, the following reasons are valid reasons for termination:\nMutual agreement, resignation, or expiration of a contract\nBreach of contract (employer must be able to provide proof)\nCompany needs or reorganization (the most common reason for the dismissal of an employee)\nThe employer must prepare a letter for the employee stating the cause for termination as well as the effective date and it must be signed in person by the employee or sent by certified mail to their home address. In addition, the same letter must be filed with the Chilean Labor Ministry. It is common that the employee is notified on the last day of work.\nAfter the termination letter is given, the employer must prepare a severance agreement, which must include the cause for termination as well as the amount that will be paid out to the employee. The severance agreement must be signed within 10 days of the termination.\nIn the case of a mutual agreement, both parties must sign a document acknowledging that both parties have agreed that the employment contract is terminated. A severance agreement must also be signed within the first 1-2 weeks following the termination date.",
+          "notice_period": "The notice period is 1 month by law. It is common that the notice period is waived and payment is made in lieu.",
+          "severance_pay": "If the employee has completed at least 1 year of employment, they are entitled to severance pay. For every year of service up to 11 years, the employee is entitled to 1 month’s salary. In addition, after one year of employment, the employee accumulates an additional month of severance pay if they have worked for at least half of the following year.",
+          "probation_period": "Chilean labor law does not formally establish probation periods and employment contracts are effective from the first day of work with entitlement to all labor rights.\nMany employers will use short-term fixed contracts as a de facto probation period to assess an employee’s performance. If the employee meets expectations, the contract can then be renewed or converted to an indefinite-term contract.​"
+        },
+        "common_benefits": [
+          "Home Office allowance: 30 USD a month",
+          "Private Health: depending on the position approx. 50 USD a month",
+          "Meal allowance (“Colación”): 20 USD a month",
+          "Transportation Allowance"
+        ],
+        "visa": {
+          "working_holiday_visa": "People from Colombia, Mexico, Peru, Germany, Canada, Australia, Czech Republic, and New Zealand who are between the ages of 18 and 35 can apply for a 1-year visa that allows them to work in Chile. The visa cannot be renewed."
+        },
+        "vat": {
+          "general": "19% is the standard rate."
+        }
+      }
+    }
+  ]
+}

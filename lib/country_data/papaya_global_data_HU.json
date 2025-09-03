@@ -1,0 +1,85 @@
+{
+  "scraped_at": "2025-08-24T18:14:00.653Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Hungary",
+      "url": "https://www.papayaglobal.com/countrypedia/country/hungary/",
+      "scraped_at": "2025-08-24T18:14:00.644Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "13.00%",
+              "description": "Social Contribution Tax"
+            },
+            {
+              "rate": "13.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "7.00%",
+              "description": "Health Care Contribution"
+            },
+            {
+              "rate": "10.00%",
+              "description": "Pension Fund"
+            },
+            {
+              "rate": "1.50%",
+              "description": "Unemployment Fund"
+            },
+            {
+              "rate": "18.50%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "15.00%",
+              "description": "Flat rate\n\n*Employees under the age of 25 are entitled to a reduction to the taxable amount based on income included in the consolidated tax base. This only applies to Hungarian citizens, EEA state citizens, Ukrainian citizens and Serbian citizens."
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The monthly minimum wage is 290,800 HUF for unskilled labour and 348,800 HUF for skilled labour (jobs requiring secondary education or professional qualifications). Minimum wages may also be set within Collective Bargaining Agreements.",
+        "payroll": {
+          "payroll_cycle": "In Hungary, the payroll frequency is monthly. Work between the first and last day of the month is typically paid on the last day of the month but must be paid for by the 10th of the following month.",
+          "13th_salary": "In Hungary, a 13th-month salary is not mandatory. However, an employer can pay bonuses at the employer’s discretion."
+        },
+        "working_hours": {
+          "general": "The standard working week in Hungary consists of 40 hours per week, typically 8 hours per day for a five-day working week.",
+          "overtime": "All work above the standard working hours is paid as overtime and regulated by employment contracts/collective agreements. When an employee is requested to work overtime or work on holidays, there is a limit of 72 hours a week. There are also different maximum working hours for minors.\nOvertime hours of more than 40 hours a week are paid at 150.00% of the employee’s basic salary rate. Overtime hours worked on weekends and public holidays are paid at 200.00% of the employee’s basic salary rate."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "All employees are entitled to a paid vacation of 20 days every year, which increases according to the employee’s age to a maximum of 30 days for employees over 45 years of age.\nIn addition, employees with children under 16 years of age are entitled to extra vacation time as follows:\nTwo working days for one child\nFour working days for two children\nSeven working days for three children\nIn case the child is with disabilities, extra vacation days must be increased by two working days.\nBoth parents may request this extra vacation time.\nUpon the birth of his child, a father shall be entitled to five extra vacation days, or seven days in the case of twins, until the end of the second month from the date of birth.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n15 Mar 2025\tSaturday\tRevolution Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n9 Jun 2025\tMonday\tWhit Monday\t\n20 Aug 2025\tWednesday\tSaint Stephen’s Day\t\n23 Oct 2025\tThursday\tRepublic Day\t\n1 Nov 2025\tSaturday\tAll Saints’ Day\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\t2nd Day of Christmas",
+          "sick_days": "Employees are entitled to 15 days of paid sick leave paid by the employer. They receive 70.00% of their salary rate based on the average salary across the previous six months.\nShould the sickness continue past the 15th day, the employee is entitled to further time off up to one year (or in the event of a work accident for an unlimited period). The sick payment is paid at a rate of one-third of the payment made by the employer and two-thirds paid by the National Health Insurance Fund.",
+          "maternity_leave": "Women have 24 weeks of maternity leave but can take up to three years of leave and receive maternity benefits.\nFor the first six months, mothers are entitled to Pregnancy and Confinement Benefit (CSED) at a rate of 70.00% of the salary. For the next eighteen months until the child’s second birthday, mothers are entitled to a Child Care Fee (Gyermekgondozási díj – GYED) at a rate of 70.00% of the salary up to a maximum of double the minimum wage.\nA benefit called Child Home Care Allowance (Gyermekgondozási segély – GYES) is also available for parents or grandparents taking care of a child up to the age of three. The benefits are paid by the National Health Insurance Fund of Hungary (NEAK).\nThe family allowance is available to entitled individuals and the rate of the allowance is dependent upon the number of dependents and beneficiary dependents.  This allowance has been increased from 2023 if one of the beneficiary dependents is seriously disabled or permanently ill.",
+          "paternity_leave": "A father is entitled to 10 days of paid paternity leave or 12 days for multiple/complicated births taken within the two months following birth.",
+          "parental_leave": "Fathers and mothers now individually are entitled to 44 working days of parental leave until a child reaches 3 years of age provided that the employee has at least one continuous year of employment.",
+          "other_leave": "There is no other statutory leave in Hungary, however, many companies do allow employees two days’ leave in the event of a death of a family member."
+        },
+        "termination": {
+          "termination_process": "Employers can terminate a fixed-term contract for the following reasons – business, personal, or worker misconduct. It requires notice and a written explanation for the termination.\nIf the employer terminates an indefinite employment contract by dismissal notice, the employer must provide written reasoning (except for retired employees). The employment relationship can be terminated by the employer, based on only the following reasons:\nThe employee’s behaviour at work (e.g., not fulfilling obligations, being unable to cooperate with colleagues, causing a breach of trust, etc.)\nthe employee’s skills mismatch (e.g., lack of the right abilities, capabilities, knowledge, etc.), with no right to terminate an employee due to temporary incapacity for work\nCompany operations (e.g., reorganization within the company, “quality replacement” with a better qualified employee)\nThe reason for termination must be factual, reasonable, and clear.\nThe employee needs to be warned if the reason is misconduct, so they have an opportunity to explain their actions. the employer must be able to prove the validity and reality of the reasons for termination.\nThe employer has the right to terminate the employment contract with immediate effect under specific circumstances:\nsignificantly breaches any substantial obligations deriving from the employment contract, willfully or with gross negligence, or\nbehaves in a way that makes the continuance of the employment impossible.\nThe breach of an obligation from the employment relationship must be significant to enable the employer/employee to terminate the employment relationship immediately. However, the significance of the breach correlates not to the amount of the damages occurred but to the degree of the gravity of the breach.\nAs per the Labour Code, immediate termination can be initiated within 15 days of discovering the grounds for termination or in cases of criminal offences up to the statute of limitations for criminal liability. Failure to adhere to this deadline would render the termination unlawful.\nDuring the probation period, both parties can terminate the employment contract immediately.\nCertain employees enjoy protection from termination during specific periods, including:\nPregnancy\nMaternity leave\nUnpaid child care leave (This protection extends until the child reaches the age of 3, if the employee chooses not to take this leave)\nVoluntary military service\nIn vitro fertilization process (for a duration of six months)\nUpon termination of the employment relationship by notice, the employee should receive the final salary payment no later than the fifth working day after the termination of the employment relationship.\nUnder the EOR model MTA is advised to minimize risk",
+          "notice_period": "In Hungary, the notice period is 30 days. If the employer terminates the employment, the 30-day notice period must be extended by a set number of days based on the years of service:\nAfter three years of service, five additional days’ notice is required\nAfter five years of service, 15 additional days’ notice is required\nAfter eight years of service, 20 additional days’ notice is required\nAfter ten years of service, 25 additional days’ notice is required\nAfter fifteen years of service, 30 additional days’ notice is required\nAfter eighteen years of service, 40 additional days’ notice is required\nAfter twenty years of service, 60 additional days’ notice is required\nBy agreement of the parties, the notice period may be extended by up to six months. No notice is required whilst on probation.",
+          "probation_period": "The statutory length of probation in Hungary is no more than three months. Should the contracted probation period be less than three months, the parties may extend the duration once, but for no longer than three months in its entirety."
+        },
+        "visa": {
+          "types_of_visas": "Long Stay Visa (D) – Those who wish to stay in Hungary long-term act as a pre-approved residency permit.\nWorking Schengen Visa – This visa type is used for short-term employment opportunities.\nSchengen Business Visa – For foreign non-EEA nationals who wish to travel to a Schengen area temporarily. This visa can be used for single or multiple entries. It allows holders to stay for 90 days within six months.\nSeasonal Employment Visa – foreign nationals who wish to work in agriculture, animal husbandry, or fishing are eligible for this visa. This allows the applicant to work for no more than 180 days.\nEU Blue Card – a highly-skilled non-EU worker, residing in an EU-member country can apply for this card as long as a residence permit is acquired. The foreign national will need to prove 18 months of lawful stay in a member state to be eligible for this card.\nA residence permit is valid for up to 3 years. A work permit is valid for two years, while a visa can be valid for a year."
+        },
+        "vat": {
+          "general": "The standard rate of sales tax in Hungary is 27.00%."
+        }
+      }
+    }
+  ]
+}

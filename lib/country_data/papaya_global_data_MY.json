@@ -1,0 +1,142 @@
+{
+  "scraped_at": "2025-08-24T18:24:01.208Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Malaysia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/malaysia/",
+      "scraped_at": "2025-08-24T18:24:01.196Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "12.00% – 13.00%",
+              "description": "Provident Fund (employees under the age of 60) salary below 6,000MYR is charged at 13% and salary above is charged at 12%, foreign workers are exempt.**"
+            },
+            {
+              "rate": "4.00%-6.50%",
+              "description": "Provident Fund (employees over the age of 60)**"
+            },
+            {
+              "rate": "1.75%",
+              "description": "Social Security (SOCSO) (for workers below the age of 60 monthly salary ceiling of  6,000 MYR)"
+            },
+            {
+              "rate": "0.20%",
+              "description": "Employment Insurance (EIS) (monthly salary ceiling of  6,000 MYR)"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Human Resource Development Fund (over 10 employees)"
+            },
+            {
+              "rate": "18.95%-22.45%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "11.00%",
+              "description": "Provident Fund (employees under the age of 60) salary below 6,000MYR is charged at 13% and salary above is charged at 12%, foreign workers are exempt.**"
+            },
+            {
+              "rate": "0.00%-5.50%",
+              "description": "Provident Fund (employees over the age of 60)**"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Social Security (SOCSO) (for workers below the age of 60 monthly salary ceiling of  6,000 MYR)"
+            },
+            {
+              "rate": "0.20%",
+              "description": "Employment Insurance (EIS) (monthly salary ceiling of  6,000 MYR)"
+            },
+            {
+              "rate": "11.70% – 17.20%",
+              "description": "Total Employee Cost*"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "Up to 5,000 MYR"
+            },
+            {
+              "rate": "1.00%",
+              "description": "5,000 – 20,0000 MYR"
+            },
+            {
+              "rate": "3.00%",
+              "description": "20,000 – 35,000 MYR"
+            },
+            {
+              "rate": "6.00%",
+              "description": "35,000 – 50,000 MYR"
+            },
+            {
+              "rate": "11.00%",
+              "description": "50,000 – 70,000 MYR"
+            },
+            {
+              "rate": "19.00%",
+              "description": "70,000 – 100,000 MYR"
+            },
+            {
+              "rate": "25.00%",
+              "description": "100,000 – 400,000 MYR"
+            },
+            {
+              "rate": "26.00%",
+              "description": "400,000- 600,000 MYR"
+            },
+            {
+              "rate": "28.00%",
+              "description": "600,000 – 2,000,000 MYR"
+            },
+            {
+              "rate": "30.00%",
+              "description": "2,000,000 MYR and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The National Wage in Malaysia is 1,700 MYR per month.\nThe wage increase is only applicable to companies in the private sector with five or more employees.",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in Malaysia is generally monthly with payments made on the last working day.",
+          "13th_salary": "In Malaysia, it is customary to pay a 13th-month payment at the end of the year. This will be stipulated within the employment contract."
+        },
+        "working_hours": {
+          "general": "Standard working hours are 8 hours per day up to a maximum of 45 hours per week, though it is common to work 40 hours per week.",
+          "overtime": "All work more than the standard working hours per week is to be paid as overtime and is regulated by the Employment Act, the employment contract, and the collective agreements. Generally, the Employment Act is used as guidance, although it is only legally relevant to manual and non-manual employees with a salary of less than 2,000 MYR.\nThe act states that overtime hours during the week on a working day are paid at 150% of the regular salary rate.\nOvertime hours worked on rest days and weekends are paid at 200% of the regular salary rate.\nPayment for overtime worked on public holidays is paid at a rate of 300.00% of the regular salary rate."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Paid leave in Malaysia is dependent upon the number of years of employment:\nWithin the first two years of employment =  8 days of paid leave per year\nFrom the second to the fifth year of service = 12 days of paid leave per year\nAbove 5 years of employment = 16 days paid leave per year\nAnnual leave is accrued from the period of January to December.",
+          "public_holidays": "Employees are entitled to 11 paid public holidays per year, determined by the state of the worker.\nWhen a public holiday falls on a rest day or non-working day, the next working day is usually given as a day off in lieu.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n29 Jan 2025\tWednesday\tChinese New Year\t\n30 Jan 2025\tThursday\tChinese New Year\t\n1 Feb 2025\tSaturday\tFederal Territory Day\tKuala Lumpur, Labuan, Putrajaya\n11 Feb 2025\tTuesday\tThaipusam\tJohor, Kuala Lumpur, Negeri Sembilan, Penang, Perak, Putrajaya, Selangor\n18 Mar 2025\tTuesday\tNuzul Al-Quran\tMajority States in Malaysia\n31 Mar 2025\tMonday\tHari Raya Aidifitri\t\n1 Apr 2025\tTuesday\tHari Raya Aidifitri\t\n1 May 2025\tThursday\tLabour Day\t\n12 May 2025\tMonday\tWesak Day\t\n2 Jun 2025\tMonday\tAgong Birthday\t\n7 Jun 2025\tSaturday\tHari Raya Haji\t\n27 Jun 2025\tFriday\tAwal Muharram\t\n31 Aug 2025\tSunday\tMerdeka Day\t\n1 Sep 2025\tMonday\tMerdeka Day – Replacement\t\n5 Sep 2025\tFriday\tProphet Muhammad’s Birthday\t\n15 Sep 2025\tMonday\tMalaysia Day Holiday\t\n16 Sep 2025\tTuesday\tMalaysia Day\t\n20 Oct 2025\tMonday\tDeepavali\t\n11 Dec 2025\tThursday\tSultan Selangor Birthday\tState of Selangor only\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "The amount of paid sick leave entitlement is based on the number of years of service:\nIf an employee has less than two years of service, they are entitled to 14 days of sick leave per year\nAn employee with two to five years of service will be entitled to 18 days of sick leave per year\nEmployees with more than five years of service are entitled to up to 22 days of sick leave per year\nWorkers who are admitted to the hospital are entitled to hospitalization leave of 60 days per year inclusive of ordinary sick leave.\nA medical certificate must be provided by a registered medical practitioner.",
+          "maternity_leave": "In Malaysia, the statutory maternity paid leave period for employees in the private sector is 98 consecutive days.\nThe maternity leave period cannot start earlier than 30 days before the due date. All maternity leave in Malaysia is only applicable to a female employee’s first five surviving children.\nThe female worker can resume work anytime during the 98 days, with consent from her employer & certified fit to resume work by a medical practitioner.\nThe maternity leave period is usually paid by the employer at an amount equivalent to the employee’s ordinary rate of pay for the full 98-day leave period. Eligibility for payment is based on the worker:\nHaving been employed for at least 90 days within the 9 months preceding confinement or\nHaving been employed at any time during the 4 months immediately before confinement.\nHaving fewer than 5 (surviving) children.",
+          "paternity_leave": "In Malaysia, married fathers in the private sector, with 12 months of service, are entitled to 7 consecutive days of leave per birth, paid in full.\nEmployers must be informed 30 days ahead of the expected due date.",
+          "parental_leave": "There is no statutory parental leave in Malaysia.",
+          "other_leave": "There is no other statutory leave in Malaysia."
+        },
+        "termination": {
+          "termination_process": "The termination process is standard in Malaysia and is based on labor law requirements unless an employer can provide sufficient cause for dismissal without notice. The common reasons for termination includes Misconduct, Retrenchment, Poor performance, Retirement, Expiry of a fixed-term contract, Resignation, Mutual agreement and Closure of a business.\nNotice of termination must be in writing and sent to the relevant governmental authorities.\nThere are restrictions on terminating pregnant workers except for cases of breach of employment contract, misconduct, or company cease operation.",
+          "notice_period": "Employees are entitled to the following minimum notice periods:\n4 weeks’ notice if the employee has been employed for less than 2 years on the date on which the notice is given\n6 weeks’ notice if the employee has been so employed for 2 years or more, but less than 5 years on such date\n8 weeks’ notice if the employee has been so employed for 5 years or more on such date\nAlternatively, a payment in lieu of notice can be made by either party.",
+          "severance_pay": "In Malaysia, severance pay is mandatory if applicable, but the amount differs based on the length of service.\n10 days of severance pay at the regular salary pay rate for every year of service completed for employees within the first two years of employment\nFor employees who have completed between two and five years, the payment is calculated at 15 days per year of service\nFor an employee with five or more years of service, the entitlement is 20 days per year of service",
+          "probation_period": "The probation period in Malaysia for permanent employees is generally between 1 and 3 months. Although, the Employment Act confirms that there is no difference applicable to entitlements to employees whether they are within their probation period or not."
+        },
+        "visa": {
+          "general_info": "The employer must sponsor the visa and must be an accredited company that may hire foreign employees. The employee must be a certified foreign expert in the field they will be working. Malaysia also has a reported critical occupations list (COL), highlighting job types where there is a skills shortage within the country that supports work permits/visa applications.\n\nIn Malaysia, there are three work permit/visa types: an employment pass, a professional visit pass, and a temporary employment pass. Each type of pass has its criteria for acceptance with several stipulations that the employee must meet to qualify.\n\nPrior approval of the director-general is needed before employing foreign employees.\n\nThe employer must notify director general within 30 days if/when foreign employee is terminated."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Malaysia is 10.00% for sales tax, 8.00% for service tax."
+        }
+      }
+    }
+  ]
+}

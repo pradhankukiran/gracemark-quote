@@ -1,0 +1,101 @@
+{
+  "scraped_at": "2025-08-24T18:20:59.484Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Montenegro",
+      "url": "https://www.papayaglobal.com/countrypedia/country/montenegro/",
+      "scraped_at": "2025-08-24T18:20:59.475Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5.50%",
+              "description": "Pension and Disability insurance, capped at 53,371 annually."
+            },
+            {
+              "rate": "2.30%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Unemployment Insurance"
+            },
+            {
+              "rate": "8.30%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "15.00%",
+              "description": "Pension and Disability Insurance, capped at 53,371 annually"
+            },
+            {
+              "rate": "8.50%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Unemployment Insurance"
+            },
+            {
+              "rate": "24.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0%",
+              "description": "Up to 700 EUR Monthly"
+            },
+            {
+              "rate": "9.00%",
+              "description": "701 EUR to 1,000 EUR Monthly"
+            },
+            {
+              "rate": "15.00%",
+              "description": "Over 1,0001 EUR Monthly"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The monthly gross minimum wage is 450 EUR.",
+        "payroll": {
+          "payroll_cycle": "In Montenegro, the payroll frequency is monthly and payment is generally made by the last working day of the month.",
+          "13th_salary": "There are no provisions in the law.\nSalary Increase\nEach year in Montenegro worker’s salaries are increased based on completing a year of service as follows:\nUp to 10 years – 0.5%\nFrom 10 to 20 years – 0.75%\nOver 20 years – 1%"
+        },
+        "working_hours": {
+          "general_info": "General\n\nA standard full-time workweek in Montenegro consists of 40 hours per week or 8 hours per day.\n\nOvertime\n\nOvertime cannot exceed more than 10 hours per week for a total of 50 hours worked and no employee can work more than 48 hours per week—including overtime—on average within the period of four months. In general, overtime must be agreed upon in writing except for emergencies. Overtime pay is generally outlined in collective bargaining agreements, but the minimum legal threshold is 140% of the regular pay.\n\nThe new general collective agreement on extra pay for work on Sundays and for non-consecutive work hours are as follows:\n\nwork on Sundays is paid 80% on top of the base hourly wage, with the following exceptions:\nthe rule does not apply to jobs the nature of which requires continuous work, such as jobs relating to aircraft crew or workers in hospitality and public transport sectors)\nwith respect to jobs in the media industry, the rule will apply only from 1 July 2023\nwork with non-consecutive hours (i.e. from 9 a.m. to 1 p.m. and from 3 p.m. to 7 p.m.) is paid 10% more than the same work with consecutive hours of work (with some exceptions) and time spent on stand-by is paid at 10% of the base hourly wage.\n\nOn call duty\n\nAn employee cannot be held on standby (on-call duty) for more than ten days per month unless a branch collective agreement, governmental decision, or individual bargaining agreement provides otherwise."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "For each calendar year, an employee shall have the right to 20 working days of annual leave. For employees with a six-day workweek, the entitlement is increased to 24 working days. At least 10 continuous working days must be used during the allotted calendar year and the remaining unused days can carry over until 30th June of the following year.",
+          "public_holidays": "Each of the holidays in Montenegro is two days long. When the first day of a public holiday falls on a Sunday, the following two days are non-working days.\nIf the second day of holiday is a Sunday, the first following working day is given to the worker in lieu.\nDate\tDay\tHoliday\tNote\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n2 Jan 2025\tThursday\tNew Year’s Holiday\t\n1 May 2025\tThursday\tLabor Day\t\n2 May 2025\tFriday\tLabour Day Holiday\t\n21 May 2025\tWednesday\tIndependence Day\t\n22 May 2025\tThursday\tIndependence Day Holiday\t\n13 Jul 2025\tSunday\tStatehood Day\t\n14 Jul 2025\tMonday\tStatehood Day Holiday\t\n15 Jul 2025\tTuesday\tStatehood Day Holiday\tDay Off in Lieu\n13 Nov 2025\tThursday\tCulture Day – Njegos Day\t\n14 Nov 2025\tFriday\tCulture Day – Njegos Day Holiday",
+          "sick_days": "Employees receive 70% compensation from their employer for the first 60 days of sick leave and then after from social security.\nEmployees are obligated to provide their employers with a medical certificate within three days of starting their sick leave.",
+          "maternity_leave": "Pregnant employees are entitled to receive 98 days of paid maternity leave at the employee’s regular pay rate.\nMaternity leave should start 28 days before the due date and the remaining 70 days are taken after childbirth.",
+          "paternity_leave": "The paternity leave entitlement is included in parental leave.",
+          "parental_leave": "Employees can use parental leave after the completion of maternity leave for a duration of 365 days. Each parent is entitled to an even share of the leave. Parental leave can be transferred from one parent to the other upon expiry of 30 days from when the parental leave was started. If this is done, the parent who transferred the right to the other parent shall not be entitled to the continuation of the use of parental leave.",
+          "other_leave": "Depending on the collective agreement or employment contract terms, an employee may be allowed additional leave types approved between the employer and employee. Employees are entitled to up to 7 days of paid leave for:\nMatrimony\nBirth\nProfessional examinations\nDeath of an immediate family member\nThe new general collective agreement entitles employees to additional days of paid leave compared to what they are entitled to under the labor act.\nEmployees are entitled to two consecutive workdays of paid leave within a year when taking a professional exam unrelated to their job.\nIn the case of childbirth, the employee is entitled to three workdays of paid leave even if the total number of annual paid leave workdays in the given year (30 days) has been taken.\nA union representative is entitled to a paid absence from work while present at union-related events within the country or abroad, subject to a written notice of absence to be submitted at least three days before the absence and proof of the invitation for the event."
+        },
+        "termination": {
+          "termination_process": "Employers can terminate a fixed-term contract for business, personal, or worker misconduct. It requires notice and a written explanation for the termination. If the reason is misconduct, a warning needs to be given and the employee gets a chance to explain their actions. Fixed term contract is easy to terminate it is important that employer notify employee that his scontract will not be renewed at leae 30 days before expiration of the contract. . Hovewer, for terminate fixed before expiration or non fixed term contract it takes full legal action to cover that are accroding to the labour law, and include all set of action, and also reason of termination will determine the procedure of termination.",
+          "notice_period": "A written notice must be given at least 30 days before the date of termination of employment unless the contract or collective agreement states otherwise.",
+          "severance_pay": "Severance pay should be outlined in the employment contract or collective agreement and should not be less than three times the average monthly salary, free of taxes and contributions across the previous four months.\nSeverance payment is s calculated in this  manner, minimum severance payment is severance pay in the amount of at least 1/​3 of his monthly average salary without taxes and contributions in the previous half-year for each year of work with that employer, i.e. 1/​3 of the monthly average salary without taxes and contributions in Montenegro, if that is more favorable for the employee . Severance payment calculated in both cases, can not be less than  three average monthly wages without taxes and contributions with the employer in the previous half-year, that is, average monthly wages without taxes and contributions in Montenegro in the previous half-year, if that is more favorable for the employee.",
+          "probation_period": "The probationary period is defined in the collective agreement or employment contract and must not exceed six months. It is common to practice in Montenegro for probation periods to be three months."
+        },
+        "visa": {
+          "general_info": "Business visitors may enter under a short-stay C visa, which allows entry and stay for up to 90 days in a 180-day period. Allowable activities are not regulated by law. As the labor inspectorate has wide discretion in assessing compliance, activities conducted on business visits should be limited.\n\nThe main work authorization category is the Temporary Residence and Work Permit, which can be used for both intracompany transferees and locally hired employees. The permit may be granted for one year initially and is renewable.​"
+        },
+        "vat": {
+          "general": "VAT is 21% standard rate."
+        }
+      }
+    }
+  ]
+}

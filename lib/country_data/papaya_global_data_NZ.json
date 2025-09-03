@@ -1,0 +1,101 @@
+{
+  "scraped_at": "2025-08-24T18:28:40.092Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "New Zealand",
+      "url": "https://www.papayaglobal.com/countrypedia/country/new-zealand/",
+      "scraped_at": "2025-08-24T18:28:40.081Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "3.00%",
+              "description": "KiwiSaver (Pension)"
+            },
+            {
+              "rate": "1.53% of gross salary +KiwiSaver Contribution",
+              "description": "Accident Compensation Corporation (ACC), applied on salary up to 142,283 NZD"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "Optional Contribution",
+              "description": "KiwiSaver (Pension)"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "10.5%",
+              "description": "0.00 – 15,600 NZD Annually"
+            },
+            {
+              "rate": "17.5%",
+              "description": "15,601 NZD – 53,500 NZD Annually"
+            },
+            {
+              "rate": "30.0%",
+              "description": "53,501 NZD – 78,100 NZD Annually"
+            },
+            {
+              "rate": "33.0%",
+              "description": "78,1001 NZD – 180,000 NZD Annually"
+            },
+            {
+              "rate": "39.0%",
+              "description": "180,000 NZD + Annually"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage in New Zealand is currently set at NZD 23.50 per hour for adult workers.\nThe minimum wage may vary for employees aged 16 to 19 years and those undergoing training.",
+        "payroll": {
+          "payroll_cycle": "Payroll frequency is the employer’s choice; however, common frequencies are monthly or bi-weekly (every two weeks).",
+          "13th_salary": "In New Zealand, there is no legal requirement for 13th-month payments."
+        },
+        "working_hours": {
+          "general": "New Zealand does not have a minimum requirement. Common full-time hours are 7.5 hours to 8.0 hours per day. The number of hours worked by an employee, whether more or less than 40 hours a week, must be included in the employment contract.",
+          "overtime": "Payment for overtime must be stipulated in the employment contract, or it may be prescribed in company policy."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to a paid annual leave entitlement of four weeks following a year of service. Unused leave will be compensated in the case of an employee’s termination.\nUnused leave is carried over. Fixed-term workers contracted for less than 12 months receive 8% holiday pay instead of four weeks’ leave.",
+          "public_holidays": "Holidays falling on weekends are moved to the next business day as a day off in lieu.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n2 Jan 2025\tThursday\tDay after New Year’s Day\t\n20 Jan 2025\tMonday\tWellington Anniversary\tWellington Province (Wellington, Whanganui, Palmerston North, Kapiti, Feilding, Levin, Masterton)\n27 Jan 2025\tMonday\tAuckland Anniversary\tAuckland Province (Northland, Auckland, Waikato, King Country, Coromandel, Bay of Plenty, Gisborne, East Coast Region)\n3 Feb 2025\tMonday\tNelson Anniversary\tNelson Region\n6 Feb 2025\tThursday\tWaitangi Day\t\n10 Mar 2025\tMonday\tTaranaki Anniversary\tTaranaki Region (Inglewood, Waitara, Hawera, Stratford, Eltham)\n24 Mar 2025\tMonday\tOtago Anniversary\tOtago Region\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n22 Apr 2025\tTuesday\tSouthland Anniversary\tSouthland Region\n25 Apr 2025\tFriday\tAnzac Day\t\n2 Jun 2025\tMonday\tKing’s Birthday\t\n20 Jun 2025\tFriday\tMatariki\t\n22 Sep 2025\tMonday\tSouth Canterbury Anniversary\tSouth Canterbury Region\n24 Oct 2025\tFriday\tHawke’s Bay Anniversary\tHawke’s Bay Region\n27 Oct 2025\tMonday\tLabour Day\t\n3 Nov 2025\tMonday\tMarlborough Anniversary\tMarlborough Region\n14 Nov 2025\tFriday\tCanterbury Anniversary\tChristchurch Show Day. Applies to North and Central Canterbury Regions (Christchurch, Ashburton)\n1 Dec 2025\tMonday\tChatham Islands Anniversary\tApplies to Chatham Islands\n1 Dec 2025\tMonday\tWestland Anniversary\tWestland Region, this date can vary outside of Greymouth\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tBoxing Day",
+          "sick_days": "The New Zealand Parliament passed the Holidays Amendment Bill to increase the minimum employee sick leave entitlement from five to 10 days per annum, after six months of continuous employment with their employer.\nEmployees are only able to carry over 10 unused sick days each year to add to their annual entitlement up to a maximum of 20 days of current entitlement in any year. This applies to full-time, part-time, and fixed-term employees, where that fixed term is longer than six months.\nA casual employee will also be entitled to sick leave where they have six months’ current continuous employment with the same employer, or they have worked for the employer for six months for an average of 10 hours per week, and at least one hour every week or 40 hours in every month. Sick leave is not to be pro-rated in any way.",
+          "maternity_leave": "In New Zealand, maternity leave is known as primary carer leave and is available to: Female employees who are having a baby, their spouse or partner, and employees who are going to have the primary responsibility for the care, development, and upbringing of a child under six years permanently; this may for example be through adoption, but it does not include foster care or other temporary care basis. If the employee has a spouse or partner, they may choose who will be the primary carer.\nPregnant employees are entitled to 26 weeks of primary care leave and are paid their regular weekly salary up to a maximum of 712.17 NZD (from 1/7/2023 to 30/6/2024).\nPrimary carer leave starts on the due date, or the child’s birth if the child is born to the employee. In any other case, primary carer leave starts when the employee becomes the primary carer in respect of the child.\nThe employee can start their primary carer leave up to six weeks (or earlier with the employer’s consent) before the baby’s due date or when the employee will become the child’s primary carer.",
+          "paternity_leave": "Paternity leave is known as partners leave in New Zealand and entitles partners to leave starting 21 days before the due date of the baby, or the date employee’s partner or spouse becomes the primary carer for a child under six years and ending 21 days after the baby is born.\nThe exception is if the baby is discharged from a hospital more than 21 days after the birth, in which case the partner’s leave timeframe ends on the day the child is discharged) or the date the employee’s partner or spouse becomes the primary carer for the child.",
+          "parental_leave": "There is a range of Parental leave options in New Zealand for:\nSpecial leave — unpaid leave for pregnancy-related appointments\nPrimary carer leave\nExtended leave\nSpouse or partner’s leave\nNegotiated carer leave — if you’re not eligible for work leave",
+          "other_leave": "Depending on the collective agreement/employment contract terms, an employee may be allowed additional leave types, on approval between the employer and employee, for the following:\nSpecial Leave-10 days of unpaid leave, which is given to employees for pregnancy-related appointments.\nExtended Leave – This is extended unpaid leave given to parents and depends on the amount of time an employee has worked. An employee may be entitled to 52 extra weeks of leave if they have been employed for at least 12 months, and 26 weeks is given to a parent who has been employed for at least six months."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to the terms of the employment agreement and collective agreement in place and will depend upon the type of contract and reason for termination. An employer must provide sufficient notice before terminating the employment contract except for the case of gross misconduct.",
+          "notice_period": "An employee wishing to terminate their employment must provided sufficient notice. The amount of which will be outlined in the employment agreement and typically a month’s notice.\nIf there’s no specific clause in the employment agreement then ‘reasonable notice’ must be given. The length of ‘reasonable notice’ depends on a variety of factors, such as:\nThe reason for the redundancy\nThe employee’s length of service\nThe employee’s seniority and/or remuneration package\nCustom, practice, and industry norms\nThe employee’s ability to find alternative employment\nThe amount of compensation being paid (if any)",
+          "severance_pay": "Generally, severance pay is not required unless it is a redundancy scenario.\nUpon termination, there are two types of payments for unused leave entitlement:\nAnnual Leave: This covers the period of employment fully completed by the annual accrued anniversary date and not used. This will be paid out at the higher rate between the average earnings and the normal earnings rate.\nHoliday Pay: This covers the period of employment not yet completed by the annual accrual date and will be calculated and paid out at 8% of the salary.",
+          "probation_period": "The statutory (trial period) probation period in New Zealand begins on the first day at work and can be for up to 180 days. The actual timeframe will be stipulated in the employment contract and is only applicable to employees who have not worked for the employer before. Three to six months is a common period to use as probation."
+        },
+        "visa": {
+          "general_info": "A foreigner can apply for a work visa when there is:\n\nA job offer from a New Zealand employer\nA specific work-related purpose or event\nA country that has a particular work scheme\nA person has been studying in New Zealand\n\nSome work visas can also lead to residence — that is, the right to live, study and work indefinitely.\nTo apply, there are required skills, experience, and qualifications needed for the New Zealand workforce.\n\nTypes of New Zealand work visas include:\n\nEssential skills work Visa – Temporary work visa that allows employment from one-five years.\nWork-to-residence Visas – Temporary visa options that allow employees who work full-time for two years to receive residence status.\nWorking holiday Visas – Allows for work and travel from 12 – 23 months. These visa schemes depend upon your country of origin.\nSpecific purpose Visa – Visa for employees meant to complete a particular task. These Visas typically last 3-12 months, with sometimes three-year visas being granted to multinational employees.\nRelocating business Visa – Used if the company or employer is relocating to New Zealand.\n\nIn addition, with effect from 1st November 2021, all New Zealand employers who hire migrant employees will have to be accredited."
+        },
+        "vat": {
+          "general": "The standard rate of GST in New Zealand is 15.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Inland Revenue Department",
+            "dates": "Monthly; 20th of the following month",
+            "methods": "eCheck (Local)"
+          }
+        ]
+      }
+    }
+  ]
+}

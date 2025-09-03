@@ -1,0 +1,132 @@
+{
+  "scraped_at": "2025-08-24T18:11:45.268Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Honduras",
+      "url": "https://www.papayaglobal.com/countrypedia/country/honduras/",
+      "scraped_at": "2025-08-24T18:11:45.257Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5.00%",
+              "description": "Healthcare (IHSS)"
+            },
+            {
+              "rate": "3.50%",
+              "description": "Disability, Old Age, Death (up to a maximum of 10,282.37 HNL)"
+            },
+            {
+              "rate": "1.50%",
+              "description": "Pension Regimen de Aportaciones Privadas (RAP) Any company that has 10 or more employees must contribute to the RAP"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Labor coverage insurance"
+            },
+            {
+              "rate": "2.60%",
+              "description": "Collective Capitalization pillar"
+            },
+            {
+              "rate": "16.60%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "2.50%",
+              "description": "Sickness and Maternity (up to a maximum of 9,849.70 HNL)"
+            },
+            {
+              "rate": "2.50%",
+              "description": "Disability, Old Age, Death (up to a maximum of 10,282.37 HNL)"
+            },
+            {
+              "rate": "1.50%",
+              "description": "Pension Regimen de Aportaciones Privadas (RAP) Any company that has 10 or more employees must contribute to the RAP"
+            },
+            {
+              "rate": "1.60%",
+              "description": "Collective Capitalization pillar"
+            },
+            {
+              "rate": "8.10%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "up to 217,493.16 HNL"
+            },
+            {
+              "rate": "15.00%",
+              "description": "217,493.17 HNL to 331,638.50 HNL"
+            },
+            {
+              "rate": "20.00%",
+              "description": "331,638.51 HNL to 771,252.38 HNL"
+            },
+            {
+              "rate": "25.00%",
+              "description": "771,252.38 HNL and above"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "General\nThe minimum wage varies based on the industry as well as the number of employees an employer has.",
+        "payroll": {
+          "payroll_cycle": "The payment of salaries is stipulated in the employment contract and may vary depending on the type of work carried out; the payroll cycle can be monthly, bi-monthly, weekly, daily, or hourly.",
+          "13th_salary": "Full-time employees should receive both a 13th-month salary payment to be paid out as a Christmas bonus in December and a 14th-month salary payment paid in July. Each payment is equal to one month’s salary."
+        },
+        "working_hours": {
+          "general": "In Honduras, the standard working week consists of 44 hours, 8 hours per day, six days a week. Managerial and Supervisory roles may warrant an extended working day of 12 hours. The working hours of minors may also vary depending on the employees’ age.",
+          "overtime": "All work exceeding standard working hours is to be paid as overtime and is regulated by employment contract/collective agreements. When an employee is requested to work overtime or work on holidays, there are maximums in relation to the number of hours allowed. These maximums are 12 hours per week.\nAll overtime hours in excess of 44 hours a week are paid at an overtime compensation rate; this rate is 137.50% of the employees’ regular salary. Overtime hours performed on a rest day are compensated at 200.00% and 125.00% for additional hours worked during the night."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The annual leave entitlement is dependent on the employees’ seniority:\nUp to 1 year of employment- 10 days of paid leave\n1-2 years of employment- 12 days of paid leave\n2-3 years of employment- 15 days of paid leave\n4+ years of employment- 20 days of paid leave\nVacation leave must be paid to an employee three days before the beginning of the annual leave.",
+          "public_holidays": "Public holidays falling on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n14 Apr 2025\tMonday\tAmerica’s Day\t\n17 Apr 2025\tThursday\tGood Thursday\t\n18 Apr 2025\tFriday\tGood Friday\t\n19 Apr 2025\tSaturday\tGood Saturday\t\n1 May 2025\tThursday\tLabor Day\t\n15 Sep 2025\tMonday\tIndependence Day\t\n6 Oct 2025\tMonday\tSoldier Day\t\n12 Oct 2025\tSunday\tRace Day\t\n27 Oct 2025\tMonday\tArmed Forces Day\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "An employee is entitled to 26 weeks of paid sick leave, extended to 52 weeks after a three-day observation period. Sick leave is compensated at 66.00% of the employee’s average pay over the past three months.\nThe payment of the Sick Pay is shared equally between the employer and social security.",
+          "maternity_leave": "Maternity leave pay is also shared by the employer and social security. Mothers can take up to 10 weeks at full pay, 4 weeks before birth, and 6 weeks after birth. There are no laws for paternity or shared parental leave.",
+          "paternity_leave": "There are no provisions in the law regarding paternity leave.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.",
+          "other_leave": "In Honduras, employees are entitled to up to 3 consecutive days of paid leave for the bereavement of an immediate family member.\nEmployees are also entitled to up to six days of paid leave to carry out their union duties and half a day of leave to attend to a judicial summons.\nEmployees are entitled to up to 5 consecutive days of paid leave after getting married."
+        },
+        "termination": {
+          "termination_process": "Employers can terminate a fix term contract by giving the following reasons – business, personal, or workers misconduct. It requires notice and a written explanation for the termination. If the cause is misconduct, a warning needs to be given, and the employee gets a chance to explain actions. The employee holds the right to take an employer to court in the case of unlawful dismissal; the employer must then evidence that the termination was fair. If the employer fails to provide evidence of a lawful dismissal, the employee may be entitled to compensation. If termination is deemed wrongful and the employee is reinstated, the employer is not required to pay termination benefits.",
+          "notice_period": "The notice period is determined by the length of employment:\nLess than 3 months – 24-hour notice\nMore than 3 months but less than 6 – 1 weeks’ notice\nMore than 6 months but less than 1 year – 2 weeks;’ notice\nMore than 1 year but less than 2 years – 1 months’ notice\nMore than 2 years – 2 months’ notice",
+          "severance_pay": "Employees dismissed for unjust cause are entitled to severance pay depending on the employees’ years in service.\nEmployees who have completed 3-6 months of employment are entitled to 10 days of pay at the employees’ regular pay rate.\nEmployees who have worked for between 6 months and one year are entitled to 20 days of payment.\nEmployees with over one year of service are entitled to one month’s salary for every year of employment, capped at 25 months.\nIn the case of a “Just cause” dismissal, no severance pay is required.",
+          "probation_period": "The probation period in Honduras is generally 60 days."
+        },
+        "visa": {
+          "general_info": "Honduras’s immigration laws provide several options for foreign nationals seeking to travel to the country for business or work.\nVisa-exempt nationals can travel to Honduras without an entry visa and remain for periods of up to 30 days. Depending on the country of citizenship, visa nationals entering Honduras for business visits must obtain either a Consular Visa (Visa Consular) or a Consulted Visa (Visa Consultada​). Both types of visas are requested directly at a Honduran consular post; however, the Ministry of Foreign Affairs in Honduras must issue its authorization before the Honduran consular post can issue a Consulted Visa.\nBoth visa-exempt and visa nationals can apply to extend their business stay in Honduras for up to 90 additional days for a total of 120 consecutive days; however, foreign nationals who make multiple visits to Honduras for separate business visits are allowed a maximum cumulative stay of 180 days within 365 days.\nGenerally, foreign nationals can perform work activities without work authorization if their intended stay is less than 30 days and they do not receive remuneration or payments from a Honduran source. Foreign nationals who engage in remunerated work activities in Honduras must obtain a Special Stay Permit with Work Contract. The Special Stay Permit is valid for a minimum of one year, and at the authorities’ discretion, may be issued for a maximum of five years. After five years of holding a Special Stay Permit, the foreign ​national must apply for temporary residence.​​​"
+        },
+        "vat": {
+          "general": "The standard rate of sales tax in Honduras is 15.00%"
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Social security",
+            "paid_to": "Instituto Hondureño de Seguro Social",
+            "due_date": "Before the14th of each month",
+            "method": "Overseas transfer if the company doesn’t have a local bank account / Direct debit is possible if there is a local bank account"
+          },
+          {
+            "authority_payment": "Salary tax",
+            "paid_to": "SAR",
+            "due_date": "Every 12th of each month",
+            "method": "Overseas transfer if the company doesn’t have a local bank account / Direct debit is possible if there is a local bank account"
+          }
+        ]
+      }
+    }
+  ]
+}

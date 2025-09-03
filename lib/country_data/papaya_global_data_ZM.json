@@ -1,0 +1,94 @@
+{
+  "scraped_at": "2025-08-24T19:07:16.568Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Zambia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/zambia/",
+      "scraped_at": "2025-08-24T19:07:16.560Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5.00%",
+              "description": "National Pension Scheme Authority (NAPSA), capped at 1,708.20 ZMW per month"
+            },
+            {
+              "rate": "1.00%",
+              "description": "National Health Insurance"
+            },
+            {
+              "rate": "0.5%",
+              "description": "Skills Development Levy"
+            },
+            {
+              "rate": "6.50%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "5.00%",
+              "description": "National Pension Scheme Authority (NAPSA), capped at 1,708.20ZMW per month"
+            },
+            {
+              "rate": "1.00%",
+              "description": "National Health Insurance"
+            },
+            {
+              "rate": "6.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": "Annual"
+            },
+            {
+              "rate": "0%",
+              "description": "Up to 61,200 ZMW"
+            },
+            {
+              "rate": "20%",
+              "description": "61,201 – 85,200 ZMW"
+            },
+            {
+              "rate": "30%",
+              "description": "85,201 – 110,400 ZMW"
+            },
+            {
+              "rate": "37%",
+              "description": "Above 110,400 ZMW"
+            }
+          ],
+          "income_tax": []
+        },
+        "payroll": {
+          "payroll_frequency": "Monthly"
+        },
+        "working_hours": {
+          "workweek": "8 hours per day, up to 48 hours per week",
+          "overtime": "Additional working hours are paid at a rate of 150% salary."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In Zambia, annual leave is 24 working days. Two days per month are accrued.",
+          "public_holiday": "Public holidays which fall on a Sunday are moved the next Monday.\nDate \tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n8 Mar 2025\tSaturday\tInternational Women’s Day\t\n12 Mar 2025\tWednesday\tYouth Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tEaster Monday\t\n28 Apr 2025\tMonday\tKenneth Kaunda Day\t\n1 May 2025\tThursday\tLabour Day\t\n25 May 2025\tSunday\tAfrica Freedom Day\t\n7 Jul 2025\tMonday\tHeroes’ Day\t\n8 Jul 2025\tTuesday\tUnity Day\t\n4 Aug 2025\tMonday\tFarmers’ Day\t\n18 Oct 2025\tSaturday\tPrayer Day\t\n24 Oct 2025\tFriday\tIndependence Day\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_leave": "Sick leave is paid by the employer. The first 3 months of absence are paid in full, followed by 3 months of half pay.\nA medical certificate must be provided from the second day onwards.",
+          "maternity_leave": "Mothers are entitled to 14 weeks of maternity leave. An additional 4 weeks is given in the event of multiple births. Women who have been employed with the same employer for 24 months are entitled to full pay from the Employer during this period. Following the maternity leave, the worker has the right to return to her prior job position or to a reasonably suitable alternative job role as long as the conditions are no less favorable.  After returning to work, the worker is entitled to 2 nursing breaks per day of 30 minutes each, or one break for 60 mins included within the regular daily working hours.",
+          "paternity_leave": "Fathers are entitled to 5 continuous working days, paid at full salary by the employer. Eligibility is for those employed with the same employer for at least 12 months before birth. The leave should be used within seven days of the birth.",
+          "parental_leave": "Family Responsibility Leave can be used by workers with at least six months of service, allowing up to 7 days with pay to be taken off each calendar year to care for a sick spouse, child, or dependent.",
+          "other_leave": "Compassionate Leave- 12 days,  fully paid by the Employer for bereavement. Could be required in other situations as well."
+        },
+        "termination": {
+          "termination_process": "A worker’s contract may not be terminated due to poor performance or conduct without first giving the employee an opportunity to be heard.",
+          "probation": "The Probation period is 3 months, following this, the probation can be extended by a further 3 months.",
+          "notice_period": "30 days’ notice must be given in writing or payment in lieu of notice can be used.",
+          "severance": "In cases of termination of employment of a worker with a contract of a fixed duration,  25% of the employee’s basic pay earned during the contract period must be paid.\nIn cases of termination of employment due to redundancy = 2 months’ basic pay for each completed year of service must be paid."
+        }
+      }
+    }
+  ]
+}

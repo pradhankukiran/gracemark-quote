@@ -1,0 +1,203 @@
+{
+  "scraped_at": "2025-08-24T18:18:13.130Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "South Korea",
+      "url": "https://www.papayaglobal.com/countrypedia/country/south-korea/",
+      "scraped_at": "2025-08-24T18:18:13.106Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "4.50%",
+              "description": "National Pension (taxable monthly income capped at 6,370,000 KRW lower limit of monthly base is 400,000 KRW)"
+            },
+            {
+              "rate": "3.545%",
+              "description": "National Health Insurance (applied on income up to 4,504,170 KRW)"
+            },
+            {
+              "rate": "1.15% – 1.75%",
+              "description": "Employment Insurance (varies by industry, not capped)"
+            },
+            {
+              "rate": "0.459%",
+              "description": "Long Term Care Insurance (applied on income between 279,266 and 127,056,982 KRW)"
+            },
+            {
+              "rate": "0.606%-18.60%",
+              "description": "Worker Accident Compensation Insurance (rate is dependent on the type of business, not capped)"
+            },
+            {
+              "rate": "0.50%",
+              "description": "Resident Tax"
+            },
+            {
+              "rate": "10.794% – 29.35%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "4.50%",
+              "description": "National Pension (taxable monthly income capped at 6,370,000.00 KRW Lower Limit of Monthly base is KRW 400,000 )"
+            },
+            {
+              "rate": "3.545%",
+              "description": "National Health Insurance (monthly contribution capped at 4,504,170 KRW)"
+            },
+            {
+              "rate": "0.459%",
+              "description": "Long Term Care Insurance (applied on income between 279,266 and 127,056,982 KRW)"
+            },
+            {
+              "rate": "0.90%",
+              "description": "Employment Insurance (varies by industry, not capped)"
+            },
+            {
+              "rate": "9.4%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "6.00%",
+              "description": "up to 14 million KRW"
+            },
+            {
+              "rate": "15.00%",
+              "description": "14 million to 50 million KRW"
+            },
+            {
+              "rate": "24.00%",
+              "description": "50 million to 88 million KRW"
+            },
+            {
+              "rate": "35.00%",
+              "description": "88 million to 150 million KRW"
+            },
+            {
+              "rate": "38.00%",
+              "description": "150 million to 300 million KRW"
+            },
+            {
+              "rate": "40.00%",
+              "description": "300 million to 500 million KRW"
+            },
+            {
+              "rate": "42.00%",
+              "description": "500 million to 1 billion KRW"
+            },
+            {
+              "rate": "45.00%",
+              "description": "1 billion KRW and above"
+            },
+            {
+              "rate": "Local Income SurTax",
+              "description": ""
+            },
+            {
+              "rate": "0.60%",
+              "description": "up to 14 million KRW"
+            },
+            {
+              "rate": "1.50%",
+              "description": "14 million to 50 million KRW"
+            },
+            {
+              "rate": "2.40%",
+              "description": "50 million to 88 million KRW"
+            },
+            {
+              "rate": "3.50%",
+              "description": "88 million to 150 million KRW"
+            },
+            {
+              "rate": "3.80%",
+              "description": "150 million to 300 million KRW"
+            },
+            {
+              "rate": "4.00%",
+              "description": "300 million to 500 million KRW"
+            },
+            {
+              "rate": "4.20%",
+              "description": "500 million to 1 billion KRW"
+            },
+            {
+              "rate": "4.50%",
+              "description": "1 billion KRW and above"
+            },
+            {
+              "rate": "The greater of:\n45% of income tax liability (35% applied to income tax liabilities of up to KRW 30 million) before exemptions\nor\nactual tax after exemptions",
+              "description": "Alternative minimum tax\n(business income of a resident individual and Korean-source business income of a non-resident individual)"
+            },
+            {
+              "rate": "Non- Resident Tax",
+              "description": ""
+            },
+            {
+              "rate": "19.00%",
+              "description": "Flat rate (20.90% inclusive of local income tax) for foreign employees with less than 5 years residency in Korea."
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The National Minimum Wage in South Korea is 10,030 KRW per hour. The minimum wage is applicable to all companies and employees (regardless of residency status).",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in South Korea is generally monthly and payments are usually made on the last working day.",
+          "13th_salary": "There is no legislation for 13th-month payments in South Korea."
+        },
+        "working_hours": {
+          "general": "The workweek in South Korea is eight hours per day, 40 hours per week.",
+          "overtime": "All hours exceeding the standard 40 hours are paid as overtime and are regulated by employment contracts/collective agreements. In general, overtime is paid at 150.00% of the standard salary rate, increasing to 200.00% for night work (after 10 pm). There is a maximum total number of overtime hours per week of 12 hours. A maximum of 52 hours can be worked in a week including overtime.\nThe South Korean government has unveiled the latest reforms to its current work week system that will extend working hours.  The latest labor reforms will also allow businesses to manage employees’ overtime hours on either a weekly, monthly, quarterly, half-yearly, or yearly basis.  Under the new regulations, employees may work a maximum of 140 hours of overtime per quarter, 250 hours in half a year, and 440 hours in a full year.\nThe latest measures will expand the maximum weekly work hours to 69, up from the 52-hour limit as stipulated in the South Korean Labour Standards Act, although these are currently (in March 2023) being challenged and this element of the reform may yet be removed.\nThe new reform has introduced a system that guarantees a rest period of 11 hours between each working day and allows these hours to be used consecutively with annual paid leave entitlements, but would still require an agreement between the employer and the employee."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Paid leave in South Korea is outlined in the employment contract as a minimum of 11 days paid leave a year, following the completion of one-year of service, in addition to public holidays. This leave increases to 15 days of paid leave when the employee is in the second and third years of service. From the third year and onwards, one additional day of paid leave is added to the entitlement upon completion of every two years of service up to a maximum of 25 days paid leave. Carryover allowance is per employer discretion.",
+          "public_holidays": "Certain Public holidays when falling on a weekend are moved to the following working day as a day off in lieu.\nDate\tDay\tName of Holiday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n27 Jan 2025\tMonday\tLunar New Year’s Holiday\t\n28 Jan 2025\tTuesday\tLunar New Year’s Holiday\tby Lunar calendar\n29 Jan 2025\tWednesday\tLunar New Year’s Holiday\tby Lunar calendar\n30 Jan 2025\tThursday\tLunar New Year’s Holiday\tby Lunar calendar\n1 Mar 2025\tSaturday\tIndependence Movement Day\t\n3 Mar 2025\tMonday\tIndependence Movement Day\tDay off in lieu\n1 May 2025\tThursday\tLabor Day\t\n5 May 2025\tMonday\tChildren’s Day\t\n5 May 2025\tMonday\tBuddha’s Birthday\tby Lunar calendar\n6 May 2025\tTuesday\tAlternative statutory holiday\tChildren’s Day\n6 Jun 2025\tThursday\tMemorial Day\t\n15 Aug 2025\tFriday\tNational Liberation Day\t\n3 Oct 2025\tFriday\tNational Foundation Day\t\n5 Oct 2025\tSunday\tKorean Thanksgiving Day (Chuseok)\tby Lunar calendar\n6 Oct 2025\tMonday\tKorean Thanksgiving Day (Chuseok)\tby Lunar calendar\n7 Oct 2025\tTuesday\tKorean Thanksgiving Day (Chuseok)\tby Lunar calendar\n8 Oct 2025\tWednesday\tKorean Thanksgiving Day (Chuseok)\tDay off in lieu\n9 Oct 2025\tThursday\tHangul Proclamation Day\t\n25 Dec 2025\tThursday\tChristmas\nPrivate companies with five to 29 employees must now provide paid days off for public holidays as well as substitute holidays (that were previously unpaid).",
+          "sick_days": "There is no statutory sick leave entitlement in South Korea. An employer, however, shall compensate an employee who is undergoing medical treatment in an amount equal to 60% of the employee’s average wage during medical treatment.",
+          "maternity_leave": "All female employees are eligible for maternity benefits consisting of 90 days of paid leave, increasing to 120 days for multiple/complicated births. The maternity leave is generally taken 45 days before the due date and 45 days after, but a minimum of 45 days leave must be used following the birth (a maximum of 45 days can be used before the birth). The maternity payment is made by a combination of Social Security/Governmental payments and employer payments.\nFor larger companies in South Korea, the employer should pay the maternity pay at 100% of the regular salary rate for the first 60 days. After which, the Social Security/Government will provide support allowance for the remaining 30 days (capped two million KRW per 30 days) and with the employer having the option to provide the sum of money for any difference to the employee’s regular salary rate. For small companies, the social security/government supports the employer throughout the 90 days.\nFrom 23 February 2025, maternity leave for premature births will increase from 90 days to 100 days. The additional 10 days will be paid by the Government up to the same cap of KRW 2.1 million for every 30 days (effectively, KRW 700,000 for 10 days).\nPregnant employees who work more than eight hours per day are entitled to apply for reduced working hours during pregnancy by two hours a day, and pregnant employees who work less than eight hours per day are entitled to apply for reduced working hours during pregnancy to six hours a day. These reduced working hours during pregnancy can be used only within the first 12 weeks of pregnancy or after 36 weeks of pregnancy. From 23 February 2025, the law will expand to allow this to be used from 32 weeks of pregnancy.\nEmployees can request up to three days of infertility treatment leave per year, with the first day being fully paid by the employer. From 23 February 2025, infertility treatment leave will increase to six days per year, with the first two days being fully paid by the employer.",
+          "paternity_leave": "The father is entitled to mandatory paid paternity leave of a total of 10 days, five paid by the employer and five days paid by the social Security/Government, and must be used within the period of 90 days following the day or birth. This leave must be used in one installment.\nFrom 23 February 2025, fathers are entitled to mandatory paid paternity leave of a total of 20 days, which must be used within the period of 120 days following the day or birth. This leave can be used in up to three installments. Employers will be able to claim wage subsidies for the full 20 days of employer-paid paternity leave (up to approximately KRW 1.6 million).",
+          "parental_leave": "Parents of children under the age of eight can request a period of full-time or part-time childcare leave of up to one year. A request for leave should be sent to the employer at least 30 days before the start of the leave period. Childcare leave may be taken in three separate periods, excluding the number of times a pregnant female employee takes leave for maternity protection.\nDuring leave, an allowance is paid by the Social Security/Government at KRW 2.5 million for months one to three, KRW 2.0 million for months four to six, and KRW 1.6 million for months seven and above.\nFor single-parent employees, the maximum payment amounts for childcare leave is KRW 3 million per month for months one to three, KRW 2.0 million for months four to six, and KRW 1.6 million for months seven and above.\nShould one or both parents take their parental leave during the first year of their child’s birth, both parents will be paid 100% of their monthly income.\nFrom 23 February 2025, childcare leave is increased from one year to one and a half years for single parents, parents of a child with a severe disability, or where both parents each take more than three months of childcare leave.\nWorking parents are entitled to entitled to an additional year of partially government-funded reduced working hours for childcare in addition to the childcare leave. This applies to parents with  children under age 12 or in the sixth grade of elementary school or below. Additionally, if there is an unused period of the childcare leave entitlement, double that unused period will be added to the reduced working hours for childcare, meaning that an employee may choose to use reduced working hours for childcare for up to three years. Employees may divide the use of their entitlement to reduced working hours for childcare, with a minimum length of one month for each period of leave.",
+          "other_leave": "Work Injury Leave– for any work-related injury, employees are entitled to receive three months of paid leave with 70.00% of the employee’s regular salary.\nMenstrual Leave – for female employees, they are entitled to 1 day (menstrual) leave per month.\nFamily-Care Leave – Unpaid leave for a period of 90 days per year to provide support and care to family members including grandparents, parents, spouse, children, grandchildren and a spouse’s parent in case of their sickness, injury, or old age."
+        },
+        "termination": {
+          "termination_process": "Terminations in South Korea are highly complex. Terminations must comply with Article 23 of the Labor Standards Act. It requires objectively justifiable reasons which include serious misconduct, insubordination or refusal to follow lawful orders, excessive absenteeism, violation of internal work rules, significant well document underperformance (PIP must have been followed).\nTerminations are often resolved via a mutual separation agreement.",
+          "notice_period": "When an employer intends to dismiss an employee, employer shall give the employee a notice of dismissal at least 30 days in advance of such dismissal. If the employer fails to give such advance notice, he or she shall pay such employee 30 days ordinary wage at the least, however, there must still be a valid cause for the termination.",
+          "severance_pay": "Upon termination,  workers with 1 year service or more are entitled to severance pay of 30 days Average Wages. Average wages are calculated by using wages for the three months preceding termination and includes variable income/commission for the past 3 months & bonus from past 12 months.\nGiven the requirements for just cause in termination, disputes are commonly settled through enhanced severance packages. On average, these cases resolve anywhere from 1- 3 months additional severance on top of the notice.  This is a case-by-case basis depending on seniority, tenure and willingness of the worker. It is this strongly advised to engage workers on a fixed term contract, under which if termination occurs, the employer generally only has to pay out the balance of the contract’s duration.",
+          "probation_period": "Probationary employees are still protected under the Labor Standards Act. If terminated during the probation period, employers are exempt from the notice requirement, but just cause is still required."
+        },
+        "visa": {
+          "general_info": "Any foreigners coming to work in South Korea will need to be registered with the local immigration authorities within the first three months of their stay. The type of work permit and employment visa differs by the role in which the employee will be undertaking. To allow an employee to stay in South Korea for more than 90 days, the appropriate visa needs to be sought:\n\nE-1 Professor Visa is aimed at foreigners to deliver lectures or do research in their field; it is valid for one year and can be renewed annually.\nE-2 Foreign Language Instructor is aimed at foreigners who wish to teach a foreign language at a company/school/education infrastructure. It is valid for two years and can be renewed every two years.\nE-3 Research is aimed at foreigners invited by a public or private institution to research natural science or advanced technology; it is valid for one year and can be renewed annually.\nE-4 Technological Guidance is aimed at foreigners invited by a public or private institution to provide expertise in natural science or high technology; it is valid for one year and can be renewed annually.\nE-5 Special Profession is aimed at foreigners that are architects, lawyers, physicians, accountants, and other internationally licensed professionals and hold Korean government permission to practice their field of expertise is valid for one year and can be renewed annually.\nE-6 Culture and Art are aimed at foreigners who participate in musical, artistic, and literary activities; it is valid for one year and can be renewed annually.\nE-7 Specially Designed Activities are aimed at foreigners invited to participate in activities designed by the Korean Ministry of Justice through a public or private organization. It is valid for one year and can be renewed annually.\nD-5 Long-Term New Coverage is aimed at reporters working for foreign media (broadcast, newspapers, magazines, etc.). The single-entry visa is valid for three months and can be renewed in one-year intervals.\nAlien Registration Card (ARC) Most people who are staying in South Korea for more than six months also need to obtain their Alien Registration Card (ARC)."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in South Korea is 10.00%"
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "국민건강보험",
+            "dates": "Monthly; 10th of the following month",
+            "methods": "*ICP trust account to localize payments\n\n*Local account owned by client (Payment by Client or Direct debit)"
+          },
+          {
+            "authority_payment": "**세무서 – Tax office (account under the company’s name)",
+            "dates": "Monthly; 10th of the following month",
+            "methods": "*ICP trust account to localize payments\n\n*Local account owned by client (Payment by Client)"
+          },
+          {
+            "authority_payment": "**구청 – Local office (account under the company’s name)",
+            "dates": "Monthly; 10th of the following month",
+            "methods": "*ICP trust account to localize payments *Local account owned by client (Payment by Client)"
+          }
+        ]
+      }
+    }
+  ]
+}

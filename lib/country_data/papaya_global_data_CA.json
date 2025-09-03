@@ -1,0 +1,1025 @@
+{
+  "scraped_at": "2025-08-24T17:44:06.223Z",
+  "summary": {
+    "total": 14,
+    "success": 6,
+    "failed": 8
+  },
+  "results": [
+    {
+      "country": "Canada",
+      "url": "https://www.papayaglobal.com/countrypedia/country/canada/",
+      "scraped_at": "2025-08-24T17:42:18.796Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5.95%",
+              "description": "Canada Pension Plan (CPP) (applied on salary between 3,500 CAD to 68,500 CAD)"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Canada Pension Plan 2 (CPP2), applied on salary between 68,500 CAD and 73,200 CAD"
+            },
+            {
+              "rate": "2.32%",
+              "description": "Federal Employment insurance (EI) (applied on salary up to 61,500 CAD )"
+            },
+            {
+              "rate": "",
+              "description": "Employer Health Tax (EHT):"
+            },
+            {
+              "rate": "0.98%",
+              "description": "Up to 200,000 CAD"
+            },
+            {
+              "rate": "1.101%",
+              "description": "200,000 CAD to 230,000 CAD"
+            },
+            {
+              "rate": "1.223%",
+              "description": "230,000 CAD to 260,000 CAD"
+            },
+            {
+              "rate": "1.344%",
+              "description": "260,000 CAD to 290,000 CAD"
+            },
+            {
+              "rate": "1.465%",
+              "description": "290,000 CAD to 320,000 CAD"
+            },
+            {
+              "rate": "1.586%",
+              "description": "320,000 CAD to 350,000 CAD"
+            },
+            {
+              "rate": "1.708%",
+              "description": "350,000 CAD to 380,000 CAD"
+            },
+            {
+              "rate": "1.829%",
+              "description": "380,000 CAD to 400,000 CAD"
+            },
+            {
+              "rate": "1.95%",
+              "description": "More than 400,000 CAD"
+            },
+            {
+              "rate": "9.25%-10.22%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "5.95%",
+              "description": "Canada Pension Plan (CPP) (applied on salary between 3,500 CAD to 68,500 CAD)"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Canada Pension Plan 2 (CPP2), applied on salary between 68,500 CAD and 73,200 CAD"
+            },
+            {
+              "rate": "1.66%",
+              "description": "Employment Insurance (EI) (applied on salary up to 61,500 CAD )"
+            },
+            {
+              "rate": "7.96%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "Federal:",
+              "description": ""
+            },
+            {
+              "rate": "15.00%",
+              "description": "Up to 55,867 .00 CAD"
+            },
+            {
+              "rate": "20.50%",
+              "description": "55,867 .01 CAD to 111,733.00 CAD"
+            },
+            {
+              "rate": "26.00%",
+              "description": "111,733.01 CAD to 173,205.00 CAD"
+            },
+            {
+              "rate": "29.00%",
+              "description": "173,205.01 CAD to 246,752.00 CAD"
+            },
+            {
+              "rate": "33.00%",
+              "description": "246,752.00 CAD and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The Federal minimum wage is $17.30 per hour.",
+        "payroll": {
+          "payroll_cycle": "An employer has 1 month to remit an employee’s first pay. After this, wages must be paid at regular intervals of no more than 16 days, or 1 month in case of managerial personnel. If pay day falls on a statutory holiday, the wages must be paid on the preceding working day.",
+          "13th_salary": "There are no provisions in the law regarding 13th salaries."
+        },
+        "working_hours": {
+          "general": "Per the Employment Standards Labor Code, the maximum working hours shall not exceed 8 hours a day, 40 hours a week, with a maximum (inclusive of overtime) of 48 hours per week.",
+          "overtime": "An employer must pay an employee overtime pay for overtime hours at an overtime rate that is at least 150% of the employee’s regular rate of pay or one hour of time off in lieu.\nCertain job types are exempt from overtime rules, for example, many managerial and IT positions."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In Canada, employees are entitled to two consecutive weeks of annual leave after the first year of employment and three consecutive weeks of leave after five years of employment.\nEmployees are entitled to vacation pay of 4.00% of the regular salary rate of pay for the first five years of employment and 6.00% of the regular salary rate of pay after five years of employment.",
+          "public_holidays": "There are national public holidays in Canada, and each province also has its own specific public holidays. Employees who work on a statutory/public holiday are paid 150% of their regular hourly rate plus public holiday pay, or their regular rate for all hours worked plus a substitute day off with public holiday pay. When public holidays fall on a weekend, it is customary to provide a day off in lieu, either the previous working day or the next working day.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\tNational\n12 Feb 2025\tMonday\tIslander Day, Louis Riel Day, Heritage Day\tPrince Edward Island, Manitoba, Nova Scotia\n17 Feb 2025\tMonday\tFamily Day\tBritish Columbia, Alberta, Saskatchewan, Ontario, New Brunswick\n18 Apr 2025\tFriday\tGood Friday\tNational except Quebec\n21 Apr 2025\tMonday\tEaster Monday\tQuebec\n19 May 2025\tMonday\tVictoria Day\tNational except Nova Scotia, Newfoundland and Labrador\n24 Jun 2025\tTuesday\tSt. Jean Baptiste Day\tQuebec\n1 Jul 2025\tTuesday\tCanada Day\tNational\n4 Aug 2025\tMonday\tCivic Holiday\tAlberta, British Columbia, Saskatchewan, Ontario, Manitoba, New Brunswick, Nunavut\n1 Sep 2025\tMonday\tLabour Day\tNational\n30 Sep 2025\tTuesday\tNational Day for Truth and Reconciliation\tNational, federally regulated workplaces only\n13 Oct 2025\tMonday\tThanksgiving\tNational except Nova Scotia, Newfoundland and Labrador\n11 Nov 2025\tTuesday\tRemembrance Day\tNational except Manitoba, Ontario, Quebec, Nova Scotia\n25 Dec 2025\tThursday\tChristmas\tNational\n26 Dec 2025\tFriday\tBoxing Day\tOntario",
+          "sick_days": "The Canada Labour Code was updated with effect from December 1, 2022, to provide 10 days of paid sick leave to employees in the federally regulated private sector, (which is limited to specific industries)  There is a thirty day qualifying period for covered employees; therefore, on December 31, employees who have been continuously employed for at least 30 days will have access to their first three days of paid sick leave. As of February 1, 2023, employees will acquire a fourth day, and will continue to accumulate one day a month up to a maximum of 10 days per year.\nEffective December 18, 2022, Canada’s Employment Insurance sickness benefits were extended from 15 weeks to 26 weeks. As such, qualified individuals who establish a new claim on or after December 18, 2022 will receive up to 26 weeks of Employment Insurance sickness benefits, paid at 55% of their average weekly insurance earnings, for up to a maximum of $650 per week in 2023.\nMaternity Leave\nEmployees are entitled to up to 17 weeks of leave if the employee has completed at least one year of employment before the due date. Maternity leave may not begin before the 17th week preceding the expected delivery date and shall end not later than 18 weeks after. If the delivery occurs after the expected date, the employee is entitled to at least two additional weeks of maternity leave. Special maternity leave may begin four weeks before the expected delivery date when there is a risk of termination of her pregnancy or a danger for the health of the mother or unborn child caused by the pregnancy. Two weeks’ notice and a medical certificate is required.\nEmployment insurance provides maternity and parental benefits to:\nPeople who are away from work because they’re pregnant or have recently given birth\nParents who are away from work to care for their newborn or newly adopted child\nWorkers are entitled to 55% of their earnings for 15 weeks up to a maximum of CAD650 a week\nMaternity benefits are only available to the person who is away from work because they’re pregnant or have recently given birth. They can’t be shared between parents.\nThe person receiving maternity benefits may also be entitled to parental benefits.\nMaternity benefits can be followed by parental benefits. You may apply for both at once.\nFor further information visit the Government of Canada website.\nPaternity Leave\nPaternal leave falls under parental leave.\nParental Leave\nParents are entitled to up to 63 weeks of leave to care for a newborn or adopted child. The parental leave cannot begin before the week of birth or when the child is legally adopted.\nThe leave should begin no later than 78 weeks after the birth or adoption.\nEmployment insurance provides maternity and parental benefits to:\nPeople who are away from work because they’re pregnant or have recently given birth\nParents who are away from work to care for their newborn or newly adopted child\nThe assistance details are as follows:\nBenefit name\tMaximum weeks\tBenefit rate\tWeekly max\nStandard parental\tUp to 40 weeks can be shared between parents, but one parent cannot receive more than 35 weeks of standard benefits\t55%\tup to $650\nExtended parental\tUp to 69 weeks can be shared between parents, but one parent cannot receive more than 61 weeks of extended benefits\t33%\tup to $390\nFor further information visit the Government of Canada website.",
+          "other_leave": "In Ontario, employees are entitled to:\n2 days of mandatory leave for the bereavement of a family member\nApproximately 8 weeks of leave for compassionate care leave\nUp to 3 days of unpaid leave for family responsibility leave\nUp to 28 weeks per year of unpaid leave for Family Medical leave.\nUp to 37 weeks of leave in the case of a critical illness\nUp to 104 weeks in the event of the death of an employee’s child, or in the case that the child has disappeared.\nAll employers must provide their full-time, regularly employed employees, job-protected, unpaid leave for their duty as jurors or as a witness in a case, responding to a subpoena, or acting as a plaintiff or defendant in the courts. Employees must provide a copy of the jury summons to the employer as evidence of the requirement.\nReservist Leave regulations require employers to provide up to 20 days of unpaid leave each calendar year for annual training for reservists once they have completed at least 26 consecutive weeks of service with the same employer. An employee may take reservist leave for the following reasons:\nDeployment to Canadian forces operation outside Canada\nDeployment to Canadian forces operation inside Canada that is assisting with an emergency or the aftermath of an emergency\nAnnual training, including related travel time, for up to 20 days in a calendar year\nOther operations set out as such in the Employment Standards Regulation by the minister"
+        },
+        "termination": {
+          "termination_process": "The termination process is standard in Canada. It is based on termination reasons within the General Labor Law, unless an employer can provide sufficient cause for dismissal without notice (i.e., due to misconduct).",
+          "notice_period": "In general, notice periods in Ontario are stipulated within the employment contract or collective agreement and is linked to the reason for termination and the employee’s length of service:\nUp to 2 years of employment: 1 weeks’ notice\n2-4 years of employment: 2 weeks’ notice\n4-6 years of employment: 4 weeks’ notice\n6-8 years of employment: 5 weeks’ notice\n8-10 years of employment: 6 weeks’ notice\n10+ years of employment: 8 weeks’ notice",
+          "severance_pay": "To be eligible for severance pay, an employee must have completed at least five years of employment, or the company has a payroll of over 2.5 million CAD per year or have terminated over 50 employees in the past six months due to all or part of the company closing to receive severance payments. The severance pay calculation is based on one week’s regular salary rate per year of employment.",
+          "probation_period": "Probation period for a permanent employee is generally a minimum of 3 months."
+        },
+        "visa": {
+          "general_info": "The Government of Canada operates the Temporary Foreign Worker Program to enable foreign citizens to apply to work in Canada for a set period. The program covers all job roles and knowledge levels, and it can be used when a qualified Canadian citizen or permanent resident is not available or suitable for the role. There are federal (Government of Canada) immigration programs and provincial programs as well."
+        },
+        "vat": {
+          "general_info": "Canadian Federal GST is charged at 5%. Provincial sales tax ranges between O% in Alberta to 9.975% in Quebec."
+        }
+      }
+    },
+    {
+      "country": "Canada Alberta",
+      "url": "https://www.papayaglobal.com/countrypedia/country/canada-alberta/",
+      "scraped_at": "2025-08-24T17:42:24.736Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5.95%",
+              "description": "Canada Pension Plan (CPP), applied on annual salary between 3,500 to 71,300 CAD"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Canada Pension Plan 2 (CPP2), applied on annual salary between 71,300 to 81,200 CAD"
+            },
+            {
+              "rate": "1.64%",
+              "description": "Employment insurance (EI), applied on an annual maximum insurable earnings ceiling up to 65,700 CAD"
+            },
+            {
+              "rate": "0.15 to 5.08 CAD per 100 CAD of insurable payroll",
+              "description": "Workers Compensation Board (WCB), applied on an annual maximum insurable earnings ceiling of up to 106,400 CAD. The applied rate depends on rate group and industry."
+            },
+            {
+              "rate": "7.59% + WCB",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "5.95%",
+              "description": "Canada Pension Plan (CPP), applied on annual salary between 3,500 to 71,300 CAD"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Canada Pension Plan 2 (CPP2), applied on annual salary between 71,300 to 81,200 CAD"
+            },
+            {
+              "rate": "1.64%",
+              "description": "Employment Insurance (EI), applied on an annual maximum insurable earnings ceiling up to 65,700 CAD"
+            },
+            {
+              "rate": "7.58%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "Federal",
+              "description": "Annual"
+            },
+            {
+              "rate": "15.00%",
+              "description": "Up to 57,375 CAD"
+            },
+            {
+              "rate": "20.50%",
+              "description": "57,375 – 114,750 CAD"
+            },
+            {
+              "rate": "26.00%",
+              "description": "114,750 – 177,882 CAD"
+            },
+            {
+              "rate": "29.00%",
+              "description": "177,882 – 253,414 CAD"
+            },
+            {
+              "rate": "33.00%",
+              "description": "253,414 CAD and over"
+            },
+            {
+              "rate": "Alberta",
+              "description": "Annual"
+            },
+            {
+              "rate": "10.00%",
+              "description": "up to 151,234 CAD"
+            },
+            {
+              "rate": "12.00%",
+              "description": "151,234 – 181,481 CAD"
+            },
+            {
+              "rate": "13.00%",
+              "description": "181,481 – 241,974 CAD"
+            },
+            {
+              "rate": "14.00%",
+              "description": "241,974 – 362,961 CAD"
+            },
+            {
+              "rate": "15.00%",
+              "description": "362,961 CAD and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The standard minimum wage in Alberta is 15.00 CAD per hour, and 13.00 CAD for students and employees under 18.\nThe minimum wage rate set for employees of federally regulated organizations will be the current minimum wage rate specified in the jurisdiction in which the employee performs the work.",
+        "payroll": {
+          "payroll_cycle": "An employer has 1 month to remit an employee’s first pay. After this, wages must be paid at regular intervals of no more than 16 days, or 1 month in case of managerial personnel. If pay day falls on a statutory holiday, the wages must be paid on the preceding working day.",
+          "13th_salary": "There is no legislation for 13th-month payments in Alberta, Canada."
+        },
+        "working_hours": {
+          "general": "The standard workweek is 8 hours per day, 40 hours per week.\nThe maximum number of working hours shall not exceed 44 hours a week, with a maximum (inclusive of overtime) of 12 hours in a day.",
+          "overtime": "Up to 44 hours can be worked weekly, after which additional hours must be paid at the rate of 150% salary, or one hour of time off in lieu.\nIn exceptional circumstances, when an employee is called into work (during rest/non-working time), overtime should be paid for at least 3 hours of pay at the minimum wage, even if they work less than 3 hours. Overtime exempt status is in place for certain job types e.g.,  many managerial and supervisory positions.\nIf an employee works on the public holiday, then the employee is entitled to general holiday pay of an amount that is equal to:\nat least their average daily wage, and at least 1.5 times their wage rate for each hour worked on that day, or\nstandard wage rate for each hour worked on the general holiday and a day off with pay where the pay is at least as much as their average daily wage\nIf the holiday falls on a non-regular day of work, there is no requirement to pay general holiday pay."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to paid annual leave if they have worked for the same employer for at least 30 working days in the previous year; the number of days and payment is determined by provincial law.\nIn Alberta, employees are entitled to 2 consecutive weeks of vacation leave after the first year of employment and 3 consecutive weeks of leave after five years of employment.\nVacation Pay entitlement is calculated based on the workers salary, payroll frequency and length of service:\nFor monthly paid workers, the employer must pay the employee’s regular rate of pay for the time of their vacation. Each week of vacation pay is calculated by dividing their monthly salary by 4.3333 (which is the average number of weeks in a month).\nFor employees paid other than monthly, workers with less than 1 year service receive 4% of wages vacation pay, workers with 1-4 years of service receive 4% of yearly wages vacation pay and workers with 5 and above years service receive 6% of yearly wages as vacation pay.",
+          "public_holidays": "There are 10 General holidays. Some industries or collective agreements might mandate additional public holidays for eligible workers.\nWhen certain public holidays fall on a weekend they will be moved to the following Monday in lieu (including New Year’s Day, Canada Day, Remembrance Day and Christmas Day).\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n17 Feb 2025\tMonday\tFamily Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n19 May 2025\tMonday\tVictoria Day\t\n1 Jul 2025\tTuesday\tCanada Day\t\n4 Aug 2025\tMonday\tCivic Holiday\t\n1 Sep 2025\tMonday\tLabour Day\t\n30 Sep 2025\tTuesday\tNational Day for Truth and Reconciliation\tFederally regulated workplaces only\n13 Oct 2025\tMonday\tThanksgiving\t\n11 Nov 2025\tTuesday\tRemembrance Day\t\n25 Dec 2025\tThursday\tChristmas",
+          "sick_days": "Sick leave entitlement in Alberta depends on whether the employee falls under provincial or federal regulation, and whether they qualify for Employment Insurance (EI) sickness benefits.\nRegulated workers under the Alberta Employment Standard Code are entitled to 5 days of unpaid job protected Personal & Family Responsibility Leave per year. This can be taken if the worker is ill or for the employee to meet a need of family member. Employees must have completed 90 days of employment to be eligible. Unused days do not carryover into the next calendar year. An employee must give an employer notice as soon as is reasonable before taking this leave. More details and eligibility criteria can be found on the Government of Alberta website.\nFederally regulated workers are entitled under the Canada Labour Code to receive up to 10 days paid sick leave per year. These 10 days paid sick leave is accrued during the year after an initial 30-day qualifying period of continuous employment has been completed.  Following this qualifying period, workers earn the first 3 days of paid medical leave. Following this, workers earn 1 further day of paid sick leave at the start of each month after completing 1 month of continuous employment until a maximum of 10 days paid sick leave per year has been accrued. Any days of medical leave with pay that are not taken within the year will be carried over to the beginning of the new year up to a maximum of 10 days. More details and eligibility criteria can be found on the Government of Canada website.\nRegardless of jurisdiction, workers may also qualify for Employment Insurance (EI) sickness benefits, which are administered federally. These benefits are available to employees who are unable to work due to medical reasons and meet the eligibility criteria. EI sickness benefits provide 55% of average weekly earnings, up to 695 CAD per week, for a maximum of 26 weeks. To qualify, employees typically need 600 insured hours worked in the 52 weeks prior to illness and must submit a medical certificate. More information can be found on the Government of Canada website.\nMaternity Leave\nIn Canada, Maternity and Parental leave rights are set out through the nationwide Employment Insurance (EI) program, which is applied across all provinces and entitles eligible mothers to take up to 15 weeks of maternity leave with income support. For Federally regulated employees and industries, up to 17 weeks maternity leave can be taken. During this period, eligible employees will receive maternity benefits equal to 55% of their earnings, up to a maximum of 695 CAD per week. To receive this benefit, workers must provide a certificate from a healthcare practitioner confirming the pregnancy. For further guidance and eligibility criteria, refer to the Government of Canada website.\nIn addition to EI, each individual province sets their own set of employment standards that determine the full available leave entitlements for parents.\nIn Alberta, mothers are entitled to take a maximum of 16 consecutive weeks maternity leave providing they have completed at least 90 days of employment before maternity leave begins. The earliest this leave can be taken is 13 weeks before the due date. There is no additional requirement for employers to provide pay during this leave unless specifically stated in the employment contract or Collective Agreement. Any other pay entitlement will be through the EI. Employees must give employers written notice at least 6 weeks before starting Maternity leave. More information and eligibility criteria can be found on the Alberta Government website.\nFollowing the completion of the maternity benefits, mothers can go on to take Parental Leave.\nPaternity Leave\nPaternity leave falls under the parental leave entitlement.\nParental Leave\nIn Canada, Parental leave benefits are available to parents of a newborn or newly adopted child through the nationwide Employment Insurance (EI) program, which is applied across all provinces. Parents can choose between 2 options:\nThe Parental leave period does not have to be taken consecutively but must be within the above mentioned timeframe. Further information and eligibility criteria can be found on the Government of Canada website.\nIn addition to EI, each individual province can set their own set of employment standards that determine the full available leave entitlements for parents. In Alberta, parents can take up to 62 weeks of unpaid parental leave (one week more than provided under EI). Leave can start any time after the birth or adoption of a child (or after the maternity leave period ends), but must be used within 78 weeks of the date the baby is born or placed with the parents. Employees must give employers written notice at least 6 weeks before starting maternity or parental leave. Employees must give their employer’s written notice at least 4 weeks before they return to work. Additional information can be found on the Alberta Government website.",
+          "other_leave": "Bereavement Leave\nThis leave is in place for workers whose family member has died. There are two support systems; the system that applies depends on if the worker falls under a federally regulated sector or under the provincial sector:\nWorkers regulated under the Alberta Employment Standards Code are entitled to 3 days per year of unpaid job protected leave in the event of the death of a family member. To be eligible, workers must have at least 90 days of continuous service.\nFederally regulated workers under the Canada Labour Code are entitled to up to 10 days of job protected bereavement leave following the death of an immediate family member. This leave can be taken within 6 weeks of the death. The first 3 days of this leave will be paid if the worker has completed 3 months of continuous employment.\nCompassionate Care Leave\nThis leave is in place for workers who need to care for gravely-ill family members, with significant risk of dying. There are two support systems in place which can both be applied to workers:\nUnder Canada’s Federal Employment Insurance (EI), eligible employees who have at least 600 insured hours of work in the 52 weeks before the start of the claim or since the start of their last claim (whichever is shorter) is entitled to caregiving leave of up to 26 weeks. There might also be eligibility for income support equal to 55% of earnings, up to a maximum of 695 CAD per week.\nUnder the Alberta Employments Standard Code, eligible employees who have been employed for at least 90 days can take up to 27 weeks of leave to care for gravely-ill family members (which exceeds the EI leave length by one week). Employees must give their employer a medical certificate for the ill family member and, where possible, must give written notice at least 2 weeks before the start date of their leave.  Notice must include the estimated date of the employee’s return to work. This leave is unpaid, but workers might still be eligible to receive income support under the EI.\nLong-term Illness & Injury Leave\nThis leave is in place for workers who need to take time off for leave due to illness, injury or quarantine. There are two support systems in place which can both be applied to workers:\nUnder the Alberta Employments Standard Code, eligible employees who have been employed for at least 90 days can take up to 16 weeks of job protected long-term illness or injury leave per year. Employees must give their employer a doctors note and provide written notice of leave as soon as is reasonable, which must include the estimated return to work date. Employees must provide at least 1 week’s written notice of the date they intend to return to work unless there is an agreement otherwise. This leave is unpaid, but workers might still be eligible to receive income support under the EI.\nUnder Canada’s Federal Employment Insurance (EI), eligible employees who have at least 600 insured hours of work in the 52 weeks before the start of the claim or since the start of their last claim (whichever is shorter) is entitled to sickness leave of up to 26 weeks. There might also be eligibility for income support equal to 55% of earnings, up to a maximum of 695 CAD per week.\nAdditional Leave\nUnder the Canada Labour Code and Alberta Employments Standard Code other types of leave are also regulated including Reservist Leave, Jury Leave, Domestic Violence Leave and Death or Disappearance of a Child Leave."
+        },
+        "termination": {
+          "termination_process": "The termination process in Alberta is based on termination reasons of just cause, as outlined in the Alberta Employment Standards Code.\nNotice of termination must be in writing.",
+          "notice_period": "In general, notice periods in Alberta are stipulated within the employment contract/collective agreement and is linked to the reason for termination and the employee’s length of service, as below:\nNo notice is required, if the employee is within 90 days of service.\nOne week notice is required if the employee is within the first two years of service.\nTwo weeks’ notice is required if the employee is within the second year of service up to the fourth year of service.\nFour weeks’ notice is required if the employee is within the fourth year of service up to the sixth year of service.\nFive weeks’ notice is required if the employee is within the sixth year of service up to the eighth year of service.\nSix weeks’ notice is required if the employee is within the eighth year of service up to the tenth year of service.\nEight weeks’ notice is required if the employee has been employed for ten years or more.",
+          "severance_pay": "Severance pay is not required to be paid in most termination scenarios.",
+          "probation_period": "The probation period is not required but it can be used. In Alberta for permanent employees it is commonly a minimum of 3 months."
+        },
+        "common_benefits": [
+          "Cell phone and internet allowance (up to 250 CAD a month)",
+          "Car allowance",
+          "Supplementary health care (which typically cover costs of items or care that are not covered by Canada’s universal healthcare system such as prescription drugs or vision ware).",
+          "Dental plan",
+          "Private pension/Retirement Savings plan contribution (2-6 % of base salary is common)."
+        ],
+        "visa": {
+          "general_info": "The Government of Canada operates the Temporary Foreign Worker Program to enable foreign citizens to apply to work in Canada for a set period. The program covers all job roles and knowledge levels, and it can be used when a qualified Canadian citizen or permanent resident is not available or suitable for the role.\n\nThere are federal (Government of Canada) immigration programs and provincial programs (Government of Alberta). In Alberta, the provincial program is called the Alberta Immigrant Nominee Program (AINP). The Government of Alberta nominates individuals for permanent residence, but the federal government decides who becomes a permanent resident. The AINP is an economic program, so Alberta nominates people to help meet the province’s needs for workers and entrepreneurs. The types of workers and entrepreneurs Alberta needs may change as the province’s economy changes."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Alberta Canada is 5.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Federal Taxes, Employer contribution + withholding taxes",
+            "paid_to": "CRA",
+            "due_date": "Either monthly or semi monthly",
+            "method": "e-check"
+          },
+          {
+            "authority_payment": "Health Contribution",
+            "paid_to": "EHT",
+            "due_date": "Monthly",
+            "method": "e-check"
+          }
+        ]
+      }
+    },
+    {
+      "country": "Canada British Columbia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/british-columbia/",
+      "scraped_at": "2025-08-24T17:42:30.678Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5.95%",
+              "description": "Canada Pension Plan (CPP), applied on annual salary between 3,500 to 71,300 CAD"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Canada Pension Plan 2 (CPP2), applied on annual salary between 71,300 to 81,200 CAD"
+            },
+            {
+              "rate": "1.64%",
+              "description": "Employment insurance (EI), applied on an annual maximum insurable earnings ceiling up to 65,700 CAD"
+            },
+            {
+              "rate": "1.55% (average rate)",
+              "description": "Workers Compensation Act, applied on a maximum wage rate of 121,500 CAD. The applicable rate is set via WorkSafeBC."
+            },
+            {
+              "rate": "9.14%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "5.95%",
+              "description": "Canada Pension Plan (CPP), applied on annual salary between 3,500 to 71,300 CAD"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Canada Pension Plan 2 (CPP2), applied on annual salary between 71,300 to 81,200 CAD"
+            },
+            {
+              "rate": "1.64%",
+              "description": "Employment Insurance (EI), applied on an annual maximum insurable earnings ceiling up to 65,700 CAD"
+            },
+            {
+              "rate": "7.59%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "Federal",
+              "description": "Annual"
+            },
+            {
+              "rate": "15.00%",
+              "description": "Up to 57,375 CAD"
+            },
+            {
+              "rate": "20.50%",
+              "description": "57,375 – 114,750 CAD"
+            },
+            {
+              "rate": "26.00%",
+              "description": "114,750 – 177,882 CAD"
+            },
+            {
+              "rate": "29.00%",
+              "description": "177,882 – 253,414 CAD"
+            },
+            {
+              "rate": "33.00%",
+              "description": "253,414 CAD and over"
+            },
+            {
+              "rate": "British Columbia",
+              "description": "Annual"
+            },
+            {
+              "rate": "5.06%",
+              "description": "up to 49,279 CAD"
+            },
+            {
+              "rate": "7.7%",
+              "description": "42,279 – 98,560 CAD"
+            },
+            {
+              "rate": "10.5%",
+              "description": "98,560 – 113,158 CAD"
+            },
+            {
+              "rate": "12.29%",
+              "description": "113,158 – 137,407 CAD"
+            },
+            {
+              "rate": "14.7%",
+              "description": "137,407 – 186,306 CAD"
+            },
+            {
+              "rate": "16.80%",
+              "description": "186,306 – 259,829 CAD"
+            },
+            {
+              "rate": "20.5%",
+              "description": "259,829 CAD and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The standard minimum wage in British Columbia is 17.85 CAD per hour.\nThe minimum wage rate set for employees of Federally regulated organizations will be the current minimum wage rate specified in the jurisdiction in which the employee performs the work.\n",
+        "payroll": {
+          "payroll_cycle": "An employer has 1 month to remit an employee’s first pay. After this, wages must be paid at regular intervals of no more than 16 days, or 1 month in case of managerial personnel. If pay day falls on a statutory holiday, the wages must be paid on the preceding working day.",
+          "13th_salary": "There is no legislation for 13th-month payments in British Columbia, Canada."
+        },
+        "working_hours": {
+          "general": "A full-time workweek is 40 hours, 8 hours per day, 5 days a week.",
+          "overtime": "Employees who work more than 8 hours in a day or 40 hours in a week must be paid overtime of 150% salary. Overtime above 12 hours per day is paid at a 200% salary.\nIt possible to set  up an Averaging Agreement where employees agree to an average of work hours scheduled over 1, 2, 3 or 4 weeks, up to 12 hours of working in a day, averaging no more than 40 hours per week, without being paid overtime.\nOvertime exempt status is in place for certain job types e.g. many managerial and supervisory positions."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In British Columbia, after the first 12 months of employment employees are entitled to 2 weeks of paid vacation per year. After 5 years of employment, employees are entitled to 3 weeks of paid vacation per year.\nVacation pay is at least 4% of all wages paid in the previous year. After the employee completes 5 years of employment, the employer must pay vacation pay of at least 6% of all wages earned in the previous year. Vacation pay must be paid at least 7 days before an employee starts their annual vacation time unless it has been agreed in writing to add it to the regular payroll instead.",
+          "public_holidays": "There are 10 public holidays in British Columbia. When public holidays fall on a weekend, it is customary to give off in lieu either the previous working day or next working day.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n17 Feb 2025\tMonday\tFamily Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n19 May 2025\tMonday\tVictoria Day\t\n1 Jul 2025\tTuesday\tCanada Day\t\n4 Aug 2025\tMonday\tCivic Holiday\t\n1 Sep 2025\tMonday\tLabour Day\t\n30 Sep 2025\tTuesday\tNational Day for Truth & Reconciliation\tFederally regulated workplaces only\n13 Oct 2025\tMonday\tThanksgiving\t\n11 Nov 2025\tTuesday\tRemembrance Day\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "Sick leave entitlement in British Columbia depends on whether the employee falls under provincial or federal regulation, and whether they qualify for Employment Insurance (EI) sickness benefits.\nRegulated workers under the British Columbia Employment Standards are entitled to illness or injury job-protected leave of up to 5 days paid and 3 days unpaid within each calendar year. To qualify for this leave, workers must have been employed for at least 90 calendar days. Employers have the right to ask for reasonably sufficient proof of the need for this leave. More details and eligibility criteria can be found on the Government of British Columbia website.\nFederally regulated workers are entitled under the Canada Labour Code to receive up to 10 days paid sick leave per year. These 10 days paid sick leave is accrued during the year after an initial 30-day qualifying period of continuous employment has been completed. Following this qualifying period, workers earn the first 3 days of paid medical leave. Following this, workers earn 1 further day of paid sick leave at the start of each month after completing 1 month of continuous employment until a maximum of 10 days paid sick leave per year has been accrued. Any days of medical leave with pay that are not taken within the year will be carried over to the beginning of the new year up to a maximum of 10 days. More details and eligibility criteria can be found on the Government of Canada website.\nRegardless of jurisdiction, workers may also qualify for Employment Insurance (EI) sickness benefits, which are administered federally. These benefits are available to employees who are unable to work due to medical reasons and meet the eligibility criteria. EI sickness benefits provide 55% of average weekly earnings, up to 695 CAD per week, for a maximum of 26 weeks. To qualify, employees typically need 600 insured hours worked in the 52 weeks prior to illness and must submit a medical certificate. More information can be found on the Government of Canada website.\nMaternity Leave\nIn Canada, Maternity and Parental leave rights are set out through the nationwide Employment Insurance (EI) program, which is applied across all provinces and entitles eligible mothers to take up to 15 weeks of maternity leave with income support. For Federally regulated employees and industries, up to 17 weeks maternity leave can be taken. During this period, eligible employees will receive maternity benefits equal to 55% of their earnings, up to a maximum of 695 CAD per week. To receive this benefit, workers must provide a certificate from a healthcare practitioner confirming the pregnancy. For further guidance and eligibility criteria, refer to the Government of Canada website.\nIn addition to EI, each individual province sets their own set of employment standards that determine the full available leave entitlements for parents.\nIn British Columbia, mothers are entitled to up to 17 consecutive weeks of unpaid maternity leave. Leave must begin on or before the date the baby is born and cannot start earlier than 13 weeks before the expected birth date. Following the birth, at least six weeks of leave must be taken. If the employee is unable to return to work for reasons related to childbirth, the leave can be extended for six weeks (for a total of 12 weeks). Employees must submit a written request to their employer at least four weeks before taking maternity leave. More information and eligibility criteria can be found on the Government of British Columbia website.\nFollowing the completion of the maternity benefits, mothers can go on to take Parental Leave.\nPaternity Leave\nPaternity leave falls under the parental leave entitlement.\nParental Leave\nIn Canada, Parental leave benefits are available to parents of a newborn or newly adopted child through the nationwide Employment Insurance (EI) program, which is applied across all provinces. Parents can choose between 2 options:\nThe Parental leave period does not have to be taken consecutively but must be within the above mentioned timeframe. Further information and eligibility criteria can be found on the Government of Canada website.\nIn addition to EI, each individual province can set their own set of employment standards that determine the full available leave entitlements for parents. In British Columbia, employees can take up to 62 weeks of unpaid parental leave with both parents able take one full period of parental leave. Parental leave can begin at any time within 78 weeks of a baby being born or a child being placed. It can be extended by up to 5 weeks if the child needs more care due to a physical, psychological, or emotional condition. An employer may ask for proof that an employee is entitled to parental leave or an extension of parental leave. More information and eligibility criteria can be found on the Government of British Columbia website.",
+          "other_leave": "Bereavement Leave\nThis leave is in place for workers whose family member has died. There are two support systems; the system that applies depends on if the worker falls under a federally regulated sector or under the provincial sector:\nWorkers regulated under the British Columbia Standards are entitled to take up to 3 days of unpaid leave if an immediate family member dies. This leave does not have to be taken as consecutive days, does not need to be for attending a funeral and does not have to start on the date of the death.\nFederally regulated workers under the Canada Labour Code are entitled to up to 10 days of job protected bereavement leave following the death of an immediate family member. This leave can be taken within 6 weeks of the death. The first 3 days of this leave will be paid if the worker has completed 3 months of continuous employment.\nFamily Responsibility Leave\nEmployees have the right to take up to 5 days of unpaid Family Responsibility Leave each employment year (an employment year begins on the date the employee started work) to help with the care, health, or education of a child under the age of 19 in their care. An employee can also ask for this type of leave to care for the health of any other member of their immediate family. Family responsibility leave does not accumulate from year to year.\nCompassionate Care Leave\nThis leave is in place for workers who need to care for gravely-ill family members, with significant risk of dying. There are two support systems in place which can both be applied to workers:\nUnder Canada’s Federal Employment Insurance (EI), eligible employees are entitled to take up to 27 weeks of unpaid compassionate care leave within a 52-week period to care for a family member who is terminally ill (the 52-week period starts on the Sunday of the week that the certificate is given or from the Sunday of the week that the employee first takes leave). The employee must request the leave from their employer but do not have to make the request in writing or give advance notice. Employees must obtain a medical certificate that states the family member has a serious medical condition and is at risk of death within 26 weeks.\nUnder the British Columbia’s Employments Standard, eligible employees who have been employed for at least 90 days can take up to 27 weeks of leave to care for gravely-ill family members (which exceeds the EI leave length by one week). Employees must give their employer a medical certificate for the ill family member and, where possible, must give written notice at least 2 weeks before the start date of their leave.  Notice must include the estimated date of the employee’s return to work. This leave is unpaid, but workers might still be eligible to receive income support under the EI.\nCritical Illness Leave\nThis leave is in place for workers who need to care for a critically ill or injured family member. There are two support systems in place which can both be applied to workers:\nUnder the British Columbia Employment Standards, eligible employees can take up to 36 weeks to care for a child and up to 16 weeks to care for a family member over the age of 19. who have been employed by their employer for at least six consecutive months can take unpaid critical illness job-protected leave of up to 37 weeks in relation to a critically ill minor child, or 17 weeks in relation to a critically ill adult within a 52-week period. Employees must give their employer a qualified health practitioner issued certificate stating stating who is ill and the period that support will be required. Whilst this leave is unpaid, workers might still be eligible to receive income support under the EI.\nUnder Canada’s Federal Employment Insurance (EI), eligible employees who have at least 600 insured hours of work in the 52 weeks before the start of the claim or since the start of their last claim (whichever is shorter) is entitled to caregiving leave of either 35 weeks to care for a child under 18 or 35 weeks to care for an adult family member. There might also be eligibility for income support equal to 55% of earnings, up to a maximum of 695 CAD per week.\nAdditional Leave\nUnder the Canada Labour Code and British Columbia Employments Standard other types of leave are also regulated including Covid Leave, Reservist Leave, Jury Leave, Domestic or Sexual Violence Leave and Death or Disappearance of a Child Leave."
+        },
+        "termination": {
+          "termination_process": "The termination process is outlined under the British Columbia Employment Standards.\nEmployers can also fire an employee for just cause if they commit a serious offence; where there is proven just cause, the employer does not have to give notice or pay. Unsatisfactory performance or minor misconduct are not considered just cause and an employer will be required to give notice notice and pay when terminating for such reasons.\nTo end an employee’s job, employers can give written working notice or an equal amount of pay called compensation for length of service. They can also choose to give a combination of both notice and pay.\nIf an employer plans to terminate 50 or more employees at a single location within a 2-month period, the employer must give written notice of group termination to each employee affected, the Minister of Labour and any trade union that represents the employees.\nUpon termination of workers, final wages must be made within 48 hours after the last day an employee works when an employer ends employment or within 6 days after the employee’s last day of work when an employee quits.",
+          "notice_period": "Notice period is not required if an employee resigns and no payout is required for compensation of length of employment.\nWhen an employer terminates a worker, they must provide the following notice periods:\nUp to 3 months of service = no notice required\n3 months to 1 year of service = 1 week notice\n1 to 3 years of service = 2 weeks of notice\nAbove 3 years of service = 3 weeks of notice plus 1 week of notice after each additional year of employment (capped at a maximum of 8 weeks)",
+          "severance_pay": "In British Columbia, workers terminated without cause are usually entitled to severance or termination pay, at an amount determined by the length of service:\nUp to 3 months of service = no payout required\n3 months to 1 year of service = 1 week payout\n1 to 3 years of service = 2 weeks payout\nAbove 3 years of service = 3 weeks payout plus 1 week per year beyond 3 years (capped at a maximum of 8 weeks)",
+          "probation_period": "The probation period in British Columbia for permanent employees is generally set at 3 months."
+        },
+        "common_benefits": [
+          "Cell phone and internet allowance up to 250 CAD a month.",
+          "Supplementary health care (which typically cover costs of items or care that are not covered by Canada’s universal healthcare system such as prescription drugs or vision).",
+          "Dental plan",
+          "Private pension/Retirement Savings plan contribution (2-6 % of base salary is common)"
+        ],
+        "visa": {
+          "visa": "The Government of Canada operates the Temporary Foreign Worker Program to enable foreign citizens to apply to work in Canada for a set period. The program covers all job roles and knowledge levels, and it can be used when a qualified Canadian citizen or permanent resident is not available or suitable for the role.\nThere are federal (Government of Canada) immigration programs and provincial programs (Government of British Columbia) in place in British Columbia."
+        },
+        "vat": {
+          "general": "Canadian Federal GST is charged at 5%. British Columbia PST is 7%, resulting in a combined GST and PST rate of 12.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Federal Taxes, Employer contribution + withholding taxes",
+            "paid_to": "CRA",
+            "due_date": "Either monthly or semi monthly",
+            "method": "e-check"
+          },
+          {
+            "authority_payment": "Health Contribution",
+            "paid_to": "EHT",
+            "due_date": "Monthly",
+            "method": "e-check"
+          }
+        ]
+      }
+    },
+    {
+      "country": "Canada Manitoba",
+      "url": "https://www.papayaglobal.com/countrypedia/country/canada-manitoba/",
+      "scraped_at": "2025-08-24T17:42:40.625Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    },
+    {
+      "country": "Canada New Brunswick",
+      "url": "https://www.papayaglobal.com/countrypedia/country/canada-new-brunswick/",
+      "scraped_at": "2025-08-24T17:42:49.447Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    },
+    {
+      "country": "Canada Newfoundland and Labrador",
+      "url": "https://www.papayaglobal.com/countrypedia/country/canada-newfoundland-and-labrador/",
+      "scraped_at": "2025-08-24T17:42:59.464Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    },
+    {
+      "country": "Canada Northwest Territories",
+      "url": "https://www.papayaglobal.com/countrypedia/country/canada-northwest-territories/",
+      "scraped_at": "2025-08-24T17:43:08.495Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    },
+    {
+      "country": "Canada Nova Scotia",
+      "url": "https://www.papayaglobal.com/countrypedia/country/canada-nova-scotia/",
+      "scraped_at": "2025-08-24T17:43:14.392Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5.95%",
+              "description": "Canada Pension Plan (CPP), applied on annual salary between 3,500 to 71,300 CAD"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Canada Pension Plan 2 (CPP2), applied on annual salary between 71,300 to 81,200 CAD"
+            },
+            {
+              "rate": "1.64%",
+              "description": "Employment insurance (EI), applied on an annual maximum insurable earnings ceiling up to 65,700 CAD"
+            },
+            {
+              "rate": "2.65 CAD per 100 CAD of insurable payroll",
+              "description": "Workers’ Compensation Board (WCB), applied on income up to 76,300 CAD"
+            },
+            {
+              "rate": "7.59% + 2.65 CAD for every 100 CAD",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "5.95%",
+              "description": "Canada Pension Plan (CPP), applied on annual salary between 3,500 to 71,300 CAD"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Canada Pension Plan 2 (CPP2), applied on annual salary between 71,300 to 81,200 CAD"
+            },
+            {
+              "rate": "1.64%",
+              "description": "Employment Insurance (EI), applied on an annual maximum insurable earnings ceiling up to 65,700 CAD"
+            },
+            {
+              "rate": "7.58%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "Federal",
+              "description": "Annual"
+            },
+            {
+              "rate": "15.00%",
+              "description": "Up to 57,375 CAD"
+            },
+            {
+              "rate": "20.50%",
+              "description": "57,375 – 114,750 CAD"
+            },
+            {
+              "rate": "26.00%",
+              "description": "114,750 – 177,882 CAD"
+            },
+            {
+              "rate": "29.00%",
+              "description": "177,882 – 253,414 CAD"
+            },
+            {
+              "rate": "33.00%",
+              "description": "253,414 CAD and over"
+            },
+            {
+              "rate": "Nova Scotia",
+              "description": "Annual"
+            },
+            {
+              "rate": "8.79%",
+              "description": "Up to 30,507 CAD"
+            },
+            {
+              "rate": "14.95%",
+              "description": "30,507 – 61,015 CAD"
+            },
+            {
+              "rate": "16.67%",
+              "description": "61,015 – 95,883 CAD"
+            },
+            {
+              "rate": "17.50%",
+              "description": "95,883 – 154,650 CAD"
+            },
+            {
+              "rate": "21.00%",
+              "description": "154,645 CAD and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The standard hourly minimum wage in Nova Scotia is 15.70 CAD. In October the hourly minimum wage will increase to 16.50 CAD.\nThe minimum wage rate set for employees of federally regulated organizations will be the current minimum wage rate specified in the jurisdiction in which the employee performs the work.",
+        "payroll": {
+          "general_info": "Payroll Cycle\n\nAn employer has 1 month to remit an employee’s first pay. After this, wages must be paid at regular intervals that are no less frequent than semi-monthly (i.e. at least twice per month). However, where there is written agreement with the employee, it is permissible to pay wages on a monthly basis. If a scheduled payday falls on a statutory holiday, wages must be paid on the last working day prior to the holiday.\n\n13th Salary\n\nThere is no legislation for 13th-month payments in Manitoba, Canada."
+        },
+        "working_hours": {
+          "general_info": "General\n\nA full-time workweek is 40 hours, 8 hours per day. The Labour Standards Code states that under normal circumstances employers must grant employees a rest period of at least 24 consecutive hours in every 7 days. Specific industries are regulated by different working hours, as outlined in the Code.\n\nOvertime\n\nEmployees are entitled to receive a rate of 150% of their regular wage for each hour worked after 48 hours in a week.\n\nCertain industries are characterized by irregular working hours and conditions and do not follow the general rule. Some have special rules about overtime and some others are not covered by overtime, as outlined in the Code."
+        },
+        "leave": {
+          "general_info": "Annual Leave (vacation)\n\nIn Nova Scotia, under the Labour Standards Code, employees are entitled to vacation time based on their length of continuous employment with the same employer:\n\nUp to the ninth year of employment = 2 weeks of vacation after each 12-month vacation entitlement year and must give the vacation time within 10 months following the 12-month earning period.\nFrom the ninth year of service (having completed 8 years) = 3 weeks of vacation annually.\n\nEmployees are also entitled to vacation pay based on service length:\n\nUp to the eight year of employment = vacation pay must be at least 4% of the gross wages earned in the 12-month vacation entitlement year.\nFrom the eighth year of service (having completed 7 years) = vacation pay must be at least 6% of the gross wages.\n\nPublic Holidays\n\nThere are 6 public holidays in Nova Scotia. If the holiday falls on the employee’s regular day off, the employer must give the employee a different day off with pay.\n\nEmployees that work on a public holiday are paid 150% of their regular hourly salary rate.\n\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n12 Feb 2025\tMonday\tHeritage Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n1 Jul 2025\tTuesday\tCanada Day\t\n1 Sep 2025\tMonday\tLabour Day\t\n30 Sep 2025\tTuesday\tNational Day for Truth and Reconciliation\tFederally regulated workplaces only\n25 Dec 2025\tThursday\tChristmas\t\n\nSick Days\n\nSick leave entitlement in Nova Scotia depends on whether the employee falls under provincial or federal regulation, and whether they qualify for Employment Insurance (EI) sickness benefits.\n\nUnder Nova Scotia’s Employment Standards, sick leave of up to 5 days unpaid leave per year is available for personal illness or injury. An additional 3 unpaid days off are also available under the Family Responsibility leave (see below) which employees can instead use for personal medical, dental or other similar appointments. Employers can only request a medical note if the employee has missed more than five consecutive working days due to sickness or the employee has already had at least two non-consecutive absences of five or fewer days due to sickness or injury in the preceding 12-month period. More information can be found on the Nova Scotia Government website.\nFederally regulated workers are entitled under the Canada Labour Code to receive up to 10 days paid sick leave per year. These 10 days paid sick leave is accrued during the year after an initial 30-day qualifying period of continuous employment has been completed.  Following this qualifying period, workers earn the first 3 days of paid medical leave. Following this, workers earn 1 further day of paid sick leave at the start of each month after completing 1 month of continuous employment until a maximum of 10 days paid sick leave per year has been accrued. Any days of medical leave with pay that are not taken within the year will be carried over to the beginning of the new year up to a maximum of 10 days. More details and eligibility criteria can be found on the Government of Canada website.\nRegardless of jurisdiction, workers may also qualify for Employment Insurance (EI) sickness benefits, which are administered federally. These benefits are available to employees who are unable to work due to medical reasons and meet the eligibility criteria. EI sickness benefits provide 55% of average weekly earnings, up to 695 CAD per week, for a maximum of 26 weeks. To qualify, employees typically need 600 insured hours worked in the 52 weeks prior to illness and must submit a medical certificate. More information can be found on the Government of Canada website.\n\nMaternity Leave\n\nIn Canada, Maternity and Parental leave rights are set out through the nationwide Employment Insurance (EI) program, which is applied across all provinces and entitles eligible mothers to take up to 15 weeks of maternity leave with income support. For Federally regulated employees and industries, up to 17 weeks maternity leave can be taken. During this period, eligible employees will receive maternity benefits equal to 55% of their earnings, up to a maximum of 695 CAD per week. To receive this benefit, workers must provide a certificate from a healthcare practitioner confirming the pregnancy. For further guidance and eligibility criteria, refer to the Government of Canada website.\n\nIn addition to EI, Nova Scotia sets its own employment standards under the Employment Standards Code, which entitles eligible employees to up to 16 weeks of unpaid pregnancy leave. Maternity leave cannot begin earlier than 16 weeks before the expected date of birth. Employees must provide their employer with at least four weeks’ written notice of their intended leave start date and expected return to work date. An employer can ask for proof of entitlement for pregnancy. More information and eligibility criteria can be found on the Nova Scotia Government website.\n\nIf an employee is taking both pregnancy and parental leaves, the employee must take one right after the other and not go back to work between the two leaves.\n\nPaternity Leave\n\nThe non birthing partner is entitled to up to 5 consecutive working days of unpaid leave. Employers may choose to ask the employee to complete the Labour Standards Division end of pregnancy form.\n\nParental Leave\n\nIn Canada, Parental leave benefits are available to parents of a newborn or newly adopted child through the nationwide Employment Insurance (EI) program, which is applied across all provinces. Parents can choose between 2 options:\n\nStandard parental benefits – up to 40 weeks leave shared between parents, but one parent cannot take more than 35 weeks, with pay equal to 55% of their earnings, up to a maximum of 695 CAD per week. This leave must be used within 52 weeks of the birth.\nExtended parental benefits – up to 69 weeks leave can be shared between parents, but one parent cannot take more than 61 weeks, with pay equal to 33% of their earnings, up to a maximum of 417 CAD per week. This leave must be used within 78 weeks of the birth.\n\nThe Parental leave period does not have to be taken consecutively but must be within the above mentioned timeframe. Further information and eligibility criteria can be found on the Government of Canada website.\n\nIn addition to EI, each individual province can set their own set of employment standards that determine the full available leave entitlements for parents. In Nova Scotia, eligible employees are entitled to up to 77 weeks of unpaid parental leave to care for a newborn or newly adopted child. This leave must be used within 18 months after the child arrives home. Additional information can be found on the Nova Scotia Government website.\n\nOther Leave\n\nBereavement Leave\n\nThis leave is in place for workers whose family member has died. There are two support systems; the system that applies depends on if the worker falls under the provincial sector or the federally regulated sector:\n\nWorkers regulated under the Nova Scotia Labour Standards Code can take unpaid leave of up to 5 working days in a row if their spouse, parent, guardian, child, grandparent, grandchild, sibling, in-law parents, in-law child and in-law sibling.\n\nEmployees must give their employers as much notice as possible that they will take this leave.\n\nFederally regulated workers under the Canada Labour Code are entitled to up to 10 days of job protected bereavement leave following the death of an immediate family member. This leave can be taken within 6 weeks of the death. The first 3 days of this leave will be paid if the worker has completed 3 months of continuous employment.\n\nFamily Responsibility Leave\n\nIn Nova Scotia, employees are entitled to receive up to 3 days of unpaid leave each year to care for an ill parent, child, or family member. These three days can also be used for medical, dental, or other similar appointments for the employee or the employee family member\n\nAdditional leave for family matters might be available under the Employment Insurance regulations, based on eligibility.\n\nCompassionate Care Leave\n\nThis leave is in place for workers who need to care for seriously ill family members with a significant risk of death. There are two support systems in place which can both be applied to workers:\n\nUnder the Nova Scotia’s Labour Standard Code, eligible employees who have been employed for at least 3 months can take up to 26 weeks of unpaid leave to care for seriously ill family members (or a person like family). A qualified medical practitioner must issue a medical certificate stating that the employee’s family member has a serious medical condition with a significant risk of death within twenty-six weeks. Employees who need to take compassionate care leave must give their employer as much notice as possible before taking the leave. An employer can ask in writing for a copy of the medical certificate.\nUnder Canada’s Federal Employment Insurance (EI), eligible employees who have at least 600 insured hours of work in the 52 weeks before the start of the claim or since the start of their last claim (whichever is shorter) is entitled to caregiving leave of up to 26 weeks. There might also be eligibility for income support equal to 55% of earnings, up to a maximum of 695 CAD per week.\n\nSerious Illness or Injury Leave\n\nThis leave is in place for workers who need to take time off for leave due to serious illness or injury. There are two support systems in place which can both be applied to workers:\n\nUnder the Nova Scotia Labour Standard Code, eligible employees who are suffering from a serious injury or illness may be entitled to up to 27 weeks of unpaid leave within a 52-week period. This leave may be broken up into multiple periods, however the periods must be at least one week in length. To be eligible, workers must have been employed for at least 3 months.  Employees must let the employer know in writing as soon as possible of their intention to take this leave.\nUnder Canada’s Federal Employment Insurance (EI), eligible employees who have at least 600 insured hours of work in the 52 weeks before the start of the claim or since the start of their last claim (whichever is shorter) is entitled to sickness leave of up to 26 weeks. There might also be eligibility for income support equal to 55% of earnings, up to a maximum of 695 CAD per week.\n\nCritical Illness Leave\n\nIn Nova Scotia, employees have the right to take unpaid Critical Illness Leave to provide care and support for a critically ill family members. The length of leave and eligibility depends on the age of the ill family member:\n\nEmployees can take up to 37 weeks of unpaid leave within a 52 week period to provide care or support to a critically ill child under 18 years old.\nEmployees can take up to 16 weeks of unpaid leave within a 52 week period to provide care or support to a critically ill adult.\n\nTo be eligible, for this leave, employees must have worked for the same employer for at least 3 months. The leave can be broken up into several periods of at least one week in duration during this time frame. The 52-week time frame begins on the first day of the week in which the person became critically ill. A qualified medical practitioner must issue a medical certificate stating that the person has a critical illness and the period of time for which the child needs care.\n\nAdditional leave, and financial support, might be available under the Employment Insurance regulations, based on eligibility.\n\nEmergency Leave\n\nEmployees are entitled to an unpaid Emergency Leave if they are unable to perform their work because of an emergency declared under the Emergency Management Act, or by order of a medical officer under the Health Protection Act, or an emergency declared under the Emergencies Act. Employees can also use this leave to care for a family member who is affected by one of the emergency situations noted above and the employee is the only person who can reasonably care for the family member.\n\nAdditional Leave\n\nUnder the Canada Labour Code and Nova Scotia Labour Standard Code other types of leave are also regulated including Reservist Leave, Jury Leave, Domestic Violence Leave, Crime Related Child Death or Disappearance Leave and Citizenship Leave."
+        },
+        "termination": {
+          "general_info": "Termination Process\n\nThe termination process in Nova Scotia is based on the regulations outlined in the Labour Standards Code.\n\nFor an employee with less than ten years service, the employer does not need a reason to end the employment, but the employer may be required to provide the employee with written notice or pay in lieu of notice. An employer can also end employment without notice or pay in lieu of notice when an employee has been guilty of wilful misconduct or disobedience or neglect of duty that has not been condoned by the employer.\n\nFor an employee with 10 years or more service, they cannot be fired or suspended without good reason or just cause. To justify these decisions, the employer might need to show that they had made their expectations clear to the employee, warned them to change behaviour, given them a reasonable chance to change behaviour and made it clear that not improving behaviour could lead to being fired.\n\nNotice Period\n\nNotice should be given in writing or payment in lieu of notice can be given. The length of the required notice period is determined by the employee’s length of service.\n\nNotice by the Employer:\n\nLess than 3 months of service = not notice required\n3 months to 2 years of service = 1 week’s notice\n2 years to 5 years of service = 2 week’s notice\n5 years to 10 years of service = 4  week’s notice\n10+ years of service = 8 weeks’ notice\n\nNotice by the Employee:\n\nLess than 3 months of service = not notice required\n3 months to 2 years of service = 1 week’s notice\n2+ years of service = 2 weeks’ notice\n\nSeverance Pay\n\nNova Scotia regulations typically does not require severance payout as long as notice periods and payment have been followed.\n\nProbation Period\n\nThe first 3 months of employment is generally considered to be a probationary period. During this time, no notice is required to be given upon termination or resignation."
+        },
+        "visa": {
+          "general_info": "The Government of Canada operates the Temporary Foreign Worker Program to enable foreign citizens to apply to work in Canada for a set period. The program covers all job roles and knowledge levels, and it can be used when a qualified Canadian citizen or permanent resident is not available or suitable for the role. There are federal (government of Canada) immigration programs and provincial programs (government of Nova Scotia) in place in Nova Scotia."
+        },
+        "vat": {
+          "general_info": "General\n\nCanadian Federal GST is charged at 5%. Nova Scotia PST is 10%, resulting in a combined GST and PST rate of 15.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Federal Taxes, Employer contribution + withholding taxes",
+            "paid_to": "CRA",
+            "due_date": "Either monthly or semi monthly",
+            "method": "e-check"
+          },
+          {
+            "authority_payment": "Health Contribution",
+            "paid_to": "EHT",
+            "due_date": "Monthly",
+            "method": "e-check"
+          }
+        ]
+      }
+    },
+    {
+      "country": "Canada Nunavut",
+      "url": "https://www.papayaglobal.com/countrypedia/country/canada-nunavut/",
+      "scraped_at": "2025-08-24T17:43:24.023Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    },
+    {
+      "country": "Canada Ontario",
+      "url": "https://www.papayaglobal.com/countrypedia/country/canada-ontario/",
+      "scraped_at": "2025-08-24T17:43:30.233Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "5.95%",
+              "description": "Canada Pension Plan (CPP), applied on annual salary between 3,500 to 71,300 CAD"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Canada Pension Plan 2 (CPP2), applied on annual salary between 71,300 to 81,200 CAD"
+            },
+            {
+              "rate": "1.64%",
+              "description": "Employment insurance (EI), applied on an annual maximum insurable earnings ceiling up to 65,700 CAD"
+            },
+            {
+              "rate": "0.18 to 3.45 CAD per 100 CAD of insurable payroll",
+              "description": "Workplace Safety Insurance Board (WSIB), applied on an annual maximum insurable earnings ceiling of up to 117,000 CAD. The applied rate depends on a class rating, based on the shared risk of all the businesses that do the same type of work in each class."
+            },
+            {
+              "rate": "",
+              "description": "Employer Health Tax (EHT), annual rates"
+            },
+            {
+              "rate": "0.98%",
+              "description": "Up to 200,000 CAD"
+            },
+            {
+              "rate": "1.101%",
+              "description": "200,000 – 230,000 CAD"
+            },
+            {
+              "rate": "1.223%",
+              "description": "230,000 – 260,000 CAD"
+            },
+            {
+              "rate": "1.344%",
+              "description": "260,000 – 290,000 CAD"
+            },
+            {
+              "rate": "1.465%",
+              "description": "290,000 – 320,000 CAD"
+            },
+            {
+              "rate": "1.586%",
+              "description": "320,000 – 350,000 CAD"
+            },
+            {
+              "rate": "1.708%",
+              "description": "350,000 – 380,000 CAD"
+            },
+            {
+              "rate": "1.829%",
+              "description": "380,000 – 400,000 CAD"
+            },
+            {
+              "rate": "1.95%",
+              "description": "More than 400,000 CAD"
+            },
+            {
+              "rate": "11.04% + EHT % + WSIB rate",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "5.95%",
+              "description": "Canada Pension Plan (CPP), applied on annual salary between 3,500 to 71,300 CAD"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Canada Pension Plan 2 (CPP2), applied on annual salary between 71,300 to 81,200 CAD"
+            },
+            {
+              "rate": "1.64%",
+              "description": "Employment Insurance (EI), applied on an annual maximum insurable earnings ceiling up to 65,700 CAD"
+            },
+            {
+              "rate": "",
+              "description": "Ontario Health Premium (OHP), Annual rates"
+            },
+            {
+              "rate": "0 CAD",
+              "description": "Up to 20,000 CAD"
+            },
+            {
+              "rate": "up to 300 CAD",
+              "description": "20,000 – 25,000 CAD"
+            },
+            {
+              "rate": "300 CAD",
+              "description": "25,000 – 36,000 CAD"
+            },
+            {
+              "rate": "450 CAD",
+              "description": "36,000 – 48,000 CAD"
+            },
+            {
+              "rate": "600 CAD",
+              "description": "48,000 – 72,000 CAD"
+            },
+            {
+              "rate": "750 CAD",
+              "description": "72,000 – 200,000 CAD"
+            },
+            {
+              "rate": "900 CAD",
+              "description": "Over 200,000 CAD"
+            },
+            {
+              "rate": "7.59% + OHP",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "Federal:",
+              "description": "Annual"
+            },
+            {
+              "rate": "15.00%",
+              "description": "Up to 57,375 CAD"
+            },
+            {
+              "rate": "20.50%",
+              "description": "57,375 – 114,750 CAD"
+            },
+            {
+              "rate": "26.00%",
+              "description": "114,750 – 177,882 CAD"
+            },
+            {
+              "rate": "29.00%",
+              "description": "177,882 – 253,414 CAD"
+            },
+            {
+              "rate": "33.00%",
+              "description": "253,414 CAD and over"
+            },
+            {
+              "rate": "Ontario:",
+              "description": "Annual"
+            },
+            {
+              "rate": "5.05%",
+              "description": "Up to 52,886 CAD"
+            },
+            {
+              "rate": "9.15%",
+              "description": "52,886 – 105,775 CAD"
+            },
+            {
+              "rate": "11.16%",
+              "description": "105,775 – 150,000 CAD"
+            },
+            {
+              "rate": "12.16%",
+              "description": "150,000 – 220,000 CAD"
+            },
+            {
+              "rate": "13.16%",
+              "description": "220,000 CAD and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The standard hourly minimum wage in Ontario is 17.20 CAD. From October 2025, the hourly minimum wage is set to increase to 17.60 CAD.\nThe minimum wage rate set for employees of federally regulated organizations will be the current minimum wage rate specified in the jurisdiction in which the employee performs the work.",
+        "payroll": {
+          "payroll_cycle": "An employer has 1 month to remit an employee’s first pay. After this, wages must be paid at regular intervals of no more than 16 days, or 1 month in case of managerial personnel. If pay day falls on a statutory holiday, the wages must be paid on the preceding working day.",
+          "13th_salary": "There are no provisions in the law regarding 13th salaries."
+        },
+        "working_hours": {
+          "general": "Most employees in Ontario fall under the Employment Standards Act, which allows for a maximum working time of 8 hours per day and up to 44 hours per week. The weekly maximum can be exceeded only if there is an electronic or written agreement between the employee and employer.\nCertain employee types might be exempt from certain parts of Employment Standards Act working time rules, including industries related to healthcare professionals, manufacturing, construction, mining, hospitality, agriculture, transportation and Government employees.",
+          "overtime": "An employer must pay an employee overtime pay at a rate of 150%  salary. For workers on a fixed salary, overtime pay requirement start after 44 hours a week have been worked. Even where an agreement to work additional hours is in place, overtime pay will still apply.\nCertain job types are exempt from overtime rules, for example, many managerial, and supervisory positions."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In Ontario, under the Employment Standards Act employees are entitled to vacation days based on service length:\nless than five years of employment are entitled to 2weeks of vacation time after each 12-month vacation entitlement year.\nEmployees with five or more years of employment are entitled to 3 weeks of vacation time.\nOrdinarily, a vacation entitlement year is a recurring 12-month period beginning on the date of hire.\nEmployees are also entitled to vacation pay based on service length:\nFor employees with less than five years of employment, vacation pay must be at least 4% of the gross wages (excluding any vacation pay) earned in the 12-month vacation entitlement year.\nFor Employees with five or more years of employment, vacation pay must be at least 6% of the gross wages earned in the 12-month vacation entitlement year.\nVacation must be used within 10 months after completing the accrual year. The employer has an obligation to ensure the vacation time is scheduled and taken before the end of that 10-month period and can even dictate when the holiday  can be scheduled.",
+          "public_holidays": "When public holidays fall on a weekend it is customary to give off in lieu.\nEmployees that work on a statutory public holiday are paid premium pay of 150% of the regular hourly salary rate plus a substitue day off or an additional daily salary paid out.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n17 Feb 2025\tMonday\tFamily Day\t\n18 Apr 2025\tFriday\tGood Friday\t\n19 May 2025\tMonday\tVictoria Day\t\n1 Jul 2025\tTuesday\tCanada Day\t\n4 Aug 2025\tMonday\tCivic Holiday\tCommon in many municipalities to give as a paid day off.\n1 Sep 2025\tMonday\tLabour Day\t\n30 Sep 2025\tTuesday\tNational Day for Truth and Reconciliation\tFederally regulated workplaces only\n13 Oct 2025\tMonday\tThanksgiving\t\n25 Dec 2025\tThursday\tChristmas\t\n26 Dec 2025\tFriday\tBoxing Day",
+          "sick_days": "Sick leave entitlement in Ontario depends on whether the employee falls under provincial or federal regulation, and whether they qualify for Employment Insurance (EI) sickness benefits.\nRegulated workers under Ontario’s Employment Standards Act are entitled to take up to 3 days of unpaid job protected sick leave per calendar year due to a personal illness, injury or medical emergency. Employees must have completed at least 2 consecutive weeks of service to be eligible. Unused sick leave days do not carryover into to the next calendar year. Employers are prohibited from requiring employees to provide a certificate from a qualified health practitioner in order to take sick leave. Additional information can be found on the Government of Ontario website.\nFederally regulated workers are entitled under the Canada Labour Code to receive up to 10 days paid sick leave per year. These 10 days paid sick leave is accrued during the year after an initial 30-day qualifying period of continuous employment has been completed.  Following this qualifying period, workers earn the first 3 days of paid medical leave. Following this, workers earn 1 further day of paid sick leave at the start of each month after completing 1 month of continuous employment until a maximum of 10 days paid sick leave per year has been accrued. Any days of medical leave with pay that are not taken within the year will be carried over to the beginning of the new year up to a maximum of 10 days. More details and eligibility criteria can be found on the Government of Canada website.\nRegardless of jurisdiction, workers may also qualify for Employment Insurance (EI) sickness benefits, which are administered federally. These benefits are available to employees who are unable to work due to medical reasons and meet the eligibility criteria. EI sickness benefits provide 55% of average weekly earnings, up to 695 CAD per week, for a maximum of 26 weeks. To qualify, employees typically need 600 insured hours worked in the 52 weeks prior to illness and must submit a medical certificate. More information can be found on the Government of Canada website.\nMaternity Leave\nIn Canada, Maternity and Parental leave rights are set out through the nationwide Employment Insurance (EI) program, which is applied across all provinces and entitles eligible mothers to take up to 15 weeks of maternity leave with income support. For Federally regulated employees and industries, up to 17 weeks maternity leave can be taken. During this period, eligible employees will receive maternity benefits equal to 55% of their earnings, up to a maximum of 695 CAD per week. To receive this benefit, workers must provide a certificate from a healthcare practitioner confirming the pregnancy. For further guidance and eligibility criteria, refer to the Government of Canada website.\nIn addition to EI, each individual province sets their own set of employment standards that determine the full available leave entitlements for parents.\nIn Ontario, under the Employment Standards Act, eligible employees are entitled to up to 17 weeks of unpaid maternity leave if the employee started employment at least 13 weeks before the expected due date. Maternity leave may not begin before the 17th week preceding the expected delivery date. An employee must give their employer at least two weeks’ written notice before beginning a pregnancy leave. More information and eligibility criteria can be found on the Ontario Government website.\nFollowing the completion of the maternity benefits, mothers can go on to take Parental Leave.\nPaternity Leave\nPaternity leave falls under the parental leave entitlement.\nParental Leave\nIn Canada, Parental leave benefits are available to parents of a newborn or newly adopted child through the nationwide Employment Insurance (EI) program, which is applied across all provinces. Parents can choose between 2 options:\nStandard parental benefits – up to 40 weeks leave shared between parents, but one parent cannot take more than 35 weeks, with pay equal to 55% of their earnings, up to a maximum of 695 CAD per week. This leave must be used within 52 weeks of the birth.\nExtended parental benefits – up to 69 weeks leave can be shared between parents, but one parent cannot take more than 61 weeks, with pay equal to 33% of their earnings, up to a maximum of 417 CAD per week. This leave must be used within 78 weeks of the birth.\nThe Parental leave period does not have to be taken consecutively but must be within the above mentioned timeframe. Further information and eligibility criteria can be found on the Government of Canada website.\nIn addition to EI, each individual province can set their own set of employment standards that determine the full available leave entitlements for parents. In Ontario, parents can take up to 61 weeks (birth mothers) or 63 weeks (other new parents) of unpaid parental leave as long as they were employed for at least 13 weeks before commencing the parental leave. Leave can start any time after the birth or adoption of a child (or after the maternity leave period ends), but must be used within 78 weeks of the date the baby is born or placed with the parents. Employees must give employers written notice at least 2 weeks before starting parental leave. Employees must give their employer’s written notice at least 4 weeks if they wish to return to work before using the 61 or 63 weeks. Additional information can be found on the Ontario Government website.",
+          "other_leave": "Bereavement Leave\nThis leave is in place for workers whose family member has died. There are two support systems; the system that applies depends on if the worker falls under the provincial sector or the federally regulated sector:\nWorkers regulated under the Ontario Employment Standards Act are entitled to 2 days of unpaid job protected leave per calendar year in the event of the death of a family member. To be eligible, workers must have at least two weeks of continuous service.\nFederally regulated workers under the Canada Labour Code are entitled to up to 10 days of job protected bereavement leave following the death of an immediate family member. This leave can be taken within 6 weeks of the death. The first 3 days of this leave will be paid if the worker has completed 3 months of continuous employment.\nFamily Responsibility Leave\nEmployees have the right to take up to 3 days of unpaid job-protected Family Responsibility Leave each calendar year due to illness, injury, medical emergency or urgent matter relating to certain relatives. To be eligible for this leave, workers must have completed at least 2 consecutive weeks of employment. An employer may require an employee to provide evidence “reasonable in the circumstances” that they are eligible for family responsibility leave.\nFamily Medical Leave\nThere are two support systems in place to care for ill family members where the expected outcome is death within a short period of time:\nUnder the Ontario Employment Standards Act, workers can take up to  28 weeks of unpaid  job-protected leave within a 52 week period to care for family members whom a qualified health practitioner has issued a certificate indicating that they have a serious medical condition with a significant risk of death occurring within a period of 26 weeks. There is no specific service length required in order to be eligible to use this leave. An employee must inform the employer in writing that they will be taking a family caregiver leave of absence.\nUnder Canada’s Federal Employment Insurance (EI), eligible employees can take Compassionate Care benefits to look after gravely ill family member providing they have at least 600 insured hours of work in the 52 weeks before the start of the claim or since the start of their last claim (whichever is shorter) is entitled to caregiving leave of up to 26 weeks. There might also be eligibility for income support equal to 55% of earnings, up to a maximum of 695 CAD per week.\nFamily Caregiver Leave\nThis leave is in place for workers who need to care for ill family members. There are two support systems in place which can both be applied to workers:\nUnder the Ontario Employment Standards Act, Family Caregiver Leave is unpaid, job-protected leave of up to 8 weeks per calendar year per specified family member to provide care or support based on a qualified health practitioner issuing a certificate stating that the family member has a serious medical condition. The eight weeks can be taken consecutively or separately. However, leave for periods of less than a full week are still considered as if one week has been taken. There is no specific service length required in order to be eligible to use this leave. An employee must inform the employer in writing that they will be taking a family caregiver leave of absence.\nUnder Canada’s Federal Employment Insurance (EI), eligible employees can take Compassionate Care benefits to look after gravely ill family member providing they have at least 600 insured hours of work in the 52 weeks before the start of the claim or since the start of their last claim (whichever is shorter) is entitled to caregiving leave of up to 26 weeks. There might also be eligibility for income support equal to 55% of earnings, up to a maximum of 695 CAD per week.\nCritical Illness Leave\nThis leave is in place for workers who need to care for a critically ill child or adult family member, regardless of whether they are at risk of death. There are two support systems in place which can both be applied to workers:\nUnder the Ontario Employment Standards Act, eligible employees who have been employed by their employer for at least six consecutive months can take unpaid critical illness job-protected leave of up to 37 weeks in relation to a critically ill minor child, or 17 weeks in relation to a critically ill adult within a 52-week period. Employees must give their employer a qualified health practitioner issued certificate stating stating who is ill and the period that support will be required. Whilst this leave is unpaid, workers might still be eligible to receive income support under the EI.\nUnder Canada’s Federal Employment Insurance (EI), eligible employees who have at least 600 insured hours of work in the 52 weeks before the start of the claim or since the start of their last claim (whichever is shorter) is entitled to caregiving leave of either 35 weeks to care for a child under 18 or 35 weeks to care for an adult family member. There might also be eligibility for income support equal to 55% of earnings, up to a maximum of 695 CAD per week.\nAdditional Leave\nUnder the Canada Labour Code and Ontario Employments Standards Act other types of leave are also regulated including Declared Emergency Leave, Reservist Leave, Jury Leave, Domestic Violence Leave and Death or Disappearance of a Child Leave."
+        },
+        "termination": {
+          "termination_process": "The termination process in Ontario is outlined under the Employment Standards Act. Generally, an employer can terminate the employment of an employee who has been employed continuously for three months or more if the employer has given the employee proper written notice or termination pay in lieu of the notice period.\nThe ESA does not require an employer to give an employee a reason why their employment is being terminated. When dismissing workers due to reasons of redundancy, insolvency or bankruptcy additional regulations might apply depending on the number of workers who are impacted.",
+          "notice_period": "Where a worker has been employed for at least three months, the following notice period must be given to terminate:\nLess than 1 year of employment: 1 weeks’ notice\n1-3 years of employment: 2 weeks’ notice\n3-4 years of employment: 3 weeks’ notice\n4-5 years of employment: 4 weeks’ notice\n5-6 years of employment: 5 weeks’ notice\n6-7 years of employment: 6 weeks’ notice\n7-8 years of employment: 7 weeks’ notice\n8+ years of employment: 8 weeks’ notice",
+          "severance_pay": "To be eligible for severance pay, an employee must have completed at least five years of employment, or the company has a payroll of over 2.5 million CAD per year or have terminated over 50 employees in the past six months due to all or part of the company closing to receive severance payments. The severance pay calculation is based on the number of completed years of employment and the number of completed months of employment divided by 12 for a year that is not completed. The maximum amount of severance pay required to be paid under the ESA is 26 weeks.",
+          "probation_period": "Probation period in Ontario for a permanent employee is generally set at a minimum of 3 months. No notice is required to be given for dismissal during this period."
+        },
+        "common_benefits": [
+          "Cell phone/internet allowance",
+          "Car allowance",
+          "Supplementary healthcare (which typically cover costs of items or care that are not covered by Canada’s universal healthcare system such as prescription drugs or vision ware).",
+          "Dental plan",
+          "Private pension/Retirement Savings plan contribution (2-6 % of base salary is common)"
+        ],
+        "visa": {
+          "general_info": "The Government of Canada operates the Temporary Foreign Worker Program to enable foreign citizens to apply to work in Canada for a set period. The program covers all job roles and knowledge levels, and it can be used when a qualified Canadian citizen or permanent resident is not available or suitable for the role. There are federal (Government of Canada) immigration programs and provincial programs (Government of Ontario) in place in Ontario."
+        },
+        "vat": {
+          "general": "Canadian Federal GST is charged at 5%. Ontario PST is 8%, resulting in a combined GST and PST rate of 13.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Federal Taxes, Employer contribution + withholding taxes",
+            "paid_to": "CRA",
+            "due_date": "Either monthly or semi monthly",
+            "method": "e-check"
+          },
+          {
+            "authority_payment": "Health Contribution",
+            "paid_to": "EHT",
+            "due_date": "Monthly",
+            "method": "e-check"
+          }
+        ]
+      }
+    },
+    {
+      "country": "Canada Prince Edward Island",
+      "url": "https://www.papayaglobal.com/countrypedia/country/canada-prince-edward-island/",
+      "scraped_at": "2025-08-24T17:43:41.610Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    },
+    {
+      "country": "Canada Quebec",
+      "url": "https://www.papayaglobal.com/countrypedia/country/canada-quebec/",
+      "scraped_at": "2025-08-24T17:43:47.489Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "1.25-4.26%",
+              "description": "Health Services Fund (HSF)"
+            },
+            {
+              "rate": "1.78%",
+              "description": "Employment Insurance, applied on salary up to 65,700 CAD annually"
+            },
+            {
+              "rate": "0.692%",
+              "description": "Quebec Parental Insurance Plan (QPIP), applied on salary up to 98,000 CAD annually"
+            },
+            {
+              "rate": "5.40%",
+              "description": "Quebec Pension Plan (QPP), applied on salary between 3,500 to 71,300 CAD"
+            },
+            {
+              "rate": "0.06%",
+              "description": "Labor Standards applied on income up to 98,000 CAD"
+            },
+            {
+              "rate": "1.00%",
+              "description": "Workforce Skills and Development (WSDRF), applied if total payroll for the year is over 2 million CAD for the year by allotting an amount representing at least 1% total payroll to eligible training expenditures. Where there are no eligible training expenditures or the eligible training expenditures are less than 1% of the total payroll,  the applied contribution is equal to the difference between 1% of the total payroll and the amount of eligible training expenditures. Additional terms can be found here."
+            },
+            {
+              "rate": "Up to 13.192%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "1.31%",
+              "description": "Employment Insurance, applied on salary up to 65,700 CAD"
+            },
+            {
+              "rate": "0.494%",
+              "description": "Quebec Parental Insurance Plan (QPIP), applied on salary up to 98,000 CAD"
+            },
+            {
+              "rate": "5.40%",
+              "description": "Quebec Pension Plan (QPP), applied on salary between 3,500 to 71,300 CAD"
+            },
+            {
+              "rate": "7.204%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "Federal",
+              "description": "Annual"
+            },
+            {
+              "rate": "15.00%",
+              "description": "Up to 57,375 CAD"
+            },
+            {
+              "rate": "20.50%",
+              "description": "57,375 – 114,750 CAD"
+            },
+            {
+              "rate": "26.00%",
+              "description": "114,750 – 177,882 CAD"
+            },
+            {
+              "rate": "29.00%",
+              "description": "177,882 – 253,414 CAD"
+            },
+            {
+              "rate": "33.00%",
+              "description": "253,414 CAD and over"
+            },
+            {
+              "rate": "Quebec",
+              "description": "Annual"
+            },
+            {
+              "rate": "14%",
+              "description": "Up to 53,255 CAD"
+            },
+            {
+              "rate": "19%",
+              "description": "53,255 – 106,495 CAD"
+            },
+            {
+              "rate": "24%",
+              "description": "106,595 –  129,590 CAD"
+            },
+            {
+              "rate": "25.75%",
+              "description": "129,590 and over"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum wage in Quebec is 16.10 CAD per hour.\nThe minimum wage rate set for employees of Federally regulated organizations will be the current minimum wage rate specified in the jurisdiction in which the employee performs the work.",
+        "payroll": {
+          "payroll_cycle": "An employer has 1 month to remit an employee’s first pay. After this, wages must be paid at regular intervals of no more than 16 days, or 1 month in case of managerial personnel. If pay day falls on a statutory holiday, the wages must be paid on the preceding working day.",
+          "13th_salary": "There is no legislation for 13th-month payments in Quebec, Canada."
+        },
+        "working_hours": {
+          "general": "Per the Quebec Labour Standards Act, the standard workweek in Quebec for most workers is 8 hours per day, 40 hours per week. However, certain industries have longer working hours in place up to 60 hours per week e.g. security guards.",
+          "overtime": "Work done above the standard workweek is considered as overtime and must be paid at a rate of 150% of the employee’s regular hourly salary. Workers can ask for time off in lieu of payment of overtime hours.\nCertain job types might be exempt from overtime rules, such as many managerial and supervisory positions."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "In Quebec, employees are entitled to two consecutive weeks of vacation leave after the first year of employment and three consecutive weeks of leave after five years of employment. However, it is common to offer leave from day 1.\nEmployees are entitled to vacation pay of 4.00% of the regular salary rate of pay for the first five years of employment and 6.00% of the regular salary rate of pay after five years of employment.\nIn Quebec, under the Labour Standards Act, employees are entitled to vacation time based on their length of continuous employment with the same employer:\nLess than 1 year of service = 1 day leave per full month of uninterrupted service, not exceeding 2 weeks.\n\n1 to 3 years of service = 2 consecutive weeks of vacation.\n\nAbove 3 years of employment = 3 consecutive weeks of vacation.\nEmployees are also entitled to vacation pay based on service length:\nFor employees with less than 3 years of employment, vacation pay must be at least 4% of the gross wages.\nFor Employees with 3 or more years of employment, vacation pay must be at least 6% of the gross wages.\nThe worker must receive his vacation indemnity in a lump sum before they start their vacation or at the time of the current pay covering the period of their vacation.",
+          "public_holidays": "There are 8 national holidays in Quebec.\nIf a holiday falls on a weekend, it the holiday is observed on the Friday before the weekend or on the following Monday or must be paid the indemnity for the holiday.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n18 Apr 2025\tFriday\tGood Friday\tEmployers must give off either Good Friday or Easter Monday\n21 Apr 2025\tMonday\tEaster Monday\tEmployers must give off either Good Friday or Easter Monday\n19 May 2025\tMonday\tPatriots’ Day\t\n24 Jun 2025\tTuesday\tSt. Jean Baptiste Day\t\n1 Jul 2025\tTuesday\tCanada Day\t\n1 Sep 2025\tMonday\tLabour Day\t\n30 Sep 2025\tTuesday\tNational Day for Truth and Reconciliation\tFederally regulated workplaces only\n13 Oct 2025\tMonday\tThanksgiving\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "Sick leave entitlement in Manitoba depends on whether the employee falls under provincial or federal regulation, and whether they qualify for Employment Insurance (EI) sickness benefits.\nUnder Quebec’s Labour Standards Act, non work related accident or illness leave of up to 2 days paid is available after completing at least 3 months of continuous employment. This leave can also be used for the purpose of family care obligations. Employers may request reasonable verification, such as a medical certificate to support the employee’s need for leave. More information can be found on Quebec’s Government website.\nFederally regulated workers are entitled under the Canada Labour Code to receive up to 10 days paid sick leave per year. These 10 days paid sick leave is accrued during the year after an initial 30-day qualifying period of continuous employment has been completed.  Following this qualifying period, workers earn the first 3 days of paid medical leave. Following this, workers earn 1 further day of paid sick leave at the start of each month after completing 1 month of continuous employment until a maximum of 10 days paid sick leave per year has been accrued. Any days of medical leave with pay that are not taken within the year will be carried over to the beginning of the new year up to a maximum of 10 days. More details and eligibility criteria can be found on the Government of Canada website.\nRegardless of jurisdiction, workers may also qualify for Employment Insurance (EI) sickness benefits, which are administered federally. These benefits are available to employees who are unable to work due to medical reasons and meet the eligibility criteria. EI sickness benefits provide 55% of average weekly earnings, up to 695 CAD per week, for a maximum of 26 weeks. To qualify, employees typically need 600 insured hours worked in the 52 weeks prior to illness and must submit a medical certificate. More information can be found on the Government of Canada website.\nMaternity Leave\nIn Canada, Maternity and Parental leave rights are set out through the nationwide Employment Insurance (EI) program, which is applied across all provinces and entitles eligible mothers to take up to 15 weeks of maternity leave with income support. For Federally regulated employees and industries, up to 17 weeks maternity leave can be taken. During this period, eligible employees will receive maternity benefits equal to 55% of their earnings, up to a maximum of 695 CAD per week. To receive this benefit, workers must provide a certificate from a healthcare practitioner confirming the pregnancy. For further guidance and eligibility criteria, refer to the Government of Canada website.\nIn addition to EI, Quebec sets its own employment standards under the Labour Standards Act, which entitles eligible employees to up to 18 continuous weeks of unpaid maternity leave. To qualify, an employee must have worked for the same employer for at least seven consecutive months before the expected date of delivery. Maternity leave can begin as of the 16th week before the expected date of birth, and it must end no later than 20 weeks after the birth. Employees must provide their employer with at least 3 weeks’ written notice of their intended leave start date and a medical certificate confirming the pregnancy and expected due date. More information and eligibility criteria can be found on the Quebec Government website.\nFollowing the completion of the maternity benefits, mothers can go on to take Parental Leave.\nPaternity Leave\nUpon the adoption or birth of a child, a leave of 5 continuous weeks without pay is provided for the parent who did not give birth. They are entitled to this leave regardless of the length of their uninterrupted service. The leave may begin as of the week of the child’s birth and end no later than 78 weeks after the child’s birth.  The notice of leave must be given to their employer at least 3 weeks before they go on leave.\nFollowing the completion of the paternity benefits, additional leave can be taken through Parental Leave.\nFive Days of Leave\nBoth parents (biological or adoptive) may be absent from work for 5 days, the first 2 days of which are paid, for the birth of a child, the adoption of a child or the termination of a pregnancy that occurs as of the 20th week. This right to be absent from work applies to all workers, regardless of the length of their uninterrupted service. It must be taken within 15 days of the child’s birth, the child’s arrival in the home or the termination of pregnancy.\nThe parent is not entitled to the 5-day leave if they have already started Maternity or Paternity leave. Additional information can be found on the Quebec Government website.\nParental Leave\nIn Canada, Parental leave benefits are available to parents of a newborn or newly adopted child through the nationwide Employment Insurance (EI) program, which is applied across all provinces. Parents can choose between 2 options:\nStandard parental benefits – up to 40 weeks leave shared between parents, but one parent cannot take more than 35 weeks, with pay equal to 55% of their earnings, up to a maximum of 695 CAD per week. This leave must be used within 52 weeks of the birth.\nExtended parental benefits – up to 69 weeks leave can be shared between parents, but one parent cannot take more than 61 weeks, with pay equal to 33% of their earnings, up to a maximum of 417 CAD per week. This leave must be used within 78 weeks of the birth.\nThe Parental leave period does not have to be taken consecutively but must be within the above mentioned timeframe. Further information and eligibility criteria can be found on the Government of Canada website.\nIn addition to EI, each individual province can set their own set of employment standards that determine the full available leave entitlements for parents. In Quebec, eligible employees are entitled to up to 65 weeks of unpaid parental leave to care for a newborn or newly adopted child. Employees must provide at least 3 weeks’ written notice before starting parental leave and must also give 3 weeks’ written notice before returning to work. Additional information can be found on the Quebec Government website.",
+          "other_leave": "Bereavement Leave\nThis leave is in place for workers whose family member has died. There are two support systems; the system that applies depends on if the worker falls under the provincial sector or the federally regulated sector:\nWorkers regulated under the Quebec Labour Standards Act are entitled to 5 days of leave (including 2 days with pay) for the death or preparation of the funeral. This right to be absent from work applies to all workers, regardless of the length of their uninterrupted service.\nFederally regulated workers under the Canada Labour Code are entitled to up to 10 days of job protected bereavement leave following the death of an immediate family member. This leave can be taken within 6 weeks of the death. The first 3 days of this leave will be paid if the worker has completed 3 months of continuous employment.\nFamily Leave\nIn Quebec, employees have the right to take up to 10 days leave per calendar year to fulfil family or parental obligations. For workers with at least 3 months of uninterrupted service, the first 2 days of absence are with pay. Unused days do not carryover into the next calendar year. These days may not be taken for personal reasons e.g. a worker cannot take these days to go and sign papers at a notary’s office.\nExtended Absence is in place for the following reasons:\nup to 16 weeks over a 12-month period if the worker must stay with a family member or a person for whom they are a natural caregiver and who has a serious illness or had a serious accident.\nup to 27 weeks over a 12-month period if the person who is seriously ill has a life-threatening illness.\nup to 36 weeks over a12-month period if their minor child is seriously ill or had a serious accident. The absence may be extended for a total of 104 weeks if their minor child has a serious, life-threatening illness, as attested by a medical certificate.\nAdditional leave for family matters might be available under the Employment Insurance regulations, based on eligibility.\nWedding Leave\nUnder the Quebec Labour Standards Act, on the day of a workers’ own wedding or civil union, they may be absent from work with pay.\nA worker may also be absent from work for one day without pay, for the wedding or civil union of their child, a parent, a sibling or their spouse’s child.\nWorkers must advise their employer of their absence at least one week in advance.\nAdditional Leave\nUnder the Canada Labour Code and Quebec Labour Standards Act other types of leave are also regulated including Reservist Leave, Jury Leave, Suicide of a Loved One Leave and Disappearance of a Child Leave."
+        },
+        "termination": {
+          "termination_process": "The termination process in Quebec is based on termination reasons and process outlined in the Labour Standards Act. Employers can terminate a worker’s employment when they no longer need their services for reasons including economic reasons including financial difficulties, organizational reasons including restructuring of the company or reorganization of duties, and technical reasons, such as technological innovations.\nIf 10 or more workers are dismissed over a period of 2 consecutive months, this might be considered as a Collective Dismissal, which might require additional process, notice and payout.\nWhen terminating, employers must give written notice. If this is not correctly provided, the worker could be entitled to an monetary indemnity equal to the regular wages the worker would have earned between the date on which the notice should have been provided and the termination of their employment.",
+          "notice_period": "The length of required written notice is based on the employee’s length of uninterrupted service:\n3 months to 1 year of service = 1 week notice\n1 to 5 years of service = 2 weeks notice\n5 to 10 years of service = 4 weeks notice\n10 years or more service = 8 weeks notice",
+          "severance_pay": "In Quebec, there is no statutory severance payout.",
+          "probation_period": "The first 3 months of employment is generally considered to be a probationary period. During this time, no notice is required to be given upon termination."
+        },
+        "common_benefits": [
+          "Cell phone/internet allowance",
+          "Car allowance",
+          "Supplementary healthcare (which typically cover costs of items or care that are not covered by Canada’s universal healthcare system such as prescription drugs or vision ware).",
+          "Dental plan",
+          "Private pension/Retirement Savings plan contribution (2-6 % of base salary is common)"
+        ],
+        "visa": {
+          "general_info": "The Government of Canada operates the Temporary Foreign Worker Program to enable foreign citizens to apply to work in Canada for a set period. The program covers all job roles and knowledge levels, and it can be used when a qualified Canadian citizen or permanent resident is not available or suitable for the role.\nFederal (Government of Canada) immigration programs and provincial programs (Government of Quebec) are available in Quebec."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in Quebec, Canada, is 5.00%. However, Quebec also has a provincial sales tax (PST) which is a retail sales tax that applies when taxable goods or services are purchased, acquired, or brought into Quebec for use in Quebec, and this rate is 9.98%, resulting in a combined GST and QST rate of 14.98%"
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Federal Taxes, Employer contribution + withholding taxes",
+            "paid_to": "CRA",
+            "due_date": "Either monthly or semi monthly",
+            "method": "e-check"
+          },
+          {
+            "authority_payment": "Health Contribution",
+            "paid_to": "EHT",
+            "due_date": "Monthly",
+            "method": "e-check"
+          }
+        ]
+      }
+    },
+    {
+      "country": "Canada Saskatchewan",
+      "url": "https://www.papayaglobal.com/countrypedia/country/canada-saskatchewan/",
+      "scraped_at": "2025-08-24T17:43:56.682Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    },
+    {
+      "country": "Canada Yukon Territory",
+      "url": "https://www.papayaglobal.com/countrypedia/country/canada-yukon-territory/",
+      "scraped_at": "2025-08-24T17:44:06.222Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    }
+  ]
+}

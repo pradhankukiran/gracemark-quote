@@ -1,0 +1,136 @@
+{
+  "scraped_at": "2025-08-24T18:32:42.194Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Peru",
+      "url": "https://www.papayaglobal.com/countrypedia/country/peru/",
+      "scraped_at": "2025-08-24T18:32:42.183Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "9% to 9.75%",
+              "description": "Health Insurance (National Health System (EsSalud)/ Private Health System (Entidades Promotoras de Salud or EPS). Rate can vary depending on company size."
+            },
+            {
+              "rate": "9.72%",
+              "description": "The Peru Working Compensation or Compensation for Length of Service (CTS)."
+            },
+            {
+              "rate": "Variable",
+              "description": "Mandatory Life insurance"
+            },
+            {
+              "rate": "10% of minimum wage",
+              "description": "Family Allowance (only for workers with children)"
+            },
+            {
+              "rate": "18.72% – 19.74% + Life Insurance",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "12.50% to 13.00%",
+              "description": "Pension Fund (13% for employees affiliated with the National Pension System or circa12.5% for employees affiliated with the Private Pension System)"
+            },
+            {
+              "rate": "12.50% to 13.00%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "1 Tax Unit (UIT) = 5,150 PEN",
+              "description": ""
+            },
+            {
+              "rate": "8.00%",
+              "description": "Up to 5 UIT"
+            },
+            {
+              "rate": "14.00%",
+              "description": "From 5 UIT to 20 UIT"
+            },
+            {
+              "rate": "17.00%",
+              "description": "From 20 UIT to 35 UIT"
+            },
+            {
+              "rate": "20.00%",
+              "description": "From 35 UIT to 45 UIT"
+            },
+            {
+              "rate": "30.00%",
+              "description": "More than 45 UIT"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The national minimum wage in Peru is 1,130 PEN per month.",
+        "payroll": {
+          "payroll_cycle": "Employees are paid in Peru monthly.",
+          "13th_salary": "13th-month and 14th-month payments are mandatory in Peru. The employer must pay an additional month’s salary twice a year, once at the end of July around Peru’s Independence Day and the other at the end of the year during Christmas."
+        },
+        "working_hours": {
+          "general": "Full-time employment is 8 hours per day, 48 hours per week.",
+          "overtime": "All overtime hours in excess of 48 hours a week are paid at an overtime compensation rate. This rate is stipulated in the employment contract/collective agreements. The first two hours of overtime cannot be compensated with less than 25.00% of the total remuneration of the employee. For every additional hour of overtime, the surcharge cannot be less than 35.00% per hour. Exemptions might apply to managers, supervisors, on-call workers, and non-supervised workers."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to paid annual leave of 30 calendar days. At least 15 days must be used within the year and the remaining can cash out. 15 of the 30 days entitlement may be divided into two periods and the remainder is to be taken in at least one-day increments. Domestic workers are entitled to 15 days of paid annual leave.\nAn employee cannot take annual leave alongside any other leave entitlement such as maternity leave, and sick leave.",
+          "public_holidays": "The Government decides each year if public holidays falling on weekends are moved to a weekday in lieu.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n17 Apr 2025\tThursday\tHoly Thursday\t\n18 Apr 2025\tFriday\tGood Friday\t\n1 May 2025\tThursday\tLabor Day\t\n7 Jun 2025\tSaturday\tBattle of Arica and Flag Day\t\n29 Jun 2025\tSunday\tSaint Peter and Saint Paul Day\t\n23 Jul 2025\tWednesday\tPeruvian Air Force Day\t\n28 Jul 2025\tMonday\tNational Holidays\t\n29 Jul 2025\tTuesday\tNational Holidays\t\n6 Aug 2025\tWednesday\tBattle of Junin\t\n30 Aug 2025\tSaturday\tSaint Rose of Lima\t\n8 Oct 2025\tWednesday\tBattle of Angamos\t\n1 Nov 2025\tSaturday\tAll Saints’ Day\t\n8 Dec 2025\tMonday\tImmaculate Conception\t\n9 Dec 2025\tTuesday\tBattle of Ayacucho\t\n25 Dec 2025\tThursday\tChristmas Day",
+          "sick_days": "In Peru, employees are entitled to 365 days of paid sick leave. The employer compensates the first 20 days of sickness at 100% salary and the remaining 245 days are paid initially by the employer at 70-80% and then the social security reimburses this sum.",
+          "maternity_leave": "Female employees are entitled to 98 days of paid maternity leave; 49 days before the birth of the child and 49 days following the delivery. In the event of multiple or complicated births, the leave can be extended by 30 days.\nThe National Health System (EsSalud) or the Private Health System (Entidades Promotoras de Salud or EPS) compensates maternity leave. To qualify for maternity benefits, the employee must have completed three months of service during the six months before leave.\nMothers also receive 30 days of paid adoption leave following the adoption of a child until the age of 12 years old.",
+          "paternity_leave": "The father/partner is entitled to 10 days of paid paternity leave after the child’s birth; the entitlement increases to 20 days of leave in the case of a complicated or premature birth.",
+          "parental_leave": "There are no provisions in the law regarding parental leave.\nOther Leave\nThere are no provisions in the law regarding additional statutory leave."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to how the employment agreement and collective agreement are in place and is based on the type of contract and reason for termination. Employees should receive at least six days’ written notice so that they can respond or prove their capability within the company. The employer must provide the written termination to both the employee and the trade union. Employees dismissed without cause are typically entitled to severance pay of up to 12 months.",
+          "notice_period": "For fixed-term agreements, employees do not require notice upon contract expiration.\nEmployee resignation: An employee who wishes to resign typically must give the employer a notice period of at least 30 calendar days.\nEmployer termination: If an employer wishes to terminate an employee, the notice period generally required is also 30 calendar days.\nIn case of dismissal due to employee conduct, a letter outlining the charges should be sent to the employee. The employee must be given at least six calendar days to submit a written defense.",
+          "severance_pay": "There is no statutory severance entitlement, but an indemnity is payable in the event of unfair dismissal (ie, where the company does not have a prescribed legal ground to dismiss employees).\nIn the event of unfair dismissal, employees are entitled to receive a legal indemnity in the amount of: 1.5 times their monthly remuneration for each year of service if the employee is on an indefinite employment contract. Periods of time less than 1 year must be paid proportionally 1.5 times their monthly remuneration for each month remaining until the end of the fixed-term contract, if applicable. In both cases, such indemnity may not exceed 12 monthly salaries.",
+          "probation_period": "In Peru, probation periods are outlined in the employment contract. Typically, the probational period lasts for three months.\nThe probationary period may be extended for skilled workers or employees in positions of trust to six months and one year for managerial roles."
+        },
+        "visa": {
+          "general_info": "A foreigner wishing to work in Peru must complete the new TUPA (Texto Unico de Procedimientos Administrativos; Single Text of Administrative Procedures) process.\nApplying for a Peruvian resident work visa requires the following:\n\nInterpol clearance – Ficha de canje internacional\nReceipt for the paid application fee\nReceipt for the paid application fee for changing to a resident visa\nPassport\nLegally signed and by Labour Ministry approved work contract with a duration of at least 12 months\nPolice clearance certificate, criminal record, and judicial matters check issued in the country of origin and if the applicant lived in another country before coming to Peru, in the land of residence covering the last five years *\nSUNAT registration including RUC (Peruvian tax number) showing the employing company is active\nCompany registration of the employing company showing the legal representative\nSworn statement of the legal representative of the company declaring that he oversees hiring personnel and why he needs to employ a foreigner\n\n*For the past years, a sworn statement stating that the foreigner has a clean criminal record and no previous convictions was enough to satisfy Migraciones. However, the new Tupa and Supreme Decree now state that a police clearance certificate, criminal record, and judicial matters check issued in the country of origin and if the applicant lived in another country before coming to Peru, in the country of residence covering the last five years is required. “Antecedentes Policiales, Penales y Judiciales.”\nOnce this is complete, the foreigner will receive confirmation that your work visa is approved, payment has been made and the person is now registered in the foreigner database and issued the carné."
+        },
+        "remote_work": "The Government of Peru passed legislation on remote work aiming at recognizing teleworking as a valid way of carrying out work. This legislation states that teleworkers and onsite employees must have the same rights and that the employer and employee should agree on the provisions of teleworking in an employment agreement.\nSuch agreement must be stored in a digital medium and must include information on the teleworking period, frequency (total or partial), the work schedule, applicable digital platforms and technologies, communication and supervision, mechanisms, notice period for the employee to attend in person to employer’s premises and the teleworker domicile.\nUnless agreed otherwise between the parties, employers should provide necessary work tools and bear the cost of electricity.\nEmployers have a duty to ensure the safety and health of their employees at work. Therefore, employers should inform teleworkers of all the risks that may arise from their work duties.\nTeleworkers should allow their employer to visit their remote workplace. Teleworker may instead complete a self-examination of their workplace as authorized by the Peruvian Ministry of Labor.\nUnless otherwise agreed between the parties, the teleworker must comply with a work schedule.\nEmployers must respect teleworkers’ right to digitally disconnect after work and their right to privacy of communications. However, teleworkers must be available to their employer during the working day and fully comply with their work obligations.\nPrior notice in writing and agreement of the employer and the teleworker is needed if any of them wants to reverse the teleworking arrangement.",
+        "vat": {
+          "general": "The standard rate of VAT in Peru is 18.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "ONP – Pension fund (Public)",
+            "paid_to": "SUNAT",
+            "due_date": "It is variable depending on the last digit of the TAX ID of the Company. I send the 2020 schedule so you can see it.",
+            "method": "– CHARGE TO THE COMPANY’S BANK ACCOUNT\n\n– CASH\n\n– ECHECK"
+          },
+          {
+            "authority_payment": "RENTA 5TA CATEGORÍA (Income Tax)",
+            "paid_to": "SUNAT",
+            "due_date": "It is variable depending on the last digit of the TAX ID of the Company. I send the 2020 schedule so you can see it.",
+            "method": "– CHARGE TO THE COMPANY’S BANK ACCOUNT\n\n– CASH\n\n– ECHECK"
+          },
+          {
+            "authority_payment": "ESSALUD (National Insurance)",
+            "paid_to": "SUNAT",
+            "due_date": "It is variable depending on the last digit of the TAX ID of the Company. I send the 2020 schedule so you can see it.",
+            "method": "– CHARGE TO THE COMPANY’S BANK ACCOUNT\n\n– CASH\n\n– ECHECK"
+          },
+          {
+            "authority_payment": "AFP – Pension fund (Private)",
+            "paid_to": "",
+            "due_date": "The maximum term of presentation and payment is until the fifth (05) business day of each month.",
+            "method": "– CHARGE TO THE COMPANY’S BANK ACCOUNT\n\n– CASH\n\n– ECHECK"
+          }
+        ]
+      }
+    }
+  ]
+}

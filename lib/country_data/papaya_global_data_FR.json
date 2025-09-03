@@ -1,0 +1,183 @@
+{
+  "scraped_at": "2025-08-24T18:05:47.953Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "France",
+      "url": "https://www.papayaglobal.com/countrypedia/country/france/",
+      "scraped_at": "2025-08-24T18:05:47.936Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "7.00% or 13.00%",
+              "description": "Sick, Maternity, Disability & Death –\n7% is applied on the gross for wages under 4,273.20 EUR per month.\n13% is applied on the gross for wages above 4,273.20 EUR per month."
+            },
+            {
+              "rate": "0.30%",
+              "description": "Autonomy Solidarity Contribution"
+            },
+            {
+              "rate": "8.55%",
+              "description": "Old Age Insurance, capped at the social maximum of 3,864 EUR per month."
+            },
+            {
+              "rate": "1.90%",
+              "description": "Old Age Insurance"
+            },
+            {
+              "rate": "Variable",
+              "description": "Accidents at work"
+            },
+            {
+              "rate": "3.45% – 5.25%",
+              "description": "Family Benefits (rate varies based on income)"
+            },
+            {
+              "rate": "4.25%",
+              "description": "Unemployment, capped at 4 times the social maximum of 3,864 EUR per month."
+            },
+            {
+              "rate": "0.15%",
+              "description": "Wage Guarantee Insurance (AGS)"
+            },
+            {
+              "rate": "6.22%",
+              "description": "Supplementary Pension & CEG, applied on wages up to 3,864 EUR per month."
+            },
+            {
+              "rate": "14.78%",
+              "description": "Supplementary Pension & CEG, applied on wages above 3,864 EUR per month."
+            },
+            {
+              "rate": "1.00%",
+              "description": "Apprenticeship Tax"
+            },
+            {
+              "rate": "32.82% – 55.16%",
+              "description": "Total Employment Cost\n\n*Additional employer contributions might be applied in conjunction with the employee’s level e.g. Cadre"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "6.90%",
+              "description": "Old Age Insurance, capped at the social maximum of 3,864 EUR per month."
+            },
+            {
+              "rate": "0.40%",
+              "description": "Old Age insurance"
+            },
+            {
+              "rate": "9.20%",
+              "description": "Social Security Surcharge"
+            },
+            {
+              "rate": "4.01%",
+              "description": "Supplementary Pension & CEG, applied on wages up to3,864 EUR per month."
+            },
+            {
+              "rate": "9.72%",
+              "description": "Supplementary Pension & CEG, applied on wages above 3,864 EUR per month."
+            },
+            {
+              "rate": "30.23%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "Up to 11,509 EUR Annually"
+            },
+            {
+              "rate": "11.00%",
+              "description": "11,510 EUR – 29,344 EUR Annually"
+            },
+            {
+              "rate": "30.00%",
+              "description": "29,345 EUR – 83,905 EUR Annually"
+            },
+            {
+              "rate": "41.00%",
+              "description": "83,906 EUR – 180,471 EUR Annually"
+            },
+            {
+              "rate": "45.00%",
+              "description": "More than 180,471 EUR Annually"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The national minimum wage in France is €1,801.80 per month. The hourly minimum wage is set at €11.88",
+        "payroll": {
+          "payroll_cycle": "The payroll cycle in France is generally a monthly cycle, with wages paid by the last working day of each month.",
+          "13th_salary": "The 13th Salary in France is customary and generally paid at the end of the year."
+        },
+        "working_hours": {
+          "general": "Standard working hours within French Law are 35 hours a week at all companies, and the working day may not exceed 10 hours.",
+          "overtime": "All work above the standard 35 hours a week is to be paid as overtime and is regulated by Collective Agreements and contracts, generally calculated as an additional 25% an hour for each of the first eight hours of overtime (from the 36th to the 43rd hour, inclusive) and an additional 50% for each hour after that.\nManagers and employees that fall under forfait jours are not subject to these overtime rules. However, their working hours must still be tracked and their rest hours respected."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "The regulations regarding paid leave in France are set in the Labor code as a minimum of five weeks’ (25 working days) paid holiday per year, following completion of one months’ probation, in addition to public holidays. However, it is common practice for additional leave days to be included in the collective bargaining agreements.\nThe holiday calendar year runs from June 1st  to May 31st.\nWorkers that are classified as “Cadre” will be entitled to additional RTT days- Réduction du temps de travailare, RTT days are acquired monthly and under most of the employment agreements should be used before the end of the civil year 1st January- 31st December.",
+          "public_holidays": "Holidays falling on a weekend are lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n18 Apr 2025\tFriday\tGood Friday\tAlsace and Moselle only\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n8 May 2025\tThursday\tVictory Day\t\n29 May 2025\tThursday\tAscension Day\t\n9 Jun 2025\tMonday\tWhit Monday\t\n14 Jul 2025\tMonday\tBastille Day\t\n15 Aug 2025\tFriday\tAssumption Day\t\n1 Nov 2025\tSaturday\tAll Saints’ Day\t\n11 Nov 2025\tTuesday\tArmistice Day\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\tSt Stephen’s Day\tAlsace and Moselle only",
+          "sick_days": "Sickness reimbursements are made by the Social Security office to all employees from the fourth day of absence due to sickness. Additional compensation from the employer is common and is detailed within the collective/company agreements.\nWith at least three months’ service, all monthly paid employees are entitled to continued payment in proportion to their regular salary for up to 90 days.\nAll employees must provide a medical certificate within 48 hours of the sickness to the employer (un avis d’arrêt de travai) so that the employer can subsequently provide a salary certificate to the Social Ssecurity, which in turn enables the employee to receive Social Security benefits for up to 3 years.",
+          "maternity_leave": "Expectant mothers are entitled to up to 16 weeks maternity leave – six weeks before birth and ten weeks after birth. Maternity leave can be extended to 26 weeks when expecting a third child, extending further to 34 weeks for multiple births (twins) and 46 weeks when expecting triplets or more. The maternity leave can be extended even further should the expectant mother be unwell, with an additional two weeks before the birth and four weeks after.\nMaternity pay is made by the Social Security to entitled employees. To be entitled, the employee must have been affiliated with the Social Security for a minimum of 6 months before the due date, have taken at least eight weeks maternity leave, and have worked at least 150 hours in the 90 days preceding the leave.\nThe amount paid each day is based on the average salary received three months before the leave and paid every two weeks.",
+          "paternity_leave": "In France, paternity leave (congé paternité) spans 25 calendar days. It commences after the initial 3 working days following birth, which are designated as birth leave and are paid by the employer. Subsequent to this birth leave period, fathers are required to take 4 calendar days of leave. The remaining 21 calendar days can be divided, but they must be used within 6 months of the birth. Workers have the flexibility to use these 21 days either consecutively or in two separate periods, each lasting a minimum of 5 days.\nIn the event of multiple births, an additional 7 days of leave are provided. All leave following the birth leave is covered by social security. To qualify for this leave, fathers must have been enrolled with social security for at least 10 months. Notification of the intended leave to the employer should be provided, either in writing or orally, one month prior to taking it.\nSocial security coverage is calculated based on the average daily salary over the last three months, with a cap of €88.84 per day (for the year 2023).",
+          "parental_leave": "All employees over the age of 21, as of April 30 of the previous year, are entitled to two additional days of paid leave per dependent child (children up to age 15).\nUnpaid Parental leave (congé parental d’éducation) is available to all employees with at least one year of service at the time of the child’s birth, upon employer’s approval. This leave is unpaid and entitles employees to up to one year of parental leave or a change to part-time working hours (if possible, within the business infrastructure), together with a monthly allowance (Allocation parentale d’enfant) for employees with more than one child and more than two years’ service.\nIn addition, should a child become ill, the employee can request a form of parental leave of between 3 and 5 days, dependent upon the number of children the parent has and the child’s age. Should the child suffer from a severe illness, accident, or disability, the parent can request special specific family care leave of up to 310 days to provide continued parental care.",
+          "other_leave": "Bereavement Leave: In the event of the death of an immediate family member (spouse, parent, parent in law, sibling) an employee is entitled to 3 days of leave. For the death of a grandparent, uncle, aunt, niece or nephew 2 working days leave must be given. Under certain agreements 1-2 working days of leave must be given for the death of a grandchild. For the death of a child at least 7 working days leave must be given; this duration can be increased under specific circumstances e.g. child under 25, or if the deceased child was themselves a parent which entitles up to 14 working days or more, plus a specific period of “bereavement leave”. This leave is paid.\nAdoption Leave: Employees are entitled to 6 weeks of unpaid leave before adopting a child if they must travel in order to adopt.\nMarriage or Civil Partnership Leave: 4 working days of paid leave."
+        },
+        "termination": {
+          "termination_process": "There are several different ways that an employment contract can be ended. In addition to redundancy or resignation, in France, there is an option to negotiate departure through mutual agreement (Rupture Conventionelle). All these ways require specific procedures that the employer must follow.\nRegardless of the type of job contract, when it comes to ending employment, the employer has to provide a certificate stating the position held (certificat de travail), a document for the Pôle emploi (new name since 2024 “France Travail”), allowing the person to claim unemployment benefits, and a document stating everything the employer needs to pay the employee (solde de tout compte) together with the employee’s final pay slip.",
+          "termination_via_mutual_agreement": "It is very common to dismiss workers using a Mutual Termination Agreement (MTA), which can reduce the risks of legal claims. A shorter notice period and different exit payment terms to that set in law can also be agreed in this process and indemnity amounts should take into account notice and severance.\nThe starting point for termination payment is normally 3 salaries however it is common for workers to settle at 6-9 salaries.\nThe Mutual Termination Agreement process takes roughly 45 days. Once the worker has signed the agreement they have 15 days to change their mind. Once all terms have been settled, the Mutual Termination Agreement must be submitted to the French Labour department.",
+          "notice_period": "By employee:\nTwenty-four hours before eight days attendance within the Company.\nForty-eight hours after eight days attendance within the Company.\nTermination after probationary period:\nNotice period of 3 months for Cadre employees will apply.\nThe above is subject to differentiating provisions in the CBA, employment contract or common practice, whichever is more favorable to the employee.",
+          "severance_pay": "Severance pay in France depends on several factors, including the terms in the employment contract/collective bargaining agreement, the position/role of the employee, the reason for termination, and the goodwill between the company and the employee, all of which can affect the amount due substantially. The severance pay may not be less than one fourth of the month’s salary per year of service. It is common practice for the payment to be based on a monthly figure calculated based on the highest figure from the monthly average across the past year, general average monthly earning figure, or a third of the payment of the past three months.",
+          "probation_period": "Probation periods in France generally differ based on the criteria of employee and their seniority; blue-collar employees must work 2 months’ probation, technicians and supervisors 3 months, and management 4 months.\nDuring the probation period, the employment contract may be freely terminated by the employee or by the employer, without the need to state reasons, and without compensation (unless otherwise provided for in the agreement). The procedural rules for dismissal do not apply.\nHowever, the employer and, in some cases, the employee must give a notice. In Articles L. 1221-19 to L. 1221-24 of the Labour Code, the employee must be given at least 24 hours for less than 8 days of presence, 48 hours between 8 days and 1 month of presence, 2 weeks after 1 month’s presence and 1 month after 3 months’ presence."
+        },
+        "visa": {
+          "visa": "In France, there are two main types of visas, a short stay (visa de court séjour) which is required for visits of 90 days or less where the employer applies to the French Ministry of Labour, the DIRECCTE (Direction regionale des enterprises, de la concurrence et de la consummation, du travail et de l’emploi), or a convention d’accueil and the authorization then goes to the French embassy.\nIf the employee is from the EU/EEA or Switzerland, they do not need a work permit.\nA long stay work visa (visa de long séjour) is also a residence permit. The work contract is sent to the local division of the French Ministry of Labour for approval. Once approved, it is sent to the Office Francais de l’Immigration et de l’Integration (OFII) for secondary approval. Once this is approved, the contract confirmation is sent directly to the French embassy in the employee’s home country. After 18 months in a long-stay residence permit , applications can be made to bring family members to France.\nIn addition, applications for a four-year renewable visa can be made for a passeport talent which is aimed at executives, independent professionals, or employee-level people who have the potential to make a significant contribution to the French economy, especially in intellectual, scientific, cultural, sporting, or humanitarian fields.\nBritons who have been full-time residents in France since before December 31st 2020 must be in possession of a carte de séjour residency card by January 1st, 2022. From this date the card can be requested legally in a range of situations."
+        },
+        "vat": {
+          "general": "The standard rate of VAT in France is 20.00%."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Payroll withholding tax",
+            "paid_to": "DGFIP",
+            "due_date": "Until the 15th of the following month",
+            "method": "eCheck (Local)"
+          },
+          {
+            "authority_payment": "Pension Contribution",
+            "paid_to": "Humanis Pension",
+            "due_date": "Until the 15th of the following month",
+            "method": "eCheck (Local)"
+          },
+          {
+            "authority_payment": "Training tax (annual) ,Employer Contribution",
+            "paid_to": "OPCO ATLAS",
+            "due_date": "No recurring payment, therefore there isn’t any due date",
+            "method": "eCheck (Local)"
+          },
+          {
+            "authority_payment": "Social Security ,Employer Contribution",
+            "paid_to": "URSSAF",
+            "due_date": "Until the 15th of the following month",
+            "method": "eCheck (Local)"
+          },
+          {
+            "authority_payment": "Life Insurance",
+            "paid_to": "Verlingue Life",
+            "due_date": "Quarterly payment – the payment must be done until the end of the following month (after the current quarter)",
+            "method": "eCheck (Local)"
+          }
+        ]
+      }
+    }
+  ]
+}

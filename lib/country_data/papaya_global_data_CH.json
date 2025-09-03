@@ -1,0 +1,17 @@
+{
+  "scraped_at": "2025-08-24T17:46:23.571Z",
+  "summary": {
+    "total": 1,
+    "success": 0,
+    "failed": 1
+  },
+  "results": [
+    {
+      "country": "Switzerland",
+      "url": "https://www.papayaglobal.com/countrypedia/country/switzerland/",
+      "scraped_at": "2025-08-24T17:46:23.566Z",
+      "error": "Page not found (HTTP 404).",
+      "data": null
+    }
+  ]
+}

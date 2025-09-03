@@ -1,0 +1,139 @@
+{
+  "scraped_at": "2025-08-24T18:40:38.589Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Romania",
+      "url": "https://www.papayaglobal.com/countrypedia/country/romania/",
+      "scraped_at": "2025-08-24T18:40:38.576Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "2.25%",
+              "description": "Unemployment Insurance"
+            },
+            {
+              "rate": "4.00%",
+              "description": "Social Security (pension) contribution\n*Under special conditions"
+            },
+            {
+              "rate": "6.25%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "25.00%",
+              "description": "Pension"
+            },
+            {
+              "rate": "10.00%",
+              "description": "Health Insurance"
+            },
+            {
+              "rate": "35.0%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0%",
+              "description": "0-5000 RON monthly"
+            },
+            {
+              "rate": "10%",
+              "description": "above 5,000 RON monthly"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "The minimum statutory monthly gross wage is  4,050 RON",
+        "payroll": {
+          "payroll_cycle": "In Romania, the payroll frequency is monthly. Work between the first and last day of the month is typically paid on the last working day of the month.",
+          "13th_salary": "There is no statutory requirement for a 13th salary payment in Romania"
+        },
+        "working_hours": {
+          "general": "According to Romania law, the work week is limited to no more than five eight-hour days and a maximum of 48 hours per week. Part-time workers must work a minimum of ten hours per week, two hours per day. For employees under 18, work is limited to six hours a day or 30 hours a week.\nEmployers must keep a record of the daily work hours performed by each employee, highlighting the start and end hours of the working program, and shall present such records to the labor inspection control when required.",
+          "overtime": "Employees are allowed to work a maximum of 48 hours per week including overtime. After working a 12-hour day, employers must give a 24-hour rest period. Work performed outside the standard eight hours per day, 40 hours per week must be compensated with paid hours off during the 60 calendar days after the overtime has been performed. If the compensation with paid time off is not possible, the overtime shall be paid to the employee by adding a benefit that must not be lower than 75% of the basic wage, pro-rated to the overtime performed.\nWorkers under 18 years of age, part-time employees, and pregnant employees who are unable to work normal working hours for health reasons are not permitted to work overtime."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees are entitled to up to 20 days of paid annual leave by law per year pro-rated with the worked period. Employers are required to pay employees their allowance at least five working days before the leave starts.\nIf the employee cannot take all or part of the annual leave entitlement within the calendar year, the employer must carry over the outstanding annual leave to the first six months of the following calendar year, however, if the employee is still unable to take the leave entitled (e.g. due to long-term sickness), the employer must grant the unused leave with the employee’s consent within 18 months, starting with the year following the one when vacation has been accrued.",
+          "public_holidays": "Public holidays that fall on the weekend are usually lost.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n2 Jan 2025\tThursday\tNew Year’s Holiday\t\n6 Jan 2025\tMonday\tEpiphany\t\n7 Jan 2025\tTuesday\tSynaxis of St. John the Baptist\t\n24 Jan 2025\tFriday\tUnion of the Romanian Principalities\t\n18 Apr 2025\tFriday\tGood Friday\t\n21 Apr 2025\tMonday\tOrthodox Easter Monday\t\n1 May 2025\tThursday\tLabour Day\t\n1 Jun 2025\tSunday\tChildren’s Day\t\n9 Jun 2025\tMonday\tOrthodox Whit Monday\t\n15 Aug 2025\tFriday\tAssumption Day\t\n30 Nov 2025\tSunday\tFeast of Saint Andres\t\n1 Dec 2025\tMonday\tGreat Union Day\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\t2nd Day of Christmas",
+          "sick_days": "Under the labor code, employees covered by the pension and social insurance system who have made required contributions are entitled to sick leave of up to 180 days within one year with a possible 90-day extension.\nThe first five calendar days are provided by the employer for working days only. From the 6th calendar day, the FUNASS (Unique National Fund of Health Insurances) fund supports the payment of sick leave.\nSick pay is equivalent to 75% to 100% of the average monthly income during the previous six months, depending on the category of illness. The employee is required to provide a medical certificate from the doctor.",
+          "maternity_leave": "A pregnant employee is entitled to 126 days of paid maternity leave.\nMaternity leave consists of two periods, prenatal leave, which is the period where a woman must take a minimum of 63 days before the expected due date, and postnatal leave, where the employee must take the remaining 63 days after the birth of the child.\nThe actual days across the two periods are stipulated by the employee’s physician and reported in the official medical certificate of maternity.\nThe maternity payment is paid by the FUNASS (Unique National Fund of Health Insurances) at a rate of 85% of the calculation based on the average of the employee’s monthly gross wages during the six months before the maternity leave started.\nIn addition, employees are entitled to take leave to protect their own and their child’s health and safety. The maternal risk-benefit is completely supported with funds from the Unique National Fund of Health Insurances. The amount of benefit is 75% of the average gross earnings over the last six months. Maternal risk leave is complementary to maternity leave. In these cases, the employee is required to write a request to the employer and provide a medical certificate from the doctor for the child’s sickness.",
+          "paternity_leave": "The father/partner, who effectively participates in a child’s care is entitled to 10 days of paid leave, irrespective if the child is born of marriage, out of wedlock, or adopted; this leave increases to 15 days if the employee participates in an infant care course. The possibility to benefit from paternity leave is during the first eight weeks after the birth of the child, based on the written request addressed to the employer. The employee is legally required to provide the birth certificate of the child.\nThe paternity leave allowance is paid from the employer’s salary fund and is included in the taxable income of the employee.\nIn the case of the death of the child’s mother during childbirth or during maternity leave, the child’s father is entitled to the following benefits, as the case may be:\na) an allowance equal to the maternity allowance due to the deceased mother if the father does not complete the insurance period to benefit from the right to medical leave.\nb) a maternity-related allowance granted in accordance with the father’s income, for the case when he fulfills the insurance period to benefit from the right to medical leave.\nThis allowance is borne from the salary fund of the employer where the father works.",
+          "parental_leave": "After maternity leave, one of the parents is eligible for childcare leave of two month (parental leave) until the child reaches two years of age (three years of age in the case of disabled children), provided that the employee has contributed to tax during the past year of employment.\nThe employee is entitled to receive a monthly allowance from the appropriate Romanian authorities amounting to 85% of the average regular salary received in the last 12 months before childbirth. The employee is legally required to provide the written request from the employee, the birth certificate of the child, and a declaration that the other parent is not on maternity leave. Monthly allowance for children born from twin, triplets or multiples is supplemented by 50% starting with the second child.",
+          "other_leave": "Depending on the collective agreement/employment contract terms, an employee may be allowed additional leave types, which must be approved between the employer and employee.\nEmployees are entitled to up to three days of paid bereavement leave in the case of the death of a direct family member. In these cases, the employee is required to provide the death certificate and a request from the employer.\nEmployees are entitled to five days of paid wedding leave and two days of paid leave in case of the wedding of an employee’s child. In this case, the employee is required to request the employer to go on leave and after the wedding, provide the wedding certificate."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to how the employment agreement and collective agreement are in place and is based on the type of contract and reason for termination.\nIndividual employment contracts can be terminated by means of\nEmployers may terminate employment contracts by dismissal for reasons related to the employee e.g. poor performance (with a PIP in place), professional inadequacy as a disciplinary sanction) or for reasons not associated with the employee e.g. job cancellation.\nIt is common to terminate using a  Mutual Termination Agreement (MTA).",
+          "notice_period": "Notice period in the case of an employee dismissal is a minimum of 20 working days for all jobs regardless of the employment contract.\nEmployees may also terminate their employment agreement by resignation with prior notice of a maximum of 20 business days for non-management positions and 45 business days for management positions.",
+          "severance_pay": "There is no statutory severance pay in Romania unless conditions have been set in a collective agreement.",
+          "probation_period": "The probationary period in Romania is dependent on the type of role and is stipulated within the employment agreement. In general, probation periods are 90 calendar days increasing to 120 calendar days for an employee in a managerial/supervisory position."
+        },
+        "common_benefits": [
+          "Meal vouchers- one per worked day for a maximum amount of RON 15.18 per voucher. The monthly number of meal vouchers granted cannot exceed the number of working days. The meal vouchers are subject only to income tax.",
+          "Gifts – includes gift vouchers and holiday gifts. These are non-taxable if the value for each individual person does not exceed 150 RON.",
+          "Cultural vouchers – amounts that do not exceed 150 RON per month, or 300 RON if they are offered on occasion. These vouchers are subject only to income tax.",
+          "Holiday vouchers– can be granted by the employer only if in the previous year the fiscal results indicate profit at a maximum amount of six minimum gross wages guaranteed in payment. The holiday vouchers are subject only to income tax if granted according to the law.",
+          "Transportation to and from work- non-taxable benefit in kind (it is not subject to taxation in Romania).",
+          "Private Health granted by the employer- non-taxable benefit in kind in the limit of 400 EUR per year. The amount exceeding this cap is subject to income tax and social charges.",
+          "Private Pension granted by the employer- non-taxable benefit in kind in the limit of 400 EUR per year. The amount exceeding this cap is subject to income tax and social charges.",
+          "Developmental courses – also includes training offered by the employer related to the work performed by the employee. This is not a taxable benefit as per local law provisions.",
+          "Phone and Internet allowance – between 100 to 200 RON per month"
+        ],
+        "visa": {
+          "general_info": "EU citizens wishing to work in Romania should apply for a registration certificate from the Romanian Office for Immigration for a stay of more than 90 days. Non-EU citizens need to obtain a residency permit if the stay is longer than 90 days.\nForeign workers must obtain work authorization from the Romanian Office for Immigration via an application from the employer. Employers must prove that they are a legitimate business in Romania and that they have made every effort to recruit a Romanian national to fill the role.\nThey must also ensure that the proposed employee is suitably qualified, having had suitable education and training, for the role.\nThere are several types of work permits that may be applied for and subsequently completed and submitted to the General Inspectorate of Immigration by the employer:\n\nWork permit for permanent workers: For foreign employees who have an indefinite or fixed-term employment contract.\nCross-border worker: A foreign employee who is from a country that borders Romania and has an indefinite or fixed-term employment contract.\nHighly qualified worker: A foreign employee that has obtained a highly skilled job in Romania. The term of employment must be for at least one year.\n\nMost work permits are valid for one year, however, permits for highly skilled workers are valid for two years."
+        },
+        "vat": {
+          "general": "VAT is 19% standard rate."
+        },
+        "authority_payments": [
+          {
+            "authority_payment": "Social insurance contribution (CAS)",
+            "paid_to": "Contributia pentru asigurari sociale (CAS)",
+            "due_date": "25th of the following month",
+            "method": "Treasury"
+          },
+          {
+            "authority_payment": "Social health insurance (CASS)",
+            "paid_to": "Contributia pentru asigurari sociale de sanatate (CASS)",
+            "due_date": "25th of the following month",
+            "method": "Treasury"
+          },
+          {
+            "authority_payment": "Unemployment Insurance (CAM)",
+            "paid_to": "Contributia asiguratorie pentru munca (CAM)",
+            "due_date": "25th of the following month",
+            "method": "Treasury"
+          },
+          {
+            "authority_payment": "Revenue Tax",
+            "paid_to": "Impozit pe veniturile din salarii  sediu",
+            "due_date": "25th of the following month",
+            "method": "Treasury"
+          },
+          {
+            "authority_payment": "National Solidarity Fund",
+            "paid_to": "Contributia la bugetul Fondului National de solidaritate",
+            "due_date": "25th of the following month",
+            "method": "Treasury"
+          },
+          {
+            "authority_payment": "Wages Income tax",
+            "paid_to": "Impozit pe veniturile din salarii Punct de lucru",
+            "due_date": "25th of the following month",
+            "method": "Treasury"
+          }
+        ]
+      }
+    }
+  ]
+}

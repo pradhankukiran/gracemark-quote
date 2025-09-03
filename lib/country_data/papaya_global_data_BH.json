@@ -1,0 +1,90 @@
+{
+  "scraped_at": "2025-08-24T17:39:57.300Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Bahrain",
+      "url": "https://www.papayaglobal.com/countrypedia/country/bahrain/",
+      "scraped_at": "2025-08-24T17:39:57.290Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "16% (reduced to 3% for expatriate workers)",
+              "description": "Social Insurance (GOSI), includes coverage towards medical, retirement and disability."
+            },
+            {
+              "rate": "4.2% (increasing to 8.4% from year 4 of service)",
+              "description": "End of Service Gratuity (EOSG)."
+            },
+            {
+              "rate": "Cost varies depending on number of workers and industry.",
+              "description": "Nationalization Fee, only charged on employers when hiring expatriate workers."
+            },
+            {
+              "rate": "BHD 10.00",
+              "description": "Labor Market Regulatory Authority (LMRA) for the issuing of work permits, only charged for expatriate workers."
+            },
+            {
+              "rate": "20.2%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "8% Local workers/1% Expat workers",
+              "description": "Social Insurance (GOSI), includes coverage towards medical, retirement and disability."
+            },
+            {
+              "rate": "8%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "There is no individual income tax in Bahrain",
+              "description": ""
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "There is no minimum wage in Bahrain.",
+        "payroll": {
+          "payroll_cycle": "Salaried employees are paid at least once a month, generally at the end of the month.",
+          "13th_salary": "There is no requirement for a 13th salary payment in Bahrain."
+        },
+        "working_hours": {
+          "general": "The working week in Bahrain tends to vary between 40 and 48 hours depending on company policy. In the month of Ramadan, the working day is reduced to six hours and legally this should apply to all staff, but many companies only apply it to Muslims who fast during daylight hours.\nFriday is the Muslim rest day, but some companies with a five-day workweek give off either Thursday or Saturday. Saturday is often the most popular choice for international companies as taking Thursday off would mean a reduction in the number of operational days in common with much of the rest of the world. Conversely, other companies insist on Thursday, as the school ‘weekend’ is Thursday and Friday.\nWorkers are not to be present at the workplace for more than 11 hours per day. This includes working hours plus rest breaks.\nPrivate sector companies can decide whether or not to grant time off during public holidays. If employees work, they have the choice of having another day off in lieu or receiving a payment of 150% salary in addition to their regular salary.\nIf a public holiday falls on a weekend (i.e. Friday or Saturday) an employer is obliged to provide employees with a day off in lieu.",
+          "overtime": "Overtime should not exceed two hours per day. Employees receive their wage plus at least 25 % for each additional working hour for hours worked during the day and at least 50% for hours worked during the night. Overtime pay cannot be included within the annual salary offered in the employment contract.\nSenior Managers are exempt from receiving overtime pay."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "An employee with at least one year of service is entitled to paid annual leave at the regular salary of no less than 30 working paid days at the rate of 2.5 days for each month.\nUnder the labor law, an employee cannot lose his/her annual leave entitlement as this is a statutory benefit. Accrued but untaken leave must either be carried forward to the next leave year or paid out every two years or upon the termination of employment.",
+          "sick_days": "Workers are entitled to sick leave after completing three continuous months of service with their employer. Sick leave must be certified by a government health center or a clinic recognized by the employer.\nWorkers can take up to 55 days of sick leave per year, paid as follows:\nThe first 15 days of sick paid at full pay\nThe subsequent 20 days of sick paid at half pay\nThe next 20 days of sick unpaid\nSick leave on full or half pay can be accumulated for a period not exceeding 240 days. If there is any disagreement regarding the duration of medical treatment, the Medical Commission specified in the labor law will determine the appropriate duration.\nWorkers can use their annual leave balance in addition to the sick leaves they are entitled to.",
+          "public_holidays": "The local government decides each year if holidays falling on the weekend are lost or moved to a working day in lieu.\nThe religious holidays are determined by the lunar cycle and will be confirmed nearer the date of the holiday.\nDate\tDay\tHoliday\tNote\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n30 Mar 2025\tSunday\tEid al-Fitr\t\n31 Mar 2025\tMonday\tEid al-Fitr\t\n1 Apr 2025\tTuesday\tEid al-Fitr\t\n2 Apr 2025\tWednesday\tEid al-Fitr\t\n1 May 2025\tThursday\tLabour/May Day\t\n6 Jun 2025\tFriday\tArafat Day\tTentative\n7 Jun 2025\tSaturday\tEid al-Adha\tTentative\n8 Jun 2025\tSunday\tEid al-Adha\tTentative\n26 Jun 2025\tThursday\tIslamic New Year\t\n5 Jul 2025\tSaturday\tAshura\t\n6 Jul 2025\tSunday\tAshura\t\n4 Sep 2025\tThursday\tThe Prophet’s Birthday\t\n16 Dec 2025\tTuesday\tNational Day\t\n17 Dec 2025\tWednesday\tNational Day Holiday",
+          "maternity_leave": "Pregnant employees receive 75 days of maternity leave. The first 60 days are fully paid and the last 15 days are unpaid.\nOn her return, the employee will be entitled to an additional two hours each day for nursing until the child reaches six months of age. Then, women receive two breastfeeding periods of no less than 1 hour each.",
+          "paternity_leave": "Paternity leave entitlement is up to 5 days after the birth, but generally companies offer 1 day of paid paternity leave.",
+          "parental_leave": "Only maternity and paternity leave entitlements are available in Bahrain.",
+          "other_leave": "Pilgrimage leave: a Muslim employee with 5 years of consecutive service in employment is entitled to a leave of 14 working days with full pay to perform Hajj once during the period of service provided that the employee has not availed of this leave in any previous employment."
+        },
+        "termination": {
+          "termination_process": "To terminate an employee, an employer must have sufficient grounds for the termination as well as provide a notice period. Reasons for termination often occur:\nduring the probationary period\non the expiry of a fixed-term contract\ndismissal with notice provided it is for a valid reason\nfailure to improve performance after reasonable opportunity (i.e., 60 days)\nresignation, incapacity or death, redundancy, retirement (age 60)\ndismissal by reason of any of the grounds listed in Article 107 of the Labor Law\nShould an office need to close this must be reported to the Ministry of Labor and Social Development. Bahrain nationals are generally entitled to higher protection from dismissal in such circumstances and may accordingly be awarded higher compensation payments by the authorities.",
+          "notice_period": "Either the employer or employee may terminate the contract following the official notification at least 30 days before the date of the termination. The labor contract remains in force during the notice period and its parties shall execute all the obligations arising from it.\nIf notice is not given, payment in lieu must be made. During the probation period the notice period is one day.",
+          "severance_pay": "Unless terminated under Article 107 of the Labor Law, employees may be entitled to salary and benefits up to the termination date, notice (or payment in lieu), payment in lieu of accrued but untaken annual leave, an end-of-service gratuity payment (EOSG), and reimbursement of unpaid business expenses.\nIn case of employer termination, employees are eligible for payment of an EOSG based on the length of service generally calculated at:\nUp to three years’ service at 50% of the regular monthly salary for each year of service\nMore than three years’ service at 100% of regular monthly salary for each year of service after three years\nThe calculation is pro-rated for any fractions of a year of service that have not been completed. The calculations above are for the period before March 2024.\nSince March 2024, Indemnity for EOSG is now paid per month, in the following rates:\nIn the first 3 years of service, the rate is 4.2% of the worker’s monthly salary, on a monthly basis.\nAfter 3 years of service, the rate is 8.4% of the worker’s monthly salary, on monthly basis.",
+          "probation_period": "Three months of probation period is common practice, however, this can be increased up to a maximum of six months in respect of certain occupations. During the probation period, one day notice is required."
+        },
+        "visa": {
+          "general_info": "In order to live and work in Bahrain, all foreigners must have an employment residency visa issued by the immigration authorities together with a work permit from the Labor Market Regulatory Authority (“LMRA”). Gulf Cooperation Council nationals do not require residency visas but must be registered with the LMRA for work permit purposes.\n\nAn employer or Bahraini national needs to sponsor anyone looking to obtain a Bahrain working visa. The number of visas each company can sponsor depends on the size of the company and foreign quotas as stated by national regulations.\n\nThe employer will need to manage the application process on behalf of the employee and must provide evidence of requirement including: a letter of employment, commercial registration number, the employee’s capacity, the contract duration, completed visa application form, the employee’s passport, and health record from an authorized clinic.\n\nIf the employee is in Bahrain at the time of application (on an arrival or business visa), the employment contract must be signed by both parties and stamped by the employer/sponsor. In cases where the employee is outside of Bahrain, there is a requirement for a medical report to be sent over from an LMRA-approved health center in the employee’s home country in addition to the employment contract. A work permit is valid for one to two years.\n\nEffective from 17 February 2023, ‘flexi work permits’ are to be canceled and replaced with professional permits. Employers may no longer engage individuals holding flexi work permits and any such individuals must alternatively register themselves with the new professional permits/labor registration program.\n\nEmployers should be diligent in ensuring that they do not engage any individuals holding flexi work permits and ensure that any such individuals who are under their employ have registered onto the new professional permits/labor registration program as applicable.\n\nIn those countries where people are prohibited from entering the Kingdom of Bahrain, the LMRA regulates and controls work permits."
+        },
+        "vat": {
+          "general_info": "The standard rate of VAT in Bahrain is 10%."
+        }
+      }
+    }
+  ]
+}

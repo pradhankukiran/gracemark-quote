@@ -1,0 +1,191 @@
+{
+  "scraped_at": "2025-08-24T18:19:44.156Z",
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "results": [
+    {
+      "country": "Luxembourg",
+      "url": "https://www.papayaglobal.com/countrypedia/country/luxembourg/",
+      "scraped_at": "2025-08-24T18:19:44.142Z",
+      "data": {
+        "contribution": {
+          "employer_contributions": [
+            {
+              "rate": "8.00%",
+              "description": "Pension (up to a maximum of 12,854.64 EUR per month)"
+            },
+            {
+              "rate": "2.80% to 3.05%",
+              "description": "Health Insurance (up to a maximum of 12,854.64 EUR per month)"
+            },
+            {
+              "rate": "0.595% to 1.13%",
+              "description": "Accident Insurance (up to a maximum of 12,854.64 EUR per month)"
+            },
+            {
+              "rate": "0.01% to 2.98%",
+              "description": "Mutual Health Benefit (up to a maximum of 12,854.64 EUR per month)"
+            },
+            {
+              "rate": "0.14%",
+              "description": "Occupational Medicine (up to a maximum of 12,854.64 EUR per month)"
+            },
+            {
+              "rate": "11.40% to 15.30%",
+              "description": "Total Employment Cost"
+            }
+          ],
+          "employee_contributions": [
+            {
+              "rate": "8.00%",
+              "description": "Pension (up to a maximum of 12,854.64 EUR per month)"
+            },
+            {
+              "rate": "2.80% to 3.05%",
+              "description": "Health Insurance (up to a maximum of 12,854.64 EUR per month)"
+            },
+            {
+              "rate": "1.4%",
+              "description": "Dependency Insurance"
+            },
+            {
+              "rate": "12.20% to 12.45%",
+              "description": "Total Employee Cost"
+            },
+            {
+              "rate": "Employee Income Tax",
+              "description": ""
+            },
+            {
+              "rate": "0.00%",
+              "description": "up to 13,229 EUR"
+            },
+            {
+              "rate": "8.00%",
+              "description": "between 13,230 to 15,435 EUR"
+            },
+            {
+              "rate": "9.00%",
+              "description": "between 15,436 to 17,640 EUR"
+            },
+            {
+              "rate": "10.00%",
+              "description": "between 17,641 to 19,845 EUR"
+            },
+            {
+              "rate": "11.00%",
+              "description": "between 19,846 to 22,050 EUR"
+            },
+            {
+              "rate": "12.00%",
+              "description": "between 22,051 to 24,255 EUR"
+            },
+            {
+              "rate": "14.00%",
+              "description": "between 24,256 to 26,550 EUR"
+            },
+            {
+              "rate": "16.00%",
+              "description": "between 26,551 to 28,845 EUR"
+            },
+            {
+              "rate": "18.00%",
+              "description": "between 28,846 – 31,140 EUR"
+            },
+            {
+              "rate": "20.00%",
+              "description": "between 31,141 to 33,435 EUR"
+            },
+            {
+              "rate": "22.00%",
+              "description": "between 33,436 to 35,730 EUR"
+            },
+            {
+              "rate": "24.00%",
+              "description": "between 35,731 to 38,025  EUR"
+            },
+            {
+              "rate": "26.00%",
+              "description": "between 38,026 to 40,320 EUR"
+            },
+            {
+              "rate": "28.00%",
+              "description": "between 40,321 to 42,615 EUR"
+            },
+            {
+              "rate": "30.00%",
+              "description": "between 42,616 to 44,910 EUR"
+            },
+            {
+              "rate": "32.00%",
+              "description": "between 44,911 to 47,205 EUR"
+            },
+            {
+              "rate": "34.00%",
+              "description": "between 47,206 to 49,500 EUR"
+            },
+            {
+              "rate": "36.00%",
+              "description": "between 49,501 to 51,795 EUR"
+            },
+            {
+              "rate": "38.00%",
+              "description": "between 51,796 to 54,090 EUR"
+            },
+            {
+              "rate": "39.00%",
+              "description": "between 54,091 to 117,450 EUR"
+            },
+            {
+              "rate": "40.00%",
+              "description": "between 117,451 to 176,160 EUR"
+            },
+            {
+              "rate": "41.00%",
+              "description": "between 176,161 to 234,870 EUR"
+            },
+            {
+              "rate": "42.00%",
+              "description": "over 234,870 EUR"
+            }
+          ],
+          "income_tax": []
+        },
+        "minimum_wage": "Skilled employees over 18 years old: the gross monthly minimum wage is 3,165.35 EUR and the hourly rate is 18.30 EUR.\nUnskilled employees over 18 years old: the gross monthly minimum wage is 2,637.79 EUR and the hourly rate is 15.25 EUR.\nEmployees aged 17-18 years old: the gross monthly minimum wage is 2,110.23 EUR per month.\nEmployees aged 15-17 years old: the gross monthly minimum wage is 1,978.34 EUR per month.",
+        "payroll": {
+          "payroll_cycle": "In Luxembourg, the payroll frequency is generally monthly, although some companies pay weekly. Work between the first and last day of the month/week is typically paid on the last day of the month/week.",
+          "13th_salary": "In Luxembourg, it is customary to pay the 13th salary. The 13th salary is the equivalent of one months’ salary and is paid out at the end of the year. It is also common practice for employers to give an additional half months’ salary as well."
+        },
+        "working_hours": {
+          "general": "The standard working week in Luxembourg consists of 8 hours a day, 40 hours per week.",
+          "overtime": "All working hours of more than the standard working hours per week are to be paid as overtime and are regulated by employment contracts/collective agreements etc. It must also be mutually agreed upon between the employee and the employer and notified to the labor authorities before commencing any overtime working hours.\nIn general, maximum overtime limits must not exceed 2 hours per day and 8 hours per week.\nOvertime hours are paid at a rate of 150% of the regular salary rate of pay.\nWork on Sunday is prohibited unless under certain circumstances or for specific sectors; specific compensation should be paid."
+        },
+        "leave": {
+          "annual_leave_(vacation)": "Employees receive a minimum of 26 working days of paid leave per year. In addition, certain employees automatically receive additional leave:\nDisabled persons or those who have suffered a work accident- Additional 6 days of leave\nMining employees- Additional 3 days of leave\nAn employee or apprentice who has not received a continuous rest period of 44 hours per week- 1 additional day for every 8 weeks in which the employee doesn’t receive the continuous rest\nAdditional paid vacation days may be granted by the collective bargaining agreements or the employers.",
+          "public_holidays": "Public holidays falling on a weekend must be compensated to workers by giving a day off in lieu of within 3 months of the holiday.\nDate\tDay\tHoliday\tNotes\n1 Jan 2025\tWednesday\tNew Year’s Day\t\n21 Apr 2025\tMonday\tEaster Monday\t\n1 May 2025\tThursday\tLabour Day\t\n9 May 2025\tFriday\tEurope Day\t\n29 May 2025\tThursday\tAscension Day\t\n9 Jun 2025\tMonday\tWhit Monday\t\n23 Jun 2025\tMonday\tNational Day\t\n15 Aug 2025\tFriday\tAssumption Day\t\n1 Nov 2025\tSaturday\tAll Saints’ Day\t\n25 Dec 2025\tThursday\tChristmas Day\t\n26 Dec 2025\tFriday\t2nd Day of Christmas",
+          "sick_days": "Maximum paid sick leave is 26 weeks. Employers pay full salary until the 77th day of sickness leave occurs (whether consecutive or not) over a period of 12 consecutive months. 80% of this pay will be reimbursed by the employers’ mutual scheme insurance. From the 77th day, further leave is paid for by Social Security.",
+          "maternity_leave": "Maternity leave in Luxembourg is 20 weeks and can begin 8 weeks before the expected due date. To be eligible, the woman must have been covered by the mandatory health insurance for at least 6 months within the last 12 months before maternity leave. In addition, the woman must notify their employer at least 12 weeks before the expected due date.\nSocial insurance pays for maternity leave and cannot be lower than the minimum wage and is capped at 5 times the minimum wage.",
+          "paternity_leave": "Paternity leave is clarified within the collective agreement/employment contract of generally up to 10 days. The father must notify their employer at least two months before the leave is intended to be taken. Otherwise, this leave can be reduced to 2 days. In addition, this leave does not have to be taken consecutively and can be taken within two months of the child’s birth.",
+          "parental_leave": "Parental leave in Luxembourg is dependent on the type of contract and the number of hours worked by the employee. To be eligible, the employee must have been registered with social security at the time of the birth/adoption for at least 12 continuous months and work a minimum of 10 hours per week. This leave is unpaid by the employer, but the Children’s Future Fund provides an allowance.\nThe parental leave can be taken only once per child and before the child reaches the age of 6 (12 for an adopted child). The leave can be taken either in full, partially, or split with the other parent and is based on the number of hours in the employee’s contract/collective agreement:\nFor a full-time employee working 40 hours per week- 4–6 months of full-time leave; 8-12 months of part-time leave (50% of regular working hours); 4 periods of 1-month leave within 20 months; 1-2 half days of leave per week within 20 months\nFor a part-time employee working at least 20 hours per week- 4-6 months of full-time leave; 8-12 months of part-time leave (50% of regular working hours)\nFor a part-time employee working at least 10 hours per week- 4-6 months of full-time leave\nSalaried employees- must have worked at least 10 hours per week",
+          "other_leave": "In Luxembourg, special leave is possible for salaried employees who must leave work for personal reasons.\nIt must be taken when the event takes place and may not be carried over onto the salaried employee’s ordinary leave and must be mutually agreed upon between the employee and the employer prior to any leave taking place.\nThis special leave depends on the nature of the stated reason (birth, marriage, death, etc.)."
+        },
+        "termination": {
+          "termination_process": "The termination process varies according to how the employment agreement and collective agreement are in place and is based on the type of contract and reason for termination. For employers with more than 150 employees (or less if there is a collective agreement foreseeing this), a hearing must be conducted before the employee is dismissed.\nFor employers with at least 15 employees, the employer must notify the economic committee of the dismissal, this notification is required only in the event of a dismissal for economic reasons. If the dismissal is linked to the employee (based on performance, behavior) there is no need of such notification.",
+          "notice_period": "Collective agreements may contain provisions on periods of notice. Suppose the periods of notice laid out in the collective agreement differ from the statutory periods of notice. In that case, the employer and the employee must observe the periods of notice laid down in the collective agreement.\nThe amount of notice is dependent on the length of service:\nFor employees with less than five years of service, two months’ notice is required\nFor employees with between five and ten years of service, four months’ notice is required\nFor employees with more than ten years of service, six months’ notice is required\nNotice begins on the 15th of the month if the dismissal letter is sent between the 1st and and the 14th of the month. Notice begins on the 1st day of the following month if the letter of dismissal was sent between the 15th and the last day of the month.\nIt is possible to exempt the employee from work during the notice period, but in this case, the employer keeps paying the full salary every month until the end of the notice period.",
+          "severance_pay": "Collective agreements may contain provisions on the amount and calculation of severance pay. If the severance pay process laid out in the collective agreement differs, the employer and the employee must observe the process in the collective agreement.\nThe amount of severance pay is determined by the length of employment:\nFewer than five years- No severance pay\n5-10 years- 1 month’s severance pay or the notice period can be extended by five months for employers with less than 20 employees\n10-15 years- 2 months’ severance pay or the notice period can be extended by eight months for employees with less than 20 employees\n15-20 years- 3 months’ severance pay or the notice period can be extended by nine months for employers with less than 20 employees\n20-25 years- 6 months’ severance pay or the notice period can be extended by 12 months for employers with less than 20 employees\n25-30 years- 9 months’ severance pay or the notice period can be extended by 15 months\n30+ years- 12 months’ severance pay or the notice period can be extended by 18 months",
+          "probation_period": "The minimum probation period in Luxembourg is two weeks and generally is determined by the employee’s salary and qualification status:\nIf an employee receives a monthly salary of at least 4,586.12 EUR, the maximum probation period is one year\nIf an employee has a vocational skills certificate or equivalent, the maximum probation period is six months\nIf the employee does not have a vocational skills certificate or equivalent, the maximum probation period is three months"
+        },
+        "visa": {
+          "general_info": "Citizens of EU and EEA countries and Switzerland do not need a work visa for jobs in Luxembourg. Europeans with Croatian citizenship must still acquire a separate work permit for their first year in Luxembourg.\n\nAnyone who intends to stay longer than 90 days in the country must go to the local municipal office in Luxembourg to declare their arrival and intention to stay within the first week of arriving. An address registration certificate is also necessary.\n\nAny foreigner wishing to stay for longer than 90 days in Luxembourg for work purposes must obtain a work visa.\nAll Luxembourg employers must have gone through the labor market test. Three days before publishing the job opening in any public advertisement, the declaration of the vacant position must be submitted to the National Employment Agency (ADEM).\n\nIf, after two months, the position has not been filled by an EU national, the employer may proceed with extending the job offer to a third-party national.\nFor highly qualified employees, the employer is not required to undergo the labor market test.\n\nHowever, the employee will need to declare the open position with ADEM. The employee must have a signed employment contract that is valid for more than one year and can prove they have the qualifications and educational background required to be able to carry out the job duties required. In addition, the salary must be at least 1.5 times the average gross annual salary or 1.2 times the average gross annual salary for certain professions.\n\nFor a foreigner to apply for a work visa, the prerequisite is to receive a definite work offer from an employer in Luxembourg before arriving in Luxembourg. This offer/contract of employment must be in accordance with Luxembourgish labor law as it is the premise for approval of a residence permit based on employment. This does mean that should the foreigner terminate the employment with that employer, the visa will become invalid.\n\nFor highly qualified employees: The employer is not required to undergo the labor market test, however, still will need to declare the open position with ADEM. The employee must have a signed employment contract that is valid for more than one year and can prove they have the qualifications and educational background required to be able to carry out the job duties required. In addition, the salary must be at least 1.5 times the average gross annual salary or 1.2 times the average gross annual salary for certain professions."
+        },
+        "remote_work": "The legal framework for teleworking outlines that telework is defined as work performed outside the premises of the employer, and not restricted to work from home only.\nThere is a distinction between regular and occasional teleworking.\nRegular Teleworking requires the written agreement of both the employee and the employer outlining the place of telework, the working hours, telework allowance (if any), overtime, benefits in kind, etc. The written agreement may result from an individual agreement with an employee, from a Collective Bargaining Agreement or a company agreement. Employers should provide teleworkers with the necessary equipment to carry out their work.\nOccasional teleworking is usually required due to unforeseen circumstances or for a small portion of working time and does not require a written agreement, email will suffice, and the employer is not required to provide work equipment or bear the associated costs.\nAll remote employees should be able to enjoy the same rights and protections as other employees. This includes all benefits in kind that onsite workers are entitled to but excludes compensations specifically linked with the employee’s presence onsite such as a gym or parking space.\nRemote employees have a right to disconnect after working hours and should have the same rights as on-site employees.",
+        "vat": {
+          "general": "Standard VAT rate – 17%\nIntermediary VAT rate – 14%\nReduced VAT rate – 8%\nSuper Reduced VAT rate – 3%"
+        }
+      }
+    }
+  ]
+}
