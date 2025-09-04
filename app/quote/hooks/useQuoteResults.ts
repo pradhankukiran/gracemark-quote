@@ -10,6 +10,7 @@ import { useRipplingQuote } from "./useRipplingQuote";
 import { useSkuadQuote } from "./useSkuadQuote";
 import { useVelocityQuote } from "./useVelocityQuote";
 import { useEnhancementContext } from "@/hooks/enhancement/EnhancementContext";
+import { transformRemoteResponseToQuote } from "@/lib/shared/utils/apiUtils";
 
 export type Provider = 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity';
 
@@ -122,7 +123,11 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       const form = quoteData.formData as EORFormData;
       const providerQuote = quoteData.quotes[next];
       if (providerQuote) {
-        const result = await enhanceQuote(next as any, providerQuote, form);
+        // Send compact/optimized quote to LLM (especially for Remote)
+        const providerQuoteForEnhancement = (next === 'remote' && (providerQuote as any)?.employment)
+          ? transformRemoteResponseToQuote(providerQuote as any)
+          : providerQuote;
+        const result = await enhanceQuote(next as any, providerQuoteForEnhancement, form);
         if (result) {
           updateProviderState(next, { status: 'active', hasData: true, error: undefined });
         } else {
