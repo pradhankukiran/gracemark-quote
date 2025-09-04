@@ -47,10 +47,16 @@ export class LegalProfileService {
     const cached = legalProfileCache.get(params.countryCode, employmentType, contractMonths, quoteType)
     if (cached) return cached
 
-    const papaya = PapayaService.getCountryData(params.countryCode)
-    if (!papaya) return null
-
-    const requirements = PapayaService.extractLegalRequirements(papaya)
+    // Prefer the core Papaya data (results[0].data); fall back to legacy path
+    const core = PapayaService.getCountryCoreData(params.countryCode)
+    let requirements: LegalRequirements
+    if (core) {
+      requirements = PapayaService.extractLegalRequirementsFromCore(core)
+    } else {
+      const papaya = PapayaService.getCountryData(params.countryCode)
+      if (!papaya) return null
+      requirements = PapayaService.extractLegalRequirements(papaya)
+    }
 
     const summary = this.buildSummary({
       country: params.countryName,

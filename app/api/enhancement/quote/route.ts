@@ -40,8 +40,17 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now()
 
   try {
-    // Parse and validate request body
-    const body = await request.json()
+    // Parse and validate request body (handle empty/malformed JSON gracefully)
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch (e) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid JSON body',
+        message: 'Request body is missing or not valid JSON'
+      }, { status: 400 })
+    }
     const validatedInput = EnhancementRequestSchema.parse(body)
 
     // Initialize enhancement engine
@@ -84,8 +93,17 @@ export async function POST(request: NextRequest) {
       }, { status: 429 })
     }
 
+    // Handle request timeout explicitly
+    if (error && typeof error === 'object' && 'code' in error && (error as any).code === 'REQUEST_TIMEOUT') {
+      return NextResponse.json({
+        success: false,
+        error: 'Request timeout',
+        message: 'Request timed out. Please try again.'
+      }, { status: 504 })
+    }
+
     // Handle Groq API errors
-    if (error && typeof error === 'object' && 'code' in error && error.code === 'GROQ_ERROR') {
+    if (error && typeof error === 'object' && 'code' in error && (error as any).code === 'GROQ_ERROR') {
       return NextResponse.json({
         success: false,
         error: 'LLM service error',

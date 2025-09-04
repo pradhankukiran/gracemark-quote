@@ -27,12 +27,29 @@ To get the project up and running, follow these steps:
     DEEL_ORGANIZATION_TOKEN=your_deel_organization_token
 
     # Groq LLM (Enhancement Engine)
+    # Single key (default)
     GROQ_API_KEY=your_groq_api_key
+    # Optional: enable provider-specific keys to spread load (Pass 2)
+    GROQ_MULTI_KEY_ENABLED=false
+    # Mapping: 1: deel, 2: remote, 3: rivermate, 4: oyster, 5: rippling, 6: skuad, 7: velocity
+    GROQ_API_KEY_1=
+    GROQ_API_KEY_2=
+    GROQ_API_KEY_3=
+    GROQ_API_KEY_4=
+    GROQ_API_KEY_5=
+    GROQ_API_KEY_6=
+    GROQ_API_KEY_7=
     # Optional overrides
     GROQ_MODEL=openai/gpt-oss-20b
     GROQ_TEMPERATURE=0.1
     GROQ_MAX_TOKENS=2048
     GROQ_RATE_LIMIT_RPM=30
+    GROQ_REQUEST_TIMEOUT_MS=30000
+    # Optional: retry and overall timeout budget
+    # Default retries = 1 (total attempts = retries + 1). Set to 0 to disable retries.
+    GROQ_MAX_RETRIES=1
+    # Caps total time for a single LLM operation across retries (ms)
+    GROQ_TOTAL_TIMEOUT_MS=60000
     ```
 4. **Run the development server:**
     ```bash

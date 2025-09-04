@@ -6,6 +6,7 @@ import path from 'path'
 
 export class PapayaService {
   private static cache = new Map<string, PapayaCountryData>()
+  private static coreCache = new Map<string, PapayaCountryData["data"]>()
 
   /**
    * Get country data from Papaya Global JSON files
@@ -31,7 +32,6 @@ export class PapayaService {
 
       const fileContent = fs.readFileSync(filePath, 'utf-8')
       const jsonData = JSON.parse(fileContent)
-      
       // Extract the first result (Papaya data structure has results array)
       const countryData: PapayaCountryData = jsonData.results?.[0] || jsonData
 
@@ -42,6 +42,32 @@ export class PapayaService {
 
     } catch (error) {
       console.error(`Error loading Papaya data for ${countryCode}:`, error)
+      return null
+    }
+  }
+
+  /**
+   * Get only the core Papaya data object (results[0].data)
+   */
+  static getCountryCoreData(countryCode: string): PapayaCountryData["data"] | null {
+    try {
+      // Check core cache first
+      if (this.coreCache.has(countryCode)) return this.coreCache.get(countryCode)!
+
+      const filePath = path.join(
+        process.cwd(), 'lib', 'country_data', `papaya_global_data_${countryCode.toUpperCase()}.json`
+      )
+      if (!fs.existsSync(filePath)) return null
+
+      const fileContent = fs.readFileSync(filePath, 'utf-8')
+      const jsonData = JSON.parse(fileContent)
+      const core = (jsonData?.results?.[0]?.data) || jsonData?.data
+      if (!core) return null
+
+      this.coreCache.set(countryCode, core)
+      return core
+    } catch (error) {
+      console.error(`Error loading Papaya core data for ${countryCode}:`, error)
       return null
     }
   }
@@ -87,6 +113,30 @@ export class PapayaService {
     // Extract contribution rates
     requirements.contributions = this.parseContributionRates(papayaData.data.contribution)
 
+    return requirements
+  }
+
+  /**
+   * Extract structured legal requirements directly from the core `data` object
+   */
+  static extractLegalRequirementsFromCore(coreData: PapayaCountryData["data"] | null | undefined): LegalRequirements {
+    const requirements: LegalRequirements = {
+      terminationCosts: { noticePeriodDays: 0, severanceMonths: 0, probationPeriodDays: 0 },
+      mandatorySalaries: { has13thSalary: false, has14thSalary: false },
+      bonuses: {},
+      allowances: {},
+      contributions: { employerRates: {}, employeeRates: {} }
+    }
+    if (!coreData) return requirements
+
+    // Reuse existing parsers on the provided core data
+    if ((coreData as any).termination) {
+      requirements.terminationCosts = this.parseTerminationData((coreData as any).termination)
+    }
+    requirements.mandatorySalaries = this.parseSalaryRequirements(coreData as any)
+    requirements.bonuses = this.parseBonusRequirements(coreData as any)
+    requirements.allowances = this.parseAllowanceRequirements(coreData as any)
+    requirements.contributions = this.parseContributionRates((coreData as any).contribution)
     return requirements
   }
 

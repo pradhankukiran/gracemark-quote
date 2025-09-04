@@ -361,6 +361,7 @@ export interface GroqConfig {
   temperature: number
   maxTokens: number
   rateLimitRpm: number
+  requestTimeoutMs?: number
 }
 
 export interface CacheConfig {

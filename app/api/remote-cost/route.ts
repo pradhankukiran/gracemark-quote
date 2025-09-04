@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
     console.log('✅ Remote API - Response received successfully')
     const rawData: RemoteRawAPIResponse = await response.json()
 
-    console.log('🔍 Remote API - Raw response:', JSON.stringify(rawData, null, 2))
+    // console.log('🔍 Remote API - Raw response:', JSON.stringify(rawData, null, 2))
 
     // Validate response structure
     if (!rawData.data?.employments?.[0]) {

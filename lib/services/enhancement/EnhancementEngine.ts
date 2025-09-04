@@ -2,7 +2,6 @@
 
 import { 
   EnhancedQuote, 
-  EnhancementInput, 
   GroqEnhancementResponse,
   NormalizedQuote,
   PapayaCountryData,
@@ -25,6 +24,7 @@ import { PapayaService } from "../data/PapayaService"
 import { LegalProfileService } from "../data/LegalProfileService"
 import { QuoteNormalizer } from "../data/QuoteNormalizer"
 import { enhancementCache, EnhancementPerformanceMonitor } from "./EnhancementCache"
+import { ProviderInclusionsExtractor } from "./ProviderInclusionsExtractor"
 
 export class EnhancementEngine {
   private groqService: GroqService
@@ -101,20 +101,14 @@ export class EnhancementEngine {
         throw new Error(`No legal profile available for country: ${params.formData.country}`)
       }
 
-      // Step 3: PASS 1 - Extract benefits from provider response (with caching)
+      // Step 3: Deterministic extraction from provider quote (no LLM)
       let extractedBenefits = enhancementCache.getExtraction(
         params.provider,
         normalizedQuote.originalResponse
       )
 
       if (!extractedBenefits) {
-        // Cache miss - perform extraction
-        extractedBenefits = await this.groqService.extractBenefits(
-          normalizedQuote.originalResponse, 
-          params.provider
-        )
-        
-        // Cache the extraction result (1 hour TTL)
+        extractedBenefits = ProviderInclusionsExtractor.extract(params.provider, normalizedQuote)
         enhancementCache.setExtraction(
           params.provider,
           normalizedQuote.originalResponse,
@@ -124,6 +118,7 @@ export class EnhancementEngine {
       }
       
       // Step 4: PASS 3 - Arithmetic compute using legal profile + inclusions
+      console.log(`[Enhancement] Computing enhancements for ${params.provider}...`)
       const groqResponse = await this.groqService.computeEnhancements({
         provider: params.provider,
         baseQuote: normalizedQuote,
@@ -142,18 +137,14 @@ export class EnhancementEngine {
         }
       })
 
+      console.log(`[Enhancement] Enhancements computed for ${params.provider}. Transforming response...`)
       // Step 5: Transform Groq response to EnhancedQuote format
       const enhancedQuote = this.transformGroqResponse(
         groqResponse, 
         normalizedQuote, 
         {
-          provider: params.provider,
-          providerQuote: normalizedQuote,
-          formData: params.formData,
-          papayaData: PapayaService.getCountryData(countryCode)!,
           quoteType,
-          contractDurationMonths: legalProfile.contractMonths,
-          extractedBenefits
+          contractDurationMonths: legalProfile.contractMonths
         }
       )
 
@@ -223,7 +214,7 @@ export class EnhancementEngine {
   private transformGroqResponse(
     groqResponse: GroqEnhancementResponse,
     baseQuote: NormalizedQuote,
-    input: EnhancementInput
+    input: { quoteType: 'all-inclusive' | 'statutory-only'; contractDurationMonths: number }
   ): EnhancedQuote {
     const { enhancements, totals, confidence_scores, analysis } = groqResponse
 

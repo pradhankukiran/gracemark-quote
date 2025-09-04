@@ -374,9 +374,35 @@ export const useEORForm = () => {
   }, [formData.originalCurrency, currency, formData.baseSalary])
 
   const isFormValid = useCallback(() => {
-    return formData.country && formData.baseSalary && formData.clientCountry &&
-           !Object.values(validationErrors).some(error => error !== null)
-  }, [formData.country, formData.baseSalary, formData.clientCountry, validationErrors])
+    console.log('🔍 isFormValid - Checking form validity')
+    console.log('📝 Form data key fields:', {
+      country: formData.country,
+      baseSalary: formData.baseSalary,
+      clientCountry: formData.clientCountry,
+      currency: formData.currency || currency
+    })
+    console.log('❌ Validation errors:', validationErrors)
+    
+    // Check that required fields have actual content (not just truthy)
+    const hasValidCountry = formData.country && formData.country.trim() !== ''
+    const hasValidSalary = formData.baseSalary && formData.baseSalary.trim() !== ''
+    const hasValidClientCountry = formData.clientCountry && formData.clientCountry.trim() !== ''
+    const hasValidCurrency = (formData.currency || currency) && (formData.currency || currency).trim() !== ''
+    const hasNoValidationErrors = !Object.values(validationErrors).some(error => error !== null)
+    
+    console.log('✅ Field validity checks:', {
+      hasValidCountry,
+      hasValidSalary,
+      hasValidClientCountry, 
+      hasValidCurrency,
+      hasNoValidationErrors
+    })
+    
+    const isValid = hasValidCountry && hasValidSalary && hasValidClientCountry && hasValidCurrency && hasNoValidationErrors
+    console.log('🏁 Form is valid:', isValid)
+    
+    return isValid
+  }, [formData.country, formData.baseSalary, formData.clientCountry, formData.currency, currency, validationErrors])
 
   return {
     formData,

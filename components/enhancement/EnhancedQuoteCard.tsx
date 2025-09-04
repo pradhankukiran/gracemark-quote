@@ -17,7 +17,7 @@ import {
   Calculator,
   Info
 } from "lucide-react"
-import { useQuoteEnhancement } from "@/hooks/enhancement/useQuoteEnhancement"
+import { useEnhancementContext } from "@/hooks/enhancement/EnhancementContext"
 import { EnhancedQuote, ProviderType } from "@/lib/types/enhancement"
 import { EORFormData } from "@/lib/shared/types"
 import { EnhancementBreakdown } from "./EnhancementBreakdown"
@@ -52,7 +52,7 @@ export const EnhancedQuoteCard: React.FC<EnhancedQuoteCardProps> = ({
     enhanceQuote,
     clearEnhancement,
     getEnhancementStatus 
-  } = useQuoteEnhancement()
+  } = useEnhancementContext()
 
   const [autoEnhanced, setAutoEnhanced] = useState(false)
   const [validationError, setValidationError] = useState<string | null>(null)
@@ -66,25 +66,7 @@ export const EnhancedQuoteCard: React.FC<EnhancedQuoteCardProps> = ({
   const quoteValidation = validateQuoteWithDebugging(provider, baseQuote)
   const hasValidQuote = quoteValidation.isValid
 
-  // Auto-enhance on mount
-  useEffect(() => {
-    // If we already have an enhancement (from previous tab), do not re-run
-    if (enhancement) {
-      if (!autoEnhanced) setAutoEnhanced(true)
-      return
-    }
-
-    if (!autoEnhanced && hasValidQuote && formData.country) {
-      enhanceQuote(provider, baseQuote, formData, quoteType)
-      setAutoEnhanced(true)
-      setValidationError(null)
-    } else if (!autoEnhanced && !hasValidQuote && baseQuote) {
-      // Log validation error for debugging
-      console.warn(`Invalid quote data for provider ${provider}:`, quoteValidation)
-      setValidationError(quoteValidation.reason || 'Invalid quote data')
-      setAutoEnhanced(true) // Don't retry automatically
-    }
-  }, [provider, baseQuote, formData, quoteType, enhanceQuote, autoEnhanced, hasValidQuote, quoteValidation, enhancement])
+  // Auto-enhancement disabled; enhancement is orchestrated sequentially upstream
 
   const handleRetry = () => {
     if (hasValidQuote) {

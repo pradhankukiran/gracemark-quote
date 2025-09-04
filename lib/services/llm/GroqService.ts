@@ -24,26 +24,60 @@ interface RateLimiter {
 }
 
 export class GroqService {
-  private client: Groq
+  private client: Groq | null
+  private clients: { pass1?: Groq; pass2?: Groq; pass3?: Groq; default?: Groq } = {}
+  private providerClients: Partial<Record<ProviderType, Groq>> = {}
   private config: GroqConfig
   private rateLimiter: RateLimiter
   private static instance: GroqService
+  private multiKeyEnabled: boolean
 
   constructor(config: Partial<GroqConfig> = {}) {
     this.config = {
       apiKey: (config.apiKey || process.env.GROQ_API_KEY || '').trim(),
-      model: config.model || process.env.GROQ_MODEL || 'deepseek-r1-distill-llama-70b',
+      model: config.model || process.env.GROQ_MODEL || 'groq/compound',
       temperature: config.temperature ?? (process.env.GROQ_TEMPERATURE ? Number(process.env.GROQ_TEMPERATURE) : 0.1),
-      maxTokens: config.maxTokens ?? (process.env.GROQ_MAX_TOKENS ? Number(process.env.GROQ_MAX_TOKENS) : 131072),
+      maxTokens: config.maxTokens ?? (process.env.GROQ_MAX_TOKENS ? Number(process.env.GROQ_MAX_TOKENS) : 8192),
       rateLimitRpm: config.rateLimitRpm ?? (process.env.GROQ_RATE_LIMIT_RPM ? Number(process.env.GROQ_RATE_LIMIT_RPM) : 30),
+      requestTimeoutMs: config.requestTimeoutMs ?? (process.env.GROQ_REQUEST_TIMEOUT_MS ? Number(process.env.GROQ_REQUEST_TIMEOUT_MS) : 30000),
     }
 
-    if (!this.config.apiKey) {
-      throw new Error('Groq API key is required')
+    // Feature flag for multi-key routing
+    {
+      const rawFlag = (process.env.GROQ_MULTI_KEY_ENABLED || '').toString()
+      const flag = rawFlag.trim().toLowerCase()
+      this.multiKeyEnabled = flag === 'true' || flag === '1' || flag === 'yes'
     }
 
-    // Initialize client with explicit API key to avoid env/config drift
-    this.client = new Groq({ apiKey: this.config.apiKey })
+    // Load per-pass keys (with fallback to default key)
+    const defaultKey = this.config.apiKey
+    const key1 = (process.env.GROQ_API_KEY_1 || '').trim()
+    const key2 = (process.env.GROQ_API_KEY_2 || '').trim()
+    const key3 = (process.env.GROQ_API_KEY_3 || '').trim()
+
+    if (this.multiKeyEnabled) {
+      const pass1Key = key1 || defaultKey
+      const pass2Key = key2 || defaultKey
+      const pass3Key = key3 || defaultKey
+
+      if (!pass1Key && !pass2Key && !pass3Key) {
+        throw new Error('Groq API key(s) required: set GROQ_API_KEY or GROQ_API_KEY_1..3')
+      }
+
+      if (pass1Key) this.clients.pass1 = new Groq({ apiKey: pass1Key, defaultHeaders: { "Groq-Model-Version": "latest" } })
+      if (pass2Key) this.clients.pass2 = new Groq({ apiKey: pass2Key, defaultHeaders: { "Groq-Model-Version": "latest" } })
+      if (pass3Key) this.clients.pass3 = new Groq({ apiKey: pass3Key, defaultHeaders: { "Groq-Model-Version": "latest" } })
+      if (defaultKey) this.clients.default = new Groq({ apiKey: defaultKey, defaultHeaders: { "Groq-Model-Version": "latest" } })
+
+      this.client = null
+    } else {
+      if (!defaultKey) {
+        throw new Error('Groq API key is required')
+      }
+      // Initialize single client with explicit API key to avoid env/config drift
+      this.client = new Groq({ apiKey: defaultKey, defaultHeaders: { "Groq-Model-Version": "latest" } })
+      this.clients.default = this.client
+    }
 
     this.rateLimiter = {
       tokensPerMinute: 6000, // Groq's typical limit
@@ -51,6 +85,30 @@ export class GroqService {
       lastRequestTime: 0,
       tokenCount: 0,
       requestCount: 0
+    }
+
+    // Debug: summarize multi-key state and slot presence once (no secrets)
+    try {
+      const present = (name: string) => !!(process.env[name] && process.env[name]!.trim().length > 0)
+      const summary = {
+        model: this.config.model,
+        multiKeyEnabled: this.multiKeyEnabled,
+        slots: {
+          key1: present('GROQ_API_KEY_1'),
+          key2: present('GROQ_API_KEY_2'),
+          key3: present('GROQ_API_KEY_3'),
+          key4: present('GROQ_API_KEY_4'),
+          key5: present('GROQ_API_KEY_5'),
+          key6: present('GROQ_API_KEY_6'),
+          key7: present('GROQ_API_KEY_7'),
+        }
+      }
+      // Only log on server side
+      if (typeof window === 'undefined') {
+        console.log('[GroqService] init:', summary)
+      }
+    } catch {
+      // ignore
     }
   }
 
@@ -79,8 +137,9 @@ export class GroqService {
       const systemPrompt = PromptEngine.buildSystemPrompt()
       const userPrompt = PromptEngine.buildUserPrompt(input)
       
-      // Make API call using Groq SDK
-      const response = await this.requestWithRetry(() => this.client.chat.completions.create({
+      // Make API call using Groq SDK (Pass 2)
+      const client = this.getClient('pass2')
+      const response = await this.requestWithRetry((opts) => client.chat.completions.create({
         model: this.config.model,
         messages: [
           { role: "system", content: systemPrompt },
@@ -92,7 +151,7 @@ export class GroqService {
         top_p: 1,
         stream: false,
         response_format: { type: "json_object" }
-      }))
+      }, { signal: opts?.signal }))
 
       // Update rate limiter
       this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
@@ -127,8 +186,9 @@ export class GroqService {
       const systemPrompt = PromptEngine.buildExtractionSystemPrompt()
       const userPrompt = PromptEngine.buildExtractionUserPrompt(originalResponse, provider)
       
-      // Make API call using Groq SDK
-      const response = await this.requestWithRetry(() => this.client.chat.completions.create({
+      // Make API call using Groq SDK (Pass 1)
+      const client = this.getClient('pass1')
+      const response = await this.requestWithRetry((opts) => client.chat.completions.create({
         model: this.config.model,
         messages: [
           { role: "system", content: systemPrompt },
@@ -139,7 +199,7 @@ export class GroqService {
         top_p: 1,
         stream: false,
         response_format: { type: "json_object" }
-      }))
+      }, { signal: opts?.signal }))
 
       // Update rate limiter
       this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
@@ -188,7 +248,9 @@ export class GroqService {
         }
       })
 
-      const response = await this.requestWithRetry(() => this.client.chat.completions.create({
+      // Make API call using Groq SDK (Pass 3)
+      const client = this.getProviderClient(input.provider)
+      const response = await this.requestWithRetry((opts) => client.chat.completions.create({
         model: this.config.model,
         messages: [
           { role: "system", content: systemPrompt },
@@ -199,7 +261,7 @@ export class GroqService {
         top_p: 1,
         stream: false,
         response_format: { type: "json_object" }
-      }))
+      }, { signal: opts?.signal }))
 
       this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
 
@@ -477,20 +539,69 @@ export class GroqService {
   /**
    * Request wrapper with simple retries/backoff for transient errors
    */
-  private async requestWithRetry<T>(fn: () => Promise<T>, maxRetries = 2): Promise<T> {
+  private async requestWithRetry<T>(
+    fn: (opts?: { signal?: AbortSignal }) => Promise<T>,
+    maxRetries?: number
+  ): Promise<T> {
+    const configuredRetries = process.env.GROQ_MAX_RETRIES ? Number(process.env.GROQ_MAX_RETRIES) : 1
+    const overallBudgetMs = process.env.GROQ_TOTAL_TIMEOUT_MS ? Number(process.env.GROQ_TOTAL_TIMEOUT_MS) : 60000
+    const perRequestTimeoutMs = this.config.requestTimeoutMs || 30000
+
+    // Guard against invalid env values
+    const safeOverallBudget = Number.isFinite(overallBudgetMs) && overallBudgetMs > 0 ? overallBudgetMs : 60000
+    const safePerRequestTimeout = Number.isFinite(perRequestTimeoutMs) && perRequestTimeoutMs > 0 ? perRequestTimeoutMs : 30000
+    const allowedRetries = typeof maxRetries === 'number' ? maxRetries : configuredRetries
+
     let attempt = 0
-    let delay = 500
+    let delay = 250
+    const start = Date.now()
+
     while (true) {
+      const elapsed = Date.now() - start
+      const remaining = safeOverallBudget - elapsed
+      // Reserve a tiny buffer to avoid overshooting the overall budget
+      const bufferMs = 50
+      // Reduce timeout for later attempts to stay within overall budget
+      const attemptTimeout = Math.max(100, Math.min(safePerRequestTimeout, remaining - (attempt > 0 ? delay : 0) - bufferMs))
+
+      // If we don't have time left for another attempt, fail fast
+      if (remaining <= bufferMs) {
+        throw new Error('timeout')
+      }
+
+      const controller = new AbortController()
+      const timeoutHandle = setTimeout(() => {
+        try { controller.abort('timeout') } catch { /* noop */ }
+      }, attemptTimeout)
+
       try {
-        return await fn()
+        const result = await fn({ signal: controller.signal })
+        clearTimeout(timeoutHandle)
+        return result
       } catch (err: unknown) {
-        const error = err as { message?: string; status?: string | number; code?: string | number }
+        clearTimeout(timeoutHandle)
+        const error = err as { name?: string; message?: string; status?: string | number; code?: string | number }
         const msg = (error?.message || '').toLowerCase()
         const status = (error?.status || error?.code || '').toString()
-        const retriable = msg.includes('rate') || msg.includes('timeout') || msg.includes('temporarily') || status === '429' || status === '408' || status === '503'
-        if (attempt >= maxRetries || !retriable) throw err
+
+        const isAbort = (error as any)?.name === 'AbortError' || msg.includes('aborted') || msg.includes('timeout')
+        const retriable = isAbort || msg.includes('rate') || msg.includes('temporarily') || status === '429' || status === '408' || status === '503'
+
+        if (attempt >= allowedRetries || !retriable) {
+          // Normalize aborts to a timeout error for consistent error handling upstream
+          if (isAbort) throw new Error('timeout')
+          throw err
+        }
+
+        // Backoff before retrying (but don't exceed overall budget)
+        const now = Date.now()
+        const stillRemaining = safeOverallBudget - (now - start)
+        if (stillRemaining <= delay + bufferMs) {
+          // No time left for a backoff + another attempt
+          throw err
+        }
         await new Promise(res => setTimeout(res, delay))
-        delay *= 2
+        delay = Math.min(delay * 2, 1000)
         attempt++
       }
     }
@@ -535,7 +646,8 @@ export class GroqService {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      const response = await this.client.chat.completions.create({
+      const client = this.getClient('pass2')
+      const response = await client.chat.completions.create({
         model: this.config.model,
         messages: [
           { role: "system", content: "You are a health check. Reply with JSON only." },
@@ -568,6 +680,72 @@ export class GroqService {
       currentRequestCount: this.rateLimiter.requestCount,
       currentTokenCount: this.rateLimiter.tokenCount,
       lastRequestTime: this.rateLimiter.lastRequestTime
+    }
+  }
+
+  /**
+   * Resolve Groq client for a given pass with sensible fallbacks
+   */
+  private getClient(pass: 'pass1' | 'pass2' | 'pass3'): Groq {
+    if (this.multiKeyEnabled) {
+      const client = this.clients[pass] || this.clients.default
+      if (client) return client
+      // As a last resort, pick the first available client
+      const anyClient = this.clients.pass1 || this.clients.pass2 || this.clients.pass3
+      if (anyClient) return anyClient
+      throw new Error('No Groq client available for requested pass')
+    }
+    if (this.client) return this.client
+    // Should not happen, but keep a clear error path
+    throw new Error('Groq client not initialized')
+  }
+
+  /**
+   * Resolve Groq client for arithmetic compute (per provider -> key slot)
+   * Mapping:
+   *  1: deel, 2: remote, 3: rivermate, 4: oyster, 5: rippling, 6: skuad, 7: velocity
+   */
+  private getProviderClient(provider: ProviderType): Groq {
+    if (!this.multiKeyEnabled) return this.clients.default || (this.client as Groq)
+
+    if (this.providerClients[provider]) return this.providerClients[provider] as Groq
+
+    const slot = this.mapProviderToSlot(provider)
+    const envKeyName = `GROQ_API_KEY_${slot}`
+    const slotKey = (process.env[envKeyName] || '').toString().trim()
+    const defaultKey = (process.env.GROQ_API_KEY || '').toString().trim()
+
+    if (!slotKey) {
+      // If multi-key is enabled, warn loudly about fallback
+      if (this.multiKeyEnabled && typeof window === 'undefined') {
+        console.warn(`[GroqService] Missing ${envKeyName} for provider=${provider}. Using default GROQ_API_KEY fallback. This may collapse routing to a single org.`)
+      }
+      const fallbackKey = defaultKey
+      if (!fallbackKey) {
+        const fallback = this.clients.default || this.clients.pass2 || this.clients.pass3 || this.client
+        if (!fallback) throw new Error(`Groq API key missing for ${provider} (expected ${envKeyName} or GROQ_API_KEY)`)
+        return fallback
+      }
+      const client = new Groq({ apiKey: fallbackKey, defaultHeaders: { "Groq-Model-Version": "latest" } })
+      this.providerClients[provider] = client
+      return client
+    }
+
+    const client = new Groq({ apiKey: slotKey, defaultHeaders: { "Groq-Model-Version": "latest" } })
+    this.providerClients[provider] = client
+    return client
+  }
+
+  private mapProviderToSlot(provider: ProviderType): 1 | 2 | 3 | 4 | 5 | 6 | 7 {
+    switch (provider) {
+      case 'deel': return 1
+      case 'remote': return 2
+      case 'rivermate': return 3
+      case 'oyster': return 4
+      case 'rippling': return 5
+      case 'skuad': return 6
+      case 'velocity': return 7
+      default: return 1
     }
   }
 }

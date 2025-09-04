@@ -53,34 +53,50 @@ export const useQuoteEnhancement = (): UseQuoteEnhancementReturn => {
   const abortControllersRef = useRef<Record<string, AbortController>>({})
   const enhancementTimeoutsRef = useRef<Record<string, NodeJS.Timeout>>({})
 
-  // Persist state in sessionStorage to survive tab/provider switches
-  const STORAGE_KEY = 'gmq_enhancements_v1'
+  // Resolve per-quote storage key to avoid cross-quote contamination
+  const getStorageKey = useCallback(() => {
+    try {
+      if (typeof window === 'undefined') return 'gmq_enhancements_v1';
+      const id = new URLSearchParams(window.location.search).get('id') || 'global';
+      return `gmq_enhancements_v1::${id}`;
+    } catch {
+      return 'gmq_enhancements_v1';
+    }
+  }, [])
 
   // Hydrate from sessionStorage on first mount
   useEffect(() => {
     try {
       if (typeof window === 'undefined') return
-      const raw = sessionStorage.getItem(STORAGE_KEY)
+      const raw = sessionStorage.getItem(getStorageKey())
       if (raw) {
         const parsed = JSON.parse(raw)
-        // Basic shape validation
+        // Basic shape validation and normalization
         if (parsed && typeof parsed === 'object') {
-          setState(parsed as EnhancementState)
+          const normalized: EnhancementState = {}
+          Object.entries(parsed as EnhancementState).forEach(([provider, st]) => {
+            normalized[provider] = {
+              loading: false, // do not hydrate loading=true from previous sessions/hooks
+              data: st?.data || null,
+              error: st?.error || null
+            }
+          })
+          setState(normalized)
         }
       }
     } catch {
       // ignore hydration errors
     }
-  }, [])
+  }, [getStorageKey])
 
   const persistState = useCallback((next: EnhancementState) => {
     try {
       if (typeof window === 'undefined') return
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      sessionStorage.setItem(getStorageKey(), JSON.stringify(next))
     } catch {
       // ignore persistence errors
     }
-  }, [])
+  }, [getStorageKey])
 
   // Utility to update state for a specific provider with performance optimization
   const updateProviderState = useCallback((

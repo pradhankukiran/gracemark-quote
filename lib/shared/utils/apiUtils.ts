@@ -52,6 +52,23 @@ export const createQuoteRequestData = (
   formData: EORFormData,
   useComparisonData = false
 ): QuoteRequestData => {
+  console.log('🔍 createQuoteRequestData - DEBUG START')
+  console.log('📋 Full formData object:', JSON.stringify(formData, null, 2))
+  console.log('🔄 useComparisonData flag:', useComparisonData)
+  
+  const extractedFields = {
+    baseSalary: formData.baseSalary,
+    country: formData.country,
+    currency: formData.currency,
+    clientCountry: formData.clientCountry,
+    compareSalary: formData.compareSalary,
+    compareCountry: formData.compareCountry,
+    compareCurrency: formData.compareCurrency,
+    state: formData.state,
+    compareState: formData.compareState
+  }
+  console.log('🏷️ Extracted key fields:', JSON.stringify(extractedFields, null, 2))
+
   const baseData: QuoteRequestData = {
     salary: useComparisonData ? formData.compareSalary : formData.baseSalary,
     country: useComparisonData ? formData.compareCountry : formData.country,
@@ -66,6 +83,48 @@ export const createQuoteRequestData = (
     baseData.state = state
   }
 
+  console.log('📤 Final baseData being returned:', JSON.stringify(baseData, null, 2))
+  
+  // DEFENSIVE VALIDATION: Check for undefined/null values in critical fields
+  const criticalFields = ['salary', 'country', 'currency', 'clientCountry'] as const
+  const missingFields = criticalFields.filter(field => {
+    const value = baseData[field]
+    return !value || (typeof value === 'string' && value.trim() === '')
+  })
+  
+  if (missingFields.length > 0) {
+    const fieldValues = missingFields.reduce((acc, field) => ({ 
+      ...acc, 
+      [field]: baseData[field] 
+    }), {})
+    
+    console.error('❌ CRITICAL: Missing required fields:', missingFields)
+    console.error('❌ BaseData values for missing fields:', fieldValues)
+    console.error('❌ Original formData for debugging:', {
+      baseSalary: formData.baseSalary,
+      country: formData.country,
+      currency: formData.currency,
+      clientCountry: formData.clientCountry,
+      compareSalary: formData.compareSalary,
+      compareCountry: formData.compareCountry,
+      compareCurrency: formData.compareCurrency
+    })
+    
+    // Throw descriptive error to help identify the issue
+    const errorDetails = missingFields.map(field => `${field}: ${JSON.stringify(baseData[field])}`).join(', ')
+    const comparisonContext = useComparisonData ? ' (comparison mode)' : ' (primary mode)'
+    throw new Error(`Missing required quote data${comparisonContext}: ${errorDetails}. Please ensure all required form fields are filled.`)
+  }
+  
+  // Additional validation for numeric salary
+  const salaryNum = parseFloat(baseData.salary?.toString().replace(/[,\s]/g, '') || '0')
+  if (isNaN(salaryNum) || salaryNum <= 0) {
+    console.error('❌ Invalid salary value:', baseData.salary)
+    throw new Error(`Invalid salary value: "${baseData.salary}". Salary must be a positive number.`)
+  }
+  
+  console.log('✅ All validation checks passed')
+  console.log('🔍 createQuoteRequestData - DEBUG END')
   return baseData
 }
 
@@ -443,10 +502,13 @@ export const fetchBenefitsData = async (params: BenefitsRequestParams): Promise<
 // Provider-Specific Quote Transformation Functions
 
 /**
- * Transforms a Deel API response to DeelQuote (identity function)
+ * Transforms a Deel API response to DeelQuote (adds required provider field)
  */
 export const transformToDeelQuote = (response: DeelAPIResponse): DeelQuote => {
-  return response; // DeelQuote is identical to Quote/DeelAPIResponse
+  return {
+    ...response,
+    provider: 'deel' // Add required provider field for validation
+  };
 }
 
 /**

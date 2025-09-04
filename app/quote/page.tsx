@@ -12,6 +12,7 @@ import { GenericQuoteCard } from "@/lib/shared/components/GenericQuoteCard"
 import { QuoteComparison } from "../eor-calculator/components/QuoteComparison"
 import { ErrorBoundary } from "@/lib/shared/components/ErrorBoundary"
 import { ProviderSelector } from "./components/ProviderSelector"
+import { EnhancementProvider } from "@/hooks/enhancement/EnhancementContext"
 import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, transformToRemoteQuote, transformOysterQuoteToDisplayQuote } from "@/lib/shared/utils/apiUtils"
 import { EORFormData, RemoteAPIResponse } from "@/lib/shared/types"
 import { EnhancedQuoteCard } from "@/components/enhancement/EnhancedQuoteCard"
@@ -30,7 +31,8 @@ const QuotePageContent = memo(() => {
     loading, 
     currentProvider, 
     switchProvider, 
-    providerLoading 
+    providerLoading,
+    providerStates
   } = useQuoteResults(quoteId)
   
   const {
@@ -813,6 +815,7 @@ const QuotePageContent = memo(() => {
               onProviderChange={switchProvider}
               loading={providerLoading}
               disabled={loading || quoteData?.status !== 'completed'}
+              providerStates={providerStates}
             />
           </div>
 
@@ -861,7 +864,9 @@ export default function QuotePage() {
           </div>
         </div>
       }>
-        <QuotePageContent />
+        <EnhancementProvider>
+          <QuotePageContent />
+        </EnhancementProvider>
       </Suspense>
     </ErrorBoundary>
   )

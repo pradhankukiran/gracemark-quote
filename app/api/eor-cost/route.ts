@@ -42,7 +42,15 @@ interface DeelRequestBody {
 
 export async function POST(request: NextRequest) {
   try {
-    const { salary, country, currency, state } = await request.json()
+    let parsed: any
+    try {
+      parsed = await request.json()
+    } catch (e) {
+      console.error('EOR Cost API Error: invalid JSON body')
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+    }
+    const { salary, country, currency, state } = parsed
+    console.log('Deel API - Incoming request:', { salary, country, currency, state })
 
     if (!salary || !country || !currency) {
       return NextResponse.json({ error: "Missing required fields: salary, country, currency" }, { status: 400 })
