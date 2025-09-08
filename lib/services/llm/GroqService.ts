@@ -145,6 +145,8 @@ export class GroqService {
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
+        tools: [],
+        tool_choice: 'none',
         // Use configured generation settings and standard OpenAI-compatible params
         temperature: this.config.temperature,
         max_tokens: this.config.maxTokens,
@@ -194,6 +196,8 @@ export class GroqService {
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
+        tools: [],
+        tool_choice: 'none',
         temperature: this.config.temperature,
         max_tokens: this.config.maxTokens,
         top_p: 1,
@@ -232,8 +236,8 @@ export class GroqService {
       // Rate limiting
       await this.checkRateLimit()
 
-      const systemPrompt = PromptEngine.buildArithmeticSystemPrompt()
-      const userPrompt = PromptEngine.buildArithmeticUserPrompt({
+      let systemPrompt = PromptEngine.buildArithmeticSystemPrompt()
+      let userPrompt = PromptEngine.buildArithmeticUserPrompt({
         provider: input.provider,
         baseMonthly: input.baseQuote.monthlyTotal,
         baseSalary: input.baseQuote.baseCost,
@@ -248,6 +252,48 @@ export class GroqService {
         }
       })
 
+      // Minify prompts: collapse whitespace into single spaces to reduce token count without changing content
+      try {
+        const compact = (s: string) => s.replace(/\s+/g, ' ').trim()
+        systemPrompt = compact(systemPrompt)
+        userPrompt = compact(userPrompt)
+      } catch { /* noop */ }
+
+      // Debug: Pretty log what's being sent to the LLM for Remote only
+      if (input.provider === 'remote') {
+        try {
+          const shorten = (txt: string, max = 1800) => {
+            if (!txt) return txt
+            return txt.length > max ? `${txt.slice(0, max)}... [truncated, ${txt.length - max} chars more]` : txt
+          }
+          const extractedKeys = Object.keys((input.extractedBenefits?.includedBenefits || {}) as any)
+          const payloadPreview = {
+            provider: input.provider,
+            model: this.config.model,
+            temperature: this.config.temperature,
+            base: {
+              monthlyTotal: input.baseQuote.monthlyTotal,
+              baseSalary: input.baseQuote.baseCost,
+              currency: input.baseQuote.currency,
+              country: input.baseQuote.country,
+            },
+            mode: input.quoteType,
+            contractMonths: input.contractDurationMonths,
+            legalProfileId: input.legalProfile.id,
+            extractedBenefitKeys: extractedKeys,
+            prompts: {
+              system: shorten(systemPrompt, 600),
+              user: shorten(userPrompt, 2000)
+            }
+          }
+          // Styled-ish banner for readability in server logs
+          const line = '═'.repeat(40)
+          console.log(`\n${line}\n🧪 REMOTE LLM REQUEST PAYLOAD (preview)\n${line}\n`, payloadPreview, `\n${line}\n`)
+        } catch (e) {
+          console.log('[LLM DEBUG][REMOTE] Failed to log payload preview:', e)
+        }
+      }
+
       // Make API call using Groq SDK (Pass 3)
       const client = this.getProviderClient(input.provider)
       const response = await this.requestWithRetry((opts) => client.chat.completions.create({
@@ -256,6 +302,8 @@ export class GroqService {
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
+        tools: [],
+        tool_choice: 'none',
         temperature: this.config.temperature,
         max_tokens: this.config.maxTokens,
         top_p: 1,

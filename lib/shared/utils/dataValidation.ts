@@ -31,8 +31,8 @@ export const validateEORFormData = (data: unknown): data is EORFormData => {
 
   // Check required string fields
   const requiredStringFields = [
-    'employeeName', 'jobTitle', 'country', 'currency', 'clientName', 
-    'clientCountry', 'clientCurrency', 'baseSalary', 'employmentType'
+    // Keep validation pragmatic: require core fields used for requests
+    'country', 'currency', 'clientCountry', 'baseSalary'
   ]
   
   for (const field of requiredStringFields) {
@@ -42,8 +42,11 @@ export const validateEORFormData = (data: unknown): data is EORFormData => {
     }
   }
 
-  // Check boolean fields
-  if (typeof data.workVisaRequired !== 'boolean' || typeof data.isCurrencyManuallySet !== 'boolean') {
+  // Optional booleans: if present, must be boolean
+  if (
+    ('workVisaRequired' in data && typeof data.workVisaRequired !== 'boolean') ||
+    ('isCurrencyManuallySet' in data && typeof data.isCurrencyManuallySet !== 'boolean')
+  ) {
     console.warn('Invalid EORFormData: boolean fields are invalid')
     return false
   }
@@ -96,34 +99,41 @@ export const validateDeelAPIResponse = (data: unknown): data is DeelAPIResponse 
 export const validateDualCurrencyQuotes = (data: unknown): data is DualCurrencyQuotes => {
   if (!isObject(data)) return false
 
-  // Check boolean fields
-  const booleanFields = [
-    'isCalculatingSelected', 'isCalculatingLocal', 
-    'isCalculatingCompareSelected', 'isCalculatingCompareLocal',
-    'isDualCurrencyMode', 'hasComparison'
-  ]
+  // Support both legacy flat shape and provider-scoped shape.
+  const providerKeys = ['deel','remote','rivermate','oyster','rippling','skuad','velocity']
+  const hasProviderBlocks = providerKeys.some(k => k in data)
 
-  for (const field of booleanFields) {
-    if (typeof data[field] !== 'boolean') {
-      console.warn(`Invalid DualCurrencyQuotes: ${field} must be a boolean`)
-      return false
+  const validateProviderBlock = (block: any): boolean => {
+    if (!isObject(block)) return false
+    const bools = [
+      'isCalculatingSelected', 'isCalculatingLocal',
+      'isCalculatingCompareSelected', 'isCalculatingCompareLocal',
+      'isDualCurrencyMode', 'hasComparison'
+    ]
+    for (const b of bools) {
+      if (b in block && typeof block[b] !== 'boolean') {
+        console.warn(`Invalid ProviderDualCurrencyQuotes: ${b} must be boolean when present`)
+        return false
+      }
     }
+    // Quotes are provider-specific objects; allow any object or null
+    return true
   }
 
-  // Validate quote objects (they can be null)
-  const quoteFields = [
-    'selectedCurrencyQuote', 'localCurrencyQuote',
-    'compareSelectedCurrencyQuote', 'compareLocalCurrencyQuote'
-  ]
-
-  for (const field of quoteFields) {
-    const quote = data[field]
-    if (quote !== null && !validateDeelAPIResponse(quote)) {
-      console.warn(`Invalid DualCurrencyQuotes: ${field} is not a valid quote`)
-      return false
+  if (hasProviderBlocks) {
+    for (const k of providerKeys) {
+      if (k in data && !validateProviderBlock((data as any)[k])) return false
     }
+    return true
   }
 
+  // Legacy flat shape: be lenient (only booleans type-check when present)
+  const legacyBools = [
+    'isCalculatingSelected','isCalculatingLocal','isCalculatingCompareSelected','isCalculatingCompareLocal','isDualCurrencyMode','hasComparison'
+  ]
+  for (const b of legacyBools) {
+    if (b in data && typeof (data as any)[b] !== 'boolean') return false
+  }
   return true
 }
 
@@ -175,10 +185,14 @@ export const validateQuoteData = (data: unknown): data is QuoteData => {
     return false
   }
 
-  // Validate formData based on calculatorType
-  if (data.calculatorType === 'eor' && !validateEORFormData(data.formData)) {
-    console.warn('Invalid QuoteData: EOR form data is invalid')
-    return false
+  // Validate formData based on calculatorType and status
+  if (data.calculatorType === 'eor') {
+    const statusStr = (data as any).status as string
+    // For 'calculating', allow a minimal form shape (already enforced in validateEORFormData)
+    if (!validateEORFormData(data.formData)) {
+      console.warn('Invalid QuoteData: EOR form data is invalid')
+      return false
+    }
   }
 
   // Validate dualCurrencyQuotes if it exists

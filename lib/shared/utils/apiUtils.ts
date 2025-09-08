@@ -128,47 +128,72 @@ export const createQuoteRequestData = (
   return baseData
 }
 
+// Lightweight fetch with retry/backoff for transient errors (429/408/503/timeouts)
+const fetchJsonWithRetry = async <T = any>(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+  opts?: { retries?: number; backoffMs?: number }
+): Promise<T> => {
+  const maxRetries = Math.max(0, opts?.retries ?? 1)
+  let attempt = 0
+  let backoff = Math.max(50, opts?.backoffMs ?? 300)
+
+  while (true) {
+    try {
+      const res = await fetch(input, init)
+      if (!res.ok) {
+        const status = res.status
+        const bodyText = await res.text().catch(() => '')
+        const retriable = status === 429 || status === 408 || status === 503
+        if (!retriable || attempt >= maxRetries) {
+          throw new Error(bodyText || `HTTP ${status}`)
+        }
+        // backoff and retry
+        await new Promise(r => setTimeout(r, backoff + Math.floor(Math.random() * 150)))
+        attempt++
+        backoff = Math.min(backoff * 2, 1000)
+        continue
+      }
+      // success
+      return (await res.json()) as T
+    } catch (err: any) {
+      const msg = (err?.message || '').toLowerCase()
+      const retriable = msg.includes('timeout') || msg.includes('network')
+      if (!retriable || attempt >= maxRetries) throw err
+      await new Promise(r => setTimeout(r, backoff + Math.floor(Math.random() * 150)))
+      attempt++
+      backoff = Math.min(backoff * 2, 1000)
+    }
+  }
+}
+
 /**
  * Fetches EOR cost from Deel API
  */
 export const fetchEORCost = async (requestData: QuoteRequestData): Promise<DeelAPIResponse> => {
-  const response = await fetch("/api/eor-cost", {
+  return fetchJsonWithRetry<DeelAPIResponse>("/api/eor-cost", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(requestData),
-  })
-
-  if (!response.ok) {
-    const errorData = await response.json()
-    throw new Error(`Deel API error: ${errorData.error || "Failed to calculate quote"}`)
-  }
-
-  return response.json()
+  }, { retries: 1, backoffMs: 300 })
 }
 
 /**
  * Fetches Remote.com cost estimates
  */
 export const fetchRemoteCost = async (requestData: QuoteRequestData): Promise<RemoteAPIResponse> => {
-  const response = await fetch("/api/remote-cost", {
+  return fetchJsonWithRetry<RemoteAPIResponse>("/api/remote-cost", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(requestData),
-  })
-
-  if (!response.ok) {
-    const errorData = await response.json()
-    throw new Error(`Remote API error: ${errorData.error || "Failed to calculate quote"}`)
-  }
-
-  return response.json()
+  }, { retries: 1, backoffMs: 300 })
 }
 
 /**
  * Fetches Oyster.com cost estimates via GraphQL proxy route
  */
 export const fetchOysterCost = async (requestData: QuoteRequestData): Promise<any> => {
-  const response = await fetch("/api/oyster-cost", {
+  return fetchJsonWithRetry<any>("/api/oyster-cost", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -188,21 +213,14 @@ export const fetchOysterCost = async (requestData: QuoteRequestData): Promise<an
       })(),
       currency: requestData.currency,
     }),
-  })
-
-  if (!response.ok) {
-    const text = await response.text()
-    throw new Error(text || "Failed to fetch Oyster cost")
-  }
-
-  return response.json()
+  }, { retries: 1, backoffMs: 300 })
 }
 
 /**
  * Fetches Rippling cost breakdown
  */
 export const fetchRipplingCost = async (requestData: QuoteRequestData): Promise<any> => {
-  const response = await fetch("/api/rippling-cost", {
+  return fetchJsonWithRetry<any>("/api/rippling-cost", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -216,20 +234,14 @@ export const fetchRipplingCost = async (requestData: QuoteRequestData): Promise<
       currency: requestData.currency,
       state: requestData.state || null,
     }),
-  })
-
-  if (!response.ok) {
-    const text = await response.text()
-    throw new Error(text || "Failed to fetch Rippling cost")
-  }
-  return response.json()
+  }, { retries: 1, backoffMs: 300 })
 }
 
 /**
  * Fetches Skuad cost estimates
  */
 export const fetchSkuadCost = async (requestData: QuoteRequestData): Promise<any> => {
-  const response = await fetch("/api/skuad-cost", {
+  return fetchJsonWithRetry<any>("/api/skuad-cost", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -242,20 +254,14 @@ export const fetchSkuadCost = async (requestData: QuoteRequestData): Promise<any
       country: requestData.country,
       currency: requestData.currency,
     }),
-  })
-
-  if (!response.ok) {
-    const text = await response.text()
-    throw new Error(text || "Failed to fetch Skuad cost")
-  }
-  return response.json()
+  }, { retries: 1, backoffMs: 300 })
 }
 
 /**
  * Fetches Velocity Global burden summary
  */
 export const fetchVelocityGlobalCost = async (requestData: QuoteRequestData): Promise<any> => {
-  const response = await fetch("/api/velocity-cost", {
+  return fetchJsonWithRetry<any>("/api/velocity-cost", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -269,13 +275,7 @@ export const fetchVelocityGlobalCost = async (requestData: QuoteRequestData): Pr
       markupPercentage: 4,
       timePeriod: 'annual',
     }),
-  })
-
-  if (!response.ok) {
-    const text = await response.text()
-    throw new Error(text || "Failed to fetch Velocity Global burden")
-  }
-  return response.json()
+  }, { retries: 1, backoffMs: 300 })
 }
 
 /**
@@ -454,14 +454,7 @@ export const transformRivermateQuoteToDisplayQuote = (rq: RivermateQuote): Quote
  * Fetches validation data for a specific country
  */
 export const fetchValidationData = async (countryCode: string): Promise<ValidationAPIResponse> => {
-  const response = await fetch(`/api/eor-validations/${countryCode}`)
-  
-  if (!response.ok) {
-    const errorData = await response.json()
-    throw new Error(`Validation API error: ${errorData.error || "Failed to fetch validation data"}`)
-  }
-
-  return response.json()
+  return fetchJsonWithRetry<ValidationAPIResponse>(`/api/eor-validations/${countryCode}` , undefined, { retries: 1, backoffMs: 300 })
 }
 
 /**
@@ -489,14 +482,7 @@ export const fetchBenefitsData = async (params: BenefitsRequestParams): Promise<
     employment_type: transformEmploymentType(params.employmentType),
   })
 
-  const response = await fetch(`/api/eor-benefits?${queryParams}`)
-  
-  if (!response.ok) {
-    const errorData = await response.json()
-    throw new Error(`Benefits API error: ${errorData.error || "Failed to fetch benefits data"}`)
-  }
-
-  return response.json()
+  return fetchJsonWithRetry<BenefitsAPIResponse>(`/api/eor-benefits?${queryParams}`, undefined, { retries: 1, backoffMs: 300 })
 }
 
 // Provider-Specific Quote Transformation Functions

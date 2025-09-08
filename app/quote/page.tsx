@@ -180,6 +180,75 @@ const QuotePageContent = memo(() => {
     }
   }, [quoteData?.status, quoteData?.quotes.comparisonOyster, currentProvider, autoConvertQuote])
 
+  // Background conversions for all providers once base quotes are present (deduped internally)
+  useEffect(() => {
+    if (quoteData?.status !== 'completed') return
+
+    // Deel
+    if (quoteData.quotes.deel) {
+      autoConvertQuote(quoteData.quotes.deel as any, 'deel')
+    }
+    if (quoteData.quotes.comparisonDeel) {
+      autoConvertQuote(quoteData.quotes.comparisonDeel as any, 'compare')
+    }
+
+    // Remote (transform to RemoteQuote for conversion API)
+    if (quoteData.quotes.remote) {
+      const isRaw = !!(quoteData.quotes.remote as any)?.employment
+      const remoteForConversion = isRaw
+        ? transformToRemoteQuote(quoteData.quotes.remote as any)
+        : (quoteData.quotes.remote as any)
+      autoConvertRemoteQuote(remoteForConversion as any, 'remote')
+    }
+    if (quoteData.quotes.comparisonRemote) {
+      const isRaw = !!(quoteData.quotes.comparisonRemote as any)?.employment
+      const remoteForConversion = isRaw
+        ? transformToRemoteQuote(quoteData.quotes.comparisonRemote as any)
+        : (quoteData.quotes.comparisonRemote as any)
+      autoConvertRemoteQuote(remoteForConversion as any, 'compareRemote')
+    }
+
+    // Rivermate
+    if (quoteData.quotes.rivermate) {
+      autoConvertQuote(quoteData.quotes.rivermate as any, 'rivermate')
+    }
+    if (quoteData.quotes.comparisonRivermate) {
+      autoConvertQuote(quoteData.quotes.comparisonRivermate as any, 'compareRivermate')
+    }
+
+    // Oyster
+    if (quoteData.quotes.oyster) {
+      autoConvertQuote(quoteData.quotes.oyster as any, 'oyster')
+    }
+    if (quoteData.quotes.comparisonOyster) {
+      autoConvertQuote(quoteData.quotes.comparisonOyster as any, 'compareOyster')
+    }
+
+    // Rippling
+    if (quoteData.quotes.rippling) {
+      autoConvertQuote(quoteData.quotes.rippling as any, 'rippling')
+    }
+    if (quoteData.quotes.comparisonRippling) {
+      autoConvertQuote(quoteData.quotes.comparisonRippling as any, 'compareRippling')
+    }
+
+    // Skuad
+    if ((quoteData.quotes as any).skuad) {
+      autoConvertQuote((quoteData.quotes as any).skuad as any, 'skuad')
+    }
+    if ((quoteData.quotes as any).comparisonSkuad) {
+      autoConvertQuote((quoteData.quotes as any).comparisonSkuad as any, 'compareSkuad')
+    }
+
+    // Velocity
+    if ((quoteData.quotes as any).velocity) {
+      autoConvertQuote((quoteData.quotes as any).velocity as any, 'velocity')
+    }
+    if ((quoteData.quotes as any).comparisonVelocity) {
+      autoConvertQuote((quoteData.quotes as any).comparisonVelocity as any, 'compareVelocity')
+    }
+  }, [quoteData?.status, quoteData?.quotes, autoConvertQuote, autoConvertRemoteQuote])
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
@@ -274,6 +343,17 @@ const QuotePageContent = memo(() => {
         </div>
       </div>
     )
+  }
+
+  // Reconciliation button readiness: active only when all providers finished enhancement (no loading states)
+  const allProviders: Array<'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity'> = ['deel','remote','rivermate','oyster','rippling','skuad','velocity']
+  const isReconReady = allProviders.every(p => {
+    const s = providerStates[p]?.status
+    return s && s !== 'loading-base' && s !== 'loading-enhanced'
+  })
+
+  const startReconciliation = () => {
+    console.log('🟡 Start Reconciliation clicked')
   }
 
   const renderQuote = () => {
@@ -798,6 +878,16 @@ const QuotePageContent = memo(() => {
   // Completed state
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
+      {/* Fixed Action: Start Reconciliation */}
+      <div className="fixed top-4 right-4 z-50">
+        <Button
+          onClick={startReconciliation}
+          disabled={!isReconReady}
+          className="bg-yellow-400 text-black hover:bg-yellow-500 font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Start Reconciliation
+        </Button>
+      </div>
       <div className="container mx-auto px-6 py-8 max-w-7xl">
         <div className="space-y-8">
           <div className="text-center space-y-3">

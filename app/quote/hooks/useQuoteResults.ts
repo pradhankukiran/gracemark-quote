@@ -22,8 +22,10 @@ export interface ProviderStatus {
   error?: string;
 }
 
-// Sequential loading queue (Deel loads first by default, others follow)
+// Sequential loading queue (legacy). We'll run in parallel mode now.
 const SEQUENTIAL_LOADING_QUEUE: Provider[] = ['remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'];
+const PARALLEL_MODE = true
+const OTHER_PROVIDERS: Provider[] = ['remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity']
 
 interface UseQuoteResultsReturn {
   quoteData: QuoteData | null;
@@ -104,6 +106,45 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     velocity: false,
   });
   const ENHANCEMENT_ORDER: Provider[] = ['deel', ...SEQUENTIAL_LOADING_QUEUE];
+
+  // In-flight guards to prevent duplicate requests per provider
+  const baseInFlightRef = useRef<Record<Provider, boolean>>({
+    deel: false,
+    remote: false,
+    rivermate: false,
+    oyster: false,
+    rippling: false,
+    skuad: false,
+    velocity: false,
+  })
+  const enhancementInFlightRef = useRef<Record<Provider, boolean>>({
+    deel: false,
+    remote: false,
+    rivermate: false,
+    oyster: false,
+    rippling: false,
+    skuad: false,
+    velocity: false,
+  })
+  // Auto-scheduling and failure control for enhancements
+  const enhancementScheduledRef = useRef<Record<Provider, boolean>>({
+    deel: false,
+    remote: false,
+    rivermate: false,
+    oyster: false,
+    rippling: false,
+    skuad: false,
+    velocity: false,
+  })
+  const enhancementFailedRef = useRef<Record<Provider, boolean>>({
+    deel: false,
+    remote: false,
+    rivermate: false,
+    oyster: false,
+    rippling: false,
+    skuad: false,
+    velocity: false,
+  })
 
   const triggerEnhancementSequential = useCallback(async () => {
     if (enhancementProcessingRef.current) return;
@@ -459,6 +500,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     // If provider is active but missing dual currency data, calculate it
     if (quoteData.status === 'completed' && needsDual && !hasDualForProvider) {
       try {
+        // Guard against overlapping base/dual requests for the same provider
+        if (baseInFlightRef.current[newProvider] || providerLoading[newProvider]) return
         let calculatedQuote: QuoteData | undefined;
         if (newProvider === 'deel') {
           calculatedQuote = await calculateDeelQuote(form, quoteData);
@@ -494,9 +537,9 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     console.log("Refreshing quote...");
   }, []);
   
-  // Effect to process next provider when queue index changes
+  // Effect to process next provider when queue index changes (legacy sequential; inactive in PARALLEL_MODE)
   useEffect(() => {
-    if (isSequentialLoadingRef.current && currentQueueIndex >= 0 && currentQueueIndex < SEQUENTIAL_LOADING_QUEUE.length) {
+    if (!PARALLEL_MODE && isSequentialLoadingRef.current && currentQueueIndex >= 0 && currentQueueIndex < SEQUENTIAL_LOADING_QUEUE.length) {
       console.log(`🕰️ Scheduling provider ${currentQueueIndex + 1}/${SEQUENTIAL_LOADING_QUEUE.length} in 2 seconds...`);
       
       // Longer delay to be more API-friendly
@@ -505,7 +548,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           processNextProviderRef.current();
         }
       }, 2000); // Increased from 500ms to 2s
-    } else if (currentQueueIndex >= SEQUENTIAL_LOADING_QUEUE.length && currentQueueIndex > 0) {
+    } else if (!PARALLEL_MODE && currentQueueIndex >= SEQUENTIAL_LOADING_QUEUE.length && currentQueueIndex > 0) {
       // Sequential loading complete
       isSequentialLoadingRef.current = false;
       console.log('🎉 Sequential loading completed - all providers processed!');
@@ -579,32 +622,141 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       setQuoteData(data);
 
       if (data.status === 'calculating') {
-        console.log('⚡ Quote is in calculating status, starting Deel quote calculation...')
-        console.log('📤 FormData being passed to calculateDeelQuote:', JSON.stringify(data.formData, null, 2))
+        console.log('⚡ Quote is in calculating status, starting Deel (then others in parallel)...')
+        const form = data.formData as EORFormData
+
+        // Helper to merge provider-specific results safely
+        const mergeAndPersist = (calculated: QuoteData) => {
+          setQuoteData(prev => {
+            const base = prev || data
+            const next: QuoteData = {
+              ...base,
+              // Prefer the calculator's normalized formData
+              formData: calculated.formData || base.formData,
+              quotes: { ...base.quotes, ...calculated.quotes },
+              dualCurrencyQuotes: { ...(base.dualCurrencyQuotes || {}), ...(calculated.dualCurrencyQuotes || {}) },
+              metadata: { ...(base.metadata || {}), ...(calculated.metadata || {}) },
+              status: calculated.status || base.status,
+              error: calculated.error
+            }
+            if (quoteId) {
+              setJsonInSessionStorage(quoteId, next)
+            }
+            return next
+          })
+        }
+
+        // Enhancement starter per provider (avoid stale storage/state by passing data in)
+        const startEnhancementFor = async (provider: Provider, providerQuote: any, formForEnh: EORFormData) => {
+          try {
+            if (!providerQuote) return
+            // Do not auto-start if already failed, scheduled, or in-flight
+            if (enhancementFailedRef.current[provider]) return
+            if (enhancementInFlightRef.current[provider]) return
+            if (enhancementScheduledRef.current[provider]) return
+            enhancementScheduledRef.current[provider] = true
+            enhancementInFlightRef.current[provider] = true
+            updateProviderState(provider, { status: 'loading-enhanced', hasData: true })
+            const providerQuoteForEnhancement = (provider === 'remote' && (providerQuote as any)?.employment)
+              ? transformRemoteResponseToQuote(providerQuote as any)
+              : providerQuote
+            const res = await enhanceQuote(provider as any, providerQuoteForEnhancement, formForEnh)
+            if (res) {
+              updateProviderState(provider, { status: 'active', hasData: true })
+            } else {
+              updateProviderState(provider, { status: 'active', hasData: true, error: 'Enhanced quote failed' })
+            }
+          } catch (err) {
+            console.error(`❌ Enhancement failed for ${provider}:`, err)
+            updateProviderState(provider, { status: 'active', hasData: true, error: 'Enhanced quote failed' })
+            enhancementFailedRef.current[provider] = true
+          } finally {
+            enhancementInFlightRef.current[provider] = false
+          }
+        }
+
         try {
-          const finalQuoteData = await calculateDeelQuote(data.formData as EORFormData, data);
-          console.log('✅ Deel quote calculation completed successfully')
-          setQuoteData(finalQuoteData);
-          if (quoteId) {
-            setJsonInSessionStorage(quoteId, finalQuoteData);
+          // 1) Start Deel first
+          if (!hasProviderData('deel', (quoteData || data) as QuoteData)) {
+            updateProviderState('deel', { status: 'loading-base' })
           }
-          
-          // Process Deel enhancement in background immediately after base quote
-          console.log('🧠 Queuing Deel enhanced quote (sequential)...');
-          updateProviderState('deel', { hasData: true, status: 'loading-enhanced' });
-          enhancementRequestedRef.current.deel = true;
-          void triggerEnhancementSequential();
-          
+          const deelPromise = (async () => {
+            try {
+              if (baseInFlightRef.current.deel || hasProviderData('deel', (quoteData || data) as QuoteData)) return
+              baseInFlightRef.current.deel = true
+              console.log('📤 Starting Deel base quote...')
+              const deelResult = await calculateDeelQuote(form, (quoteData || data) as QuoteData)
+              mergeAndPersist(deelResult)
+              // Kick enhancement for Deel immediately
+              void startEnhancementFor('deel', (deelResult.quotes as any).deel, deelResult.formData as EORFormData)
+            } catch (err) {
+              console.error('❌ Deel base quote failed:', err)
+              updateProviderState('deel', { status: 'failed', error: err instanceof Error ? err.message : 'Failed to calculate Deel quote' })
+            } finally {
+              baseInFlightRef.current.deel = false
+            }
+          })()
+
+          // 2) As soon as Deel has started, kick off others in parallel
+          OTHER_PROVIDERS.forEach((provider) => {
+            if (!hasProviderData(provider, (quoteData || data) as QuoteData)) {
+              updateProviderState(provider, { status: 'loading-base' })
+            }
+            const run = async () => {
+              try {
+                if (baseInFlightRef.current[provider] || hasProviderData(provider, (quoteData || data) as QuoteData)) return
+                baseInFlightRef.current[provider] = true
+                const baseData = (quoteData || data) as QuoteData
+                let result: QuoteData | undefined
+                switch (provider) {
+                  case 'remote':
+                    result = await calculateRemoteQuote(form, baseData); break
+                  case 'rivermate':
+                    result = await calculateRivermateQuote(form, baseData); break
+                  case 'oyster':
+                    result = await calculateOysterQuote(form, baseData); break
+                  case 'rippling':
+                    result = await calculateRipplingQuote(form, baseData); break
+                  case 'skuad':
+                    result = await calculateSkuadQuote(form, baseData); break
+                  case 'velocity':
+                    result = await calculateVelocityQuote(form, baseData); break
+                  default:
+                    return
+                }
+                  if (result) {
+                    mergeAndPersist(result)
+                    // Start enhancement for this provider
+                    void startEnhancementFor(provider, (result.quotes as any)[provider], result.formData as EORFormData)
+                  } else {
+                  updateProviderState(provider, { status: 'failed', error: 'No quote data returned' })
+                }
+              } catch (e: any) {
+                console.error(`❌ ${provider} base quote failed:`, e)
+                updateProviderState(provider, { status: 'failed', error: e?.message || 'Failed to calculate quote' })
+              } finally {
+                baseInFlightRef.current[provider] = false
+              }
+            }
+            void run()
+          })
+
+          // 3) Unlock UI early: mark overall status as completed to allow tab navigation
+          setQuoteData(prev => {
+            const base = prev || data
+            if (base.status === 'completed') return base
+            const next: QuoteData = { ...base, status: 'completed' }
+            if (quoteId) setJsonInSessionStorage(quoteId, next)
+            return next
+          })
+
+          // UI no longer in global loading state
+          setLoading(false)
+
+          // Wait for Deel to finish (without blocking UI)
+          await deelPromise
         } catch (error) {
-          console.error('❌ Error calculating initial Deel quote:', error);
-          console.error('❌ FormData that failed:', JSON.stringify(data.formData, null, 2))
-          const errorQuoteData: QuoteData = { ...data, status: 'error', error: error instanceof Error ? error.message : 'Failed to calculate quote' };
-          setQuoteData(errorQuoteData);
-          if (quoteId) {
-            setJsonInSessionStorage(quoteId, errorQuoteData);
-          }
-          // Mark Deel as failed
-          updateProviderState('deel', { status: 'failed', error: error instanceof Error ? error.message : 'Failed to calculate quote' });
+          console.error('❌ Error during parallel base/enhancement kickoff:', error)
         }
       } else if (data.status === 'completed') {
         // Update provider states: active when both base and enhanced; loading-enhanced when base only
@@ -618,20 +770,55 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           updateProviderState(provider, { status, hasData: hasBase });
         });
 
-        // Queue enhancements sequentially for any provider with base but no enhancement yet
-        providers.forEach(provider => {
-          const hasBase = hasProviderData(provider, data)
-          const hasEnh = !!enhancements[provider]
-          if (hasBase && !hasEnh) {
-            enhancementRequestedRef.current[provider] = true
-          }
-        })
-        // Start the enhancement queue
-        triggerEnhancementSequential()
+        // In PARALLEL_MODE, kick any missing enhancements immediately in parallel
+        if (PARALLEL_MODE) {
+          providers.forEach((provider) => {
+            const hasBase = hasProviderData(provider, data)
+            const hasEnh = !!enhancements[provider]
+            const scheduled = enhancementScheduledRef.current[provider]
+            const failed = enhancementFailedRef.current[provider]
+            if (hasBase && !hasEnh && !scheduled && !failed) {
+              // Fire-and-forget enhancement
+              ;(async () => {
+                try {
+                  if (enhancementInFlightRef.current[provider]) return
+                  // mark scheduled to avoid repeated auto retries
+                  enhancementScheduledRef.current[provider] = true
+                  enhancementInFlightRef.current[provider] = true
+                  updateProviderState(provider, { status: 'loading-enhanced', hasData: true })
+                  const providerQuote = (data.quotes as any)[provider]
+                  const providerQuoteForEnhancement = (provider === 'remote' && (providerQuote as any)?.employment)
+                    ? transformRemoteResponseToQuote(providerQuote as any)
+                    : providerQuote
+                  const res = await enhanceQuote(provider as any, providerQuoteForEnhancement, data.formData as EORFormData)
+                  if (res) {
+                    updateProviderState(provider, { status: 'active', hasData: true })
+                  } else {
+                    updateProviderState(provider, { status: 'active', hasData: true, error: 'Enhanced quote failed' })
+                  }
+                } catch (err) {
+                  console.error(`❌ Enhancement failed for ${provider}:`, err)
+                  updateProviderState(provider, { status: 'active', hasData: true, error: 'Enhanced quote failed' })
+                  enhancementFailedRef.current[provider] = true
+                } finally {
+                  enhancementInFlightRef.current[provider] = false
+                }
+              })()
+            }
+          })
+        } else {
+          // Legacy sequential enhancement queue
+          providers.forEach(provider => {
+            const hasBase = hasProviderData(provider, data)
+            const hasEnh = !!enhancements[provider]
+            if (hasBase && !hasEnh) {
+              enhancementRequestedRef.current[provider] = true
+            }
+          })
+          triggerEnhancementSequential()
+        }
 
-        // Note: Deel enhancement will be handled by sequential processing
-
-        // Sequential loading will be handled by separate useEffect to prevent circular dependencies
+        // Provider base quote loading: legacy sequential path is disabled in PARALLEL_MODE
         
         // Ensure dual-currency quotes are present when currency is manually changed
         try {
@@ -642,7 +829,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
             if (!data.dualCurrencyQuotes?.deel && !data.dualCurrencyQuotes?.remote) {
               // Default provider is Deel; compute dual-currency if missing
               const updated = await calculateDeelQuote(form, data);
-              setQuoteData(updated);
+              setQuoteData(prev => ({ ...(prev || data), ...updated, quotes: { ...(prev?.quotes || {}), ...updated.quotes }, dualCurrencyQuotes: { ...(prev?.dualCurrencyQuotes || {}), ...(updated.dualCurrencyQuotes || {}) } }))
               if (quoteId) setJsonInSessionStorage(quoteId, updated);
             }
           }
@@ -690,7 +877,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         return;
       }
       
-      // Check for missing providers that need sequential processing
+      // Check for missing providers that need sequential processing (disabled in PARALLEL_MODE)
       const hasDeelData = !!quoteData.quotes?.deel; // Deel triggers sequential processing
       const missingProviders = SEQUENTIAL_LOADING_QUEUE.filter(provider => {
         switch (provider) {
@@ -712,7 +899,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         enhancementCount: Object.keys(enhancements || {}).length
       });
       
-      if (!hasStartedSequentialRef.current && !isSequentialLoadingRef.current) {
+      if (!PARALLEL_MODE && !hasStartedSequentialRef.current && !isSequentialLoadingRef.current) {
         if (hasDeelData && missingProviders.length > 0) {
           console.log(`🚀 TRIGGERING sequential loading for ${missingProviders.length} providers: ${missingProviders.join(', ')}`);
           hasStartedSequentialRef.current = true;
@@ -762,10 +949,10 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
               console.log('⚠️ Sequential loading already in progress, skipping');
             }
           }, 2500); // Increased delay to ensure stability
-        } else {
+        } else if (!PARALLEL_MODE) {
           console.log('❌ Sequential loading conditions not met:', { hasDeelData, missingCount: missingProviders.length });
         }
-      } else {
+      } else if (!PARALLEL_MODE) {
         console.log('❌ Sequential loading already started or in progress:', {
           hasStarted: hasStartedSequentialRef.current,
           isLoading: isSequentialLoadingRef.current
@@ -790,12 +977,15 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     providers.forEach(provider => {
       const hasBase = hasProviderData(provider, quoteData);
       if (!hasBase) return;
+      const isEnhancing = !!(enhancing as any)[provider];
       const hasEnh = !!(enhancements as any)[provider];
-      if (hasEnh) {
+      if (isEnhancing) {
+        updateProviderState(provider, { status: 'loading-enhanced', hasData: true, error: undefined });
+      } else if (hasEnh) {
         updateProviderState(provider, { status: 'active', hasData: true, error: undefined });
       }
     });
-  }, [quoteData, enhancements, hasProviderData, updateProviderState]);
+  }, [quoteData, enhancing, enhancements, hasProviderData, updateProviderState]);
   
   // Reset sequential loading flags when quote changes (cleanup)
   useEffect(() => {
@@ -803,6 +993,9 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     console.log('🔄 Resetting sequential flags for new quote:', quoteId);
     hasStartedSequentialRef.current = false;
     isSequentialLoadingRef.current = false;
+    // Reset enhancement scheduling/failure controls for new quote context
+    enhancementScheduledRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+    enhancementFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
     
     return () => {
       // Cleanup on unmount or quote change
@@ -813,6 +1006,11 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       }
       isSequentialLoadingRef.current = false;
       hasStartedSequentialRef.current = false;
+      // Clear in-flight guards and schedulers on cleanup
+      baseInFlightRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+      enhancementInFlightRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+      enhancementScheduledRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+      enhancementFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
     };
   }, [quoteId]);
 
