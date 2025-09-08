@@ -141,6 +141,16 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     skuad: false,
     velocity: false,
   })
+  // Track if a provider has been enqueued for enhancement to prevent re-enqueue storms
+  const enhancementEnqueuedRef = useRef<Record<Provider, boolean>>({
+    deel: false,
+    remote: false,
+    rivermate: false,
+    oyster: false,
+    rippling: false,
+    skuad: false,
+    velocity: false,
+  })
   const enhancementFailedRef = useRef<Record<Provider, boolean>>({
     deel: false,
     remote: false,
@@ -151,15 +161,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     velocity: false,
   })
 
-  // Batched Enhancement Queue System - Concurrency Control
-  const ENHANCEMENT_BATCHES: Provider[][] = [
-    ['deel', 'remote', 'rivermate'],      // Batch 1 - Priority providers
-    ['oyster', 'rippling', 'skuad'],      // Batch 2 - Standard providers  
-    ['velocity']                          // Batch 3 - Remaining providers
-  ]
+  // Enhancement Concurrency Control
   const MAX_CONCURRENT_ENHANCEMENTS = 3
-  
-  const enhancementQueueRef = useRef<EnhancementQueueItem[]>([])
   // Mounted flag for safe async operations/cleanup
   const isMountedRef = useRef<boolean>(true)
   useEffect(() => {
@@ -169,31 +172,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   // Track pending timeouts to allow cleanup on unmount
   const pendingTimeoutsRef = useRef<Set<NodeJS.Timeout>>(new Set())
 
-  // Lightweight semaphore to avoid concurrency race conditions
-  class Semaphore {
-    private available: number
-    private queue: Array<() => void>
-    constructor(max: number) {
-      this.available = Math.max(1, max)
-      this.queue = []
-    }
-    async acquire(): Promise<void> {
-      if (this.available > 0) {
-        this.available -= 1
-        return
-      }
-      await new Promise<void>(resolve => this.queue.push(resolve))
-    }
-    release(): void {
-      if (this.queue.length > 0) {
-        const resolve = this.queue.shift()!
-        resolve()
-        return
-      }
-      this.available += 1
-    }
-  }
-  const semaphoreRef = useRef<Semaphore>(new Semaphore(MAX_CONCURRENT_ENHANCEMENTS))
+  // Concurrency: no cap per user request. Semaphore removed.
 
   // Safe sleep helper with cleanup tracking
   const sleep: (ms: number) => Promise<void> = useCallback((ms: number) => {
@@ -249,100 +228,32 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     }
   }, [enhanceQuote, sleep])
 
-  // Batched Enhancement Queue Processing
-
-  const processBatchedEnhancementQueue = useCallback(async (): Promise<void> => {
-    if (batchProcessingState.isProcessing) return
-    
-    setBatchProcessingState(prev => ({ ...prev, isProcessing: true }))
-
+  // Direct enhancement scheduler: start as soon as base quote is available, capped by semaphore
+  const scheduleEnhancement = useCallback(async (provider: Provider, quote: unknown, formData: EORFormData): Promise<void> => {
+    if (enhancementEnqueuedRef.current[provider] || enhancementInFlightRef.current[provider]) return
+    enhancementEnqueuedRef.current[provider] = true
     try {
-      // Process batches sequentially, items within batch concurrently
-      for (let batchIndex = 0; batchIndex < ENHANCEMENT_BATCHES.length; batchIndex++) {
-        setBatchProcessingState(prev => ({ ...prev, currentBatch: batchIndex }))
-        const currentBatch = ENHANCEMENT_BATCHES[batchIndex]
-        
-        // Get queue items for this batch
-        const batchItems = enhancementQueueRef.current.filter(item => 
-          currentBatch.includes(item.provider)
-        )
-        
-        if (batchItems.length === 0) continue
-
-        // Process this batch with concurrency control via semaphore
-        const batchPromises = batchItems.map(async (item) => {
-          await semaphoreRef.current.acquire()
-          
-          try {
-            // Prevent duplicate requests
-            if (enhancementInFlightRef.current[item.provider]) return
-            enhancementInFlightRef.current[item.provider] = true
-            
-            updateProviderState(item.provider, { status: 'loading-enhanced', hasData: true })
-            
-            const providerQuoteForEnhancement = (item.provider === 'remote' && (item.quote as any)?.employment)
-              ? transformRemoteResponseToQuote(item.quote as any)
-              : item.quote
-            
-            const result = await retryEnhancementWithBackoff(item.provider, providerQuoteForEnhancement, item.formData)
-            
-            if (result) {
-              updateProviderState(item.provider, { status: 'active', hasData: true, error: undefined })
-            } else {
-              updateProviderState(item.provider, { 
-                status: 'enhancement-failed', 
-                hasData: true, 
-                enhancementError: 'Enhanced quote failed' 
-              })
-            }
-          } catch (err) {
-            console.error(`❌ Enhancement failed for ${item.provider}:`, err)
-            updateProviderState(item.provider, { 
-              status: 'enhancement-failed', 
-              hasData: true, 
-              enhancementError: err instanceof Error ? err.message : 'Enhanced quote failed' 
-            })
-            enhancementFailedRef.current[item.provider] = true
-          } finally {
-            enhancementInFlightRef.current[item.provider] = false
-            
-            // Remove processed item from queue
-            const index = enhancementQueueRef.current.findIndex(q => q.provider === item.provider)
-            if (index >= 0) {
-              enhancementQueueRef.current.splice(index, 1)
-            }
-            semaphoreRef.current.release()
-          }
-        })
-
-        // Wait for current batch to complete before starting next batch
-        await Promise.allSettled(batchPromises)
-        
-        // Small delay between batches to prevent API hammering
-        if (batchIndex < ENHANCEMENT_BATCHES.length - 1) {
-          await sleep(500)
-        }
+      if (enhancementInFlightRef.current[provider]) return
+      enhancementInFlightRef.current[provider] = true
+      updateProviderState(provider, { status: 'loading-enhanced', hasData: true })
+      const providerQuoteForEnhancement = (provider === 'remote' && (quote as any)?.employment)
+        ? transformRemoteResponseToQuote(quote as any)
+        : quote
+      const result = await retryEnhancementWithBackoff(provider, providerQuoteForEnhancement, formData)
+      if (result) {
+        updateProviderState(provider, { status: 'active', hasData: true, error: undefined })
+      } else {
+        updateProviderState(provider, { status: 'enhancement-failed', hasData: true, enhancementError: 'Enhanced quote failed' })
+        enhancementFailedRef.current[provider] = true
       }
+    } catch (err) {
+      console.error(`❌ Enhancement failed for ${provider}:`, err)
+      updateProviderState(provider, { status: 'enhancement-failed', hasData: true, enhancementError: err instanceof Error ? err.message : 'Enhanced quote failed' })
+      enhancementFailedRef.current[provider] = true
     } finally {
-      setBatchProcessingState(prev => ({ ...prev, isProcessing: false, currentBatch: 0 }))
+      enhancementInFlightRef.current[provider] = false
     }
-  }, [batchProcessingState.isProcessing, updateProviderState, retryEnhancementWithBackoff, sleep])
-
-  // Enqueue providers for batched enhancement processing
-  const addToEnhancementQueue = useCallback((provider: Provider, quote: unknown, formData: EORFormData): void => {
-    // Avoid duplicates by provider key
-    const existingIndex = enhancementQueueRef.current.findIndex(item => item.provider === provider)
-    if (existingIndex >= 0) {
-      enhancementQueueRef.current[existingIndex] = { provider, quote, formData }
-    } else {
-      enhancementQueueRef.current.push({ provider, quote, formData })
-    }
-    
-    // Start processing if not already running
-    if (!batchProcessingState.isProcessing) {
-      processBatchedEnhancementQueue()
-    }
-  }, [batchProcessingState.isProcessing, processBatchedEnhancementQueue])
+  }, [retryEnhancementWithBackoff, updateProviderState])
 
   // Legacy sequential enhancement trigger removed in favor of batched processing
 
@@ -435,8 +346,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           console.log(`✅ ${nextProvider} already has enhanced quote, marking as active`);
           updateProviderState(nextProvider, { status: 'active', hasData: true });
         } else {
-          console.log(`🧠 ${nextProvider} has base quote but needs enhancement... (queued sequentially)`);
-          // Enhancement now handled by batched queue system
+          console.log(`🧠 ${nextProvider} has base quote but needs enhancement... (parallel scheduling)`);
         }
 
         // Move to next provider immediately after scheduling enhancement
@@ -541,7 +451,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           setJsonInSessionStorage(quoteId, calculatedQuote);
         }
 
-        // Enhancement now handled by batched queue system
+        // Enhancement handled by parallel scheduler
 
         // Move to next provider immediately after scheduling enhancement
         console.log(`➡️ Moving to next provider after ${nextProvider} BASE COMPLETE (${currentQueueIndex + 1} → ${currentQueueIndex + 2})`);
@@ -808,7 +718,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           })
         }
 
-        // Enhancement now handled by batched queue system (see addToEnhancementQueue)
+          // Enhancement handled by parallel scheduler
 
         try {
           // 1) Start Deel first
@@ -822,8 +732,10 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
               console.log('📤 Starting Deel base quote...')
               const deelResult = await calculateDeelQuote(form, (quoteData || data) as QuoteData)
               mergeAndPersist(deelResult)
-              // Add Deel to enhancement queue (batched processing)
-              addToEnhancementQueue('deel', (deelResult.quotes as any).deel, deelResult.formData as EORFormData)
+              // Immediately schedule enhancement for Deel (parallel mode)
+              if (!enhancementEnqueuedRef.current.deel && !enhancementInFlightRef.current.deel) {
+                void scheduleEnhancement('deel', (deelResult.quotes as any).deel, deelResult.formData as EORFormData)
+              }
             } catch (err) {
               console.error('❌ Deel base quote failed:', err)
               updateProviderState('deel', { status: 'failed', error: err instanceof Error ? err.message : 'Failed to calculate Deel quote' })
@@ -841,8 +753,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
               try {
                 if (baseInFlightRef.current[provider] || hasProviderData(provider, (quoteData || data) as QuoteData)) return
                 baseInFlightRef.current[provider] = true
-                const baseData = (quoteData || data) as QuoteData
-                let result: QuoteData | undefined
+            const baseData = (quoteData || data) as QuoteData
+            let result: QuoteData | undefined
                 switch (provider) {
                   case 'remote':
                     result = await calculateRemoteQuote(form, baseData); break
@@ -861,8 +773,10 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
                 }
                   if (result) {
                     mergeAndPersist(result)
-                    // Add provider to enhancement queue (batched processing)
-                    addToEnhancementQueue(provider, (result.quotes as any)[provider], result.formData as EORFormData)
+                    // Immediately schedule enhancement for this provider (parallel mode)
+                    if (!enhancementEnqueuedRef.current[provider] && !enhancementInFlightRef.current[provider]) {
+                      void scheduleEnhancement(provider, (result.quotes as any)[provider], result.formData as EORFormData)
+                    }
                   } else {
                   updateProviderState(provider, { status: 'failed', error: 'No quote data returned' })
                 }
@@ -911,10 +825,10 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
             const hasBase = hasProviderData(provider, data)
             const hasEnh = !!enhancements[provider]
             const failed = enhancementFailedRef.current[provider]
-            if (hasBase && !hasEnh && !failed) {
-              // Add to batched enhancement queue instead of firing immediately
+            const enqueued = enhancementEnqueuedRef.current[provider]
+            if (hasBase && !hasEnh && !failed && !enqueued && !enhancementInFlightRef.current[provider]) {
               const providerQuote = (data.quotes as any)[provider]
-              addToEnhancementQueue(provider, providerQuote, data.formData as EORFormData)
+              void scheduleEnhancement(provider, providerQuote, data.formData as EORFormData)
             }
           })
         }
@@ -1108,45 +1022,27 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       // Clear in-flight guards and schedulers on cleanup
       baseInFlightRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
       enhancementInFlightRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+      enhancementEnqueuedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
       enhancementFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
     };
   }, [quoteId]);
 
-  // Calculate batch progress for reconciliation button
+  // Calculate progress for reconciliation button (parallel mode): single batch view
   const enhancementBatchInfo = useMemo(() => {
-    const { currentBatch, isProcessing } = batchProcessingState
-    const totalBatches = ENHANCEMENT_BATCHES.length
-    
-    // Calculate progress within current batch
-    let completed = 0
-    let total = 0
-    
-    if (isProcessing && currentBatch < ENHANCEMENT_BATCHES.length) {
-      const batchProviders = ENHANCEMENT_BATCHES[currentBatch]
-      total = batchProviders.length
-      
-      // Count completed providers in current batch
-      completed = batchProviders.filter(provider => {
-        const status = providerStates[provider]?.status
-        return status === 'active' || status === 'enhancement-failed' || status === 'failed'
-      }).length
-    } else if (!isProcessing) {
-      // When not processing, show overall completion
-      const allProviders: Provider[] = ENHANCEMENT_BATCHES.flat()
-      total = allProviders.length
-      completed = allProviders.filter(provider => {
-        const status = providerStates[provider]?.status
-        return status === 'active' || status === 'enhancement-failed' || status === 'failed'
-      }).length
-    }
-    
+    const allProviders: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity']
+    const total = allProviders.length
+    const completed = allProviders.filter(provider => {
+      const status = providerStates[provider]?.status
+      return status === 'active' || status === 'enhancement-failed' || status === 'failed'
+    }).length
+    const anyLoading = allProviders.some(p => providerStates[p]?.status === 'loading-enhanced')
     return {
-      currentBatch: currentBatch + 1, // 1-indexed for display
-      totalBatches,
+      currentBatch: 1,
+      totalBatches: 1,
       batchProgress: { completed, total },
-      isProcessing
+      isProcessing: anyLoading
     }
-  }, [providerStates, batchProcessingState])
+  }, [providerStates])
 
   return {
     quoteData,

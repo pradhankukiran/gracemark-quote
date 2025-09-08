@@ -197,4 +197,66 @@ RULES: amounts monthly in quote currency; include benefits found with amount > 0
     }
     return parts.join('\n') || 'Standard employment law applies'
   }
+
+  // Reconciliation: system prompt
+  static buildReconciliationSystemPrompt(): string {
+    return (
+      `You are an EOR reconciliation engine.\n` +
+      `RULES:\n` +
+      `- Use ONLY the provided normalized monthly totals in the selected currency.\n` +
+      `- DO NOT perform currency conversion.\n` +
+      `- Apply the <= threshold rule: within_band if (total - minTotal) / minTotal <= threshold.\n` +
+      `- If an item has missing mandatory coverage, add a warning note; do not assume inclusions.\n` +
+      `- If riskMode=true, also produce reasoning that prioritizes higher confidence, but totals remain as given.\n` +
+      `- Output strictly valid JSON with the exact keys requested. No extra text.`
+    )
+  }
+
+  // Reconciliation: user prompt
+  static buildReconciliationUserPrompt(input: {
+    settings: { currency: string; threshold: number; riskMode: boolean }
+    providers: Array<{
+      provider: string
+      total: number
+      confidence: number
+      coverage: { includes: string[]; missing: string[]; doubleCountingRisk: string[] }
+      quoteType: 'all-inclusive' | 'statutory-only'
+    }>
+  }): string {
+    const header = [
+      `RECONCILIATION REQUEST`,
+      `CURRENCY: ${input.settings.currency}`,
+      `THRESHOLD: ${input.settings.threshold}`,
+      `RISK_MODE: ${input.settings.riskMode}`,
+      '',
+      `PROVIDERS (normalized totals in selected currency):`,
+      JSON.stringify(input.providers, null, 2),
+      '',
+      `RESPONSE JSON SCHEMA (EXACT KEYS):`,
+      '{',
+      '  "items": [',
+      '    { "provider": "deel", "total": 0, "delta": 0, "pct": 0, "within4": true, "confidence": 0.0, "notes": [] }',
+      '  ],',
+      '  "summary": {',
+      '    "currency": "USD",',
+      '    "cheapest": "deel",',
+      '    "mostExpensive": "oyster",',
+      '    "average": 0,',
+      '    "median": 0,',
+      '    "stdDev": 0,',
+      '    "within4Count": 0',
+      '  },',
+      '  "recommendations": [],',
+      '  "excluded": []',
+      '}',
+      '',
+      'INSTRUCTIONS:',
+      '- Rank providers by total ascending.',
+      '- Compute delta and pct vs the cheapest total.',
+      '- Set within4 using the provided THRESHOLD (<=).',
+      '- Add notes if critical benefits are missing or double counting risk exists.',
+      '- Provide 2-5 recommendations summarizing the tradeoffs.',
+    ].join('\n')
+    return header
+  }
 }

@@ -1,9 +1,11 @@
 "use client"
 
-import { useEffect, Suspense, memo } from "react"
+import { useEffect, Suspense, memo, useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Loader2, Brain } from "lucide-react"
 import Link from "next/link"
 import { useQuoteResults } from "./hooks/useQuoteResults"
@@ -12,7 +14,9 @@ import { GenericQuoteCard } from "@/lib/shared/components/GenericQuoteCard"
 import { QuoteComparison } from "../eor-calculator/components/QuoteComparison"
 import { ErrorBoundary } from "@/lib/shared/components/ErrorBoundary"
 import { ProviderSelector } from "./components/ProviderSelector"
-import { EnhancementProvider } from "@/hooks/enhancement/EnhancementContext"
+import { EnhancementProvider, useEnhancementContext } from "@/hooks/enhancement/EnhancementContext"
+import type { ReconciliationResult } from "@/lib/types/reconciliation"
+import { round2, round4, mean, median, stdDev, argMin, argMax, clamp01 } from "@/lib/shared/utils/reconciliationUtils"
 import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, transformToRemoteQuote, transformOysterQuoteToDisplayQuote } from "@/lib/shared/utils/apiUtils"
 import { EORFormData, RemoteAPIResponse } from "@/lib/shared/types"
 import { EnhancedQuoteCard } from "@/components/enhancement/EnhancedQuoteCard"
@@ -56,6 +60,17 @@ const QuotePageContent = memo(() => {
     autoConvertQuote,
     autoConvertRemoteQuote,
   } = useUSDConversion()
+
+  // Reconciliation hooks must be declared before any early returns
+  const { enhancements } = useEnhancementContext()
+  const [reconOpen, setReconOpen] = useState(false)
+  const [reconLoading, setReconLoading] = useState(false)
+  const [reconError, setReconError] = useState<string | null>(null)
+  const [reconResult, setReconResult] = useState<ReconciliationResult | null>(null)
+  const [reconCurrency, setReconCurrency] = useState<string>('')
+  const [currencyInput, setCurrencyInput] = useState<string>('')
+  const [reconThreshold, setReconThreshold] = useState<number>(0.04)
+  const [reconRiskMode, setReconRiskMode] = useState<boolean>(false)
 
   // Auto-convert primary Deel quote to USD
   useEffect(() => {
@@ -446,8 +461,134 @@ const QuotePageContent = memo(() => {
     }
   }
 
-  const startReconciliation = () => {
-    console.log('🟡 Start Reconciliation clicked')
+  const formatMoney = (value: number, currency: string) => {
+    try { return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(value) } catch { return `${value.toFixed(2)} ${currency}` }
+  }
+
+  const convertCurrency = async (amount: number, from: string, to: string): Promise<number> => {
+    if (!Number.isFinite(amount)) return 0
+    if (!from || !to || from.toUpperCase() === to.toUpperCase()) return amount
+    const res = await fetch('/api/currency-converter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount, source_currency: from, target_currency: to })
+    })
+    if (!res.ok) throw new Error('Currency conversion failed')
+    const json = await res.json()
+    const target = Number(json?.data?.conversion_data?.target_amount)
+    if (!Number.isFinite(target)) throw new Error('Invalid conversion result')
+    return target
+  }
+
+  const computeLocalReconciliation = async (targetCurrency: string, threshold: number, riskMode: boolean): Promise<ReconciliationResult> => {
+    const items: Array<{ provider: string; total: number; confidence: number; notes: string[]; riskAdjustedTotal?: number }> = []
+    const excluded: Array<{ provider: any; reason: string }> = []
+    const providers: Array<'deel'|'remote'|'rivermate'|'oyster'|'rippling'|'skuad'|'velocity'> = ['deel','remote','rivermate','oyster','rippling','skuad','velocity']
+
+    for (const p of providers) {
+      const enh = (enhancements as any)[p]
+      if (!enh) { excluded.push({ provider: p, reason: 'No enhancement available' }); continue }
+      const srcCurrency = (enh.displayCurrency || enh.baseCurrency || enh.baseQuote?.currency || 'USD') as string
+      const monthly = Number(enh?.monthlyCostBreakdown?.total || enh?.finalTotal || 0)
+      if (!Number.isFinite(monthly) || monthly <= 0) { excluded.push({ provider: p, reason: 'Invalid total' }); continue }
+      let total = monthly
+      try { total = await convertCurrency(monthly, srcCurrency, targetCurrency) } catch { excluded.push({ provider: p, reason: 'Conversion failed' }); continue }
+      const confidence = Number(enh?.overallConfidence ?? 0.5)
+      const missing = enh?.overlapAnalysis?.providerMissing || []
+      const dcr = enh?.overlapAnalysis?.doubleCountingRisk || []
+      const notes: string[] = []
+      if (missing.length) notes.push(`Missing: ${missing.slice(0,3).join(', ')}${missing.length>3?'…':''}`)
+      if (dcr.length) notes.push(`Double-counting risk: ${dcr.slice(0,2).join(', ')}${dcr.length>2?'…':''}`)
+      const item: any = { provider: p, total: round2(total), confidence: clamp01(confidence), notes }
+      if (riskMode) {
+        const penalty = clamp01((1 - item.confidence) * 0.10)
+        item.riskAdjustedTotal = round2(item.total * (1 + penalty))
+      }
+      items.push(item)
+    }
+
+    const totals = items.map(i => i.total)
+    const min = totals.length ? Math.min(...totals) : 0
+    const withDelta = items.map(i => ({
+      provider: i.provider,
+      total: i.total,
+      delta: round2(i.total - min),
+      pct: min>0 ? round4((i.total - min)/min) : 0,
+      within4: (min>0 ? (i.total - min)/min : 0) <= threshold && !i.notes.join(' ').toLowerCase().includes('missing'),
+      confidence: i.confidence,
+      notes: i.notes,
+      riskAdjustedTotal: i.riskAdjustedTotal
+    }))
+
+    const cheapestIdx = argMin(withDelta.map(i => i.total))
+    const mostIdx = argMax(withDelta.map(i => i.total))
+    const avg = mean(withDelta.map(i => i.total))
+    const med = median(withDelta.map(i => i.total))
+    const sd = stdDev(withDelta.map(i => i.total))
+    const within4Count = withDelta.filter(i => i.within4).length
+
+    return {
+      items: withDelta as any,
+      summary: {
+        currency: targetCurrency,
+        cheapest: cheapestIdx>=0 ? withDelta[cheapestIdx].provider as any : 'none',
+        mostExpensive: mostIdx>=0 ? withDelta[mostIdx].provider as any : 'none',
+        average: round2(avg),
+        median: round2(med),
+        stdDev: round2(sd),
+        within4Count
+      },
+      recommendations: [],
+      excluded: excluded as any,
+      metadata: { threshold, riskMode, currency: targetCurrency, generatedAt: new Date().toISOString(), engine: 'local-only' }
+    }
+  }
+
+  const startReconciliation = async () => {
+    try {
+      setReconError(null)
+      const formCurrency = ((quoteData?.formData as any)?.currency || quoteData?.metadata?.currency || 'USD') as string
+      setReconCurrency(formCurrency)
+      setCurrencyInput(formCurrency)
+      setReconOpen(true)
+      setReconLoading(true)
+      const result = await computeLocalReconciliation(formCurrency, reconThreshold, reconRiskMode)
+      setReconResult(result)
+    } catch (e: any) {
+      setReconError(e?.message || 'Reconciliation failed')
+    } finally {
+      setReconLoading(false)
+    }
+  }
+
+  const rerunReconciliation = async (opts?: { currency?: string; threshold?: number; risk?: boolean }) => {
+    const currency = opts?.currency ?? reconCurrency
+    const threshold = opts?.threshold ?? reconThreshold
+    const risk = opts?.risk ?? reconRiskMode
+    setReconCurrency(currency)
+    setReconThreshold(threshold)
+    setReconRiskMode(risk)
+    setReconLoading(true)
+    try {
+      const result = await computeLocalReconciliation(currency, threshold, risk)
+      setReconResult(result)
+      setReconError(null)
+    } catch (e: any) {
+      setReconError(e?.message || 'Reconciliation failed')
+    } finally {
+      setReconLoading(false)
+    }
+  }
+
+  const exportRecon = () => {
+    if (!reconResult) return
+    const blob = new Blob([JSON.stringify(reconResult, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `reconciliation_${quoteId || 'quote'}.json`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   const renderQuote = () => {
@@ -1022,6 +1163,197 @@ const QuotePageContent = memo(() => {
 
         </div>
       </div>
+
+      {/* Reconciliation Modal */}
+      {reconOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-gradient-to-br from-slate-50/95 to-white/95 backdrop-blur-sm animate-in fade-in-0 duration-300">
+          <div className="absolute inset-0 bg-gradient-to-br from-black/30 to-black/50" onClick={() => setReconOpen(false)} />
+          <Card className="relative border-0 shadow-2xl bg-white/90 backdrop-blur-md w-[92vw] max-w-6xl max-h-[85vh] overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+            <CardHeader className="border-b border-slate-200/50 bg-gradient-to-r from-slate-50/50 to-white/50">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-3">
+                  <Brain className="h-5 w-5 text-purple-600" />
+                  <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                    Reconciliation
+                  </span>
+                  <span className="text-slate-400 text-sm font-normal">{reconResult ? `as of ${new Date(reconResult.metadata.generatedAt).toLocaleString()}` : ''}</span>
+                </CardTitle>
+                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <Input
+                    className="text-sm w-28 h-8"
+                    value={currencyInput || reconCurrency || ((quoteData?.formData as any)?.currency || 'USD')}
+                    onChange={(e) => setCurrencyInput((e.target.value || '').toUpperCase())}
+                    onBlur={() => rerunReconciliation({ currency: (currencyInput || reconCurrency || '').toUpperCase() })}
+                    onKeyDown={(e) => { if (e.key === 'Enter') rerunReconciliation({ currency: (currencyInput || reconCurrency || '').toUpperCase() }) }}
+                    placeholder="Currency"
+                    title="Reconciliation currency (e.g., USD, EUR)"
+                  />
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="h-8"
+                    onClick={() => {
+                      const def = ((quoteData?.formData as any)?.currency || 'USD') as string
+                      setCurrencyInput(def.toUpperCase())
+                      rerunReconciliation({ currency: def.toUpperCase() })
+                    }}
+                  >Reset</Button>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <label className="text-slate-600 font-medium">Threshold %</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={10}
+                    step={0.5}
+                    className="w-24 h-8 text-sm"
+                    value={(reconThreshold * 100).toString()}
+                    onChange={(e) => {
+                      const v = Math.max(0, Math.min(10, Number(e.target.value) || 0)) / 100
+                      rerunReconciliation({ threshold: v })
+                    }}
+                  />
+                </div>
+                <label className="flex items-center gap-2 text-sm text-slate-700 font-medium cursor-pointer">
+                  <Checkbox
+                    checked={reconRiskMode}
+                    onCheckedChange={(checked) => rerunReconciliation({ risk: !!checked })}
+                  />
+                  Risk-adjusted
+                </label>
+                  <Button variant="secondary" size="sm" onClick={exportRecon}>Export</Button>
+                  <Button variant="ghost" size="sm" onClick={() => setReconOpen(false)}>Close</Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 overflow-auto max-h-[70vh] bg-gradient-to-br from-white to-slate-50/30">
+              {reconLoading && (
+                <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
+                  <CardContent className="p-8 text-center">
+                    <div className="flex flex-col items-center gap-4">
+                      <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                      <div className="text-lg font-medium text-blue-800">Reconciling Providers…</div>
+                      <div className="text-sm text-blue-600">Analyzing pricing data across all providers</div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+              {reconError && (
+                <Card className="border-0 shadow-lg bg-gradient-to-r from-red-50/50 to-rose-50/50 border border-red-200/30">
+                  <CardContent className="p-4">
+                    <div className="text-sm font-medium text-red-800 mb-1">Error</div>
+                    <div className="text-sm text-red-700">{reconError}</div>
+                  </CardContent>
+                </Card>
+              )}
+              {!reconLoading && reconResult && (
+                <div className="space-y-6">
+                  {/* Summary Cards */}
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100/50">
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-blue-700">{reconResult.summary.currency}</div>
+                        <div className="text-xs text-blue-600 font-medium">Currency</div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100/50">
+                      <CardContent className="p-4 text-center">
+                        <div className="text-lg font-bold text-green-700 capitalize">{reconResult.summary.cheapest}</div>
+                        <div className="text-xs text-green-600 font-medium">Cheapest</div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100/50">
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-purple-700">{reconResult.summary.within4Count}</div>
+                        <div className="text-xs text-purple-600 font-medium">Within 4%</div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-50 to-amber-100/50">
+                      <CardContent className="p-4 text-center">
+                        <div className="text-lg font-bold text-amber-700">{formatMoney(reconResult.summary.average, reconResult.summary.currency)}</div>
+                        <div className="text-xs text-amber-600 font-medium">Average</div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="border-0 shadow-lg bg-gradient-to-br from-slate-50 to-slate-100/50">
+                      <CardContent className="p-4 text-center">
+                        <div className="text-lg font-bold text-slate-700">{formatMoney(reconResult.summary.median, reconResult.summary.currency)}</div>
+                        <div className="text-xs text-slate-600 font-medium">Median</div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Provider Details Table */}
+                  <Card className="border-0 shadow-lg bg-white/95 backdrop-blur-sm">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-lg bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                        Provider Comparison
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead className="bg-gradient-to-r from-slate-50 to-slate-100/50 border-b border-slate-200/50">
+                            <tr>
+                              <th className="text-left px-4 py-3 font-semibold text-slate-700">Provider</th>
+                              <th className="text-right px-4 py-3 font-semibold text-slate-700">Total</th>
+                              <th className="text-right px-4 py-3 font-semibold text-slate-700">Delta</th>
+                              <th className="text-right px-4 py-3 font-semibold text-slate-700">% Over Min</th>
+                              <th className="text-center px-4 py-3 font-semibold text-slate-700">Within 4%</th>
+                              <th className="text-center px-4 py-3 font-semibold text-slate-700">Confidence</th>
+                              <th className="text-left px-4 py-3 font-semibold text-slate-700">Notes</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {reconResult.items.sort((a,b)=>a.total-b.total).map((it, idx) => (
+                              <tr key={it.provider} className="hover:bg-slate-50/50 transition-colors duration-150">
+                                <td className="px-4 py-3 font-semibold text-slate-800 capitalize">{it.provider}</td>
+                                <td className="px-4 py-3 text-right font-medium text-slate-700">{formatMoney(it.total, reconResult.summary.currency)}</td>
+                                <td className="px-4 py-3 text-right text-slate-600">{formatMoney(it.delta, reconResult.summary.currency)}</td>
+                                <td className="px-4 py-3 text-right text-slate-600">{(it.pct*100).toFixed(2)}%</td>
+                                <td className="px-4 py-3 text-center">
+                                  {it.within4 ? (
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border border-green-200/50">
+                                      Yes
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-slate-100 to-slate-200/50 text-slate-600 border border-slate-200">
+                                      No
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="px-4 py-3 text-center">
+                                  <span className="font-medium text-slate-700">{Math.round((it.confidence||0)*100)}%</span>
+                                </td>
+                                <td className="px-4 py-3 text-slate-600 text-sm">{(it.notes||[]).join(' · ')}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {reconResult.excluded?.length > 0 && (
+                    <Card className="border-0 shadow-sm bg-gradient-to-r from-amber-50/50 to-orange-50/50 border border-amber-200/30">
+                      <CardContent className="p-4">
+                        <div className="text-sm text-amber-800 font-medium mb-2">Excluded Providers</div>
+                        <div className="text-xs text-amber-700">
+                          {reconResult.excluded.map(e => `${e.provider} (${e.reason})`).join(', ')}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 });

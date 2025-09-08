@@ -732,6 +732,59 @@ export class GroqService {
   }
 
   /**
+   * Reconciliation via LLM (ranking + recommendations only; totals are provided and must not be changed)
+   */
+  async reconcile(input: {
+    settings: { currency: string; threshold: number; riskMode: boolean }
+    providers: Array<{
+      provider: string
+      total: number
+      confidence: number
+      coverage: { includes: string[]; missing: string[]; doubleCountingRisk: string[] }
+      quoteType: 'all-inclusive' | 'statutory-only'
+    }>
+  }): Promise<any> {
+    try {
+      await this.checkRateLimit()
+
+      let systemPrompt = PromptEngine.buildReconciliationSystemPrompt()
+      let userPrompt = PromptEngine.buildReconciliationUserPrompt(input)
+      try {
+        const compact = (s: string) => s.replace(/\s+/g, ' ').trim()
+        systemPrompt = compact(systemPrompt)
+        userPrompt = compact(userPrompt)
+      } catch { /* noop */ }
+
+      // Use only the default single-key client (GROQ_API_KEY) for reconciliation
+      const client = this.getDefaultClientForReconciliation()
+      const response = await this.requestWithRetry((opts) => client.chat.completions.create({
+        model: this.config.model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        tools: [],
+        tool_choice: 'none',
+        temperature: this.config.temperature,
+        max_tokens: this.config.maxTokens,
+        top_p: 1,
+        stream: false,
+        response_format: { type: 'json_object' }
+      }, { signal: opts?.signal }))
+
+      this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
+
+      const content = (response as ChatCompletion).choices?.[0]?.message?.content
+      if (!content) throw new Error('No content received from Groq reconciliation')
+      const jsonText = this.extractJson(content)
+      const parsed = JSON.parse(jsonText)
+      return parsed
+    } catch (error) {
+      throw this.handleError(error)
+    }
+  }
+
+  /**
    * Resolve Groq client for a given pass with sensible fallbacks
    */
   private getClient(pass: 'pass1' | 'pass2' | 'pass3'): Groq {
@@ -746,6 +799,18 @@ export class GroqService {
     if (this.client) return this.client
     // Should not happen, but keep a clear error path
     throw new Error('Groq client not initialized')
+  }
+
+  /**
+   * Resolve default client explicitly for reconciliation.
+   * Uses only GROQ_API_KEY; does not use provider/pass keys.
+   */
+  private getDefaultClientForReconciliation(): Groq {
+    const client = this.clients.default || this.client
+    if (!client) {
+      throw new Error('GROQ_API_KEY is required for reconciliation (default client missing)')
+    }
+    return client
   }
 
   /**
