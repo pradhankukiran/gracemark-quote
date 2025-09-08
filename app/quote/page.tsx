@@ -4,7 +4,7 @@ import { useEffect, Suspense, memo } from "react"
 import { useSearchParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle } from "lucide-react"
+import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Loader2, Brain } from "lucide-react"
 import Link from "next/link"
 import { useQuoteResults } from "./hooks/useQuoteResults"
 import { useUSDConversion } from "../eor-calculator/hooks/useUSDConversion"
@@ -32,7 +32,8 @@ const QuotePageContent = memo(() => {
     currentProvider, 
     switchProvider, 
     providerLoading,
-    providerStates
+    providerStates,
+    enhancementBatchInfo
   } = useQuoteResults(quoteId)
   
   const {
@@ -351,6 +352,99 @@ const QuotePageContent = memo(() => {
     const s = providerStates[p]?.status
     return s && s !== 'loading-base' && s !== 'loading-enhanced'
   })
+
+  // Calculate detailed loading state with batch awareness for better UX
+  const getReconciliationStatus = () => {
+    const loadingBase = allProviders.filter(p => providerStates[p]?.status === 'loading-base').length
+    const loadingEnhanced = allProviders.filter(p => providerStates[p]?.status === 'loading-enhanced').length
+    const completed = allProviders.filter(p => {
+      const s = providerStates[p]?.status
+      return s === 'active' || s === 'enhancement-failed' || s === 'failed'
+    }).length
+
+    // Base quote loading phase (before enhancement batching)
+    if (loadingBase > 0) {
+      return {
+        ready: false,
+        phase: 'base-loading',
+        progress: { completed: allProviders.length - loadingBase, total: allProviders.length },
+        message: `Loading provider quotes (${allProviders.length - loadingBase}/${allProviders.length})...`
+      }
+    }
+    
+    // Enhancement batch processing phase
+    if (enhancementBatchInfo.isProcessing) {
+      return {
+        ready: false,
+        phase: 'enhancement-loading', 
+        progress: enhancementBatchInfo.batchProgress,
+        message: `Enhancing batch ${enhancementBatchInfo.currentBatch}/${enhancementBatchInfo.totalBatches} (${enhancementBatchInfo.batchProgress.completed}/${enhancementBatchInfo.batchProgress.total})...`
+      }
+    }
+
+    // Legacy individual enhancement loading (fallback)
+    if (loadingEnhanced > 0) {
+      return {
+        ready: false,
+        phase: 'enhancement-loading', 
+        progress: { completed: allProviders.length - loadingEnhanced, total: allProviders.length },
+        message: `Enhancing with AI (${allProviders.length - loadingEnhanced}/${allProviders.length})...`
+      }
+    }
+
+    // Finalizing phase
+    if (completed < allProviders.length) {
+      return {
+        ready: false,
+        phase: 'finalizing',
+        progress: { completed, total: allProviders.length },
+        message: 'Finalizing reconciliation...'
+      }
+    }
+
+    // Ready phase
+    return {
+      ready: true,
+      phase: 'ready',
+      progress: { completed: allProviders.length, total: allProviders.length },
+      message: 'Start Reconciliation'
+    }
+  }
+
+  const reconStatus = getReconciliationStatus()
+
+  // Render dynamic button content based on loading phase
+  const renderReconciliationButtonContent = () => {
+    switch (reconStatus.phase) {
+      case 'base-loading':
+        return (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>{reconStatus.message}</span>
+          </>
+        )
+      
+      case 'enhancement-loading':
+        return (
+          <>
+            <Brain className="h-4 w-4 animate-pulse text-purple-600" />
+            <span>{reconStatus.message}</span>
+          </>
+        )
+      
+      case 'finalizing':
+        return (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>{reconStatus.message}</span>
+          </>
+        )
+      
+      case 'ready':
+      default:
+        return <span>{reconStatus.message}</span>
+    }
+  }
 
   const startReconciliation = () => {
     console.log('🟡 Start Reconciliation clicked')
@@ -879,13 +973,13 @@ const QuotePageContent = memo(() => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
       {/* Fixed Action: Start Reconciliation */}
-      <div className="fixed top-4 right-4 z-50">
+      <div className="fixed top-5 right-5 z-50">
         <Button
           onClick={startReconciliation}
-          disabled={!isReconReady}
-          className="bg-yellow-400 text-black hover:bg-yellow-500 font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={!reconStatus.ready}
+          className="bg-yellow-400 text-black hover:bg-yellow-500 font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-200"
         >
-          Start Reconciliation
+          {renderReconciliationButtonContent()}
         </Button>
       </div>
       <div className="container mx-auto px-6 py-8 max-w-7xl">

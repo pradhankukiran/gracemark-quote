@@ -2,6 +2,7 @@ import { memo } from "react";
 import { Loader2, AlertCircle, Brain } from "lucide-react";
 import { Provider, ProviderStatus } from "../hooks/useQuoteResults";
 import { ProviderLogo } from "./ProviderLogo";
+import { ProviderStatusIcon, WarningBadge, getProviderStatusColor, getProviderStatusMessage } from "./ProviderStatusIcons";
 
 interface ProviderSelectorProps {
   currentProvider: Provider;
@@ -52,29 +53,31 @@ export const ProviderSelector = memo(({
         />
         {providers.map((provider) => {
           const providerState = providerStates[provider];
-          const isInactive = providerState?.status === 'inactive';
-          const isLoadingBase = providerState?.status === 'loading-base' || loading[provider];
-          const isLoadingEnhanced = providerState?.status === 'loading-enhanced';
-          const isActive = providerState?.status === 'active';
-          const isFailed = providerState?.status === 'failed';
-          // Allow switching when active or enhancement in-progress
-          const isClickable = (isActive || isLoadingEnhanced) && !disabled;
+          const status = providerState?.status || (provider === 'deel' ? 'active' : 'inactive');
+          const isInactive = status === 'inactive';
+          const isLoadingBase = status === 'loading-base' || loading[provider];
+          const isLoadingEnhanced = status === 'loading-enhanced';
+          const isActive = status === 'active';
+          const isFailed = status === 'failed';
+          const isEnhancementFailed = status === 'enhancement-failed';
           
-          // Fallback for missing provider state
-          const displayStatus = providerState?.status || (provider === 'deel' ? 'active' : 'inactive');
+          // Allow switching when active, enhancement in-progress, or enhancement failed (base quote available)
+          const isClickable = (isActive || isLoadingEnhanced || isEnhancementFailed) && !disabled;
+          
+          const hasWarning = isEnhancementFailed;
           
           return (
             <button
               key={provider}
               type="button"
               onClick={() => isClickable ? onProviderChange(provider) : undefined}
-              disabled={disabled || (!isActive && !isLoadingEnhanced)}
+              disabled={disabled || (!isActive && !isLoadingEnhanced && !isEnhancementFailed)}
               className={`
                 flex-1 py-2 px-6 text-center text-sm font-semibold rounded-md transition-all duration-200 z-10
-                flex items-center justify-center gap-2 h-12 min-h-[3rem]
-                ${currentProvider === provider && isActive
+                flex items-center justify-center gap-2 h-12 min-h-[3rem] relative
+                ${currentProvider === provider && (isActive || isEnhancementFailed)
                   ? 'text-primary'
-                  : isActive
+                  : (isActive || isEnhancementFailed)
                     ? 'text-slate-600 hover:text-primary cursor-pointer'
                     : isInactive
                       ? 'text-slate-400 cursor-not-allowed opacity-40'
@@ -83,29 +86,25 @@ export const ProviderSelector = memo(({
                         : 'text-slate-600'
                 }
                 ${isInactive ? 'pointer-events-none' : ''}
+                ${isEnhancementFailed ? 'border border-amber-300 bg-amber-50/20' : ''}
               `}
-              title={
-                isInactive ? `${provider.charAt(0).toUpperCase() + provider.slice(1)} will load automatically` :
-                isLoadingBase ? `Loading ${provider.charAt(0).toUpperCase() + provider.slice(1)} quote...` :
-                isLoadingEnhanced ? `Enhancing ${provider.charAt(0).toUpperCase() + provider.slice(1)} quote with AI...` :
-                isFailed ? `Failed to load ${provider.charAt(0).toUpperCase() + provider.slice(1)}: ${providerState?.error || 'Unknown error'}` :
-                isActive ? `View ${provider.charAt(0).toUpperCase() + provider.slice(1)} quote` :
-                `${provider.charAt(0).toUpperCase() + provider.slice(1)} status: ${displayStatus}`
-              }
+              title={getProviderStatusMessage(
+                provider, 
+                status, 
+                providerState?.error, 
+                providerState?.enhancementError
+              )}
             >
               <div className="flex items-center justify-center gap-2">
-                <div className={`${isInactive ? 'opacity-40' : ''}`}>
+                <div className={`${isInactive ? 'opacity-40' : ''} relative`}>
                   <ProviderLogo provider={provider} />
+                  {hasWarning && (
+                    <div className="absolute -top-1 -right-1">
+                      <WarningBadge className="h-3 w-3" />
+                    </div>
+                  )}
                 </div>
-                {isLoadingBase && (
-                  <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
-                )}
-                {isLoadingEnhanced && (
-                  <Brain className="h-4 w-4 animate-pulse text-purple-500" />
-                )}
-                {isFailed && (
-                  <AlertCircle className="h-4 w-4 text-red-500" />
-                )}
+                <ProviderStatusIcon status={status} className="h-4 w-4" />
               </div>
             </button>
           );

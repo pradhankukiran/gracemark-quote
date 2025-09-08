@@ -35,7 +35,7 @@ export class GroqService {
   constructor(config: Partial<GroqConfig> = {}) {
     this.config = {
       apiKey: (config.apiKey || process.env.GROQ_API_KEY || '').trim(),
-      model: config.model || process.env.GROQ_MODEL || 'groq/compound',
+      model: config.model || process.env.GROQ_MODEL || 'groq/compound-mini',
       temperature: config.temperature ?? (process.env.GROQ_TEMPERATURE ? Number(process.env.GROQ_TEMPERATURE) : 0.1),
       maxTokens: config.maxTokens ?? (process.env.GROQ_MAX_TOKENS ? Number(process.env.GROQ_MAX_TOKENS) : 8192),
       rateLimitRpm: config.rateLimitRpm ?? (process.env.GROQ_RATE_LIMIT_RPM ? Number(process.env.GROQ_RATE_LIMIT_RPM) : 30),
