@@ -21,7 +21,7 @@ import {
 } from "lucide-react"
 import { EnhancedQuote } from "@/lib/types/enhancement"
 import { ConfidenceIndicator } from "./ConfidenceIndicator"
-import { safeToLocaleString, formatCurrency } from "@/lib/shared/utils/formatUtils"
+import { formatCurrency } from "@/lib/shared/utils/formatUtils"
 
 interface EnhancementBreakdownProps {
   enhancement: EnhancedQuote

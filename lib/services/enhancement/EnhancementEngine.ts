@@ -10,10 +10,6 @@ import {
   MultiProviderResult,
   EnhancementError,
   TerminationCostBreakdown,
-  SalaryEnhancement,
-  BonusEnhancement,
-  AllowanceEnhancement,
-  MedicalExamCosts,
   OverlapAnalysis,
   StandardizedBenefitData
 } from "@/lib/types/enhancement"
@@ -49,7 +45,7 @@ export class EnhancementEngine {
    */
   async enhanceQuote(params: {
     provider: ProviderType
-    providerQuote: any
+    providerQuote: NormalizedQuote | Record<string, unknown>
     formData: EORFormData
     quoteType?: 'all-inclusive' | 'statutory-only'
   }): Promise<EnhancedQuote> {
@@ -117,25 +113,41 @@ export class EnhancementEngine {
         )
       }
       
-      // Step 4: PASS 3 - Arithmetic compute using legal profile + inclusions
+      // Step 4: PASS 3 - Arithmetic compute using legal profile + inclusions (with retry)
       console.log(`[Enhancement] Computing enhancements for ${params.provider}...`)
-      const groqResponse = await this.groqService.computeEnhancements({
-        provider: params.provider,
-        baseQuote: normalizedQuote,
-        quoteType,
-        contractDurationMonths: legalProfile.contractMonths,
-        extractedBenefits,
-        legalProfile: {
-          id: legalProfile.id,
-          countryCode: legalProfile.countryCode,
-          countryName: legalProfile.countryName,
-          quoteType: legalProfile.quoteType,
-          employmentType: legalProfile.employmentType,
-          contractMonths: legalProfile.contractMonths,
-          summary: legalProfile.summary,
-          formulas: legalProfile.formulas
+      let groqResponse
+      let lastError: unknown
+      
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          groqResponse = await this.groqService.computeEnhancements({
+            provider: params.provider,
+            baseQuote: normalizedQuote,
+            quoteType,
+            contractDurationMonths: legalProfile.contractMonths,
+            extractedBenefits,
+            legalProfile: {
+              id: legalProfile.id,
+              countryCode: legalProfile.countryCode,
+              countryName: legalProfile.countryName,
+              quoteType: legalProfile.quoteType,
+              employmentType: legalProfile.employmentType,
+              contractMonths: legalProfile.contractMonths,
+              summary: legalProfile.summary,
+              formulas: legalProfile.formulas
+            }
+          })
+          break // Success - exit retry loop
+        } catch (error) {
+          lastError = error
+          if (attempt === 1) {
+            console.warn(`[Enhancement] Groq call attempt ${attempt} failed for ${params.provider}, retrying once...`, error instanceof Error ? error.message : 'Unknown error')
+          } else {
+            console.error(`[Enhancement] Groq call attempt ${attempt} failed for ${params.provider}, giving up.`, error instanceof Error ? error.message : 'Unknown error')
+            throw error // Final failure - re-throw
+          }
         }
-      })
+      }
 
       console.log(`[Enhancement] Enhancements computed for ${params.provider}. Transforming response...`)
       // Step 5: Transform Groq response to EnhancedQuote format
@@ -175,8 +187,8 @@ export class EnhancementEngine {
    */
   async enhanceAllProviders(params: MultiProviderEnhancement): Promise<MultiProviderResult> {
     const startTime = Date.now()
-    const results: Record<ProviderType, EnhancedQuote> = {} as any
-    const errors: Record<ProviderType, EnhancementError[]> = {} as any
+    const results: Record<ProviderType, EnhancedQuote> = {} as Record<ProviderType, EnhancedQuote>
+    const errors: Record<ProviderType, EnhancementError[]> = {} as Record<ProviderType, EnhancementError[]>
 
     // Process all providers in parallel
     const promises = Object.entries(params.providerQuotes).map(async ([provider, quote]) => {
@@ -216,7 +228,7 @@ export class EnhancementEngine {
     baseQuote: NormalizedQuote,
     input: { quoteType: 'all-inclusive' | 'statutory-only'; contractDurationMonths: number }
   ): EnhancedQuote {
-    const { enhancements, totals, confidence_scores, analysis } = groqResponse
+    const { enhancements, confidence_scores, analysis } = groqResponse
 
     // Build enhancement objects
     const enhancementData: EnhancedQuote['enhancements'] = {}
@@ -443,7 +455,7 @@ export class EnhancementEngine {
     const explanations: string[] = []
 
     Object.values(enhancements).forEach(enhancement => {
-      const exp = (enhancement as any)?.explanation
+      const exp = (enhancement as { explanation?: string })?.explanation
       if (enhancement && typeof exp === 'string' && exp.length > 0) {
         explanations.push(exp)
       }
@@ -521,15 +533,16 @@ export class EnhancementEngine {
   /**
    * Enhanced error handling
    */
-  private handleEnhancementError(error: any, provider: ProviderType): EnhancementError {
-    if (error.code && error.message) {
-      // Already an EnhancementError
+  private handleEnhancementError(error: unknown, provider: ProviderType): EnhancementError {
+    // Check if it's already an EnhancementError
+    if (error && typeof error === 'object' && 'code' in error && 'message' in error) {
       return error as EnhancementError
     }
 
+    const errorObj = error as { message?: string }
     return {
       code: 'ENHANCEMENT_ERROR',
-      message: error?.message || 'Unknown enhancement error',
+      message: errorObj?.message || 'Unknown enhancement error',
       provider,
       originalError: error
     }
@@ -556,6 +569,198 @@ export class EnhancementEngine {
     }
 
     return Math.min(confidence, 1.0)
+  }
+
+  /**
+   * Perform explicit missing benefits detection with gap analysis
+   */
+  analyzeMissingBenefits(params: {
+    legalRequirements: LegalRequirements
+    providerInclusions: StandardizedBenefitData
+    quoteType: 'all-inclusive' | 'statutory-only'
+    baseSalary: number
+    currency: string
+  }): {
+    missingBenefits: string[]
+    includedBenefits: string[]
+    gapAnalysis: {
+      benefit: string
+      required: boolean
+      mandatory: boolean
+      providerHas: boolean
+      providerAmount: number
+      confidence: number
+      reasoning: string
+    }[]
+    overallConfidence: number
+  } {
+    const { legalRequirements, providerInclusions, quoteType, currency } = params
+    const missing: string[] = []
+    const included: string[] = []
+    const analysis: {
+      benefit: string
+      required: boolean
+      mandatory: boolean
+      providerHas: boolean
+      providerAmount: number
+      confidence: number
+      reasoning: string
+    }[] = []
+
+    // Check 13th salary
+    if (legalRequirements.mandatorySalaries.has13thSalary) {
+      const providerAmount = providerInclusions.includedBenefits.thirteenthSalary?.amount || 0
+      const hasProvider = providerAmount > 0
+      analysis.push({
+        benefit: '13th Salary',
+        required: true,
+        mandatory: true,
+        providerHas: hasProvider,
+        providerAmount,
+        confidence: 0.9,
+        reasoning: 'Legal requirement: 13th month salary payment as per local labor law'
+      })
+      if (hasProvider) {
+        included.push('13th Salary')
+      } else {
+        missing.push('13th Salary')
+      }
+    }
+
+    // Check 14th salary
+    if (legalRequirements.mandatorySalaries.has14thSalary) {
+      const providerAmount = providerInclusions.includedBenefits.fourteenthSalary?.amount || 0
+      const hasProvider = providerAmount > 0
+      analysis.push({
+        benefit: '14th Salary',
+        required: true,
+        mandatory: true,
+        providerHas: hasProvider,
+        providerAmount,
+        confidence: 0.9,
+        reasoning: 'Legal requirement: 14th month salary payment as per local labor law'
+      })
+      if (hasProvider) {
+        included.push('14th Salary')
+      } else {
+        missing.push('14th Salary')
+      }
+    }
+
+    // Check vacation bonus
+    if (legalRequirements.bonuses.vacationBonusPercentage && legalRequirements.bonuses.vacationBonusPercentage > 0) {
+      const providerAmount = providerInclusions.includedBenefits.vacationBonus?.amount || 0
+      const hasProvider = providerAmount > 0
+      analysis.push({
+        benefit: 'Vacation Bonus',
+        required: true,
+        mandatory: true,
+        providerHas: hasProvider,
+        providerAmount,
+        confidence: 0.8,
+        reasoning: `Legal requirement: ${legalRequirements.bonuses.vacationBonusPercentage}% vacation bonus as per local law`
+      })
+      if (hasProvider) {
+        included.push('Vacation Bonus')
+      } else {
+        missing.push('Vacation Bonus')
+      }
+    }
+
+    // Check transportation allowance
+    if (legalRequirements.allowances.transportationAmount && legalRequirements.allowances.transportationAmount > 0) {
+      const providerAmount = providerInclusions.includedBenefits.transportAllowance?.amount || 0
+      const hasProvider = providerAmount > 0
+      const isMandatory = legalRequirements.allowances.transportationMandatory || false
+      const shouldInclude = quoteType === 'all-inclusive' || isMandatory
+      
+      if (shouldInclude) {
+        analysis.push({
+          benefit: 'Transportation Allowance',
+          required: shouldInclude,
+          mandatory: isMandatory,
+          providerHas: hasProvider,
+          providerAmount,
+          confidence: isMandatory ? 0.8 : 0.6,
+          reasoning: isMandatory 
+            ? `Legal requirement: ${legalRequirements.allowances.transportationAmount} ${currency} transportation allowance (mandatory)`
+            : `Common practice: ${legalRequirements.allowances.transportationAmount} ${currency} transportation allowance (commonly provided)`
+        })
+        if (hasProvider) {
+          included.push('Transportation Allowance')
+        } else {
+          missing.push('Transportation Allowance')
+        }
+      }
+    }
+
+    // Check meal vouchers
+    if (legalRequirements.allowances.mealVoucherAmount && legalRequirements.allowances.mealVoucherAmount > 0) {
+      const providerAmount = providerInclusions.includedBenefits.mealVouchers?.amount || 0
+      const hasProvider = providerAmount > 0
+      const isMandatory = legalRequirements.allowances.mealVoucherMandatory || false
+      const shouldInclude = quoteType === 'all-inclusive' || isMandatory
+      
+      if (shouldInclude) {
+        analysis.push({
+          benefit: 'Meal Vouchers',
+          required: shouldInclude,
+          mandatory: isMandatory,
+          providerHas: hasProvider,
+          providerAmount,
+          confidence: isMandatory ? 0.8 : 0.6,
+          reasoning: isMandatory 
+            ? `Legal requirement: ${legalRequirements.allowances.mealVoucherAmount} ${currency} meal vouchers (mandatory)`
+            : `Common practice: ${legalRequirements.allowances.mealVoucherAmount} ${currency} meal vouchers (commonly provided)`
+        })
+        if (hasProvider) {
+          included.push('Meal Vouchers')
+        } else {
+          missing.push('Meal Vouchers')
+        }
+      }
+    }
+
+    // Check remote work allowance
+    if (legalRequirements.allowances.remoteWorkAmount && legalRequirements.allowances.remoteWorkAmount > 0) {
+      const providerAmount = providerInclusions.includedBenefits.remoteWorkAllowance?.amount || 0
+      const hasProvider = providerAmount > 0
+      const isMandatory = legalRequirements.allowances.remoteWorkMandatory || false
+      const shouldInclude = quoteType === 'all-inclusive' || isMandatory
+      
+      if (shouldInclude) {
+        analysis.push({
+          benefit: 'Remote Work Allowance',
+          required: shouldInclude,
+          mandatory: isMandatory,
+          providerHas: hasProvider,
+          providerAmount,
+          confidence: isMandatory ? 0.8 : 0.5,
+          reasoning: isMandatory 
+            ? `Legal requirement: ${legalRequirements.allowances.remoteWorkAmount} ${currency} remote work allowance (mandatory)`
+            : `Common practice: ${legalRequirements.allowances.remoteWorkAmount} ${currency} remote work allowance (commonly provided)`
+        })
+        if (hasProvider) {
+          included.push('Remote Work Allowance')
+        } else {
+          missing.push('Remote Work Allowance')
+        }
+      }
+    }
+
+    // Calculate overall confidence based on the quality of legal requirements data
+    const mandatoryBenefitsCount = analysis.filter(a => a.mandatory).length
+    const totalBenefitsAnalyzed = analysis.length
+    const baseConfidence = totalBenefitsAnalyzed > 0 ? 0.6 : 0.3
+    const mandatoryBonus = mandatoryBenefitsCount * 0.1
+    const overallConfidence = Math.min(0.95, baseConfidence + mandatoryBonus)
+
+    return {
+      missingBenefits: missing,
+      includedBenefits: included,
+      gapAnalysis: analysis,
+      overallConfidence
+    }
   }
 
   /**

@@ -41,6 +41,10 @@ export const ProviderStatusIcon = memo(({ status, className = "h-4 w-4" }: Provi
     
     case 'inactive':
     default:
+      // Debug: Log when status is inactive/undefined to help diagnose state issues
+      if (status !== 'inactive') {
+        console.warn(`[ProviderStatusIcon] Unexpected status: ${status}, falling back to null`);
+      }
       return null;
   }
 });

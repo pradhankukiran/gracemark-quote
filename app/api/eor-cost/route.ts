@@ -42,10 +42,10 @@ interface DeelRequestBody {
 
 export async function POST(request: NextRequest) {
   try {
-    let parsed: any
+    let parsed: { salary?: number; country?: string; currency?: string; state?: string }
     try {
       parsed = await request.json()
-    } catch (e) {
+    } catch {
       console.error('EOR Cost API Error: invalid JSON body')
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
     }

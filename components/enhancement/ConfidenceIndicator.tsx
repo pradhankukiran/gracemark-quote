@@ -8,8 +8,7 @@ import {
   CheckCircle2, 
   AlertCircle, 
   XCircle,
-  TrendingUp,
-  Minus
+  TrendingUp
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 

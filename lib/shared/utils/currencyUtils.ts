@@ -1,7 +1,7 @@
 // lib/shared/utils/currencyUtils.ts - Consolidated currency utilities
 
 import { convertCurrency } from "@/lib/currency-converter"
-import { Quote, DeelAPIResponse, RemoteAPIResponse, USDConversions, DeelQuote, RemoteQuote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
+import { USDConversions, DeelQuote, RemoteQuote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
 
 /**
  * Formats a number as currency with the specified currency code

@@ -1,13 +1,12 @@
 import { memo } from "react";
-import { Loader2, AlertCircle, Brain } from "lucide-react";
+import { Loader2, Brain } from "lucide-react";
 import { Provider, ProviderStatus } from "../hooks/useQuoteResults";
 import { ProviderLogo } from "./ProviderLogo";
-import { ProviderStatusIcon, WarningBadge, getProviderStatusColor, getProviderStatusMessage } from "./ProviderStatusIcons";
+import { ProviderStatusIcon, WarningBadge, getProviderStatusMessage } from "./ProviderStatusIcons";
 
 interface ProviderSelectorProps {
   currentProvider: Provider;
   onProviderChange: (provider: Provider) => void;
-  loading?: { [K in Provider]: boolean };
   disabled?: boolean;
   providerStates: { [K in Provider]: ProviderStatus };
 }
@@ -17,7 +16,6 @@ const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'ripplin
 export const ProviderSelector = memo(({
   currentProvider,
   onProviderChange,
-  loading = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false },
   disabled = false,
   providerStates,
 }: ProviderSelectorProps) => {
@@ -55,11 +53,15 @@ export const ProviderSelector = memo(({
           const providerState = providerStates[provider];
           const status = providerState?.status || (provider === 'deel' ? 'active' : 'inactive');
           const isInactive = status === 'inactive';
-          const isLoadingBase = status === 'loading-base' || loading[provider];
           const isLoadingEnhanced = status === 'loading-enhanced';
           const isActive = status === 'active';
           const isFailed = status === 'failed';
           const isEnhancementFailed = status === 'enhancement-failed';
+          
+          // Debug: Log provider states to help diagnose missing failure indicators
+          if (isFailed || isEnhancementFailed) {
+            console.log(`[ProviderSelector] ${provider} status: ${status}`, { providerState, isFailed, isEnhancementFailed });
+          }
           
           // Allow switching when active, enhancement in-progress, or enhancement failed (base quote available)
           const isClickable = (isActive || isLoadingEnhanced || isEnhancementFailed) && !disabled;

@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { fetchEORCost, createQuoteRequestData, ensureFormDefaults, transformToDeelQuote } from "@/lib/shared/utils/apiUtils";
-import { DeelAPIResponse, EORFormData, QuoteData, DeelQuote } from "@/lib/shared/types";
+import { EORFormData, QuoteData, DeelQuote } from "@/lib/shared/types";
 import { convertCurrency } from "@/lib/currency-converter";
 
 export const useDeelQuote = () => {

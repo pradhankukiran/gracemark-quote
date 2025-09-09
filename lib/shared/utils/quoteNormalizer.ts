@@ -17,49 +17,49 @@ export interface NormalizedQuote {
     statutoryContributions?: number
     [key: string]: number | undefined
   }
-  originalResponse: any
+  originalResponse: unknown
 }
 
 // Type guards to detect quote format
-const isDisplayQuote = (quote: any): quote is Quote => {
+const isDisplayQuote = (quote: unknown): quote is Quote => {
   return quote && 
     typeof quote === 'object' &&
-    typeof quote.total_costs === 'string' &&
-    typeof quote.salary === 'string' &&
-    typeof quote.provider === 'string'
+    typeof (quote as any).total_costs === 'string' &&
+    typeof (quote as any).salary === 'string' &&
+    typeof (quote as any).provider === 'string'
 }
 
-const isRemoteAPIResponse = (quote: any): quote is RemoteAPIResponse => {
+export const isRemoteAPIResponse = (quote: unknown): quote is RemoteAPIResponse => {
   return quote && 
     typeof quote === 'object' &&
-    quote.employment &&
-    quote.employment.employer_currency_costs &&
-    typeof quote.employment.employer_currency_costs.monthly_total === 'number'
+    (quote as any).employment &&
+    (quote as any).employment.employer_currency_costs &&
+    typeof (quote as any).employment.employer_currency_costs.monthly_total === 'number'
 }
 
-const isRivermateQuote = (quote: any): quote is RivermateQuote => {
+const isRivermateQuote = (quote: unknown): quote is RivermateQuote => {
   return quote && 
     typeof quote === 'object' &&
-    Array.isArray(quote.taxItems) &&
-    typeof quote.total === 'number' &&
-    typeof quote.salary === 'number'
+    Array.isArray((quote as any).taxItems) &&
+    typeof (quote as any).total === 'number' &&
+    typeof (quote as any).salary === 'number'
 }
 
-const isOysterQuote = (quote: any): quote is OysterQuote => {
+const isOysterQuote = (quote: unknown): quote is OysterQuote => {
   return quote && 
     typeof quote === 'object' &&
-    Array.isArray(quote.contributions) &&
-    typeof quote.total === 'number' &&
-    typeof quote.salary === 'number'
+    Array.isArray((quote as any).contributions) &&
+    typeof (quote as any).total === 'number' &&
+    typeof (quote as any).salary === 'number'
 }
 
-const isRemoteQuote = (quote: any): quote is RemoteQuote => {
+const isRemoteQuote = (quote: unknown): quote is RemoteQuote => {
   return quote && 
     typeof quote === 'object' &&
-    typeof quote.total === 'number' &&
-    typeof quote.salary === 'number' &&
-    typeof quote.contributions === 'number' &&
-    quote.provider === 'remote'
+    typeof (quote as any).total === 'number' &&
+    typeof (quote as any).salary === 'number' &&
+    typeof (quote as any).contributions === 'number' &&
+    (quote as any).provider === 'remote'
 }
 
 // Utility to parse monetary string values (removes $, commas, etc.)
@@ -75,7 +75,8 @@ const parseMonetaryValue = (value: string | number | undefined): number => {
 }
 
 // Extract country and currency with fallbacks
-const getCountryInfo = (quote: any, provider: ProviderType) => {
+const getCountryInfo = (quote: unknown, _provider: ProviderType) => {
+  void _provider
   let country = ''
   let currency = ''
 
@@ -226,7 +227,7 @@ const normalizeGenericDisplayQuote = (quote: Quote, provider: ProviderType): Nor
  */
 export const normalizeQuoteForEnhancement = (
   provider: ProviderType,
-  baseQuote: any
+  baseQuote: unknown
 ): NormalizedQuote | null => {
   // Handle null/undefined quotes
   if (!baseQuote) {
@@ -336,7 +337,7 @@ export const isValidNormalizedQuote = (quote: NormalizedQuote | null): quote is 
 }
 
 // Helper function to validate that a quote object has required properties
-export const isValidQuote = (quote: any): quote is Quote => {
+export const isValidQuote = (quote: unknown): quote is Quote => {
   if (!quote || typeof quote !== 'object') {
     return false
   }
@@ -366,22 +367,22 @@ export const isValidQuote = (quote: any): quote is Quote => {
 }
 
 // Flexible validation that can handle quotes with or without provider context
-export const isValidQuoteWithContext = (quote: any, expectedProvider?: string): quote is Quote => {
+export const isValidQuoteWithContext = (quote: unknown, expectedProvider?: string): quote is Quote => {
   if (!quote || typeof quote !== 'object') {
     return false
   }
   
   // If quote doesn't have provider but we know the expected provider, that's ok
-  const quoteWithProvider = quote.provider ? quote : { ...quote, provider: expectedProvider }
+  const quoteWithProvider = (quote as any).provider ? quote : { ...quote, provider: expectedProvider }
   
   return isValidQuote(quoteWithProvider)
 }
 
 // Helper function to check if a quote is empty/invalid with debugging
-export const validateQuoteWithDebugging = (provider: string, quote: any): { 
+export const validateQuoteWithDebugging = (provider: string, quote: unknown): { 
   isValid: boolean
   reason?: string 
-  quoteInfo?: any 
+  quoteInfo?: unknown 
 } => {
   if (!quote) {
     return {

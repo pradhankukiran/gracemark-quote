@@ -264,8 +264,6 @@ class EnhancementCacheService {
   // Get cache statistics
   public getStats() {
     this.cleanExpired()
-    
-    const now = Date.now()
     const entries = Array.from(this.cache.values())
     
     return {

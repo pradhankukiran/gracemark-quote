@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { EORFormData, Quote, QuoteData } from "@/lib/shared/types";
-import { ensureFormDefaults, createQuoteRequestData, fetchVelocityGlobalCost, transformVelocityResponseToQuote } from "@/lib/shared/utils/apiUtils";
+import { ensureFormDefaults, createQuoteRequestData, fetchVelocityGlobalCost, transformVelocityResponseToQuote, QuoteRequestData } from "@/lib/shared/utils/apiUtils";
 import { convertCurrency } from "@/lib/currency-converter";
 
 export const useVelocityQuote = () => {
@@ -47,7 +47,7 @@ export const useVelocityQuote = () => {
                   ...compareReq,
                   salary: conv.success && conv.data ? conv.data.target_amount.toString() : withDefaults.compareSalary,
                   currency: withDefaults.currency,
-                } as any
+                } as QuoteRequestData
                 const compSelectedResp = await fetchVelocityGlobalCost(compareChangedReq)
                 const compSelectedDisplay = transformVelocityResponseToQuote(compSelectedResp)
                 compSelectedDisplay.currency = withDefaults.currency
@@ -70,7 +70,7 @@ export const useVelocityQuote = () => {
           const base = parseFloat((withDefaults.baseSalary || '').toString().replace(/[\,\s]/g, ''))
           const conv = await convertCurrency(base, withDefaults.currency, withDefaults.originalCurrency)
           const localReq = { ...request, currency: withDefaults.originalCurrency, salary: conv.success && conv.data ? conv.data.target_amount.toString() : withDefaults.baseSalary }
-          const localResp = await fetchVelocityGlobalCost(localReq as any)
+          const localResp = await fetchVelocityGlobalCost(localReq as QuoteRequestData)
           const localDisplay = transformVelocityResponseToQuote(localResp)
           localDisplay.country = withDefaults.country || localDisplay.country
           localDisplay.currency = withDefaults.originalCurrency

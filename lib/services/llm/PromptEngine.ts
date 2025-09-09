@@ -1,6 +1,6 @@
 // PromptEngine - Prompt builders for extraction, enhancement, and arithmetic compute
 
-import { EnhancementInput } from "@/lib/types/enhancement"
+import { EnhancementInput, PapayaCountryData, StandardizedBenefitData } from "@/lib/types/enhancement"
 
 export class PromptEngine {
   // Legacy enhancement system prompt (kept concise)
@@ -42,26 +42,34 @@ Always output valid JSON; amounts are monthly in the quote currency.`
       `Respond with valid JSON.`
   }
 
-  // Pass 3: arithmetic compute system prompt
+  // Pass 3: arithmetic compute system prompt with gap analysis focus
   static buildArithmeticSystemPrompt(): string {
-    return `You are an expert EOR (Employer of Record) cost analyst.
-Compute monthly enhancement items and final monthly total using:
-- Base monthly cost and base salary
-- Extracted provider inclusions (already_included items must not be added)
-- Legal profile summary and formulas
-- Quote type rules (statutory-only vs all-inclusive)
+    return `You are an expert EOR (Employer of Record) cost analyst specializing in MISSING BENEFITS DETECTION.
+
+YOUR CORE TASK: Identify missing mandatory benefits by comparing provider inclusions vs legal requirements.
+
+ANALYSIS PROCESS:
+1. EXAMINE: What benefits the provider already includes (extracted provider inclusions)
+2. COMPARE: Against what the legal profile says is mandatory/required
+3. IDENTIFY: Missing mandatory benefits that should be included but aren't
+4. COMPUTE: Monthly costs for only the missing items
+5. FLAG: Benefits as already_included=true if provider covers them
 
 STRICT RULES:
-- All outputs are monthly amounts in the given currency.
-- Apply the provided formulas exactly and round each item and totals to 2 decimals (half-up).
-- Do NOT double-count items already included by the provider.
-- Statutory-only: include ONLY items mandated by law; skip optional/perk allowances.
-- All-inclusive: include statutory and commonly mandatory allowances.
-- Totals must satisfy: TOTAL_ENHANCEMENTS = sum(items); FINAL_MONTHLY_TOTAL = BASE_MONTHLY + TOTAL_ENHANCEMENTS.
-- Respond with valid JSON (no code fences).`
+- All outputs are monthly amounts in the given currency
+- Apply the provided formulas exactly and round each item to 2 decimals (half-up)
+- CRITICAL: Do NOT double-count items already included by the provider
+- CRITICAL: Mark already_included=true for benefits found in provider inclusions
+- Statutory-only: include ONLY items mandated by law; skip optional allowances
+- All-inclusive: include statutory and commonly mandatory allowances
+- Missing benefits must have clear legal justification from the legal profile
+- Totals: TOTAL_ENHANCEMENTS = sum(missing items only); FINAL_MONTHLY_TOTAL = BASE_MONTHLY + TOTAL_ENHANCEMENTS
+- Respond with valid JSON (no code fences)
+
+FOCUS: Your primary job is gap analysis - finding what's legally required but missing from the provider quote.`
   }
 
-  // Pass 3: arithmetic compute user prompt
+  // Pass 3: arithmetic compute user prompt with enhanced gap analysis structure
   static buildArithmeticUserPrompt(params: {
     provider: string
     baseMonthly: number
@@ -69,28 +77,37 @@ STRICT RULES:
     currency: string
     quoteType: 'all-inclusive' | 'statutory-only'
     contractMonths: number
-    extractedBenefits: any
+    extractedBenefits: StandardizedBenefitData
     legalProfile: { id: string; summary: string; formulas: string }
   }): string {
     const { provider, baseMonthly, baseSalary, currency, quoteType, contractMonths, extractedBenefits, legalProfile } = params
     return [
-      `ARITHMETIC COMPUTE REQUEST (Pass 3)`,
+      `GAP ANALYSIS REQUEST - MISSING BENEFITS DETECTION`,
+      '',
       `PROVIDER: ${provider}`,
-      `QUOTE TYPE: ${quoteType}`,
+      `QUOTE TYPE: ${quoteType} (${quoteType === 'statutory-only' ? 'MANDATORY ONLY' : 'ALL BENEFITS'})`,
       `BASE MONTHLY: ${baseMonthly} ${currency}`,
       `BASE SALARY: ${baseSalary} ${currency}`,
       `CONTRACT MONTHS: ${contractMonths}`,
       `CURRENCY: ${currency}`,
       '',
+      `═══ LEGAL REQUIREMENTS (What should be included) ═══`,
       `LEGAL PROFILE ID: ${legalProfile.id}`,
-      `LEGAL PROFILE SUMMARY:`,
       legalProfile.summary,
       '',
-      `FORMULAS:`,
+      `CALCULATION FORMULAS:`,
       legalProfile.formulas,
       '',
-      `EXTRACTED PROVIDER INCLUSIONS:`,
+      `═══ PROVIDER INCLUSIONS (What is already included) ═══`,
       JSON.stringify(extractedBenefits, null, 2),
+      '',
+      `═══ YOUR TASK: GAP ANALYSIS ═══`,
+      `1. Compare LEGAL REQUIREMENTS vs PROVIDER INCLUSIONS`,
+      `2. Identify benefits that are legally required but missing from provider`,
+      `3. For each benefit, check if provider already includes it (amount > 0)`,
+      `4. If included: set already_included=true, enhancement amount=0`,
+      `5. If missing: set already_included=false, compute enhancement amount`,
+      `6. Apply ${quoteType === 'statutory-only' ? 'ONLY mandatory/legally required' : 'mandatory + commonly required'} benefits`,
       '',
       `OUTPUT JSON EXAMPLE (MATCH EXACT KEYS):`,
       '{',
@@ -152,12 +169,22 @@ STRICT RULES:
       '  "recommendations": []',
       '}',
       '',
-      'REQUIREMENTS:',
+      'GAP ANALYSIS REQUIREMENTS:',
       '- Use the exact keys as above.',
-      '- For items ALREADY INCLUDED in the extracted benefits (amount > 0), set already_included=true and enhancement amounts to 0.',
-      '- In statutory-only mode, include ONLY items that are mandatory by law (set mandatory=true for allowances that are legally required).',
-      '- Compute termination_costs using the given formulas and divide by contract months to monthlyize.',
-      '- Set final_monthly_total = base_monthly + total_monthly_enhancement.'
+      '- CRITICAL: Perform thorough gap analysis between LEGAL REQUIREMENTS and PROVIDER INCLUSIONS.',
+      '- For items ALREADY INCLUDED in provider benefits (amount > 0): set already_included=true, enhancement amounts to 0.',
+      '- For MISSING MANDATORY items: set already_included=false, compute proper enhancement amounts.',
+      '- In statutory-only mode: include ONLY items that are mandatory by law (set mandatory=true for legally required allowances).',
+      '- In all-inclusive mode: include mandatory + commonly required benefits.',
+      '- Compute termination_costs using given formulas and divide by contract months to monthlyize.',
+      '- Provide clear explanations for why each missing benefit is required (reference legal profile).',
+      '- Set final_monthly_total = base_monthly + total_monthly_enhancement (missing items only).',
+      '- If NO benefits are missing, total_monthly_enhancement should be 0.',
+      '',
+      'EXAMPLE GAP ANALYSIS SCENARIOS:',
+      '- If legal profile requires 13th salary but provider includes 0 → add 13th salary enhancement',
+      '- If legal profile requires meal vouchers but provider includes 350 BRL → set already_included=true, amount=0',
+      '- If legal profile shows transportation is optional → skip in statutory-only mode'
     ].join('\n')
   }
 
@@ -176,7 +203,7 @@ RULES: amounts monthly in quote currency; include benefits found with amount > 0
   }
 
   // Utility: summarize Papaya snippets
-  private static summarizeLegalRequirements(papayaData: any): string {
+  private static summarizeLegalRequirements(papayaData: PapayaCountryData): string {
     if (!papayaData?.data) return 'No detailed legal data available'
     const parts: string[] = []
     if (papayaData.data.termination) {
@@ -189,7 +216,7 @@ RULES: amounts monthly in quote currency; include benefits found with amount > 0
       if (p.toLowerCase().includes('14th')) parts.push('14TH SALARY: may be required')
     }
     if (papayaData.data.contribution?.employer_contributions) {
-      const first = papayaData.data.contribution.employer_contributions.slice(0, 3).map((c: any) => `${c.description}: ${c.rate}`)
+      const first = papayaData.data.contribution.employer_contributions.slice(0, 3).map((c: { description: string; rate: string }) => `${c.description}: ${c.rate}`)
       if (first.length) parts.push(`CONTRIBUTIONS: ${first.join(', ')}`)
     }
     if (papayaData.data.common_benefits?.length) {

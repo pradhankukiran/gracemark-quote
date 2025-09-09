@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { EORFormData, Quote, QuoteData } from "@/lib/shared/types";
-import { ensureFormDefaults, createQuoteRequestData, fetchSkuadCost, transformSkuadResponseToQuote } from "@/lib/shared/utils/apiUtils";
+import { ensureFormDefaults, createQuoteRequestData, fetchSkuadCost, transformSkuadResponseToQuote, QuoteRequestData } from "@/lib/shared/utils/apiUtils";
 import { convertCurrency } from "@/lib/currency-converter";
 
 export const useSkuadQuote = () => {
@@ -44,7 +44,7 @@ export const useSkuadQuote = () => {
                   ...compareReq,
                   salary: conv.success && conv.data ? conv.data.target_amount.toString() : withDefaults.compareSalary,
                   currency: withDefaults.currency,
-                } as any
+                } as QuoteRequestData
                 const compSelectedResp = await fetchSkuadCost(compareChangedReq)
                 const compSelectedDisplay = transformSkuadResponseToQuote(compSelectedResp)
                 compSelectedDisplay.currency = withDefaults.currency
@@ -67,7 +67,7 @@ export const useSkuadQuote = () => {
           const base = parseFloat((withDefaults.baseSalary || '').toString().replace(/[\,\s]/g, ''))
           const conv = await convertCurrency(base, withDefaults.currency, withDefaults.originalCurrency)
           const localReq = { ...request, currency: withDefaults.originalCurrency, salary: conv.success && conv.data ? conv.data.target_amount.toString() : withDefaults.baseSalary }
-          const localResp = await fetchSkuadCost(localReq as any)
+          const localResp = await fetchSkuadCost(localReq as QuoteRequestData)
           const localDisplay = transformSkuadResponseToQuote(localResp)
           localDisplay.country = withDefaults.country
           localDisplay.currency = withDefaults.originalCurrency

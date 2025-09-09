@@ -7,7 +7,7 @@ import { FormSectionHeader } from "./shared/FormSectionHeader"
 import { FORM_STYLES } from "../styles/constants"
 import { getOriginalLocalOfficeData } from "@/lib/shared/utils/localOfficeData"
 import { useLocalOfficeConversion, getConvertedLocalOfficeValue } from "../hooks/useLocalOfficeConversion"
-import { LoadingSpinner } from "./shared/LoadingSpinner"
+// import { LoadingSpinner } from "./shared/LoadingSpinner" // Unused
 
 interface LocalOfficeInformationProps {
   localOfficeInfo: LocalOfficeInfo

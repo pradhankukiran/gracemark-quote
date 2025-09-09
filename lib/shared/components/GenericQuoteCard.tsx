@@ -359,7 +359,7 @@ export const GenericQuoteCard = memo(({
               showUSDInDualMode 
                 ? (provider === 'remote' 
                     ? (usdConversions as USDConversions["remote"])?.monthlySalary 
-                    : (usdConversions as any)?.salary)
+                    : (usdConversions as USDConversions[keyof USDConversions])?.salary)
                 : undefined, // Third: USD in dual mode
               isCalculatingSelected || isCalculatingLocal
             )}
@@ -444,7 +444,7 @@ export const GenericQuoteCard = memo(({
                     (() => {
                       const usdTotal = provider === 'remote'
                         ? (usdConversions as USDConversions["remote"])?.monthlyTotal
-                        : (usdConversions as any)?.totalCosts;
+                        : (usdConversions as USDConversions[keyof USDConversions])?.totalCosts;
                       return usdTotal !== undefined
                         ? `${usdTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`
                         : isConvertingToUSD
@@ -466,7 +466,7 @@ export const GenericQuoteCard = memo(({
                     {(() => {
                       const usdTotal = provider === 'remote'
                         ? (usdConversions as USDConversions["remote"])?.monthlyTotal
-                        : (usdConversions as any)?.totalCosts;
+                        : (usdConversions as USDConversions[keyof USDConversions])?.totalCosts;
                       return usdTotal !== undefined
                         ? `${usdTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`
                         : isConvertingToUSD

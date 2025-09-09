@@ -24,6 +24,37 @@ interface QuoteComparisonProps {
   provider?: 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity'
 }
 
+// Helper function to safely access USD conversion data
+const getProviderUsdConversion = (
+  usdConversions: CompatibleUsdConversions, 
+  provider: string, 
+  isComparison: boolean = false
+): USDConversions['deel'] | undefined => {
+  const conversions = usdConversions as Record<string, unknown>
+  
+  if (isComparison) {
+    switch (provider) {
+      case 'remote': return conversions.compareRemote as USDConversions['deel'] | undefined
+      case 'rivermate': 
+      case 'oyster': return conversions.compare as USDConversions['deel'] | undefined
+      case 'rippling': return conversions.compareRippling as USDConversions['deel'] | undefined
+      case 'skuad': return conversions.compareSkuad as USDConversions['deel'] | undefined
+      case 'velocity': return conversions.compareVelocity as USDConversions['deel'] | undefined
+      default: return conversions.compare as USDConversions['deel'] | undefined
+    }
+  } else {
+    switch (provider) {
+      case 'remote': return conversions.remote as USDConversions['deel'] | undefined
+      case 'rivermate':
+      case 'oyster': return conversions.deel as USDConversions['deel'] | undefined
+      case 'rippling': return conversions.rippling as USDConversions['deel'] | undefined
+      case 'skuad': return conversions.skuad as USDConversions['deel'] | undefined
+      case 'velocity': return conversions.velocity as USDConversions['deel'] | undefined
+      default: return conversions.deel as USDConversions['deel'] | undefined
+    }
+  }
+}
+
 export const QuoteComparison = memo(({
   primaryQuote,
   comparisonQuote,
@@ -65,19 +96,7 @@ export const QuoteComparison = memo(({
           title={primaryTitle}
           badgeText="Main Quote"
           badgeColor="bg-green-100 text-green-800"
-          usdConversions={provider === 'remote' 
-            ? (usdConversions as any)?.remote 
-            : provider === 'rivermate' 
-              ? (usdConversions as any)?.deel 
-              : provider === 'oyster' 
-                ? (usdConversions as any)?.deel 
-                : provider === 'rippling'
-                  ? (usdConversions as any)?.rippling
-                  : provider === 'skuad'
-                    ? (usdConversions as any)?.skuad
-                    : provider === 'velocity'
-                      ? (usdConversions as any)?.velocity
-                      : usdConversions?.deel}
+          usdConversions={getProviderUsdConversion(usdConversions, provider, false)}
           isConvertingToUSD={isConvertingPrimaryToUSD}
           usdConversionError={usdConversionError}
           compact={true}
@@ -90,19 +109,7 @@ export const QuoteComparison = memo(({
           title={comparisonTitle}
           badgeText="Compare Quote"
           badgeColor="bg-blue-100 text-blue-800"
-          usdConversions={provider === 'remote' 
-            ? (usdConversions as any)?.compareRemote 
-            : provider === 'rivermate' 
-              ? (usdConversions as any)?.compare 
-              : provider === 'oyster' 
-                ? (usdConversions as any)?.compare 
-                : provider === 'rippling' 
-                  ? (usdConversions as any)?.compareRippling
-                  : provider === 'skuad'
-                    ? (usdConversions as any)?.compareSkuad
-                    : provider === 'velocity'
-                      ? (usdConversions as any)?.compareVelocity
-                      : usdConversions?.compare}
+          usdConversions={getProviderUsdConversion(usdConversions, provider, true)}
           isConvertingToUSD={isConvertingComparisonToUSD}
           usdConversionError={usdConversionError}
           compact={true}

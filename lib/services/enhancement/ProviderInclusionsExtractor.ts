@@ -1,4 +1,4 @@
-import { ProviderType, StandardizedBenefitData } from "@/lib/types/enhancement"
+import { ProviderType, StandardizedBenefitData, RemoteAPIResponse, RivermateAPIResponse, OysterAPIResponse, GenericProviderResponse } from "@/lib/types/enhancement"
 
 // Shape used by EnhancementEngine normalizer
 interface NormalizedQuoteLike {
@@ -8,12 +8,12 @@ interface NormalizedQuoteLike {
   country: string
   monthlyTotal: number
   breakdown?: Record<string, number | undefined>
-  originalResponse: any
+  originalResponse: RemoteAPIResponse | RivermateAPIResponse | OysterAPIResponse | GenericProviderResponse
 }
 
 const nowIso = () => new Date().toISOString()
 
-const toNumber = (v: any): number => {
+const toNumber = (v: unknown): number => {
   if (typeof v === 'number') return isFinite(v) ? v : 0
   if (typeof v === 'string') {
     const cleaned = v.replace(/[$,\s]/g, '')
@@ -31,18 +31,51 @@ const monthlyize = (amount: number, frequency?: string) => {
   return amount
 }
 
-// Basic categorization heuristics for line item names
+// Enhanced categorization heuristics for line item names with broader patterns
 const categorize = (nameRaw: string): keyof StandardizedBenefitData["includedBenefits"] | undefined => {
   const name = (nameRaw || '').toString().toLowerCase()
   if (!name) return undefined
-  if (/(^|\s)13(th)?|thirteenth|aguinaldo|decim[ao]/.test(name)) return 'thirteenthSalary'
-  if (/(^|\s)14(th)?|fourteenth/.test(name)) return 'fourteenthSalary'
-  if (/vacation|vacation\s*bonus|holiday\s*bonus|annual\s*bonus/.test(name)) return 'vacationBonus'
-  if (/transport|commut|bus|metro|transit/.test(name)) return 'transportAllowance'
-  if (/remote|work\s*from\s*home|wfh|telework|home\s*office/.test(name)) return 'remoteWorkAllowance'
-  if (/meal|food|voucher|ticket\s*restaurant/.test(name)) return 'mealVouchers'
-  if (/social\s*security|social\s*insur|employer\s*contrib|pension|ni\b|inps|ssf/.test(name)) return 'socialSecurity'
-  if (/health\s*insur|medical\s*insur|hi\b/.test(name)) return 'healthInsurance'
+  
+  // 13th Salary patterns (multiple languages and variations)
+  if (/(^|\s)13(th)?|thirteenth|aguinaldo|decim[ao]\s*terc|christmas\s*bonus|13.*salary|salary.*13|bonus.*13/.test(name)) {
+    return 'thirteenthSalary'
+  }
+  
+  // 14th Salary patterns
+  if (/(^|\s)14(th)?|fourteenth|14.*salary|salary.*14|bonus.*14/.test(name)) {
+    return 'fourteenthSalary'
+  }
+  
+  // Vacation bonus patterns (multiple variations)
+  if (/vacation|holiday\s*bonus|annual\s*bonus|vacation\s*pay|vacation\s*allowance|prima\s*vacanza/.test(name)) {
+    return 'vacationBonus'
+  }
+  
+  // Transportation patterns (expanded international coverage)
+  if (/transport|commut|bus|metro|transit|car\s*allowance|auto\s*allowance|vehicle|travel\s*allowance|gas\s*allowance|fuel|vale\s*transport/.test(name)) {
+    return 'transportAllowance'
+  }
+  
+  // Remote work patterns (comprehensive coverage)
+  if (/remote|work\s*from\s*home|wfh|telework|home\s*office|telecommut|distance\s*work|home.*allowance|office.*allowance/.test(name)) {
+    return 'remoteWorkAllowance'
+  }
+  
+  // Meal vouchers patterns (international variations)
+  if (/meal|food|voucher|ticket\s*restaurant|lunch|dining|cafeteria|vale\s*refeição|vale\s*aliment|restaurant\s*card|food\s*card/.test(name)) {
+    return 'mealVouchers'
+  }
+  
+  // Social Security patterns (expanded international coverage)
+  if (/social\s*security|social\s*insur|employer\s*contrib|pension|ni\b|inps|ssf|contrib.*social|fica|ssi|unemployment\s*insur|disability\s*insur|workers.*comp/.test(name)) {
+    return 'socialSecurity'
+  }
+  
+  // Health Insurance patterns (comprehensive)
+  if (/health\s*insur|medical\s*insur|hi\b|health.*care|medical.*care|dental|vision|life\s*insur|disability.*insur/.test(name)) {
+    return 'healthInsurance'
+  }
+  
   return undefined
 }
 
@@ -51,10 +84,10 @@ type BenefitsMap = StandardizedBenefitData["includedBenefits"]
 const addBenefit = (map: BenefitsMap, key: string, amount: number, freq: 'monthly' | 'yearly' = 'monthly', desc?: string) => {
   if (amount <= 0) return
   if (!map[key as keyof BenefitsMap]) {
-    // @ts-ignore index signature allows dynamic keys
+    // @ts-expect-error - dynamic key assignment into benefits map; runtime keys are validated by categorize()
     map[key] = { amount: 0, frequency: freq, description: desc }
   }
-  // @ts-ignore
+  // @ts-expect-error - merging amounts on a dynamically addressed benefit entry
   map[key].amount = toNumber(map[key as keyof BenefitsMap]?.amount || 0) + amount
 }
 
@@ -91,13 +124,16 @@ export class ProviderInclusionsExtractor {
         default:
           this.extractGenericQuote(q.originalResponse, included)
       }
-    } catch (e) {
+    } catch {
       // Be resilient: fallback to using available breakdowns only
       // console.warn('Inclusions extraction fallback:', e)
     }
 
     // Compute total
-    const totalMonthlyBenefits = Object.values(included).reduce((sum: number, item: any) => sum + toNumber(item?.amount || 0), 0)
+    const totalMonthlyBenefits = Object.values(included).reduce((sum: number, item: unknown) => {
+      const benefit = item as { amount?: number } | undefined
+      return sum + toNumber(benefit?.amount || 0)
+    }, 0)
 
     const response: StandardizedBenefitData = {
       provider,
@@ -114,7 +150,7 @@ export class ProviderInclusionsExtractor {
     return response
   }
 
-  private static extractRemote(original: any, included: BenefitsMap) {
+  private static extractRemote(original: RemoteAPIResponse, included: BenefitsMap) {
     // Two shapes: RemoteAPIResponse or RemoteQuote
     const costs = original?.employment?.employer_currency_costs
     if (costs) {
@@ -143,7 +179,7 @@ export class ProviderInclusionsExtractor {
     }
   }
 
-  private static extractRivermate(original: any, included: BenefitsMap) {
+  private static extractRivermate(original: RivermateAPIResponse, included: BenefitsMap) {
     // Optimized RivermateQuote: taxItems[] and accruals/fees
     const taxItems = Array.isArray(original?.taxItems) ? original.taxItems : []
     for (const it of taxItems) {
@@ -152,7 +188,7 @@ export class ProviderInclusionsExtractor {
     }
   }
 
-  private static extractOyster(original: any, included: BenefitsMap) {
+  private static extractOyster(original: OysterAPIResponse, included: BenefitsMap) {
     const contribs = Array.isArray(original?.contributions) ? original.contributions : []
     for (const it of contribs) {
       const key = categorize(it?.name || '') || 'socialSecurity'
@@ -160,7 +196,7 @@ export class ProviderInclusionsExtractor {
     }
   }
 
-  private static extractGenericQuote(original: any, included: BenefitsMap) {
+  private static extractGenericQuote(original: GenericProviderResponse, included: BenefitsMap) {
     // Generic Quote has costs[] with frequency and amount strings
     const costs = Array.isArray(original?.costs) ? original.costs : []
     for (const c of costs) {
@@ -178,9 +214,29 @@ export class ProviderInclusionsExtractor {
   private static estimateConfidence(provider: ProviderType, included: BenefitsMap): number {
     const keys = Object.keys(included)
     if (keys.length === 0) return 0.3
-    const hasBreakdown = ['remote', 'rivermate', 'oyster'].includes(provider)
-    if (hasBreakdown) return Math.min(0.85, 0.5 + keys.length * 0.05)
-    return Math.min(0.75, 0.45 + keys.length * 0.05)
+    
+    // Base confidence varies by provider's data structure quality
+    const providerBaseConfidence = {
+      'remote': 0.7,      // Remote has detailed breakdown
+      'rivermate': 0.65,  // Good structured data
+      'oyster': 0.6,      // Decent structured data
+      'deel': 0.5,        // Generic structure
+      'rippling': 0.5,    // Generic structure
+      'skuad': 0.5,       // Generic structure
+      'velocity': 0.5     // Generic structure
+    }
+    
+    const baseConfidence = providerBaseConfidence[provider] || 0.45
+    
+    // Increase confidence based on number of categorized benefits found
+    const benefitBonus = keys.length * 0.04
+    
+    // Additional bonus if we found mandatory benefits (13th salary, social security)
+    const hasMandatoryBenefits = keys.some(key => 
+      ['thirteenthSalary', 'fourteenthSalary', 'socialSecurity'].includes(key)
+    )
+    const mandatoryBonus = hasMandatoryBenefits ? 0.1 : 0
+    
+    return Math.min(0.9, baseConfidence + benefitBonus + mandatoryBonus)
   }
 }
-

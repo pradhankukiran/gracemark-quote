@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Info, Gift, Loader2, ChevronUp } from "lucide-react"
 import { BenefitsAPIResponse, Benefit, SelectedBenefit } from "@/lib/shared/types"
-import { LoadingSpinner } from "./shared/LoadingSpinner"
+// import { LoadingSpinner } from "./shared/LoadingSpinner" // Unused
 import { ErrorDisplay } from "./shared/ErrorDisplay"
 import { SmoothReveal } from "./shared/OptimizedReveal"
 import { FormSectionHeader } from "./shared/FormSectionHeader"

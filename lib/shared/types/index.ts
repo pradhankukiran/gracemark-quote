@@ -139,6 +139,9 @@ export interface OysterQuote {
   total: number // monthly (salary + contributions)
 }
 
+// Union type for all provider quotes (for type-safe handling)
+export type ProviderQuote = DeelQuote | RemoteQuote | RivermateQuote | OysterQuote | Quote
+
 // Remote API Response Types (matching actual API structure)
 
 export interface RemoteCurrency {

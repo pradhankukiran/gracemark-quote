@@ -45,7 +45,7 @@ export const parseMoney = (value: string | undefined | null, defaultValue: numbe
     
     // Return default if parsing resulted in NaN
     return isNaN(parsed) ? defaultValue : parsed
-  } catch (error) {
+  } catch {
     return defaultValue
   }
 }

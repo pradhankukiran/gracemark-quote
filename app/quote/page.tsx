@@ -16,11 +16,10 @@ import { ErrorBoundary } from "@/lib/shared/components/ErrorBoundary"
 import { ProviderSelector } from "./components/ProviderSelector"
 import { EnhancementProvider, useEnhancementContext } from "@/hooks/enhancement/EnhancementContext"
 import type { ReconciliationResult } from "@/lib/types/reconciliation"
-import { round2, round4, mean, median, stdDev, argMin, argMax, clamp01 } from "@/lib/shared/utils/reconciliationUtils"
 import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, transformToRemoteQuote, transformOysterQuoteToDisplayQuote } from "@/lib/shared/utils/apiUtils"
 import { EORFormData, RemoteAPIResponse } from "@/lib/shared/types"
 import { EnhancedQuoteCard } from "@/components/enhancement/EnhancedQuoteCard"
-import { ProviderType } from "@/lib/types/enhancement"
+import { ProviderType, EnhancedQuote } from "@/lib/types/enhancement"
 
 const LoadingSpinner = () => (
   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -71,6 +70,7 @@ const QuotePageContent = memo(() => {
   const [currencyInput, setCurrencyInput] = useState<string>('')
   const [reconThreshold, setReconThreshold] = useState<number>(0.04)
   const [reconRiskMode, setReconRiskMode] = useState<boolean>(false)
+  const [reconLLMMode, setReconLLMMode] = useState<boolean>(false)
 
   // Auto-convert primary Deel quote to USD
   useEffect(() => {
@@ -154,6 +154,7 @@ const QuotePageContent = memo(() => {
       const cleanup = autoConvertQuote((quoteData.quotes as any).comparisonRippling as any, "compareRippling")
       return cleanup
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- limit deps to avoid redundant conversions; internal dedupe handles repeats
   }, [quoteData?.status, (quoteData?.quotes as any)?.comparisonRippling, currentProvider, autoConvertQuote])
 
   // Auto-convert primary Skuad quote to USD
@@ -162,6 +163,7 @@ const QuotePageContent = memo(() => {
       const cleanup = autoConvertQuote((quoteData.quotes as any).skuad as any, "skuad")
       return cleanup
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- limit deps to avoid redundant conversions; internal dedupe handles repeats
   }, [quoteData?.status, (quoteData?.quotes as any)?.skuad, currentProvider, autoConvertQuote])
 
   // Auto-convert comparison Skuad quote to USD
@@ -170,6 +172,7 @@ const QuotePageContent = memo(() => {
       const cleanup = autoConvertQuote((quoteData.quotes as any).comparisonSkuad as any, "compareSkuad")
       return cleanup
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- limit deps to avoid redundant conversions; internal dedupe handles repeats
   }, [quoteData?.status, (quoteData?.quotes as any)?.comparisonSkuad, currentProvider, autoConvertQuote])
 
   // Auto-convert primary Velocity quote to USD
@@ -178,6 +181,7 @@ const QuotePageContent = memo(() => {
       const cleanup = autoConvertQuote((quoteData.quotes as any).velocity as any, "velocity")
       return cleanup
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- limit deps to avoid redundant conversions; internal dedupe handles repeats
   }, [quoteData?.status, (quoteData?.quotes as any)?.velocity, currentProvider, autoConvertQuote])
 
   // Auto-convert comparison Velocity quote to USD
@@ -186,6 +190,7 @@ const QuotePageContent = memo(() => {
       const cleanup = autoConvertQuote((quoteData.quotes as any).comparisonVelocity as any, "compareVelocity")
       return cleanup
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- limit deps to avoid redundant conversions; internal dedupe handles repeats
   }, [quoteData?.status, (quoteData?.quotes as any)?.comparisonVelocity, currentProvider, autoConvertQuote])
 
   // Auto-convert comparison Oyster quote to USD
@@ -194,6 +199,7 @@ const QuotePageContent = memo(() => {
       const cleanup = autoConvertQuote(quoteData.quotes.comparisonOyster as any, "compareOyster")
       return cleanup
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- limit deps to avoid redundant conversions; internal dedupe handles repeats
   }, [quoteData?.status, quoteData?.quotes.comparisonOyster, currentProvider, autoConvertQuote])
 
   // Background conversions for all providers once base quotes are present (deduped internally)
@@ -361,12 +367,8 @@ const QuotePageContent = memo(() => {
     )
   }
 
-  // Reconciliation button readiness: active only when all providers finished enhancement (no loading states)
+  // Reconciliation provider list
   const allProviders: Array<'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity'> = ['deel','remote','rivermate','oyster','rippling','skuad','velocity']
-  const isReconReady = allProviders.every(p => {
-    const s = providerStates[p]?.status
-    return s && s !== 'loading-base' && s !== 'loading-enhanced'
-  })
 
   // Calculate detailed loading state with batch awareness for better UX
   const getReconciliationStatus = () => {
@@ -465,94 +467,37 @@ const QuotePageContent = memo(() => {
     try { return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(value) } catch { return `${value.toFixed(2)} ${currency}` }
   }
 
-  const convertCurrency = async (amount: number, from: string, to: string): Promise<number> => {
-    if (!Number.isFinite(amount)) return 0
-    if (!from || !to || from.toUpperCase() === to.toUpperCase()) return amount
-    const res = await fetch('/api/currency-converter', {
+
+  const performReconciliation = async (targetCurrency: string, threshold: number, riskMode: boolean, useLLM: boolean): Promise<ReconciliationResult> => {
+    const response = await fetch('/api/reconciliation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount, source_currency: from, target_currency: to })
+      body: JSON.stringify({
+        enhancements: enhancements as Record<ProviderType, EnhancedQuote>,
+        targetCurrency,
+        threshold,
+        riskMode,
+        useLLM
+      })
     })
-    if (!res.ok) throw new Error('Currency conversion failed')
-    const json = await res.json()
-    const target = Number(json?.data?.conversion_data?.target_amount)
-    if (!Number.isFinite(target)) throw new Error('Invalid conversion result')
-    return target
-  }
 
-  const computeLocalReconciliation = async (targetCurrency: string, threshold: number, riskMode: boolean): Promise<ReconciliationResult> => {
-    const items: Array<{ provider: string; total: number; confidence: number; notes: string[]; riskAdjustedTotal?: number }> = []
-    const excluded: Array<{ provider: any; reason: string }> = []
-    const providers: Array<'deel'|'remote'|'rivermate'|'oyster'|'rippling'|'skuad'|'velocity'> = ['deel','remote','rivermate','oyster','rippling','skuad','velocity']
-
-    for (const p of providers) {
-      const enh = (enhancements as any)[p]
-      if (!enh) { excluded.push({ provider: p, reason: 'No enhancement available' }); continue }
-      const srcCurrency = (enh.displayCurrency || enh.baseCurrency || enh.baseQuote?.currency || 'USD') as string
-      const monthly = Number(enh?.monthlyCostBreakdown?.total || enh?.finalTotal || 0)
-      if (!Number.isFinite(monthly) || monthly <= 0) { excluded.push({ provider: p, reason: 'Invalid total' }); continue }
-      let total = monthly
-      try { total = await convertCurrency(monthly, srcCurrency, targetCurrency) } catch { excluded.push({ provider: p, reason: 'Conversion failed' }); continue }
-      const confidence = Number(enh?.overallConfidence ?? 0.5)
-      const missing = enh?.overlapAnalysis?.providerMissing || []
-      const dcr = enh?.overlapAnalysis?.doubleCountingRisk || []
-      const notes: string[] = []
-      if (missing.length) notes.push(`Missing: ${missing.slice(0,3).join(', ')}${missing.length>3?'…':''}`)
-      if (dcr.length) notes.push(`Double-counting risk: ${dcr.slice(0,2).join(', ')}${dcr.length>2?'…':''}`)
-      const item: any = { provider: p, total: round2(total), confidence: clamp01(confidence), notes }
-      if (riskMode) {
-        const penalty = clamp01((1 - item.confidence) * 0.10)
-        item.riskAdjustedTotal = round2(item.total * (1 + penalty))
-      }
-      items.push(item)
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Reconciliation failed')
     }
 
-    const totals = items.map(i => i.total)
-    const min = totals.length ? Math.min(...totals) : 0
-    const withDelta = items.map(i => ({
-      provider: i.provider,
-      total: i.total,
-      delta: round2(i.total - min),
-      pct: min>0 ? round4((i.total - min)/min) : 0,
-      within4: (min>0 ? (i.total - min)/min : 0) <= threshold && !i.notes.join(' ').toLowerCase().includes('missing'),
-      confidence: i.confidence,
-      notes: i.notes,
-      riskAdjustedTotal: i.riskAdjustedTotal
-    }))
-
-    const cheapestIdx = argMin(withDelta.map(i => i.total))
-    const mostIdx = argMax(withDelta.map(i => i.total))
-    const avg = mean(withDelta.map(i => i.total))
-    const med = median(withDelta.map(i => i.total))
-    const sd = stdDev(withDelta.map(i => i.total))
-    const within4Count = withDelta.filter(i => i.within4).length
-
-    return {
-      items: withDelta as any,
-      summary: {
-        currency: targetCurrency,
-        cheapest: cheapestIdx>=0 ? withDelta[cheapestIdx].provider as any : 'none',
-        mostExpensive: mostIdx>=0 ? withDelta[mostIdx].provider as any : 'none',
-        average: round2(avg),
-        median: round2(med),
-        stdDev: round2(sd),
-        within4Count
-      },
-      recommendations: [],
-      excluded: excluded as any,
-      metadata: { threshold, riskMode, currency: targetCurrency, generatedAt: new Date().toISOString(), engine: 'local-only' }
-    }
+    return await response.json()
   }
 
   const startReconciliation = async () => {
     try {
       setReconError(null)
-      const formCurrency = ((quoteData?.formData as any)?.currency || quoteData?.metadata?.currency || 'USD') as string
+      const formCurrency = (quoteData?.formData as EORFormData)?.currency || quoteData?.metadata?.currency || 'USD'
       setReconCurrency(formCurrency)
       setCurrencyInput(formCurrency)
       setReconOpen(true)
       setReconLoading(true)
-      const result = await computeLocalReconciliation(formCurrency, reconThreshold, reconRiskMode)
+      const result = await performReconciliation(formCurrency, reconThreshold, reconRiskMode, reconLLMMode)
       setReconResult(result)
     } catch (e: any) {
       setReconError(e?.message || 'Reconciliation failed')
@@ -561,16 +506,18 @@ const QuotePageContent = memo(() => {
     }
   }
 
-  const rerunReconciliation = async (opts?: { currency?: string; threshold?: number; risk?: boolean }) => {
+  const rerunReconciliation = async (opts?: { currency?: string; threshold?: number; risk?: boolean; llm?: boolean }) => {
     const currency = opts?.currency ?? reconCurrency
     const threshold = opts?.threshold ?? reconThreshold
     const risk = opts?.risk ?? reconRiskMode
+    const llm = opts?.llm ?? reconLLMMode
     setReconCurrency(currency)
     setReconThreshold(threshold)
     setReconRiskMode(risk)
+    setReconLLMMode(llm)
     setReconLoading(true)
     try {
-      const result = await computeLocalReconciliation(currency, threshold, risk)
+      const result = await performReconciliation(currency, threshold, risk, llm)
       setReconResult(result)
       setReconError(null)
     } catch (e: any) {
@@ -1182,7 +1129,7 @@ const QuotePageContent = memo(() => {
                 <div className="flex items-center gap-2">
                   <Input
                     className="text-sm w-28 h-8"
-                    value={currencyInput || reconCurrency || ((quoteData?.formData as any)?.currency || 'USD')}
+                    value={currencyInput || reconCurrency || ((quoteData?.formData as EORFormData)?.currency || 'USD')}
                     onChange={(e) => setCurrencyInput((e.target.value || '').toUpperCase())}
                     onBlur={() => rerunReconciliation({ currency: (currencyInput || reconCurrency || '').toUpperCase() })}
                     onKeyDown={(e) => { if (e.key === 'Enter') rerunReconciliation({ currency: (currencyInput || reconCurrency || '').toUpperCase() }) }}
@@ -1194,7 +1141,7 @@ const QuotePageContent = memo(() => {
                     size="sm"
                     className="h-8"
                     onClick={() => {
-                      const def = ((quoteData?.formData as any)?.currency || 'USD') as string
+                      const def = (quoteData?.formData as EORFormData)?.currency || 'USD'
                       setCurrencyInput(def.toUpperCase())
                       rerunReconciliation({ currency: def.toUpperCase() })
                     }}
@@ -1221,6 +1168,13 @@ const QuotePageContent = memo(() => {
                     onCheckedChange={(checked) => rerunReconciliation({ risk: !!checked })}
                   />
                   Risk-adjusted
+                </label>
+                <label className="flex items-center gap-2 text-sm text-slate-700 font-medium cursor-pointer">
+                  <Checkbox
+                    checked={reconLLMMode}
+                    onCheckedChange={(checked) => rerunReconciliation({ llm: !!checked })}
+                  />
+                  AI Enhanced
                 </label>
                   <Button variant="secondary" size="sm" onClick={exportRecon}>Export</Button>
                   <Button variant="ghost" size="sm" onClick={() => setReconOpen(false)}>Close</Button>
@@ -1309,7 +1263,7 @@ const QuotePageContent = memo(() => {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
-                            {reconResult.items.sort((a,b)=>a.total-b.total).map((it, idx) => (
+                            {reconResult.items.sort((a,b)=>a.total-b.total).map((it) => (
                               <tr key={it.provider} className="hover:bg-slate-50/50 transition-colors duration-150">
                                 <td className="px-4 py-3 font-semibold text-slate-800 capitalize">{it.provider}</td>
                                 <td className="px-4 py-3 text-right font-medium text-slate-700">{formatMoney(it.total, reconResult.summary.currency)}</td>

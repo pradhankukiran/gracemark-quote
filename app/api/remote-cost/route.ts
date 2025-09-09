@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getRemoteRegionSlug, getRemoteCurrencySlug, getRemoteCountryCurrency } from "@/lib/remote-mapping"
-import { getCountryByName, getCurrencyForCountry } from "@/lib/country-data"
+// import { getCountryByName, getCurrencyForCountry } from "@/lib/country-data" // Unused
 import { RemoteRawAPIResponse, RemoteAPIResponse } from "@/lib/shared/types"
 import { PapayaCurrencyProvider } from "@/lib/providers/papaya-currency-provider"
 import { RemoteCurrencyProvider } from "@/lib/providers/remote-currency-provider"
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
       try {
         const errorJson = JSON.parse(errorText)
         detailedError = errorJson.message || errorJson.error || errorText
-      } catch (e) {
+      } catch {
         // If not JSON, use raw text
       }
       

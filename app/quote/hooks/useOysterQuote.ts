@@ -50,7 +50,7 @@ export const useOysterQuote = () => {
                   ...compareReq,
                   salary: conv.success && conv.data ? conv.data.target_amount.toString() : withDefaults.compareSalary,
                   currency: withDefaults.currency,
-                } as any
+                } as typeof compareReq
                 const compSelectedResp = await fetchOysterCost(compareChangedReq)
                 compareSelectedCurrencyQuote = transformOysterResponseToQuote(compSelectedResp)
               } catch (err) {
@@ -68,7 +68,7 @@ export const useOysterQuote = () => {
           const base = parseFloat((withDefaults.baseSalary || '').toString().replace(/[\,\s]/g, ''))
           const conv = await convertCurrency(base, withDefaults.currency, withDefaults.originalCurrency)
           const localReq = { ...request, currency: withDefaults.originalCurrency, salary: conv.success && conv.data ? conv.data.target_amount.toString() : withDefaults.baseSalary }
-          const localResp = await fetchOysterCost(localReq as any)
+          const localResp = await fetchOysterCost(localReq as typeof request)
           localCurrencyQuote = transformOysterResponseToQuote(localResp)
         } catch (e) {
           console.warn('Oyster local currency fetch failed', e)

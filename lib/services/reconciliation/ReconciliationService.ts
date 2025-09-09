@@ -175,7 +175,7 @@ export class ReconciliationService {
       }
       const raw = await this.groq.reconcile(payload)
       llm = raw as ReconciliationLLMResponse
-    } catch (e) {
+    } catch {
       // LLM failed; continue with local-only
       llm = null
     }
@@ -273,4 +273,3 @@ function uniqueNotes(arr: string[]): string[] {
   for (const n of arr) { const k=(n||'').trim(); if (!k) continue; if (!seen.has(k)) { seen.add(k); out.push(k) } }
   return out
 }
-

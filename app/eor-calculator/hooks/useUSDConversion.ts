@@ -198,7 +198,7 @@ export const useUSDConversion = () => {
           if (!abortController.signal.aborted && res.success && res.data) {
             setUsdConversions(prev => ({ ...prev, [quoteType]: res.data }))
           }
-        } catch (e) {
+        } catch {
           if (!abortController.signal.aborted) setUsdConversionError('Failed to convert Oyster quote to USD')
         } finally {
           if (conversionAbortControllerRef.current[quoteType] === abortController) {
@@ -209,7 +209,7 @@ export const useUSDConversion = () => {
         }
       })()
     } else {
-      convertQuoteToUSD(quote as DeelQuote | RivermateQuote, quoteType as any)
+      convertQuoteToUSD(quote as DeelQuote | RivermateQuote, quoteType as 'deel' | 'compare' | 'rivermate' | 'compareRivermate')
     }
 
     return () => {}

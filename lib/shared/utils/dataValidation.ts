@@ -103,7 +103,7 @@ export const validateDualCurrencyQuotes = (data: unknown): data is DualCurrencyQ
   const providerKeys = ['deel','remote','rivermate','oyster','rippling','skuad','velocity']
   const hasProviderBlocks = providerKeys.some(k => k in data)
 
-  const validateProviderBlock = (block: any): boolean => {
+  const validateProviderBlock = (block: unknown): boolean => {
     if (!isObject(block)) return false
     const bools = [
       'isCalculatingSelected', 'isCalculatingLocal',
@@ -122,7 +122,7 @@ export const validateDualCurrencyQuotes = (data: unknown): data is DualCurrencyQ
 
   if (hasProviderBlocks) {
     for (const k of providerKeys) {
-      if (k in data && !validateProviderBlock((data as any)[k])) return false
+      if (k in data && !validateProviderBlock((data as Record<string, unknown>)[k])) return false
     }
     return true
   }
@@ -132,7 +132,7 @@ export const validateDualCurrencyQuotes = (data: unknown): data is DualCurrencyQ
     'isCalculatingSelected','isCalculatingLocal','isCalculatingCompareSelected','isCalculatingCompareLocal','isDualCurrencyMode','hasComparison'
   ]
   for (const b of legacyBools) {
-    if (b in data && typeof (data as any)[b] !== 'boolean') return false
+    if (b in data && typeof (data as Record<string, unknown>)[b] !== 'boolean') return false
   }
   return true
 }
@@ -187,7 +187,6 @@ export const validateQuoteData = (data: unknown): data is QuoteData => {
 
   // Validate formData based on calculatorType and status
   if (data.calculatorType === 'eor') {
-    const statusStr = (data as any).status as string
     // For 'calculating', allow a minimal form shape (already enforced in validateEORFormData)
     if (!validateEORFormData(data.formData)) {
       console.warn('Invalid QuoteData: EOR form data is invalid')

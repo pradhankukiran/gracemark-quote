@@ -5,6 +5,38 @@ import { EORFormData } from "@/lib/shared/types"
 // Provider Types
 export type ProviderType = 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity'
 
+// Provider Response Types
+export interface RemoteAPIResponse {
+  employment?: {
+    employer_currency_costs?: {
+      monthly_contributions_total?: number
+      monthly_benefits_total?: number
+      monthly_contributions_breakdown?: Array<{ name: string; amount: number }>
+      monthly_benefits_breakdown?: Array<{ name: string; amount: number }>
+    }
+  }
+  contributions?: number
+  [key: string]: unknown
+}
+
+export interface RivermateAPIResponse {
+  taxItems?: Array<{ name: string; amount: number }>
+  [key: string]: unknown
+}
+
+export interface OysterAPIResponse {
+  contributions?: Array<{ name: string; amount: number }>
+  [key: string]: unknown
+}
+
+export interface GenericProviderResponse {
+  costs?: Array<{ name: string; amount: number | string; frequency?: string }>
+  employer_costs?: number | string
+  [key: string]: unknown
+}
+
+export type ProviderResponseType = RemoteAPIResponse | RivermateAPIResponse | OysterAPIResponse | GenericProviderResponse
+
 // Base Quote Structure (normalized across all providers)
 export interface NormalizedQuote {
   provider: ProviderType
@@ -19,7 +51,7 @@ export interface NormalizedQuote {
     statutoryContributions?: number
     [key: string]: number | undefined
   }
-  originalResponse: any // Raw provider response
+  originalResponse: ProviderResponseType // Raw provider response
 }
 
 // Standardized Benefit Data (extracted from provider responses)
@@ -99,7 +131,9 @@ export interface PapayaCountryData {
     minimum_wage?: string
     payroll: {
       payroll_cycle: string
-      [key: string]: any
+      '13th_salary'?: string
+      '14th_salary'?: string
+      [key: string]: string | undefined
     }
     working_hours: {
       general: string
@@ -121,7 +155,10 @@ export interface PapayaCountryData {
     }
     common_benefits?: string[]
     remote_work?: string
-    [key: string]: any
+    vat?: { general: string }
+    authority_payments?: Array<{ authority_payment: string; paid_to: string; due_date: string }>
+    visa?: { general_info: string }
+    [key: string]: string | string[] | Record<string, unknown> | Array<Record<string, unknown>> | undefined
   }
 }
 
@@ -144,8 +181,11 @@ export interface LegalRequirements {
   }
   allowances: {
     transportationAmount?: number
+    transportationMandatory?: boolean
     remoteWorkAmount?: number
+    remoteWorkMandatory?: boolean
     mealVoucherAmount?: number
+    mealVoucherMandatory?: boolean
   }
   contributions: {
     employerRates: Record<string, number>
@@ -375,7 +415,7 @@ export interface EnhancementError {
   code: string
   message: string
   provider?: ProviderType
-  originalError?: any
+  originalError?: Error | unknown
 }
 
 // Multi-Provider Enhancement

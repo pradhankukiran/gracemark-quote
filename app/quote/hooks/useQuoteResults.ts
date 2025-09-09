@@ -11,6 +11,7 @@ import { useSkuadQuote } from "./useSkuadQuote";
 import { useVelocityQuote } from "./useVelocityQuote";
 import { useEnhancementContext } from "@/hooks/enhancement/EnhancementContext";
 import { transformRemoteResponseToQuote } from "@/lib/shared/utils/apiUtils";
+import { isRemoteAPIResponse } from "@/lib/shared/utils/quoteNormalizer";
 
 export type Provider = 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity';
 
@@ -44,29 +45,11 @@ interface UseQuoteResultsReturn {
   };
 }
 
-type BatchProcessingState = {
-  currentBatch: number;
-  isProcessing: boolean;
-  activeConcurrency: number;
-}
-
-type EnhancementQueueItem = {
-  provider: Provider;
-  quote: unknown;
-  formData: EORFormData;
-}
-
 export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn => {
   const [quoteData, setQuoteData] = useState<QuoteData | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentProvider, setCurrentProvider] = useState<Provider>('deel');
 
-  // Batch processing state for proper re-renders
-  const [batchProcessingState, setBatchProcessingState] = useState<BatchProcessingState>({
-    currentBatch: 0,
-    isProcessing: false,
-    activeConcurrency: 0
-  });
   
   // Provider states for sequential loading
   const [providerStates, setProviderStates] = useState<{ [K in Provider]: ProviderStatus }>({
@@ -86,7 +69,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   const hasStartedSequentialRef = useRef<boolean>(false);
 
   // Enhancement hook (shared via context) for AI-powered enhanced quotes
-  const { enhanceQuote, enhancing, enhancements, errors: enhancementErrors } = useEnhancementContext();
+  const { enhanceQuote, enhancing, enhancements } = useEnhancementContext();
   
   // Helper: update provider state (declare before callbacks)
   const updateProviderState = useCallback((provider: Provider, updates: Partial<ProviderStatus>) => {
@@ -112,8 +95,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       case 'rivermate': return !!data.quotes.rivermate;
       case 'oyster': return !!data.quotes.oyster;
       case 'rippling': return !!data.quotes.rippling;
-      case 'skuad': return !!(data.quotes as any).skuad;
-      case 'velocity': return !!(data.quotes as any).velocity;
+      case 'skuad': return !!data.quotes.skuad;
+      case 'velocity': return !!data.quotes.velocity;
       default: return false;
     }
   }, []);
@@ -162,7 +145,6 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   })
 
   // Enhancement Concurrency Control
-  const MAX_CONCURRENT_ENHANCEMENTS = 3
   // Mounted flag for safe async operations/cleanup
   const isMountedRef = useRef<boolean>(true)
   useEffect(() => {
@@ -193,14 +175,14 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   // Retry logic for enhancement API calls
   const retryEnhancementWithBackoff = useCallback(async (
     provider: Provider, 
-    quote: any, 
+    quote: unknown, 
     formData: EORFormData, 
     maxRetries = 3
-  ): Promise<any> => {
+  ): Promise<unknown> => {
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
-        return await enhanceQuote(provider as any, quote, formData)
-      } catch (error: any) {
+        return await enhanceQuote(provider, quote, formData)
+      } catch (error: unknown) {
         const isLastAttempt = attempt === maxRetries
         
         // Check if this is a rate limiting error (429) or timeout
@@ -236,8 +218,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       if (enhancementInFlightRef.current[provider]) return
       enhancementInFlightRef.current[provider] = true
       updateProviderState(provider, { status: 'loading-enhanced', hasData: true })
-      const providerQuoteForEnhancement = (provider === 'remote' && (quote as any)?.employment)
-        ? transformRemoteResponseToQuote(quote as any)
+      const providerQuoteForEnhancement = (provider === 'remote' && isRemoteAPIResponse(quote))
+        ? transformRemoteResponseToQuote(quote)
         : quote
       const result = await retryEnhancementWithBackoff(provider, providerQuoteForEnhancement, formData)
       if (result) {
@@ -257,15 +239,23 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
 
   // Legacy sequential enhancement trigger removed in favor of batched processing
 
-  const { loading: deelLoading, error: deelError, calculateDeelQuote } = useDeelQuote();
-  const { loading: remoteLoading, error: remoteError, calculateRemoteQuote } = useRemoteQuote();
-  const { loading: rivermateLoading, error: rivermateError, calculateRivermateQuote } = useRivermateQuote();
-  const { loading: oysterLoading, error: oysterError, calculateOysterQuote } = useOysterQuote();
-  const { loading: ripplingLoading, error: ripplingError, calculateRipplingQuote } = useRipplingQuote();
-  const { loading: skuadLoading, error: skuadError, calculateSkuadQuote } = useSkuadQuote();
-  const { loading: velocityLoading, error: velocityError, calculateVelocityQuote } = useVelocityQuote();
+  const { loading: deelLoading, calculateDeelQuote } = useDeelQuote();
+  const { loading: remoteLoading, calculateRemoteQuote } = useRemoteQuote();
+  const { loading: rivermateLoading, calculateRivermateQuote } = useRivermateQuote();
+  const { loading: oysterLoading, calculateOysterQuote } = useOysterQuote();
+  const { loading: ripplingLoading, calculateRipplingQuote } = useRipplingQuote();
+  const { loading: skuadLoading, calculateSkuadQuote } = useSkuadQuote();
+  const { loading: velocityLoading, calculateVelocityQuote } = useVelocityQuote();
 
-  const providerLoading = { deel: deelLoading, remote: remoteLoading, rivermate: rivermateLoading, oyster: oysterLoading, rippling: ripplingLoading, skuad: skuadLoading, velocity: velocityLoading } as const;
+  const providerLoading = useMemo(() => ({
+    deel: deelLoading,
+    remote: remoteLoading,
+    rivermate: rivermateLoading,
+    oyster: oysterLoading,
+    rippling: ripplingLoading,
+    skuad: skuadLoading,
+    velocity: velocityLoading
+  }) as const, [deelLoading, remoteLoading, rivermateLoading, oysterLoading, ripplingLoading, skuadLoading, velocityLoading])
 
   // Note: Removed serial enhanced queue system - now processing sequentially inline
 
@@ -492,7 +482,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     }
   }, [currentQueueIndex, updateProviderState, hasProviderData, quoteId, quoteData,
       calculateRemoteQuote, calculateRivermateQuote, calculateOysterQuote, 
-      calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote, enhanceQuote]);
+      calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote, enhancements]);
 
   // Keep a stable ref to the latest processor to avoid effect rescheduling stalls
   const processNextProviderRef = useRef(processNextProvider);
@@ -500,31 +490,6 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     processNextProviderRef.current = processNextProvider;
   }, [processNextProvider]);
   
-  // Start sequential loading process
-  const startSequentialLoading = useCallback(() => {
-    if (!quoteData || quoteData.status !== 'completed') {
-      console.log('⚠️ Cannot start sequential loading: quoteData not ready');
-      return;
-    }
-    
-    // Prevent multiple sequential loading processes
-    if (isSequentialLoadingRef.current) {
-      console.log('🚧 Sequential loading already in progress, skipping');
-      return;
-    }
-    
-    // Additional safety check
-    if (hasStartedSequentialRef.current) {
-      console.log('🚧 Sequential loading already started once, skipping');
-      return;
-    }
-    
-    console.log('🚀 Starting sequential provider loading...');
-    console.log('📋 Queue:', SEQUENTIAL_LOADING_QUEUE);
-    
-    isSequentialLoadingRef.current = true;
-    setCurrentQueueIndex(0);
-  }, [quoteData]);
 
   const switchProvider = useCallback(async (newProvider: Provider) => {
     if (!quoteData || newProvider === currentProvider) {
@@ -540,7 +505,6 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
 
     setCurrentProvider(newProvider);
 
-    const hasExistingQuote = hasProviderData(newProvider, quoteData);
     const form = quoteData.formData as EORFormData;
     const needsDual = form.isCurrencyManuallySet && !!form.originalCurrency && form.originalCurrency !== form.currency;
     const hasDualForProvider = newProvider === 'deel'
@@ -554,8 +518,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
             : newProvider === 'rippling'
               ? !!quoteData.dualCurrencyQuotes?.rippling?.isDualCurrencyMode
               : newProvider === 'skuad'
-                ? !!(quoteData.dualCurrencyQuotes as any)?.skuad?.isDualCurrencyMode
-                : !!(quoteData.dualCurrencyQuotes as any)?.velocity?.isDualCurrencyMode;
+                ? !!quoteData.dualCurrencyQuotes?.skuad?.isDualCurrencyMode
+                : !!quoteData.dualCurrencyQuotes?.velocity?.isDualCurrencyMode;
 
     // If provider is active but missing dual currency data, calculate it
     if (quoteData.status === 'completed' && needsDual && !hasDualForProvider) {
@@ -589,9 +553,9 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         setCurrentProvider(currentProvider); // Revert provider switch on error
       }
     }
-  }, [quoteData, currentProvider, providerStates, quoteId, hasProviderData,
+  }, [quoteData, currentProvider, providerStates, quoteId,
       calculateDeelQuote, calculateRemoteQuote, calculateRivermateQuote, 
-      calculateOysterQuote, calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote]);
+      calculateOysterQuote, calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote, providerLoading]);
 
   const refreshQuote = useCallback(() => {
     console.log("Refreshing quote...");
@@ -634,13 +598,15 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   }, []);
 
   // Cleanup any enhancement/batch timers (backoff, inter-batch delays) on unmount
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- cleanup intentionally uses snapshot of ref
   useEffect(() => {
+    const timeouts = pendingTimeoutsRef.current
     return () => {
-      if (pendingTimeoutsRef.current.size > 0) {
-        for (const id of Array.from(pendingTimeoutsRef.current)) {
+      if (timeouts.size > 0) {
+        for (const id of Array.from(timeouts)) {
           clearTimeout(id)
         }
-        pendingTimeoutsRef.current.clear()
+        timeouts.clear()
       }
     }
   }, [])
@@ -734,7 +700,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
               mergeAndPersist(deelResult)
               // Immediately schedule enhancement for Deel (parallel mode)
               if (!enhancementEnqueuedRef.current.deel && !enhancementInFlightRef.current.deel) {
-                void scheduleEnhancement('deel', (deelResult.quotes as any).deel, deelResult.formData as EORFormData)
+                void scheduleEnhancement('deel', deelResult.quotes.deel, deelResult.formData as EORFormData)
               }
             } catch (err) {
               console.error('❌ Deel base quote failed:', err)
@@ -775,14 +741,15 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
                     mergeAndPersist(result)
                     // Immediately schedule enhancement for this provider (parallel mode)
                     if (!enhancementEnqueuedRef.current[provider] && !enhancementInFlightRef.current[provider]) {
-                      void scheduleEnhancement(provider, (result.quotes as any)[provider], result.formData as EORFormData)
+                      void scheduleEnhancement(provider, (result.quotes as Record<string, unknown>)[provider], result.formData as EORFormData)
                     }
                   } else {
                   updateProviderState(provider, { status: 'failed', error: 'No quote data returned' })
                 }
-              } catch (e: any) {
+              } catch (e: unknown) {
                 console.error(`❌ ${provider} base quote failed:`, e)
-                updateProviderState(provider, { status: 'failed', error: e?.message || 'Failed to calculate quote' })
+                const errorMessage = e instanceof Error ? e.message : 'Failed to calculate quote'
+                updateProviderState(provider, { status: 'failed', error: errorMessage })
               } finally {
                 baseInFlightRef.current[provider] = false
               }
@@ -827,7 +794,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
             const failed = enhancementFailedRef.current[provider]
             const enqueued = enhancementEnqueuedRef.current[provider]
             if (hasBase && !hasEnh && !failed && !enqueued && !enhancementInFlightRef.current[provider]) {
-              const providerQuote = (data.quotes as any)[provider]
+              const providerQuote = data.quotes[provider as keyof typeof data.quotes]
               void scheduleEnhancement(provider, providerQuote, data.formData as EORFormData)
             }
           })
@@ -857,7 +824,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     };
 
     processQuote();
-  }, [quoteId, calculateDeelQuote, updateProviderState, hasProviderData, enhancements]);
+  }, [quoteId, quoteData, calculateDeelQuote, calculateRemoteQuote, calculateRivermateQuote, calculateOysterQuote, calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote, updateProviderState, hasProviderData, enhancements, scheduleEnhancement]);
   
   // Separate useEffect for sequential loading trigger (prevents circular dependency)
   useEffect(() => {
@@ -900,8 +867,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           case 'rivermate': return !quoteData.quotes?.rivermate;
           case 'oyster': return !quoteData.quotes?.oyster;
           case 'rippling': return !quoteData.quotes?.rippling;
-          case 'skuad': return !(quoteData.quotes as any)?.skuad;
-          case 'velocity': return !(quoteData.quotes as any)?.velocity;
+          case 'skuad': return !quoteData.quotes?.skuad;
+          case 'velocity': return !quoteData.quotes?.velocity;
           default: return true;
         }
       });
@@ -976,7 +943,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     } else {
       console.log('❌ Quote not completed yet:', quoteData?.status);
     }
-  }, [quoteData?.status, quoteId]); // FIXED: Removed aggressive Object.keys dependency
+  }, [quoteData, enhancements, quoteId]); // include quoteData and enhancements for correctness
   
   // Debug logging for provider states (development only)
   useEffect(() => {
@@ -992,8 +959,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     providers.forEach(provider => {
       const hasBase = hasProviderData(provider, quoteData);
       if (!hasBase) return;
-      const isEnhancing = !!(enhancing as any)[provider];
-      const hasEnh = !!(enhancements as any)[provider];
+      const isEnhancing = !!enhancing[provider];
+      const hasEnh = !!enhancements[provider];
       if (isEnhancing) {
         updateProviderState(provider, { status: 'loading-enhanced', hasData: true, error: undefined });
       } else if (hasEnh) {

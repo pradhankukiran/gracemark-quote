@@ -3,7 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { EnhancementEngine } from '@/lib/services/enhancement/EnhancementEngine'
-import { enhancementCache, EnhancementPerformanceMonitor } from '@/lib/services/enhancement/EnhancementCache'
+import { EnhancementPerformanceMonitor } from '@/lib/services/enhancement/EnhancementCache'
 
 export async function GET(request: NextRequest) {
   try {
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
             ok: resp.ok,
             bodyPreview: text.slice(0, 200),
           })
-        } catch (err: any) {
+        } catch (err: unknown) {
           return NextResponse.json({ success: false, error: String(err) }, { status: 500 })
         }
       }

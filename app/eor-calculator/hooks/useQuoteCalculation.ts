@@ -1,12 +1,5 @@
 import { useState } from "react"
-import { EORFormData, ValidationAPIResponse, ValidationErrors, QuoteData } from "@/lib/shared/types"
-import {
-  validateSalaryInput,
-  validateHolidayInput, 
-  validateProbationInput,
-  validateHoursInput,
-  validateDaysInput
-} from "@/lib/shared/utils/validationUtils"
+import { EORFormData, QuoteData } from "@/lib/shared/types"
 import { setJsonInSessionStorage } from "@/lib/shared/utils/storageUtils"
 
 interface UseQuoteCalculationProps {
@@ -14,49 +7,16 @@ interface UseQuoteCalculationProps {
   currency: string
   clientCurrency: string
   compareCurrency: string
-  validationData: ValidationAPIResponse | null
-  convertedValidation: {
-    minSalary?: string
-    maxSalary?: string
-    currency?: string
-  }
 }
 
 export const useQuoteCalculation = ({ 
   formData, 
   currency,
   clientCurrency,
-  compareCurrency,
-  validationData, 
-  convertedValidation
+  compareCurrency
 }: UseQuoteCalculationProps) => {
   const [error, setError] = useState<string | null>(null)
 
-  // Get effective validation data (original or converted)
-  const getEffectiveValidationData = (): ValidationAPIResponse | null => {
-    if (!validationData || !formData.isCurrencyManuallySet || !convertedValidation.currency) {
-      return validationData
-    }
-
-    if (convertedValidation.currency !== currency) {
-      return validationData
-    }
-
-    // Efficiently create a copy with only modified salary values (no expensive deep copying)
-    const newValidationData: ValidationAPIResponse = {
-      ...validationData,
-      data: {
-        ...validationData.data,
-        salary: {
-          ...validationData.data.salary,
-          min: convertedValidation.minSalary ? convertedValidation.minSalary.replace(/[\,\s]/g, '') : validationData.data.salary.min,
-          max: convertedValidation.maxSalary ? convertedValidation.maxSalary.replace(/[\,\s]/g, '') : validationData.data.salary.max
-        }
-      }
-    }
-    
-    return newValidationData
-  }
 
   const calculateQuote = async () => {
     console.log('🚀 calculateQuote - START')

@@ -28,13 +28,13 @@ const BatchEnhancementRequestSchema = z.object({
     monthlyTotal: z.number(),
     baseCost: z.number(),
     breakdown: z.record(z.number().optional()).optional(),
-    originalResponse: z.any()
+    originalResponse: z.record(z.unknown())
   })),
   quoteType: z.enum(['all-inclusive', 'statutory-only']).optional(),
-  papayaData: z.any().optional()
+  papayaData: z.record(z.unknown()).optional()
 })
 
-type BatchEnhancementRequest = z.infer<typeof BatchEnhancementRequestSchema>
+// type BatchEnhancementRequest = z.infer<typeof BatchEnhancementRequestSchema> // Unused
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     let body: unknown
     try {
       body = await request.json()
-    } catch (e) {
+    } catch {
       return NextResponse.json({
         success: false,
         error: 'Invalid JSON body',
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
     // Convert providerQuotes to the expected format
     // Build up a partial map then cast when invoking the engine
-    const providerQuotes: Partial<Record<ProviderType, any>> = {}
+    const providerQuotes: Partial<Record<ProviderType, Record<string, unknown>>> = {}
     Object.entries(validatedInput.providerQuotes).forEach(([provider, quote]) => {
       if (['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'].includes(provider)) {
         providerQuotes[provider as ProviderType] = quote
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     const result = await enhancementEngine.enhanceAllProviders({
       formData: validatedInput.formData as EORFormData,
       papayaData: validatedInput.papayaData || null,
-      providerQuotes: providerQuotes as Record<ProviderType, any>,
+      providerQuotes: providerQuotes as Record<ProviderType, Record<string, unknown>>,
       quoteType: validatedInput.quoteType || 'all-inclusive'
     })
 
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle request timeout explicitly
-    if (error && typeof error === 'object' && 'code' in error && (error as any).code === 'REQUEST_TIMEOUT') {
+    if (error && typeof error === 'object' && 'code' in error && (error as {code: string}).code === 'REQUEST_TIMEOUT') {
       return NextResponse.json({
         success: false,
         error: 'Request timeout',
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle Groq API errors
-    if (error && typeof error === 'object' && 'code' in error && (error as any).code === 'GROQ_ERROR') {
+    if (error && typeof error === 'object' && 'code' in error && (error as {code: string}).code === 'GROQ_ERROR') {
       return NextResponse.json({
         success: false,
         error: 'LLM service error',
@@ -135,7 +135,8 @@ export async function POST(request: NextRequest) {
 // Get batch processing status
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
-  const jobId = searchParams.get('jobId')
+  // jobId parameter available for future async processing
+  searchParams.get('jobId')
 
   // This could be extended to support async processing with job queues
   return NextResponse.json({

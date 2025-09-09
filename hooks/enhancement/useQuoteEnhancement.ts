@@ -29,14 +29,14 @@ interface UseQuoteEnhancementReturn {
   // Single quote enhancement
   enhanceQuote: (
     provider: ProviderType,
-    providerQuote: any,
+    providerQuote: unknown,
     formData: EORFormData,
     quoteType?: 'all-inclusive' | 'statutory-only'
   ) => Promise<EnhancedQuote | null>
   
   // Batch enhancement
   enhanceAllQuotes: (
-    providerQuotes: Record<string, any>,
+    providerQuotes: Record<string, unknown>,
     formData: EORFormData,
     quoteType?: 'all-inclusive' | 'statutory-only'
   ) => Promise<MultiProviderResult | null>

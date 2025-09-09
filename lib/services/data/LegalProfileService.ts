@@ -109,7 +109,7 @@ export class LegalProfileService {
     try {
       // Best-effort access to raw Papaya text via global service again (no perf issue; cached)
       // This ensures LLM can infer rates when numeric extraction is ambiguous
-      const rawPapaya = (global as any).__papaya_raw__ // likely undefined; ignore if not set
+      void (global as any).__papaya_raw__ // likely undefined; ignore if not set
       // intentionally not implemented; summary remains numeric + below hints
     } catch {}
 

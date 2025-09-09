@@ -4,12 +4,16 @@ import { DeelAPIResponse, RemoteAPIResponse, ValidationAPIResponse, BenefitsAPIR
 import { getCountryByName, getCountryByCode } from "@/lib/country-data"
 
 // Default values for optional fields (optionally by country, reserved for future use)
-export const getDefaultValues = (_countryCode?: string) => ({
-  hoursPerDay: "8",
-  daysPerWeek: "5", 
-  holidayDays: "25", // Common default, could be enhanced with country-specific data
-  probationPeriod: "90" // Common default, could be enhanced with country-specific data
-})
+export const getDefaultValues = (_countryCode?: string) => {
+  // reserved for future country-specific defaults
+  void _countryCode
+  return {
+    hoursPerDay: "8",
+    daysPerWeek: "5", 
+    holidayDays: "25", // Common default, could be enhanced with country-specific data
+    probationPeriod: "90" // Common default, could be enhanced with country-specific data
+  }
+}
 
 /**
  * Ensures form data has default values for optional fields
@@ -129,7 +133,7 @@ export const createQuoteRequestData = (
 }
 
 // Lightweight fetch with retry/backoff for transient errors (429/408/503/timeouts)
-const fetchJsonWithRetry = async <T = any>(
+const fetchJsonWithRetry = async <T = unknown>(
   input: RequestInfo | URL,
   init?: RequestInit,
   opts?: { retries?: number; backoffMs?: number }
@@ -156,8 +160,8 @@ const fetchJsonWithRetry = async <T = any>(
       }
       // success
       return (await res.json()) as T
-    } catch (err: any) {
-      const msg = (err?.message || '').toLowerCase()
+    } catch (err: unknown) {
+      const msg = (err instanceof Error ? err.message : '').toLowerCase()
       const retriable = msg.includes('timeout') || msg.includes('network')
       if (!retriable || attempt >= maxRetries) throw err
       await new Promise(r => setTimeout(r, backoff + Math.floor(Math.random() * 150)))
@@ -192,8 +196,8 @@ export const fetchRemoteCost = async (requestData: QuoteRequestData): Promise<Re
 /**
  * Fetches Oyster.com cost estimates via GraphQL proxy route
  */
-export const fetchOysterCost = async (requestData: QuoteRequestData): Promise<any> => {
-  return fetchJsonWithRetry<any>("/api/oyster-cost", {
+export const fetchOysterCost = async (requestData: QuoteRequestData): Promise<unknown> => {
+  return fetchJsonWithRetry<unknown>("/api/oyster-cost", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -219,8 +223,8 @@ export const fetchOysterCost = async (requestData: QuoteRequestData): Promise<an
 /**
  * Fetches Rippling cost breakdown
  */
-export const fetchRipplingCost = async (requestData: QuoteRequestData): Promise<any> => {
-  return fetchJsonWithRetry<any>("/api/rippling-cost", {
+export const fetchRipplingCost = async (requestData: QuoteRequestData): Promise<unknown> => {
+  return fetchJsonWithRetry<unknown>("/api/rippling-cost", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -240,8 +244,8 @@ export const fetchRipplingCost = async (requestData: QuoteRequestData): Promise<
 /**
  * Fetches Skuad cost estimates
  */
-export const fetchSkuadCost = async (requestData: QuoteRequestData): Promise<any> => {
-  return fetchJsonWithRetry<any>("/api/skuad-cost", {
+export const fetchSkuadCost = async (requestData: QuoteRequestData): Promise<unknown> => {
+  return fetchJsonWithRetry<unknown>("/api/skuad-cost", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -260,8 +264,8 @@ export const fetchSkuadCost = async (requestData: QuoteRequestData): Promise<any
 /**
  * Fetches Velocity Global burden summary
  */
-export const fetchVelocityGlobalCost = async (requestData: QuoteRequestData): Promise<any> => {
-  return fetchJsonWithRetry<any>("/api/velocity-cost", {
+export const fetchVelocityGlobalCost = async (requestData: QuoteRequestData): Promise<unknown> => {
+  return fetchJsonWithRetry<unknown>("/api/velocity-cost", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -370,9 +374,7 @@ const getRivermateCurrency = (response: RivermateAPIResponse): string => {
 export const transformRivermateResponseToQuote = (response: RivermateAPIResponse): Quote => {
   const countryInfo = response?.country_info || response?.country;
   const employerCosts = response?.employer_costs;
-  const accruals = response?.accruals;
   const grossSalaryMonthly = response?.gross_salary?.monthly ?? 0;
-  const totalMonthlyCost = response?.total_monthly_cost ?? response?.total_employment_cost?.monthly ?? 0;
   const currency = getRivermateCurrency(response);
 
   const costs: QuoteCost[] = [];
@@ -555,8 +557,9 @@ export const transformToRivermateQuote = (response: RivermateAPIResponse): River
  * Transforms an Oyster GraphQL response into a standardized Quote object
  * We exclude Oyster fees and VAT; totals are monthly salary + employer contributions only.
  */
-export const transformOysterResponseToQuote = (oysterResponse: any): Quote => {
-  const calc = oysterResponse?.data?.bulkSalaryCalculations?.[0]
+export const transformOysterResponseToQuote = (oysterResponse: unknown): Quote => {
+  const response = oysterResponse as Record<string, any>
+  const calc = response?.data?.bulkSalaryCalculations?.[0]
   const country = calc?.country
   const currency = calc?.currency?.code || ''
   const annualSalary = Number(calc?.annualGrossSalary || 0)
@@ -593,15 +596,16 @@ export const transformOysterResponseToQuote = (oysterResponse: any): Quote => {
  * Transforms a Rippling API response into a standardized Quote object
  * Assumes monthly values are in response.costs[].monthly_value and gross/employer/total monthly fields
  */
-export const transformRipplingResponseToQuote = (ripplingResponse: any): Quote => {
-  const costs = Array.isArray(ripplingResponse?.costs) ? ripplingResponse.costs : []
-  const gross = ripplingResponse?.gross_salary
-  const total = ripplingResponse?.total_cost
-  const employer = ripplingResponse?.employer_cost
+export const transformRipplingResponseToQuote = (ripplingResponse: unknown): Quote => {
+  const response = ripplingResponse as Record<string, any>
+  const costs = Array.isArray(response?.costs) ? response.costs : []
+  const gross = response?.gross_salary
+  const total = response?.total_cost
+  const employer = response?.employer_cost
 
-  const toStringNum = (v: any) => (v == null ? '0' : String(v))
+  const toStringNum = (v: unknown) => (v == null ? '0' : String(v))
 
-  const quoteCosts: QuoteCost[] = costs.map((item: any) => ({
+  const quoteCosts: QuoteCost[] = costs.map((item: Record<string, any>) => ({
     name: String(item?.title || ''),
     amount: toStringNum(item?.monthly_value || '0'),
     frequency: 'monthly',
@@ -629,8 +633,9 @@ export const transformRipplingResponseToQuote = (ripplingResponse: any): Quote =
  * Transforms a Skuad API response into a standardized Quote object (monthly)
  * Excludes Skuad fee and fee discount from totals; uses billingAmounts totals.
  */
-export const transformSkuadResponseToQuote = (resp: any): Quote => {
-  const data = resp?.data || {}
+export const transformSkuadResponseToQuote = (resp: unknown): Quote => {
+  const response = resp as Record<string, any>
+  const data = response?.data || {}
   const monthly = data?.monthly || {}
   const currency = data?.currencyCode || ''
   const country = data?.country || ''
@@ -676,9 +681,10 @@ export const transformSkuadResponseToQuote = (resp: any): Quote => {
 /**
  * Transforms a Velocity Global burden summary into a standardized Quote object (monthly)
  */
-export const transformVelocityResponseToQuote = (resp: any): Quote => {
-  const meta = resp?.meta || {}
-  const attr = resp?.data?.attributes || {}
+export const transformVelocityResponseToQuote = (resp: unknown): Quote => {
+  const response = resp as Record<string, any>
+  const meta = response?.meta || {}
+  const attr = response?.data?.attributes || {}
   const iso2 = meta?.locationCode || ''
   const countryInfo = iso2 ? getCountryByCode(iso2) : undefined
   const country = countryInfo?.name || ''

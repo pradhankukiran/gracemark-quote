@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { EORFormData, Quote, QuoteData } from "@/lib/shared/types";
-import { ensureFormDefaults, createQuoteRequestData, fetchRipplingCost, transformRipplingResponseToQuote } from "@/lib/shared/utils/apiUtils";
+import { ensureFormDefaults, createQuoteRequestData, fetchRipplingCost, transformRipplingResponseToQuote, QuoteRequestData } from "@/lib/shared/utils/apiUtils";
 import { convertCurrency } from "@/lib/currency-converter";
 import { getCountryByName } from "@/lib/country-data";
 
@@ -54,7 +54,7 @@ export const useRipplingQuote = () => {
                   ...compareReq,
                   salary: conv.success && conv.data ? conv.data.target_amount.toString() : withDefaults.compareSalary,
                   currency: withDefaults.currency,
-                } as any;
+                } as QuoteRequestData;
                 const compSelectedResp = await fetchRipplingCost(compareChangedReq);
                 const compSelectedDisplay = transformRipplingResponseToQuote(compSelectedResp);
                 compSelectedDisplay.country = withDefaults.compareCountry;
@@ -78,7 +78,7 @@ export const useRipplingQuote = () => {
           const base = parseFloat((withDefaults.baseSalary || '').toString().replace(/[\,\s]/g, ''))
           const conv = await convertCurrency(base, withDefaults.currency, withDefaults.originalCurrency)
           const localReq = { ...request, currency: withDefaults.originalCurrency, salary: conv.success && conv.data ? conv.data.target_amount.toString() : withDefaults.baseSalary }
-          const localResp = await fetchRipplingCost(localReq as any)
+          const localResp = await fetchRipplingCost(localReq as QuoteRequestData)
           const localDisplay = transformRipplingResponseToQuote(localResp)
           localDisplay.country = withDefaults.country;
           localDisplay.country_code = getCountryByName(withDefaults.country)?.code || '';

@@ -4,6 +4,38 @@ import { PapayaCountryData, LegalRequirements } from "@/lib/types/enhancement"
 import fs from 'fs'
 import path from 'path'
 
+// Internal types for Papaya data parsing
+interface PapayaTermination {
+  termination_process?: string
+  notice_period?: string
+  severance_pay?: string
+  probation_period?: string
+}
+
+interface PapayaContribution {
+  rate: string
+  description: string
+}
+
+interface PapayaContributionData {
+  employer_contributions?: PapayaContribution[]
+  employee_contributions?: PapayaContribution[]
+}
+
+interface PapayaDataStructure {
+  contribution?: PapayaContributionData
+  termination?: PapayaTermination
+  payroll?: {
+    payroll_cycle?: string
+    '13th_salary'?: string
+    '14th_salary'?: string
+    [key: string]: string | undefined
+  }
+  common_benefits?: string[]
+  remote_work?: string
+  [key: string]: unknown
+}
+
 export class PapayaService {
   private static cache = new Map<string, PapayaCountryData>()
   private static coreCache = new Map<string, PapayaCountryData["data"]>()
@@ -130,20 +162,21 @@ export class PapayaService {
     if (!coreData) return requirements
 
     // Reuse existing parsers on the provided core data
-    if ((coreData as any).termination) {
-      requirements.terminationCosts = this.parseTerminationData((coreData as any).termination)
+    const typedCoreData = coreData as PapayaDataStructure
+    if (typedCoreData.termination) {
+      requirements.terminationCosts = this.parseTerminationData(typedCoreData.termination)
     }
-    requirements.mandatorySalaries = this.parseSalaryRequirements(coreData as any)
-    requirements.bonuses = this.parseBonusRequirements(coreData as any)
-    requirements.allowances = this.parseAllowanceRequirements(coreData as any)
-    requirements.contributions = this.parseContributionRates((coreData as any).contribution)
+    requirements.mandatorySalaries = this.parseSalaryRequirements(typedCoreData)
+    requirements.bonuses = this.parseBonusRequirements(typedCoreData)
+    requirements.allowances = this.parseAllowanceRequirements(typedCoreData)
+    requirements.contributions = this.parseContributionRates(typedCoreData.contribution)
     return requirements
   }
 
   /**
    * Parse termination-related data
    */
-  private static parseTerminationData(termination: any): LegalRequirements['terminationCosts'] {
+  private static parseTerminationData(termination: PapayaTermination): LegalRequirements['terminationCosts'] {
     const result = {
       noticePeriodDays: 0,
       severanceMonths: 0,
@@ -169,49 +202,99 @@ export class PapayaService {
   }
 
   /**
-   * Parse 13th and 14th salary requirements
+   * Parse 13th and 14th salary requirements with enhanced detection
    */
-  private static parseSalaryRequirements(data: any): LegalRequirements['mandatorySalaries'] {
+  private static parseSalaryRequirements(data: PapayaDataStructure): LegalRequirements['mandatorySalaries'] {
     const result: LegalRequirements['mandatorySalaries'] = {
       has13thSalary: false,
       has14thSalary: false
     }
 
-    // Check payroll section for 13th salary mentions
-    const payrollText = data.payroll?.payroll_cycle?.toLowerCase() || ''
-    
-    if (payrollText.includes('13th') || payrollText.includes('thirteenth')) {
+    // Check multiple locations for 13th salary information
+    const checkTexts = [
+      data.payroll?.payroll_cycle,
+      data.payroll?.[`13th_salary`],
+      data[`13th_salary`],
+      data.payroll?.[`14th_salary`],
+      data[`14th_salary`]
+    ].filter(Boolean).join(' ')
+
+    const lowerText = checkTexts.toLowerCase()
+
+    // Enhanced 13th salary detection
+    if (this.detectMandatorySalary(lowerText, '13th')) {
       result.has13thSalary = true
       result.monthlyMultiplier13th = 1/12 // 1 month divided over 12 months
     }
 
-    if (payrollText.includes('14th') || payrollText.includes('fourteenth')) {
+    // Enhanced 14th salary detection
+    if (this.detectMandatorySalary(lowerText, '14th')) {
       result.has14thSalary = true
       result.monthlyMultiplier14th = 1/12
-    }
-
-    // Check for direct 13th_salary field in data
-    if (data['13th_salary']) {
-      const salaryText = data['13th_salary'].toLowerCase()
-      if (!salaryText.includes('no') && !salaryText.includes('not')) {
-        result.has13thSalary = true
-        result.monthlyMultiplier13th = 1/12
-      }
     }
 
     return result
   }
 
   /**
+   * Detect if a salary bonus (13th, 14th) is mandatory based on text analysis
+   */
+  private static detectMandatorySalary(text: string, salaryType: '13th' | '14th'): boolean {
+    const patterns = salaryType === '13th' 
+      ? ['13th', 'thirteenth', '13-month', 'christmas bonus', 'aguinaldo', 'décimo terceiro']
+      : ['14th', 'fourteenth', '14-month']
+
+    // Check if any pattern is mentioned
+    const hasMention = patterns.some(pattern => text.includes(pattern))
+    if (!hasMention) return false
+
+    // Check for explicit negative indicators
+    const negativePatterns = [
+      'no ' + salaryType,
+      'not applicable',
+      'not required',
+      'not mandatory', 
+      'optional',
+      'does not apply',
+      'n/a'
+    ]
+    
+    const hasNegative = negativePatterns.some(pattern => text.includes(pattern))
+    if (hasNegative) return false
+
+    // Check for positive indicators that suggest mandatory nature
+    const positivePatterns = [
+      'mandatory', 
+      'required', 
+      'must', 
+      'obligatory',
+      'law',
+      'legal',
+      'regulation',
+      'statutory',
+      'payment',
+      'bonus',
+      'receive',
+      'entitled'
+    ]
+
+    const hasPositive = positivePatterns.some(pattern => text.includes(pattern))
+    
+    // If we found the salary type mentioned and no negatives, it's likely mandatory
+    // Especially if there are positive indicators
+    return hasPositive || text.length > 50 // Longer descriptions usually indicate mandatory benefits
+  }
+
+  /**
    * Parse vacation and other bonus requirements
    */
-  private static parseBonusRequirements(data: any): LegalRequirements['bonuses'] {
+  private static parseBonusRequirements(data: PapayaDataStructure): LegalRequirements['bonuses'] {
     const result: LegalRequirements['bonuses'] = {}
 
     // Look for vacation bonus in contributions
     if (data.contribution?.employer_contributions) {
       const vacationBonus = data.contribution.employer_contributions.find(
-        (contrib: any) => contrib.description?.toLowerCase().includes('vacation bonus')
+        (contrib: PapayaContribution) => contrib.description?.toLowerCase().includes('vacation bonus')
       )
       
       if (vacationBonus) {
@@ -233,50 +316,78 @@ export class PapayaService {
   }
 
   /**
-   * Parse transportation, remote work, and other allowances
+   * Parse transportation, remote work, and other allowances with enhanced extraction
    */
-  private static parseAllowanceRequirements(data: any): LegalRequirements['allowances'] {
+  private static parseAllowanceRequirements(data: PapayaDataStructure): LegalRequirements['allowances'] {
     const result: LegalRequirements['allowances'] = {}
 
-    // Parse from employer contributions
+    // Parse from employer contributions - now using enhanced extraction
     if (data.contribution?.employer_contributions) {
-      data.contribution.employer_contributions.forEach((contrib: any) => {
+      data.contribution.employer_contributions.forEach((contrib: PapayaContribution) => {
         const desc = contrib.description?.toLowerCase() || ''
         const rate = contrib.rate || ''
 
-        if (desc.includes('meal') && desc.includes('voucher')) {
-          result.mealVoucherAmount = this.extractAmountFromText(rate)
+        if (this.isMealVoucherBenefit(desc)) {
+          const amount = this.extractAmountFromText(rate)
+          if (amount > 0) {
+            result.mealVoucherAmount = amount
+            result.mealVoucherMandatory = this.isMandatoryBenefit(desc, rate)
+          }
         }
-        if (desc.includes('transport')) {
-          result.transportationAmount = this.extractAmountFromText(rate)
+        if (this.isTransportationBenefit(desc)) {
+          const amount = this.extractAmountFromText(rate)
+          if (amount > 0) {
+            result.transportationAmount = amount
+            result.transportationMandatory = this.isMandatoryBenefit(desc, rate)
+          }
+        }
+        if (this.isRemoteWorkBenefit(desc)) {
+          const amount = this.extractAmountFromText(rate)
+          if (amount > 0) {
+            result.remoteWorkAmount = amount
+            result.remoteWorkMandatory = this.isMandatoryBenefit(desc, rate)
+          }
         }
       })
     }
 
-    // Parse from common benefits
+    // Parse from common benefits - enhanced pattern matching
     if (data.common_benefits) {
       const benefits = Array.isArray(data.common_benefits) ? data.common_benefits : []
       benefits.forEach((benefit: string) => {
         const lowerBenefit = benefit.toLowerCase()
         
-        if (lowerBenefit.includes('transport') || lowerBenefit.includes('auto allowance')) {
-          result.transportationAmount = this.extractAmountFromText(benefit)
+        if (this.isTransportationBenefit(lowerBenefit) && !result.transportationAmount) {
+          const amount = this.extractAmountFromText(benefit)
+          if (amount > 0) {
+            result.transportationAmount = amount
+            result.transportationMandatory = this.isMandatoryBenefit(lowerBenefit, benefit)
+          }
         }
-        if (lowerBenefit.includes('home office') || lowerBenefit.includes('remote work')) {
-          result.remoteWorkAmount = this.extractAmountFromText(benefit)
+        if (this.isRemoteWorkBenefit(lowerBenefit) && !result.remoteWorkAmount) {
+          const amount = this.extractAmountFromText(benefit)
+          if (amount > 0) {
+            result.remoteWorkAmount = amount
+            result.remoteWorkMandatory = this.isMandatoryBenefit(lowerBenefit, benefit)
+          }
         }
-        if (lowerBenefit.includes('meal') && lowerBenefit.includes('voucher')) {
-          result.mealVoucherAmount = this.extractAmountFromText(benefit)
+        if (this.isMealVoucherBenefit(lowerBenefit) && !result.mealVoucherAmount) {
+          const amount = this.extractAmountFromText(benefit)
+          if (amount > 0) {
+            result.mealVoucherAmount = amount
+            result.mealVoucherMandatory = this.isMandatoryBenefit(lowerBenefit, benefit)
+          }
         }
       })
     }
 
     // Parse remote work allowance from dedicated section
-    if (data.remote_work) {
+    if (data.remote_work && !result.remoteWorkAmount) {
       const remoteText = data.remote_work
       const amount = this.extractAmountFromText(remoteText)
       if (amount > 0) {
         result.remoteWorkAmount = amount
+        result.remoteWorkMandatory = this.isMandatoryBenefit(remoteText.toLowerCase(), remoteText)
       }
     }
 
@@ -284,16 +395,77 @@ export class PapayaService {
   }
 
   /**
+   * Check if benefit description refers to meal vouchers/tickets
+   */
+  private static isMealVoucherBenefit(text: string): boolean {
+    const patterns = [
+      'meal voucher', 'food voucher', 'ticket restaurant', 
+      'meal ticket', 'food ticket', 'grocery voucher',
+      'restaurant voucher', 'alimentação'
+    ]
+    return patterns.some(pattern => text.includes(pattern))
+  }
+
+  /**
+   * Check if benefit description refers to transportation
+   */
+  private static isTransportationBenefit(text: string): boolean {
+    const patterns = [
+      'transport', 'auto allowance', 'gas allowance', 
+      'commut', 'bus', 'metro', 'transit',
+      'car allowance', 'vehicle allowance', 'travel allowance'
+    ]
+    return patterns.some(pattern => text.includes(pattern))
+  }
+
+  /**
+   * Check if benefit description refers to remote work
+   */
+  private static isRemoteWorkBenefit(text: string): boolean {
+    const patterns = [
+      'home office', 'remote work', 'work from home',
+      'wfh', 'telework', 'home office allowance',
+      'remote allowance'
+    ]
+    return patterns.some(pattern => text.includes(pattern))
+  }
+
+  /**
+   * Determine if a benefit is mandatory based on description text
+   */
+  private static isMandatoryBenefit(description: string, fullText: string): boolean {
+    const mandatoryPatterns = [
+      'mandatory', 'required', 'compulsory', 'obligatory',
+      'must', 'law', 'legal', 'regulation', 'statutory',
+      'collective bargaining', 'cba', 'union requirement'
+    ]
+    
+    const optionalPatterns = [
+      'optional', 'may', 'can', 'discretionary', 'voluntary'
+    ]
+
+    const text = (description + ' ' + fullText).toLowerCase()
+    
+    // Check for explicit optional indicators
+    if (optionalPatterns.some(pattern => text.includes(pattern))) {
+      return false
+    }
+    
+    // Check for mandatory indicators
+    return mandatoryPatterns.some(pattern => text.includes(pattern))
+  }
+
+  /**
    * Parse contribution rates
    */
-  private static parseContributionRates(contribution: any): LegalRequirements['contributions'] {
+  private static parseContributionRates(contribution: PapayaContributionData | undefined): LegalRequirements['contributions'] {
     const result = {
       employerRates: {} as Record<string, number>,
       employeeRates: {} as Record<string, number>
     }
 
     if (contribution?.employer_contributions) {
-      contribution.employer_contributions.forEach((contrib: any) => {
+      contribution.employer_contributions.forEach((contrib: PapayaContribution) => {
         const key = this.normalizeContributionKey(contrib.description)
         const rate = this.extractPercentageFromText(contrib.rate)
         if (rate > 0) {
@@ -303,7 +475,7 @@ export class PapayaService {
     }
 
     if (contribution?.employee_contributions) {
-      contribution.employee_contributions.forEach((contrib: any) => {
+      contribution.employee_contributions.forEach((contrib: PapayaContribution) => {
         const key = this.normalizeContributionKey(contrib.description)
         const rate = this.extractPercentageFromText(contrib.rate)
         if (rate > 0) {
@@ -346,23 +518,62 @@ export class PapayaService {
   }
 
   /**
-   * Utility: Extract percentage from text (e.g., "2.75%" -> 2.75)
+   * Utility: Extract percentage from text (e.g., "2.75%" -> 2.75, "20.00% to 26.80%" -> 23.4)
    */
   private static extractPercentageFromText(text: string): number {
-    const matches = text.match(/([\d.]+)%/)
-    return matches ? parseFloat(matches[1]) : 0
+    // Handle range patterns like "20.00% to 26.80%" - take average
+    const rangeMatch = text.match(/([\d.]+)%\s*(?:to|-|–)\s*([\d.]+)%/)
+    if (rangeMatch) {
+      const min = parseFloat(rangeMatch[1])
+      const max = parseFloat(rangeMatch[2])
+      return (min + max) / 2
+    }
+
+    // Handle single percentage
+    const singleMatch = text.match(/([\d.]+)%/)
+    return singleMatch ? parseFloat(singleMatch[1]) : 0
   }
 
   /**
-   * Utility: Extract monetary amount from text
+   * Utility: Extract monetary amount from text - handles ranges, approximations, and complex formats
    */
   private static extractAmountFromText(text: string): number {
-    // Try to find numbers with currency symbols
-    const currencyMatches = text.match(/[\d,]+\.?\d*/)
-    if (currencyMatches) {
-      const cleanNumber = currencyMatches[0].replace(/,/g, '')
+    // Handle approximate values like "~ 350 BRL per month"
+    const approxMatch = text.match(/[~≈]\s*([\d,]+\.?\d*)\s*[A-Z]{3}/)
+    if (approxMatch) {
+      const cleanNumber = approxMatch[1].replace(/,/g, '')
       return parseFloat(cleanNumber)
     }
+
+    // Handle ranges like "20-50 BRL per working day" - take average
+    const rangeMatch = text.match(/([\d,]+\.?\d*)\s*[-–]\s*([\d,]+\.?\d*)\s*[A-Z]{3}/)
+    if (rangeMatch) {
+      const min = parseFloat(rangeMatch[1].replace(/,/g, ''))
+      const max = parseFloat(rangeMatch[2].replace(/,/g, ''))
+      return (min + max) / 2
+    }
+
+    // Handle "per working day" patterns - convert to monthly (assuming 22 working days)
+    const dailyMatch = text.match(/([\d,]+\.?\d*)\s*[A-Z]{3}\s*per\s*working\s*day/i)
+    if (dailyMatch) {
+      const dailyAmount = parseFloat(dailyMatch[1].replace(/,/g, ''))
+      return dailyAmount * 22 // 22 working days per month average
+    }
+
+    // Handle standard currency patterns
+    const currencyMatch = text.match(/([\d,]+\.?\d*)\s*[A-Z]{3}/)
+    if (currencyMatch) {
+      const cleanNumber = currencyMatch[1].replace(/,/g, '')
+      return parseFloat(cleanNumber)
+    }
+
+    // Fallback: extract any number
+    const numberMatch = text.match(/[\d,]+\.?\d*/)
+    if (numberMatch) {
+      const cleanNumber = numberMatch[0].replace(/,/g, '')
+      return parseFloat(cleanNumber)
+    }
+    
     return 0
   }
 

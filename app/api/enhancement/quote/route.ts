@@ -4,7 +4,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { EnhancementEngine } from '@/lib/services/enhancement/EnhancementEngine'
-import { ProviderType } from '@/lib/types/enhancement'
+// Remove unused import
+// import { ProviderType } from '@/lib/types/enhancement'
 import { EORFormData } from '@/lib/shared/types'
 
 // Input validation schema
@@ -17,7 +18,7 @@ const EnhancementRequestSchema = z.object({
     monthlyTotal: z.number(),
     baseCost: z.number(),
     breakdown: z.record(z.number().optional()).optional(),
-    originalResponse: z.any()
+    originalResponse: z.record(z.unknown())
   }),
   formData: z.object({
     country: z.string(),
@@ -34,7 +35,7 @@ const EnhancementRequestSchema = z.object({
   quoteType: z.enum(['all-inclusive', 'statutory-only']).optional()
 })
 
-type EnhancementRequest = z.infer<typeof EnhancementRequestSchema>
+// type EnhancementRequest = z.infer<typeof EnhancementRequestSchema> // Unused
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
     let body: unknown
     try {
       body = await request.json()
-    } catch (e) {
+    } catch {
       return NextResponse.json({
         success: false,
         error: 'Invalid JSON body',
@@ -61,7 +62,10 @@ export async function POST(request: NextRequest) {
       provider: validatedInput.provider,
       providerQuote: validatedInput.providerQuote,
       formData: validatedInput.formData as EORFormData,
-      quoteType: validatedInput.quoteType || (validatedInput.formData.quoteType as any) || 'all-inclusive'
+      quoteType: validatedInput.quoteType || 
+        (validatedInput.formData.quoteType === 'all-inclusive' || validatedInput.formData.quoteType === 'statutory-only' 
+         ? validatedInput.formData.quoteType 
+         : 'all-inclusive')
     })
 
     // Return successful response
@@ -94,7 +98,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle request timeout explicitly
-    if (error && typeof error === 'object' && 'code' in error && (error as any).code === 'REQUEST_TIMEOUT') {
+    if (error && typeof error === 'object' && 'code' in error && (error as {code: string}).code === 'REQUEST_TIMEOUT') {
       return NextResponse.json({
         success: false,
         error: 'Request timeout',
@@ -103,7 +107,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle Groq API errors
-    if (error && typeof error === 'object' && 'code' in error && (error as any).code === 'GROQ_ERROR') {
+    if (error && typeof error === 'object' && 'code' in error && (error as {code: string}).code === 'GROQ_ERROR') {
       return NextResponse.json({
         success: false,
         error: 'LLM service error',

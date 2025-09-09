@@ -266,7 +266,7 @@ export class GroqService {
             if (!txt) return txt
             return txt.length > max ? `${txt.slice(0, max)}... [truncated, ${txt.length - max} chars more]` : txt
           }
-          const extractedKeys = Object.keys((input.extractedBenefits?.includedBenefits || {}) as any)
+          const extractedKeys = Object.keys(input.extractedBenefits?.includedBenefits || {})
           const payloadPreview = {
             provider: input.provider,
             model: this.config.model,
@@ -632,7 +632,7 @@ export class GroqService {
         const msg = (error?.message || '').toLowerCase()
         const status = (error?.status || error?.code || '').toString()
 
-        const isAbort = (error as any)?.name === 'AbortError' || msg.includes('aborted') || msg.includes('timeout')
+        const isAbort = (error as Error)?.name === 'AbortError' || msg.includes('aborted') || msg.includes('timeout')
         const retriable = isAbort || msg.includes('rate') || msg.includes('temporarily') || status === '429' || status === '408' || status === '503'
 
         if (attempt >= allowedRetries || !retriable) {
@@ -743,7 +743,7 @@ export class GroqService {
       coverage: { includes: string[]; missing: string[]; doubleCountingRisk: string[] }
       quoteType: 'all-inclusive' | 'statutory-only'
     }>
-  }): Promise<any> {
+  }): Promise<unknown> {
     try {
       await this.checkRateLimit()
 

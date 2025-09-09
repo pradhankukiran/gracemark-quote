@@ -2,7 +2,7 @@
 
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -18,12 +18,12 @@ import {
   Info
 } from "lucide-react"
 import { useEnhancementContext } from "@/hooks/enhancement/EnhancementContext"
-import { EnhancedQuote, ProviderType } from "@/lib/types/enhancement"
+import { ProviderType } from "@/lib/types/enhancement"
 import { EORFormData } from "@/lib/shared/types"
 import { EnhancementBreakdown } from "./EnhancementBreakdown"
 import { ConfidenceIndicator } from "./ConfidenceIndicator"
 import { ProviderLogo } from "@/app/quote/components/ProviderLogo"
-import { isValidQuote, validateQuoteWithDebugging, normalizeQuoteForEnhancement } from "@/lib/shared/utils/quoteNormalizer"
+import { validateQuoteWithDebugging, normalizeQuoteForEnhancement } from "@/lib/shared/utils/quoteNormalizer"
 import { safeToLocaleString, parseMoney, formatCurrency, safeNumber, safeDifference } from "@/lib/shared/utils/formatUtils"
 
 interface EnhancedQuoteCardProps {
@@ -50,11 +50,9 @@ export const EnhancedQuoteCard: React.FC<EnhancedQuoteCardProps> = ({
     enhancements, 
     errors, 
     enhanceQuote,
-    clearEnhancement,
     getEnhancementStatus 
   } = useEnhancementContext()
 
-  const [autoEnhanced, setAutoEnhanced] = useState(false)
   const [validationError, setValidationError] = useState<string | null>(null)
   
   const isEnhancing = enhancing[provider]
@@ -78,10 +76,7 @@ export const EnhancedQuoteCard: React.FC<EnhancedQuoteCardProps> = ({
     }
   }
 
-  const handleClear = () => {
-    clearEnhancement(provider)
-    setAutoEnhanced(false)
-  }
+  // No direct clear action in this UI; enhancements are managed upstream
 
   // Derive normalized base quote for display (prefer enhancement.baseQuote if available)
   const normalizedForDisplay = React.useMemo(() => {

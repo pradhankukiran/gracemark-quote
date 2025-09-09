@@ -60,7 +60,6 @@ export const useRivermateQuote = () => {
                     currency: formDataWithDefaults.currency,
                   };
                   const compChangedResp = await fetchRivermateCost(compareChangedReq);
-                  const compareSelectedRivermateQuote = transformToRivermateQuote(compChangedResp); // For USD conversion
                   compareSelectedCurrencyQuote = transformRivermateResponseToQuote(compChangedResp); // For display
                 }
               } catch (err) {
@@ -87,7 +86,6 @@ export const useRivermateQuote = () => {
             if (conv.success && conv.data) {
               const localReq = { ...requestData, salary: conv.data.target_amount.toString(), currency: formDataWithDefaults.originalCurrency };
               const localResp = await fetchRivermateCost(localReq);
-              const localRivermateQuote = transformToRivermateQuote(localResp); // For USD conversion
               localCurrencyQuote = transformRivermateResponseToQuote(localResp); // For display
             }
           } catch (err) {
