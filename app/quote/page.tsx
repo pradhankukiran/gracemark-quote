@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Loader2, Brain, FileText, Filter, Target, Trophy, ListChecks } from "lucide-react"
+import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Loader2, Brain, FileText, Filter, Target, Trophy, ListChecks, Zap, BarChart3, TrendingUp, Sparkles, Star, Crown, Rocket, ChevronRight, Play, Pause, RotateCcw } from "lucide-react"
 import Link from "next/link"
 import { useQuoteResults } from "./hooks/useQuoteResults"
 import { useUSDConversion } from "../eor-calculator/hooks/useUSDConversion"
@@ -292,9 +292,11 @@ const QuotePageContent = memo(() => {
   const allProviders: Array<ProviderType> = ['deel','remote','rivermate','oyster','rippling','skuad','velocity']
 
   const getReconciliationStatus = () => {
+    // Treat 'inactive' as a terminal state when no processing is in-flight,
+    // so providers that failed base generation/normalization don't block reconciliation.
     const completed = allProviders.filter(p => {
       const s = providerStates[p]?.status
-      return s === 'active' || s === 'enhancement-failed' || s === 'failed'
+      return s === 'active' || s === 'enhancement-failed' || s === 'failed' || s === 'inactive'
     }).length
     const isReady = completed >= allProviders.length && !enhancementBatchInfo.isProcessing
     return {
@@ -429,12 +431,12 @@ const QuotePageContent = memo(() => {
           );
 
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[Quote Debug] Provider: ${currentProvider}`, {
-        rawQuoteData: currentProvider === 'deel' ? quoteData.quotes.deel : 'N/A',
-        processedQuote: quote,
-        quoteKeys: quote ? Object.keys(quote) : 'null/undefined',
-        isEmpty: quote && typeof quote === 'object' && Object.keys(quote).length === 0
-      })
+      // console.log(`[Quote Debug] Provider: ${currentProvider}`, {
+      //   rawQuoteData: currentProvider === 'deel' ? quoteData.quotes.deel : 'N/A',
+      //   processedQuote: quote,
+      //   quoteKeys: quote ? Object.keys(quote) : 'null/undefined',
+      //   isEmpty: quote && typeof quote === 'object' && Object.keys(quote).length === 0
+      // })
     }
 
     const dualCurrencyQuotes = currentProvider === 'deel'
@@ -747,80 +749,152 @@ const QuotePageContent = memo(() => {
         </div>
       </div>
 
-      {/* --- REFRESHED RECONCILIATION MODAL --- */}
+      {/* --- SIMPLE RECONCILIATION MODAL (streamlined) --- */}
       {isReconModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in-0 duration-300">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
           <div className="absolute inset-0" onClick={() => setIsReconModalOpen(false)} />
-          <Card className="relative border-0 shadow-2xl bg-slate-50 w-[96vw] max-w-2xl max-h-[90vh] overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-300 flex flex-col">
-            <CardHeader className="border-b bg-white">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-3">
-                  <Brain className="h-6 w-6 text-purple-600" />
-                  <span className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                    Reconciliation Analysis
-                  </span>
-                </CardTitle>
-                <Button variant="ghost" size="icon" onClick={() => setIsReconModalOpen(false)}><XCircle className="h-5 w-5"/></Button>
+          <div className="relative w-[80vw] max-w-7xl max-h-[90vh] bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-slate-50">
+              <div className="flex items-center gap-2">
+                <Brain className="h-5 w-5 text-slate-600" />
+                <h2 className="text-lg font-semibold text-slate-800">Reconciliation</h2>
               </div>
-            </CardHeader>
-            <CardContent className="p-6 overflow-y-auto flex-1">
-              <div className="space-y-4">
-                {reconSteps.map((step, index) => {
-                  const Icon = getStepIcon(step.type)
-                  return (
-                    <div key={index} className="flex items-start gap-4 animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
-                      <div className={`h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0 ${getStepIconBg(step.type)}`}>
-                        <Icon className={`h-5 w-5 ${getStepIconColor(step.type)}`} />
-                      </div>
-                      <div className="pt-1">
-                        <p className="font-semibold text-slate-800">{step.title}</p>
-                        {step.description && <p className="text-sm text-slate-600">{step.description}</p>}
-                      </div>
-                    </div>
-                  )
-                })}
+              <div className="flex items-center gap-2">
+                <Button size="sm" onClick={() => console.log('Acid Test Started!')} disabled={!finalChoice}>
+                  <Rocket className="h-4 w-4 mr-2" />
+                  Launch Acid Test
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setIsReconModalOpen(false)} className="text-slate-600 hover:text-slate-900 hover:bg-slate-100 px-2 rounded-md">
+                  <XCircle className="h-4 w-4 mr-1" />
+                  Close
+                </Button>
               </div>
-              {finalChoice && (
-                <div className="mt-6 p-6 rounded-xl bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-2xl animate-in fade-in-0 duration-1000">
-                  <div className="flex flex-col items-center text-center">
-                    <div className="p-3 bg-white/20 rounded-full mb-4">
-                      <Trophy className="h-8 w-8 text-white" />
+            </div>
+
+            {/* Body */}
+            <div className="p-6 overflow-y-auto" style={{ maxHeight: '70vh' }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Left: Steps (minimal list) */}
+                <div>
+                  {reconSteps.length > 0 ? (
+                    <>
+                      <h3 className="text-base font-medium text-slate-700 mb-3">Steps</h3>
+                      <ul className="space-y-2">
+                        {reconSteps.map((step, idx) => {
+                          const Icon = getEnhancedStepIcon(step.type)
+                          return (
+                            <li key={idx} className="flex items-start gap-2">
+                              <Icon className="h-5 w-5 text-slate-500 mt-0.5" />
+                              <div>
+                                <p className="text-base text-slate-800">{step.title}</p>
+                                {step.description && (
+                                  <p className="text-sm text-slate-500 mt-0.5">{step.description}</p>
+                                )}
+                              </div>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </>
+                  ) : (
+                    <div className="text-center py-8 border border-dashed border-slate-200 rounded-lg">
+                      <p className="text-base text-slate-600">Click "Start Reconciliation" to begin analysis.</p>
                     </div>
-                    <p className="text-sm font-bold uppercase tracking-widest">Provider of Choice</p>
-                    <div className="flex items-center gap-3 mt-2">
-                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center p-1">
-                        <ProviderLogo provider={finalChoice.provider as ProviderType} />
-                      </div>
-                      <p className="text-4xl font-bold capitalize">{finalChoice.provider}</p>
-                    </div>
-                    <p className="text-5xl font-light mt-4 tracking-tight">{formatMoney(finalChoice.price, finalChoice.currency)}</p>
-                  </div>
+                  )}
                 </div>
-              )}
-            </CardContent>
-          </Card>
+
+                {/* Right: Result (compact) */}
+                <div>
+                  {finalChoice && (
+                    <div className="border border-slate-200 rounded-lg p-4 bg-white">
+                      <p className="text-base font-medium text-slate-700 mb-3">Provider of Choice</p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-md border border-slate-200 flex items-center justify-center bg-slate-50">
+                            <ProviderLogo provider={finalChoice.provider as ProviderType} />
+                          </div>
+                          <div>
+                            <p className="text-slate-800 font-semibold capitalize text-lg">{finalChoice.provider}</p>
+                            <p className="text-slate-500 text-sm">Monthly total</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-slate-900">{formatMoney(finalChoice.price, finalChoice.currency)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
       )}
     </div>
   )
 });
 
-const getStepIcon = (type: string) => {
+// Enhanced Step Icon System
+const getEnhancedStepIcon = (type: string) => {
   switch (type) {
-    case 'start': return Brain;
+    case 'start': return Rocket;
     case 'data': return FileText;
     case 'target': return Target;
     case 'calculate': return Calculator;
     case 'filter': return Filter;
     case 'check': return CheckCircle;
     case 'list': return ListChecks;
-    case 'select': return Trophy;
-    case 'trophy': return Trophy;
+    case 'select': return Star;
+    case 'trophy': return Crown;
     case 'error': return XCircle;
     default: return CheckCircle;
   }
 }
 
+const getEnhancedStepBg = (type: string) => {
+  switch (type) {
+    case 'start': return 'bg-gradient-to-br from-indigo-100 to-indigo-200 border-2 border-indigo-300';
+    case 'data': return 'bg-gradient-to-br from-blue-100 to-blue-200 border-2 border-blue-300';
+    case 'target': return 'bg-gradient-to-br from-purple-100 to-purple-200 border-2 border-purple-300';
+    case 'calculate': return 'bg-gradient-to-br from-teal-100 to-teal-200 border-2 border-teal-300';
+    case 'filter': return 'bg-gradient-to-br from-cyan-100 to-cyan-200 border-2 border-cyan-300';
+    case 'check': return 'bg-gradient-to-br from-emerald-100 to-emerald-200 border-2 border-emerald-300';
+    case 'list': return 'bg-gradient-to-br from-violet-100 to-violet-200 border-2 border-violet-300';
+    case 'select': return 'bg-gradient-to-br from-amber-100 to-amber-200 border-2 border-amber-300';
+    case 'trophy': return 'bg-gradient-to-br from-yellow-100 to-orange-200 border-2 border-yellow-400 shadow-lg';
+    case 'error': return 'bg-gradient-to-br from-red-100 to-red-200 border-2 border-red-300';
+    default: return 'bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-slate-300';
+  }
+}
+
+const getEnhancedStepBorder = (type: string) => {
+  switch (type) {
+    case 'trophy': return 'border-yellow-400 shadow-yellow-200/50';
+    case 'error': return 'border-red-300 shadow-red-200/50';
+    default: return '';
+  }
+}
+
+const getEnhancedStepColor = (type: string) => {
+  switch (type) {
+    case 'start': return 'text-indigo-600';
+    case 'data': return 'text-blue-600';
+    case 'target': return 'text-purple-600';
+    case 'calculate': return 'text-teal-600';
+    case 'filter': return 'text-cyan-600';
+    case 'check': return 'text-emerald-600';
+    case 'list': return 'text-violet-600';
+    case 'select': return 'text-amber-600';
+    case 'trophy': return 'text-yellow-600';
+    case 'error': return 'text-red-600';
+    default: return 'text-slate-600';
+  }
+}
+
+// Legacy functions for compatibility
+const getStepIcon = getEnhancedStepIcon;
 const getStepIconBg = (type: string) => {
   switch (type) {
     case 'error': return 'bg-red-100';
@@ -828,14 +902,7 @@ const getStepIconBg = (type: string) => {
     default: return 'bg-slate-100';
   }
 }
-
-const getStepIconColor = (type: string) => {
-  switch (type) {
-    case 'error': return 'text-red-600';
-    case 'trophy': return 'text-yellow-600';
-    default: return 'text-slate-600';
-  }
-}
+const getStepIconColor = getEnhancedStepColor;
 QuotePageContent.displayName = 'QuotePageContent';
 
 export default function QuotePage() {
@@ -844,7 +911,7 @@ export default function QuotePage() {
       fallbackTitle="Quote Loading Error"
       fallbackMessage="There was a problem loading your quote. This might be due to corrupted data or a temporary issue."
       onError={(error, errorInfo) => {
-        console.error('Quote page error:', error, errorInfo)
+        // console.error('Quote page error:', error, errorInfo)
       }}
     >
       <Suspense fallback={

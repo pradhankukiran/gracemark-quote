@@ -11,7 +11,7 @@ import { useSkuadQuote } from "./useSkuadQuote";
 import { useVelocityQuote } from "./useVelocityQuote";
 import { useEnhancementContext } from "@/hooks/enhancement/EnhancementContext";
 import { transformRemoteResponseToQuote } from "@/lib/shared/utils/apiUtils";
-import { isRemoteAPIResponse } from "@/lib/shared/utils/quoteNormalizer";
+import { isRemoteAPIResponse, validateQuoteWithDebugging, isValidQuote, normalizeQuoteForEnhancement, isValidNormalizedQuote } from "@/lib/shared/utils/quoteNormalizer";
 
 export type Provider = 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity';
 
@@ -69,8 +69,62 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   const hasStartedSequentialRef = useRef<boolean>(false);
 
   // Enhancement hook (shared via context) for AI-powered enhanced quotes
-  const { enhanceQuote, enhancing, enhancements } = useEnhancementContext();
+  const { enhanceQuote, enhancing, enhancements, errors } = useEnhancementContext();
   
+  // Helper: flexible provider-aware validation (handles different API formats)
+  const isValidProviderQuote = useCallback((provider: Provider, quote: unknown): boolean => {
+    if (!quote || typeof quote !== 'object') {
+      return false;
+    }
+
+    // Provider-specific validation based on known API response formats
+    switch (provider) {
+      case 'remote':
+        // Remote can return RemoteAPIResponse, DisplayQuote, or RemoteQuote formats
+        return !!(
+          // RemoteAPIResponse format
+          (quote as any)?.employment?.employer_currency_costs?.monthly_total ||
+          // RemoteQuote format  
+          (typeof (quote as any)?.total === 'number' && typeof (quote as any)?.salary === 'number') ||
+          // DisplayQuote format
+          ((quote as any)?.total_costs && (quote as any)?.salary)
+        );
+        
+      case 'rivermate':
+        // RivermateQuote or DisplayQuote formats
+        return !!(
+          // RivermateQuote format
+          (Array.isArray((quote as any)?.taxItems) && typeof (quote as any)?.total === 'number') ||
+          // DisplayQuote format
+          ((quote as any)?.total_costs && (quote as any)?.salary)
+        );
+        
+      case 'oyster':
+        // OysterQuote or DisplayQuote formats  
+        return !!(
+          // OysterQuote format
+          (Array.isArray((quote as any)?.contributions) && typeof (quote as any)?.total === 'number') ||
+          // DisplayQuote format
+          ((quote as any)?.total_costs && (quote as any)?.salary)
+        );
+        
+      case 'deel':
+      case 'rippling':
+      case 'skuad':
+      case 'velocity':
+        // These typically return DisplayQuote format
+        return !!(
+          (quote as any)?.salary && 
+          (quote as any)?.currency && 
+          ((quote as any)?.total_costs || (quote as any)?.total)
+        );
+        
+      default:
+        // Fallback: basic object structure check
+        return Object.keys(quote).length > 0;
+    }
+  }, []);
+
   // Helper: update provider state (declare before callbacks)
   const updateProviderState = useCallback((provider: Provider, updates: Partial<ProviderStatus>) => {
     setProviderStates(prev => {
@@ -83,23 +137,50 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       ) {
         return prev;
       }
+      
+      // Enhanced logging for state transitions
+      console.log(`🔄 ${provider} state: ${current.status} → ${next.status}${next.error ? ` (${next.error})` : ''}`, {
+        hasData: next.hasData,
+        enhancementError: next.enhancementError
+      });
+      
       return { ...prev, [provider]: next };
     });
   }, []);
 
-  // Helper: check if provider has base quote (declare before callbacks)
+  // Helper: check if provider has VALID base quote (flexible validation for different API formats)
   const hasProviderData = useCallback((provider: Provider, data: QuoteData): boolean => {
+    let providerQuote: unknown;
+    
     switch (provider) {
-      case 'deel': return !!data.quotes.deel;
-      case 'remote': return !!data.quotes.remote;
-      case 'rivermate': return !!data.quotes.rivermate;
-      case 'oyster': return !!data.quotes.oyster;
-      case 'rippling': return !!data.quotes.rippling;
-      case 'skuad': return !!data.quotes.skuad;
-      case 'velocity': return !!data.quotes.velocity;
+      case 'deel': providerQuote = data.quotes.deel; break;
+      case 'remote': providerQuote = data.quotes.remote; break;
+      case 'rivermate': providerQuote = data.quotes.rivermate; break;
+      case 'oyster': providerQuote = data.quotes.oyster; break;
+      case 'rippling': providerQuote = data.quotes.rippling; break;
+      case 'skuad': providerQuote = data.quotes.skuad; break;
+      case 'velocity': providerQuote = data.quotes.velocity; break;
       default: return false;
     }
-  }, []);
+    
+    // First check: does quote data exist at all?
+    if (!providerQuote) {
+      return false;
+    }
+    
+    // Second check: is the quote structure valid for this provider? (flexible validation)
+    const isValid = isValidProviderQuote(provider, providerQuote);
+    if (!isValid) {
+      console.warn(`❌ ${provider} quote structure invalid:`, {
+        quote: providerQuote,
+        keys: typeof providerQuote === 'object' ? Object.keys(providerQuote) : 'N/A'
+      });
+      return false;
+    }
+    
+    console.log(`✅ ${provider} has valid base quote data`);
+    return true;
+  }, [isValidProviderQuote]);
 
   
 
@@ -135,6 +216,16 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     velocity: false,
   })
   const enhancementFailedRef = useRef<Record<Provider, boolean>>({
+    deel: false,
+    remote: false,
+    rivermate: false,
+    oyster: false,
+    rippling: false,
+    skuad: false,
+    velocity: false,
+  })
+  // Track normalization failures (base quote cannot be normalized for enhancement)
+  const normalizationFailedRef = useRef<Record<Provider, boolean>>({
     deel: false,
     remote: false,
     rivermate: false,
@@ -214,10 +305,28 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   const scheduleEnhancement = useCallback(async (provider: Provider, quote: unknown, formData: EORFormData): Promise<void> => {
     if (enhancementEnqueuedRef.current[provider] || enhancementInFlightRef.current[provider]) return
     enhancementEnqueuedRef.current[provider] = true
+    
+    // NORMALIZATION CHECK: Test if quote can be normalized for enhancement
+    const normalizedQuote = normalizeQuoteForEnhancement(provider as any, quote);
+    if (!normalizedQuote || !isValidNormalizedQuote(normalizedQuote)) {
+      console.warn(`🚫 ${provider} normalization failed - marking as inactive`);
+      // Requirement: base quote fails normalization pass -> tab should be INACTIVE
+      updateProviderState(provider, {
+        status: 'inactive',
+        hasData: false,
+        error: undefined,
+        enhancementError: undefined,
+      });
+      normalizationFailedRef.current[provider] = true;
+      return;
+    }
+    
     try {
       if (enhancementInFlightRef.current[provider]) return
       enhancementInFlightRef.current[provider] = true
       updateProviderState(provider, { status: 'loading-enhanced', hasData: true })
+      console.log(`🚀 Starting enhancement for ${provider} with validated quote`);
+      
       const providerQuoteForEnhancement = (provider === 'remote' && isRemoteAPIResponse(quote))
         ? transformRemoteResponseToQuote(quote)
         : quote
@@ -230,7 +339,12 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       }
     } catch (err) {
       console.error(`❌ Enhancement failed for ${provider}:`, err)
-      updateProviderState(provider, { status: 'enhancement-failed', hasData: true, enhancementError: err instanceof Error ? err.message : 'Enhanced quote failed' })
+      // Since normalization is checked upfront, any errors here are LLM service issues
+      updateProviderState(provider, { 
+        status: 'enhancement-failed', 
+        hasData: true, 
+        enhancementError: err instanceof Error ? err.message : 'Enhanced quote failed' 
+      })
       enhancementFailedRef.current[provider] = true
     } finally {
       enhancementInFlightRef.current[provider] = false
@@ -434,18 +548,35 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       }
       
       if (calculatedQuote) {
-        console.log(`✅ ${nextProvider} base quote calculated successfully`);
-        // Update quote data and save to storage
-        setQuoteData(calculatedQuote);
-        if (quoteId) {
-          setJsonInSessionStorage(quoteId, calculatedQuote);
+        // Validate the calculated quote before considering it successful (flexible check)
+        const providerQuoteData = calculatedQuote.quotes[nextProvider as keyof typeof calculatedQuote.quotes];
+        const isValid = isValidProviderQuote(nextProvider, providerQuoteData);
+        
+        if (isValid) {
+          console.log(`✅ ${nextProvider} base quote calculated and validated successfully`);
+          // Update quote data and save to storage
+          setQuoteData(calculatedQuote);
+          if (quoteId) {
+            setJsonInSessionStorage(quoteId, calculatedQuote);
+          }
+
+          // Enhancement handled by parallel scheduler
+
+          // Move to next provider immediately after scheduling enhancement
+          console.log(`➡️ Moving to next provider after ${nextProvider} BASE COMPLETE (${currentQueueIndex + 1} → ${currentQueueIndex + 2})`);
+          setCurrentQueueIndex(prev => prev + 1);
+        } else {
+          console.warn(`❌ ${nextProvider} quote validation failed - invalid structure`);
+          // Mark as failed due to invalid quote structure
+          updateProviderState(nextProvider, { 
+            status: 'failed', 
+            error: `Quote validation failed: invalid structure` 
+          });
+          
+          // No valid base quote, no enhancement possible, move to next provider
+          console.log(`➡️ Moving to next provider after ${nextProvider} quote validation failure (${currentQueueIndex + 1} → ${currentQueueIndex + 2})`);
+          setCurrentQueueIndex(prev => prev + 1);
         }
-
-        // Enhancement handled by parallel scheduler
-
-        // Move to next provider immediately after scheduling enhancement
-        console.log(`➡️ Moving to next provider after ${nextProvider} BASE COMPLETE (${currentQueueIndex + 1} → ${currentQueueIndex + 2})`);
-        setCurrentQueueIndex(prev => prev + 1);
       } else {
         console.warn(`⚠️ ${nextProvider} returned no quote data`);
         // Mark as failed if no quote returned
@@ -697,10 +828,23 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
               baseInFlightRef.current.deel = true
               console.log('📤 Starting Deel base quote...')
               const deelResult = await calculateDeelQuote(form, (quoteData || data) as QuoteData)
-              mergeAndPersist(deelResult)
-              // Immediately schedule enhancement for Deel (parallel mode)
-              if (!enhancementEnqueuedRef.current.deel && !enhancementInFlightRef.current.deel) {
-                void scheduleEnhancement('deel', deelResult.quotes.deel, deelResult.formData as EORFormData)
+              
+              // Validate the calculated Deel quote before considering it successful (flexible check)
+              const isValid = isValidProviderQuote('deel', deelResult.quotes.deel);
+              
+              if (isValid) {
+                console.log(`✅ Deel parallel base quote calculated and validated successfully`);
+                mergeAndPersist(deelResult)
+                // Immediately schedule enhancement for Deel (parallel mode)
+                if (!enhancementEnqueuedRef.current.deel && !enhancementInFlightRef.current.deel) {
+                  void scheduleEnhancement('deel', deelResult.quotes.deel, deelResult.formData as EORFormData)
+                }
+              } else {
+                console.warn(`❌ Deel parallel quote validation failed - invalid structure`);
+                updateProviderState('deel', { 
+                  status: 'failed', 
+                  error: `Quote validation failed: invalid structure` 
+                });
               }
             } catch (err) {
               console.error('❌ Deel base quote failed:', err)
@@ -738,14 +882,27 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
                     return
                 }
                   if (result) {
-                    mergeAndPersist(result)
-                    // Immediately schedule enhancement for this provider (parallel mode)
-                    if (!enhancementEnqueuedRef.current[provider] && !enhancementInFlightRef.current[provider]) {
-                      void scheduleEnhancement(provider, (result.quotes as Record<string, unknown>)[provider], result.formData as EORFormData)
+                    // Validate the calculated quote before considering it successful (parallel mode)
+                    const providerQuoteData = (result.quotes as Record<string, unknown>)[provider];
+                    const isValid = isValidProviderQuote(provider, providerQuoteData);
+                    
+                    if (isValid) {
+                      console.log(`✅ ${provider} parallel base quote calculated and validated successfully`);
+                      mergeAndPersist(result)
+                      // Immediately schedule enhancement for this provider (parallel mode)
+                      if (!enhancementEnqueuedRef.current[provider] && !enhancementInFlightRef.current[provider]) {
+                        void scheduleEnhancement(provider, providerQuoteData, result.formData as EORFormData)
+                      }
+                    } else {
+                      console.warn(`❌ ${provider} parallel quote validation failed - invalid structure`);
+                      updateProviderState(provider, { 
+                        status: 'failed', 
+                        error: `Quote validation failed: invalid structure` 
+                      });
                     }
                   } else {
-                  updateProviderState(provider, { status: 'failed', error: 'No quote data returned' })
-                }
+                    updateProviderState(provider, { status: 'failed', error: 'No quote data returned' })
+                  }
               } catch (e: unknown) {
                 console.error(`❌ ${provider} base quote failed:`, e)
                 const errorMessage = e instanceof Error ? e.message : 'Failed to calculate quote'
@@ -775,20 +932,46 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           console.error('❌ Error during parallel base/enhancement kickoff:', error)
         }
       } else if (data.status === 'completed') {
-        // Update provider states: active when both base and enhanced; loading-enhanced when base only
+        // Update provider states with error-awareness. Preserve failures.
         const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'];
         providers.forEach(provider => {
+          // If normalization failed earlier, keep provider inactive
+          if (normalizationFailedRef.current[provider]) {
+            updateProviderState(provider, { status: 'inactive', hasData: false });
+            return;
+          }
+
           const hasBase = hasProviderData(provider, data);
+          if (!hasBase) {
+            updateProviderState(provider, { status: 'inactive', hasData: false });
+            return;
+          }
+
           const hasEnh = !!enhancements[provider];
-          const status: ProviderState = (hasBase && hasEnh)
-            ? 'active'
-            : (hasBase ? 'loading-enhanced' : 'inactive');
-          updateProviderState(provider, { status, hasData: hasBase });
+          const hadEnhancementError = enhancementFailedRef.current[provider] || !!errors?.[provider];
+          const isEnhancing = !!enhancing[provider];
+
+          let nextStatus: ProviderState;
+          if (hasEnh) {
+            nextStatus = 'active';
+          } else if (hadEnhancementError) {
+            nextStatus = 'enhancement-failed';
+          } else if (isEnhancing) {
+            nextStatus = 'loading-enhanced';
+          } else {
+            nextStatus = 'loading-enhanced';
+          }
+
+          updateProviderState(provider, { status: nextStatus, hasData: true });
         });
 
         // In PARALLEL_MODE, kick any missing enhancements immediately in parallel
         if (PARALLEL_MODE) {
           providers.forEach((provider) => {
+            if (normalizationFailedRef.current[provider]) {
+              // Do not schedule enhancement for providers that failed normalization
+              return
+            }
             const hasBase = hasProviderData(provider, data)
             const hasEnh = !!enhancements[provider]
             const failed = enhancementFailedRef.current[provider]
@@ -824,7 +1007,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     };
 
     processQuote();
-  }, [quoteId, quoteData, calculateDeelQuote, calculateRemoteQuote, calculateRivermateQuote, calculateOysterQuote, calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote, updateProviderState, hasProviderData, enhancements, scheduleEnhancement]);
+  }, [quoteId, calculateDeelQuote, calculateRemoteQuote, calculateRivermateQuote, calculateOysterQuote, calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote, updateProviderState, hasProviderData, enhancements, scheduleEnhancement]);
   
   // Separate useEffect for sequential loading trigger (prevents circular dependency)
   useEffect(() => {
@@ -952,22 +1135,30 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     }
   }, [providerStates]);
 
-  // Sync provider states with enhancement progress/results to keep indicators accurate
+  // Sync provider states with enhancement progress/results; do not override error states
   useEffect(() => {
     if (!quoteData) return;
     const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'];
     providers.forEach(provider => {
       const hasBase = hasProviderData(provider, quoteData);
       if (!hasBase) return;
+
       const isEnhancing = !!enhancing[provider];
       const hasEnh = !!enhancements[provider];
-      if (isEnhancing) {
+      const hadEnhancementError = enhancementFailedRef.current[provider] || !!errors?.[provider];
+      const hadNormalizationError = !!errors?.[provider]?.message?.toLowerCase?.().includes('failed to normalize quote data');
+
+      // If normalization failed, mark inactive and remember it
+      if (normalizationFailedRef.current[provider] || hadNormalizationError) {
+        normalizationFailedRef.current[provider] = true;
+        updateProviderState(provider, { status: 'inactive', hasData: false, error: undefined, enhancementError: undefined });
+      } else if (isEnhancing) {
         updateProviderState(provider, { status: 'loading-enhanced', hasData: true, error: undefined });
       } else if (hasEnh) {
         updateProviderState(provider, { status: 'active', hasData: true, error: undefined });
       }
     });
-  }, [quoteData, enhancing, enhancements, hasProviderData, updateProviderState]);
+  }, [quoteData, enhancing, enhancements, errors, hasProviderData, updateProviderState]);
   
   // Reset sequential loading flags when quote changes (cleanup)
   useEffect(() => {
@@ -976,6 +1167,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     hasStartedSequentialRef.current = false;
     isSequentialLoadingRef.current = false;
     enhancementFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+    normalizationFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
     
     return () => {
       // Cleanup on unmount or quote change
@@ -991,6 +1183,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       enhancementInFlightRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
       enhancementEnqueuedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
       enhancementFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+      normalizationFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
     };
   }, [quoteId]);
 
