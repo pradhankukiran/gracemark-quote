@@ -11,12 +11,15 @@ import {
   EnhancementError,
   TerminationCostBreakdown,
   OverlapAnalysis,
-  StandardizedBenefitData
+  StandardizedBenefitData,
+  DirectEnhancementInput,
+  LegalRequirements
 } from "@/lib/types/enhancement"
 import { EORFormData } from "@/lib/shared/types"
 import { getCountryByName } from "@/lib/data"
 import { GroqService } from "../llm/GroqService"
 import { PapayaService } from "../data/PapayaService"
+import { PapayaDataFlattener } from "../data/PapayaDataFlattener"
 import { LegalProfileService } from "../data/LegalProfileService"
 import { QuoteNormalizer } from "../data/QuoteNormalizer"
 import { enhancementCache, EnhancementPerformanceMonitor } from "./EnhancementCache"
@@ -149,6 +152,10 @@ export class EnhancementEngine {
         }
       }
 
+      if (!groqResponse) {
+        throw new Error('No response received from Groq LLM service')
+      }
+
       console.log(`[Enhancement] Enhancements computed for ${params.provider}. Transforming response...`)
       // Step 5: Transform Groq response to EnhancedQuote format
       const enhancedQuote = this.transformGroqResponse(
@@ -183,6 +190,147 @@ export class EnhancementEngine {
   }
 
   /**
+   * Direct enhancement using flattened Papaya data (New Simplified Approach)
+   */
+  async enhanceQuoteDirect(params: {
+    provider: ProviderType
+    providerQuote: NormalizedQuote | Record<string, unknown>
+    formData: EORFormData
+    quoteType?: 'all-inclusive' | 'statutory-only'
+  }): Promise<EnhancedQuote> {
+    const timer = EnhancementPerformanceMonitor.startTimer(params.provider)
+    const quoteType = params.quoteType || 'all-inclusive'
+    
+    try {
+      // Check cache first
+      const cachedResult = enhancementCache.get(
+        params.provider,
+        params.formData,
+        params.providerQuote,
+        quoteType
+      )
+      
+      if (cachedResult) {
+        enhancementCache.recordHit()
+        timer.end(true, true)
+        return cachedResult
+      }
+
+      enhancementCache.recordMiss()
+      
+      // Step 1: Normalize the provider quote
+      let normalizedQuote: NormalizedQuote
+      if (
+        params.providerQuote &&
+        typeof params.providerQuote.baseCost === 'number' &&
+        typeof params.providerQuote.monthlyTotal === 'number' &&
+        typeof params.providerQuote.currency === 'string' &&
+        typeof params.providerQuote.country === 'string'
+      ) {
+        normalizedQuote = params.providerQuote as NormalizedQuote
+      } else {
+        normalizedQuote = QuoteNormalizer.normalize(params.provider, params.providerQuote)
+      }
+      
+      // Step 2: Get and flatten Papaya Global data
+      const countryCode = this.getCountryCode(params.formData.country)
+      const papayaData = PapayaService.getCountryData(countryCode)
+      
+      if (!papayaData) {
+        throw new Error(`No Papaya Global data available for country: ${params.formData.country}`)
+      }
+
+      const flattenedPapaya = PapayaDataFlattener.flatten(papayaData)
+      
+      // Step 3: Extract provider benefits (what they already include)
+      let extractedBenefits = enhancementCache.getExtraction(
+        params.provider,
+        normalizedQuote.originalResponse
+      )
+
+      if (!extractedBenefits) {
+        extractedBenefits = ProviderInclusionsExtractor.extract(params.provider, normalizedQuote)
+        enhancementCache.setExtraction(
+          params.provider,
+          normalizedQuote.originalResponse,
+          extractedBenefits,
+          60 * 60 * 1000
+        )
+      }
+
+      // Step 4: Contract duration calculation
+      const contractDurationMonths = Math.max(1, parseInt(params.formData.contractDuration || '12') || 12)
+      
+      // Step 5: Direct enhancement computation using flattened Papaya data
+      console.log(`[Enhancement] Computing direct enhancements for ${params.provider}...`)
+      let groqResponse
+      let lastError: unknown
+      
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          const directInput: DirectEnhancementInput = {
+            provider: params.provider,
+            baseQuote: normalizedQuote,
+            formData: params.formData,
+            papayaData: flattenedPapaya.data,
+            papayaCurrency: flattenedPapaya.currency,
+            quoteType,
+            contractDurationMonths,
+            extractedBenefits
+          }
+
+          groqResponse = await this.groqService.computeDirectEnhancements(directInput)
+          break // Success - exit retry loop
+        } catch (error) {
+          lastError = error
+          if (attempt === 1) {
+            console.warn(`[Enhancement] Direct Groq call attempt ${attempt} failed for ${params.provider}, retrying once...`, error instanceof Error ? error.message : 'Unknown error')
+          } else {
+            console.error(`[Enhancement] Direct Groq call attempt ${attempt} failed for ${params.provider}, giving up.`, error instanceof Error ? error.message : 'Unknown error')
+            throw error // Final failure - re-throw
+          }
+        }
+      }
+
+      if (!groqResponse) {
+        throw new Error('No response received from Groq LLM service for direct enhancement')
+      }
+
+      console.log(`[Enhancement] Direct enhancements computed for ${params.provider}. Transforming response...`)
+      
+      // Step 6: Transform Groq response to EnhancedQuote format (reuse existing transformer)
+      const enhancedQuote = this.transformGroqResponse(
+        groqResponse, 
+        normalizedQuote, 
+        {
+          quoteType,
+          contractDurationMonths
+        }
+      )
+
+      // Step 7: Validate and cache result
+      this.validateEnhancedQuote(enhancedQuote)
+      
+      // Cache successful result (30 minutes TTL)
+      enhancementCache.set(
+        params.provider,
+        params.formData,
+        params.providerQuote,
+        quoteType,
+        enhancedQuote,
+        30 * 60 * 1000
+      )
+      
+      timer.end(true, false)
+      return enhancedQuote
+
+    } catch (error) {
+      timer.error(error instanceof Error ? error.message : 'Unknown error')
+      throw this.handleEnhancementError(error, params.provider)
+    }
+  }
+
+  /**
    * Enhance multiple provider quotes in parallel
    */
   async enhanceAllProviders(params: MultiProviderEnhancement): Promise<MultiProviderResult> {
@@ -193,7 +341,7 @@ export class EnhancementEngine {
     // Process all providers in parallel
     const promises = Object.entries(params.providerQuotes).map(async ([provider, quote]) => {
       try {
-        const enhanced = await this.enhanceQuote({
+        const enhanced = await this.enhanceQuoteDirect({
           provider: provider as ProviderType,
           providerQuote: quote,
           formData: params.formData,
@@ -318,6 +466,15 @@ export class EnhancementEngine {
         confidence: mv.confidence || 0.5,
         isAlreadyIncluded: mv.already_included || false,
         isMandatory: false
+      }
+    }
+
+    // Employer contributions (custom extension from LLM response)
+    const extraContribMonthly = (enhancements as any)?.employer_contributions_total?.monthly_amount
+    if (typeof extraContribMonthly === 'number' && isFinite(extraContribMonthly) && extraContribMonthly > 0) {
+      enhancementData.additionalContributions = {
+        ...(enhancementData.additionalContributions || {}),
+        employer_contributions: extraContribMonthly
       }
     }
 

@@ -57,15 +57,17 @@ export async function POST(request: NextRequest) {
     // Initialize enhancement engine
     const enhancementEngine = EnhancementEngine.getInstance()
 
-    // Perform enhancement
-    const enhancedQuote = await enhancementEngine.enhanceQuote({
+    // Perform enhancement using unified raw-Papaya path
+    const effectiveQuoteType = validatedInput.quoteType || 
+      (validatedInput.formData.quoteType === 'all-inclusive' || validatedInput.formData.quoteType === 'statutory-only' 
+        ? validatedInput.formData.quoteType 
+        : 'all-inclusive')
+
+    const enhancedQuote = await enhancementEngine.enhanceQuoteDirect({
       provider: validatedInput.provider,
       providerQuote: validatedInput.providerQuote,
       formData: validatedInput.formData as EORFormData,
-      quoteType: validatedInput.quoteType || 
-        (validatedInput.formData.quoteType === 'all-inclusive' || validatedInput.formData.quoteType === 'statutory-only' 
-         ? validatedInput.formData.quoteType 
-         : 'all-inclusive')
+      quoteType: effectiveQuoteType
     })
 
     // Return successful response

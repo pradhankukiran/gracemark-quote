@@ -318,6 +318,18 @@ export interface ArithmeticComputeInput {
   legalProfile: LegalProfileInfo
 }
 
+// Direct Enhancement Input (New Simplified Approach)
+export interface DirectEnhancementInput {
+  provider: ProviderType
+  baseQuote: NormalizedQuote
+  formData: EORFormData
+  papayaData: string // Flattened Papaya Global legal data
+  papayaCurrency: string // Currency extracted from Papaya data
+  quoteType: 'all-inclusive' | 'statutory-only'
+  contractDurationMonths: number
+  extractedBenefits: StandardizedBenefitData // What provider already includes
+}
+
 export interface GroqEnhancementResponse {
   analysis: {
     provider_coverage: string[]

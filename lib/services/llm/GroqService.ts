@@ -4,6 +4,9 @@ import { Groq } from "groq-sdk"
 import type { ChatCompletion } from "groq-sdk/resources/chat/completions"
 import { z } from "zod"
 import { PromptEngine } from "./PromptEngine"
+import { PapayaService } from "@/lib/services/data/PapayaService"
+import { PapayaDataFlattener } from "@/lib/services/data/PapayaDataFlattener"
+import type { EORFormData } from "@/lib/shared/types"
 import { 
   GroqConfig, 
   GroqEnhancementResponse, 
@@ -11,7 +14,8 @@ import {
   EnhancementError,
   StandardizedBenefitData,
   ProviderType,
-  ArithmeticComputeInput
+  ArithmeticComputeInput,
+  DirectEnhancementInput
 } from "@/lib/types/enhancement"
 
 // Rate limiting interface
@@ -126,50 +130,30 @@ export class GroqService {
    * Main method: Enhance quote using Groq LLM
    */
   async enhanceQuote(input: EnhancementInput): Promise<GroqEnhancementResponse> {
+    // Unified path: delegate to direct raw-Papaya flow
     try {
-      // Validate input
       this.validateInput(input)
-      
-      // Rate limiting check
-      await this.checkRateLimit()
-      
-      // Build prompt
-      const systemPrompt = PromptEngine.buildSystemPrompt()
-      const userPrompt = PromptEngine.buildUserPrompt(input)
-      
-      // Make API call using Groq SDK (Pass 2)
-      const client = this.getClient('pass2')
-      const response = await this.requestWithRetry((opts) => client.chat.completions.create({
-        model: this.config.model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-        tools: [],
-        tool_choice: 'none',
-        // Use configured generation settings and standard OpenAI-compatible params
-        temperature: this.config.temperature,
-        max_tokens: this.config.maxTokens,
-        top_p: 1,
-        stream: false,
-        response_format: { type: "json_object" }
-      }, { signal: opts?.signal }))
 
-      // Update rate limiter
-      this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
-
-      // Parse and validate response
-      const content = (response as ChatCompletion).choices?.[0]?.message?.content
-      if (!content) {
-        throw new Error('No content received from Groq')
+      // Ensure we have extracted provider inclusions; if not provided, run extraction
+      let extracted = input.extractedBenefits
+      if (!extracted) {
+        extracted = await this.extractBenefits(input.providerQuote.originalResponse, input.provider)
       }
 
-      const jsonText = this.extractJson(content)
-      const parsedResponse = this.parseResponse(jsonText)
-      this.validateResponse(parsedResponse)
+      // Flatten raw Papaya Global data for LLM consumption
+      const flattened = PapayaDataFlattener.flatten(input.papayaData)
 
-      return parsedResponse
-
+      // Route through the direct enhancement method (single prompt style)
+      return await this.computeDirectEnhancements({
+        provider: input.provider,
+        baseQuote: input.providerQuote,
+        formData: input.formData as EORFormData,
+        papayaData: flattened.data,
+        papayaCurrency: flattened.currency,
+        quoteType: input.quoteType,
+        contractDurationMonths: input.contractDurationMonths,
+        extractedBenefits: extracted
+      })
     } catch (error) {
       const enhancementError = this.handleError(error, input.provider)
       throw enhancementError
@@ -232,69 +216,128 @@ export class GroqService {
    * Arithmetic compute (Pass 3): combine legal profile + inclusions to produce final totals
    */
   async computeEnhancements(input: ArithmeticComputeInput): Promise<GroqEnhancementResponse> {
+    // Unified path: wrap to direct raw-Papaya flow using country code
+    try {
+      await this.checkRateLimit()
+
+      // Load and flatten Papaya data based on legalProfile country
+      const countryCode = (input.legalProfile?.countryCode || '').toString().trim().toUpperCase()
+      const papaya = countryCode ? PapayaService.getCountryData(countryCode) : null
+      if (!papaya) {
+        throw new Error(`No Papaya Global data available for country: ${input.legalProfile?.countryName || countryCode || 'unknown'}`)
+      }
+      const flattened = PapayaDataFlattener.flatten(papaya)
+
+      // Build a minimal formData for prompt logic compatibility
+      const formData: EORFormData = {
+        employeeName: '',
+        jobTitle: '',
+        workVisaRequired: false,
+        country: input.baseQuote.country,
+        state: '',
+        currency: input.baseQuote.currency,
+        isCurrencyManuallySet: false,
+        originalCurrency: null,
+        clientName: '',
+        clientType: 'new',
+        clientCountry: '',
+        clientCurrency: input.baseQuote.currency,
+        baseSalary: String(input.baseQuote.baseCost),
+        holidayDays: '',
+        probationPeriod: '',
+        hoursPerDay: '',
+        daysPerWeek: '',
+        startDate: '',
+        employmentType: input.legalProfile.employmentType || '',
+        quoteType: input.quoteType,
+        contractDuration: String(input.contractDurationMonths || input.legalProfile.contractMonths || 12),
+        enableComparison: false,
+        compareCountry: '',
+        compareState: '',
+        compareCurrency: '',
+        compareSalary: '',
+        currentStep: 'form',
+        showProviderComparison: false,
+        showOptionalEmployeeData: false,
+        showBenefits: false,
+        selectedBenefits: {},
+        localOfficeInfo: {
+          mealVoucher: '',
+          transportation: '',
+          wfh: '',
+          healthInsurance: '',
+          monthlyPaymentsToLocalOffice: '',
+          vat: '',
+          preEmploymentMedicalTest: '',
+          drugTest: '',
+          backgroundCheckViaDeel: ''
+        }
+      }
+
+      return await this.computeDirectEnhancements({
+        provider: input.provider,
+        baseQuote: input.baseQuote,
+        formData,
+        papayaData: flattened.data,
+        papayaCurrency: flattened.currency,
+        quoteType: input.quoteType,
+        contractDurationMonths: input.contractDurationMonths,
+        extractedBenefits: input.extractedBenefits
+      })
+    } catch (error) {
+      throw this.handleError(error, input.provider)
+    }
+  }
+
+  /**
+   * Direct enhancement using flattened Papaya data (New Simplified Approach)
+   */
+  async computeDirectEnhancements(input: DirectEnhancementInput): Promise<GroqEnhancementResponse> {
     try {
       // Rate limiting
       await this.checkRateLimit()
 
-      let systemPrompt = PromptEngine.buildArithmeticSystemPrompt()
-      let userPrompt = PromptEngine.buildArithmeticUserPrompt({
-        provider: input.provider,
-        baseMonthly: input.baseQuote.monthlyTotal,
-        baseSalary: input.baseQuote.baseCost,
-        currency: input.baseQuote.currency,
+      // Baseline-first prompting (Papaya-only baseline, no reconciliation)
+      let systemPrompt = PromptEngine.buildBaselineSystemPrompt()
+      let userPrompt = PromptEngine.buildBaselineUserPrompt({
+        baseQuote: input.baseQuote,
+        formData: { baseSalary: input.formData.baseSalary },
+        papayaData: input.papayaData,
+        papayaCurrency: input.papayaCurrency,
         quoteType: input.quoteType,
-        contractMonths: input.contractDurationMonths,
-        extractedBenefits: input.extractedBenefits,
-        legalProfile: {
-          id: input.legalProfile.id,
-          summary: input.legalProfile.summary,
-          formulas: input.legalProfile.formulas
-        }
+        contractMonths: input.contractDurationMonths
       })
 
-      // Minify prompts: collapse whitespace into single spaces to reduce token count without changing content
+      // Minify prompts to reduce token count
       try {
         const compact = (s: string) => s.replace(/\s+/g, ' ').trim()
         systemPrompt = compact(systemPrompt)
         userPrompt = compact(userPrompt)
       } catch { /* noop */ }
 
-      // Debug: Pretty log what's being sent to the LLM for Remote only
+      // Debug logging for development
       if (input.provider === 'remote') {
         try {
           const shorten = (txt: string, max = 1800) => {
             if (!txt) return txt
             return txt.length > max ? `${txt.slice(0, max)}... [truncated, ${txt.length - max} chars more]` : txt
           }
-          const extractedKeys = Object.keys(input.extractedBenefits?.includedBenefits || {})
-          const payloadPreview = {
+          console.log('[Groq] Direct Enhancement - Payload Preview:', {
             provider: input.provider,
-            model: this.config.model,
-            temperature: this.config.temperature,
-            base: {
-              monthlyTotal: input.baseQuote.monthlyTotal,
-              baseSalary: input.baseQuote.baseCost,
-              currency: input.baseQuote.currency,
-              country: input.baseQuote.country,
-            },
-            mode: input.quoteType,
+            baseTotal: input.baseQuote.monthlyTotal,
+            baseSalary: input.baseQuote.baseCost,
+            currency: input.baseQuote.currency,
+            country: input.baseQuote.country,
+            quoteType: input.quoteType,
             contractMonths: input.contractDurationMonths,
-            legalProfileId: input.legalProfile.id,
-            extractedBenefitKeys: extractedKeys,
-            prompts: {
-              system: shorten(systemPrompt, 600),
-              user: shorten(userPrompt, 2000)
-            }
-          }
-          // Styled-ish banner for readability in server logs
-          const line = '═'.repeat(40)
-          console.log(`\n${line}\n🧪 REMOTE LLM REQUEST PAYLOAD (preview)\n${line}\n`, payloadPreview, `\n${line}\n`)
-        } catch (e) {
-          console.log('[LLM DEBUG][REMOTE] Failed to log payload preview:', e)
-        }
+            papayaCurrency: input.papayaCurrency,
+            extractedBenefitKeys: Object.keys(input.extractedBenefits.includedBenefits),
+            prompts: { system: shorten(systemPrompt, 600), user: shorten(userPrompt, 2000) }
+          })
+        } catch {/* noop */}
       }
 
-      // Make API call using Groq SDK (Pass 3)
+      // Make request to Groq using provider-routed client and retry wrapper
       const client = this.getProviderClient(input.provider)
       const response = await this.requestWithRetry((opts) => client.chat.completions.create({
         model: this.config.model,
@@ -311,18 +354,231 @@ export class GroqService {
         response_format: { type: "json_object" }
       }, { signal: opts?.signal }))
 
+      // Update rate limiter usage
       this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
 
       const content = (response as ChatCompletion).choices?.[0]?.message?.content
-      if (!content) throw new Error('No content received from Groq arithmetic compute')
+      if (!content) {
+        throw new Error('No content received from Groq direct enhancement')
+      }
 
+      // Parse baseline and reconcile with provider coverage in code
       const jsonText = this.extractJson(content)
-      const parsed = this.parseResponse(jsonText)
-      this.validateResponse(parsed)
-      return parsed
+      const baseline = JSON.parse(jsonText) as any
+      const reconciled = this.reconcileBaselineWithProvider(
+        baseline,
+        {
+          baseQuote: input.baseQuote,
+          quoteType: input.quoteType,
+          contractMonths: input.contractDurationMonths,
+          extractedBenefits: input.extractedBenefits
+        }
+      )
+      this.validateResponse(reconciled)
+      return reconciled
+
     } catch (error) {
       throw this.handleError(error, input.provider)
     }
+  }
+
+  /**
+   * Reconcile Papaya legal baseline (LLM result) with provider coverage to compute missing deltas.
+   */
+  private reconcileBaselineWithProvider(
+    baseline: any,
+    params: {
+      baseQuote: { provider: string; monthlyTotal: number; baseCost: number; currency: string; country: string; breakdown?: Record<string, number | undefined> }
+      quoteType: 'all-inclusive' | 'statutory-only'
+      contractMonths: number
+      extractedBenefits: StandardizedBenefitData
+    }
+  ): GroqEnhancementResponse {
+    const b = baseline?.enhancements?.baseline || {}
+    const warnings: string[] = Array.isArray(baseline?.warnings) ? baseline.warnings : []
+
+    const getNum = (v: unknown): number => {
+      const n = typeof v === 'number' ? v : Number(v)
+      return isFinite(n) && n > 0 ? n : 0
+    }
+    const prov = params.extractedBenefits?.includedBenefits || {}
+    const monthlyOf = (x: any): number => {
+      if (!x) return 0
+      const amt = typeof x.amount === 'number' ? x.amount : 0
+      const freq = (x.frequency || '').toLowerCase()
+      return freq === 'yearly' ? amt / 12 : amt
+    }
+
+    // Provider coverage map (monthly)
+    const providerCoverage = {
+      thirteenth_salary: monthlyOf((prov as any).thirteenthSalary),
+      fourteenth_salary: monthlyOf((prov as any).fourteenthSalary),
+      vacation_bonus: monthlyOf((prov as any).vacationBonus),
+      transportation_allowance: monthlyOf((prov as any).transportAllowance),
+      remote_work_allowance: monthlyOf((prov as any).remoteWorkAllowance),
+      meal_vouchers: monthlyOf((prov as any).mealVouchers),
+      social_security: monthlyOf((prov as any).socialSecurity)
+    }
+
+    // Contributions coverage: prefer normalized breakdown aggregate if available
+    const providerContribAggregate = getNum(params.baseQuote.breakdown?.statutoryContributions) || providerCoverage.social_security || 0
+
+    // Baseline amounts
+    const base_th13 = getNum(b?.thirteenth_salary?.monthly_amount)
+    const base_th14 = getNum(b?.fourteenth_salary?.monthly_amount)
+    const base_vac = getNum(b?.vacation_bonus?.monthly_amount)
+    const base_trans = getNum(b?.transportation_allowance?.monthly_amount)
+    const base_trans_mand = !!b?.transportation_allowance?.mandatory
+    const base_remote = getNum(b?.remote_work_allowance?.monthly_amount)
+    const base_remote_mand = !!b?.remote_work_allowance?.mandatory
+    const base_meal = getNum(b?.meal_vouchers?.monthly_amount)
+    const base_contrib_total = getNum(b?.contributions?.total_monthly)
+    const base_term_monthly = getNum(b?.termination?.monthly_amount)
+    const base_term_total = getNum(b?.termination?.total) || (base_term_monthly * Math.max(1, params.contractMonths))
+
+    const isStatutory = params.quoteType === 'statutory-only'
+
+    // Delta helpers
+    const topUp = (baselineAmt: number, providerAmt: number) => Math.max(0, baselineAmt - providerAmt)
+    const includeIf = (include: boolean, amt: number) => (include ? amt : 0)
+
+    // Compute deltas
+    const delta_th13 = topUp(base_th13, providerCoverage.thirteenth_salary)
+    const delta_th14 = topUp(base_th14, providerCoverage.fourteenth_salary)
+    const delta_vac = topUp(base_vac, providerCoverage.vacation_bonus)
+    const allow_trans = isStatutory ? base_trans_mand : true
+    const allow_remote = isStatutory ? base_remote_mand : true
+    const delta_trans = topUp(includeIf(allow_trans, base_trans), providerCoverage.transportation_allowance)
+    const delta_remote = topUp(includeIf(allow_remote, base_remote), providerCoverage.remote_work_allowance)
+    const delta_meal = topUp(isStatutory ? 0 : base_meal, providerCoverage.meal_vouchers)
+    const delta_contrib = topUp(base_contrib_total, providerContribAggregate)
+    const delta_term_monthly = base_term_monthly // provider termination accruals rarely exposed; assume 0 coverage
+
+    // Build enhancements block (deltas as monthly amounts; termination as total for later monthlyization)
+    const enhancements: GroqEnhancementResponse['enhancements'] = {}
+    if (base_term_total > 0) {
+      enhancements.termination_costs = {
+        notice_period_cost: 0,
+        severance_cost: 0,
+        total: delta_term_monthly * Math.max(1, params.contractMonths),
+        explanation: 'Termination liability monthly accrual based on Papaya baseline',
+        confidence: 0.7
+      }
+    }
+    if (base_th13 > 0) {
+      enhancements.thirteenth_salary = {
+        monthly_amount: delta_th13,
+        yearly_amount: delta_th13 * 12,
+        explanation: 'Papaya baseline vs provider coverage',
+        confidence: 0.75,
+        already_included: delta_th13 === 0
+      }
+    }
+    if (base_th14 > 0) {
+      enhancements.fourteenth_salary = {
+        monthly_amount: delta_th14,
+        yearly_amount: delta_th14 * 12,
+        explanation: 'Papaya baseline vs provider coverage',
+        confidence: 0.7,
+        already_included: delta_th14 === 0
+      }
+    }
+    if (base_vac > 0) {
+      enhancements.vacation_bonus = {
+        amount: delta_vac * 12, // baseline likely yearly; we store as yearly per existing type
+        explanation: 'Papaya baseline vs provider coverage',
+        confidence: 0.7,
+        already_included: delta_vac === 0
+      }
+    }
+    if (includeIf(allow_trans, base_trans) > 0) {
+      enhancements.transportation_allowance = {
+        monthly_amount: delta_trans,
+        explanation: 'Papaya baseline vs provider coverage',
+        confidence: 0.65,
+        already_included: delta_trans === 0,
+        mandatory: !!base_trans_mand
+      }
+    }
+    if (includeIf(allow_remote, base_remote) > 0) {
+      enhancements.remote_work_allowance = {
+        monthly_amount: delta_remote,
+        explanation: 'Papaya baseline vs provider coverage',
+        confidence: 0.6,
+        already_included: delta_remote === 0,
+        mandatory: !!base_remote_mand
+      }
+    }
+    if (!isStatutory && base_meal > 0) {
+      enhancements.meal_vouchers = {
+        monthly_amount: delta_meal,
+        explanation: 'Papaya baseline vs provider coverage',
+        confidence: 0.6,
+        already_included: delta_meal === 0
+      }
+    }
+    if (base_contrib_total > 0) {
+      ;(enhancements as any).employer_contributions_total = {
+        monthly_amount: delta_contrib,
+        explanation: 'Papaya baseline vs provider aggregate/per-item contributions',
+        confidence: 0.7,
+        already_included: delta_contrib === 0
+      }
+    }
+
+    // Aggregate analysis
+    const providerCoverageStrings: string[] = []
+    Object.entries(providerCoverage).forEach(([k, v]) => {
+      if (v > 0) providerCoverageStrings.push(`${k}: ${v.toFixed(2)} ${params.baseQuote.currency}`)
+    })
+    const missingReq: string[] = []
+    if (delta_th13 > 0) missingReq.push('thirteenth_salary')
+    if (delta_th14 > 0) missingReq.push('fourteenth_salary')
+    if (delta_vac > 0) missingReq.push('vacation_bonus')
+    if (delta_trans > 0) missingReq.push('transportation_allowance')
+    if (delta_remote > 0) missingReq.push('remote_work_allowance')
+    if (delta_meal > 0) missingReq.push('meal_vouchers')
+    if (delta_contrib > 0) missingReq.push('employer_contributions')
+
+    const doubleCountingRisks: string[] = []
+    if (providerCoverage.social_security > 0 && (params.baseQuote.breakdown?.statutoryContributions || 0) > 0) {
+      doubleCountingRisks.push('Provider shows both aggregate and per-item contributions; avoid double counting')
+    }
+
+    const totalMonthlyEnhancement = [
+      delta_th13,
+      delta_th14,
+      delta_vac,
+      delta_trans,
+      delta_remote,
+      delta_meal,
+      delta_contrib,
+      delta_term_monthly
+    ].reduce((s, n) => s + (isFinite(n) ? n : 0), 0)
+
+    const response: GroqEnhancementResponse = {
+      analysis: {
+        provider_coverage: providerCoverageStrings,
+        missing_requirements: missingReq,
+        double_counting_risks: doubleCountingRisks
+      },
+      enhancements,
+      totals: {
+        total_monthly_enhancement: Number(totalMonthlyEnhancement.toFixed(2)),
+        total_yearly_enhancement: Number((totalMonthlyEnhancement * 12).toFixed(2)),
+        final_monthly_total: Number((params.baseQuote.monthlyTotal + totalMonthlyEnhancement).toFixed(2))
+      },
+      confidence_scores: {
+        overall: warnings.length > 0 ? 0.6 : 0.8,
+        termination_costs: base_term_total > 0 ? 0.7 : 0.0,
+        salary_enhancements: (base_th13 + base_th14 + base_vac) > 0 ? 0.75 : 0.0,
+        allowances: (base_trans + base_remote + base_meal) > 0 ? 0.6 : 0.0
+      },
+      recommendations: [],
+      warnings
+    }
+
+    return response
   }
 
   /**

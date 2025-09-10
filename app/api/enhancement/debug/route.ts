@@ -62,7 +62,8 @@ export async function GET(request: NextRequest) {
             hasGroqKey: !!process.env.GROQ_API_KEY,
             groqKeyLength: process.env.GROQ_API_KEY ? process.env.GROQ_API_KEY.length : 0,
             groqKeyLooksTrimmed: process.env.GROQ_API_KEY ? (process.env.GROQ_API_KEY.trim() === process.env.GROQ_API_KEY) : null,
-            model: process.env.GROQ_MODEL || 'deepseek-r1-distill-llama-70b'
+            model: process.env.GROQ_MODEL || 'deepseek-r1-distill-llama-70b',
+            directPapayaEnabled: (process.env.ENHANCEMENT_DIRECT_PAPAYA || '').toString().trim().toLowerCase() === 'true'
           },
           timestamp: new Date().toISOString()
         })

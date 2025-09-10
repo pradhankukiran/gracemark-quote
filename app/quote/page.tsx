@@ -5,7 +5,9 @@ import { useSearchParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Loader2, Brain, FileText, Filter, Target, Trophy, ListChecks, Zap, BarChart3, TrendingUp, Sparkles, Star, Crown, Rocket, ChevronRight, Play, Pause, RotateCcw } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Loader2, Brain, Filter, Target, Trophy, ListChecks, Zap, BarChart3, TrendingUp, Sparkles, Star, Crown, Rocket, ChevronRight, Play, Pause, RotateCcw, Activity, TrendingDown } from "lucide-react"
 import Link from "next/link"
 import { useQuoteResults } from "./hooks/useQuoteResults"
 import { useUSDConversion } from "../eor-calculator/hooks/useUSDConversion"
@@ -64,6 +66,13 @@ const QuotePageContent = memo(() => {
   const [isReconModalOpen, setIsReconModalOpen] = useState(false)
   const [reconSteps, setReconSteps] = useState<{type: string, title: string, description?: string}[]>([])
   const [finalChoice, setFinalChoice] = useState<{ provider: string; price: number; currency: string } | null>(null)
+  
+  // Timeline-style reconciliation state
+  const [completedPhases, setCompletedPhases] = useState<Set<string>>(new Set())
+  const [activePhase, setActivePhase] = useState<'gathering' | 'analyzing' | 'selecting' | 'complete' | null>('gathering')
+  const [progressPercent, setProgressPercent] = useState(0)
+  const [providerData, setProviderData] = useState<{ provider: string; price: number; inRange?: boolean; isWinner?: boolean }[]>([])
+  const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null)
 
   // Body scroll lock when modal is open
   useEffect(() => {
@@ -318,28 +327,425 @@ const QuotePageContent = memo(() => {
 
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+  // Optimized progress update function (400ms instead of 800ms)
+  const smoothProgressUpdate = (targetProgress: number) => {
+    return new Promise<void>((resolve) => {
+      const startProgress = progressPercent
+      const progressDiff = targetProgress - startProgress
+      const duration = 400 // Reduced from 800ms to 400ms
+      const startTime = Date.now()
+      
+      const updateProgress = () => {
+        const elapsed = Date.now() - startTime
+        const progress = Math.min(elapsed / duration, 1)
+        
+        // Easing function for smooth animation
+        const easeOutCubic = 1 - Math.pow(1 - progress, 3) // Slightly snappier easing
+        const currentProgress = startProgress + (progressDiff * easeOutCubic)
+        
+        setProgressPercent(Math.round(currentProgress))
+        
+        if (progress < 1) {
+          requestAnimationFrame(updateProgress)
+        } else {
+          resolve()
+        }
+      }
+      
+      requestAnimationFrame(updateProgress)
+    })
+  }
+
+  // Fixed auto-scroll with performance optimization
+  const scrollToPhase = (phaseId: string) => {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        const element = document.getElementById(`phase-${phaseId}`)
+        if (element) {
+          // Temporarily disable heavy animations during scroll
+          element.style.willChange = 'scroll-position'
+          
+          element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start',
+            inline: 'nearest'
+          })
+          
+          // Re-enable animations after scroll
+          setTimeout(() => {
+            element.style.willChange = 'auto'
+          }, 600)
+        }
+      }, 400) // Reduced from 800ms to 400ms
+    })
+  }
+
+  // Simplified phase completion (removed transition delays)
+  const completePhase = (phase: string) => {
+    setCompletedPhases(prev => new Set([...prev, phase]))
+  }
+
+  const startPhase = (phase: 'gathering' | 'analyzing' | 'selecting' | 'complete') => {
+    setActivePhase(phase)
+    scrollToPhase(phase) // Uses optimized scrolling with 400ms delay and performance optimization
+  }
+
+  // Timeline phase rendering
+  const renderTimelinePhases = () => {
+    const currency = (quoteData?.formData as EORFormData)?.currency || 'USD'
+    
+    const isPhaseActive = (phase: string) => activePhase === phase
+    const isPhaseCompleted = (phase: string) => completedPhases.has(phase)
+    const isPhaseStarted = (phase: string) => isPhaseActive(phase) || isPhaseCompleted(phase)
+    const isPhaseUpcoming = (phase: string) => !isPhaseStarted(phase)
+
+    return (
+      <div className="space-y-8 p-6">
+        {/* Phase 1: Gathering Data */}
+        <div 
+          id="phase-gathering" 
+          className={`
+            bg-white rounded-xl border-2 shadow-lg p-6 transition-all duration-700 ease-in-out transform
+            ${isPhaseActive('gathering') ? 'border-blue-500 shadow-blue-200 shadow-2xl scale-[1.02]' : 
+              isPhaseCompleted('gathering') ? 'border-green-500 shadow-green-200 shadow-xl' : 
+              'border-slate-200 opacity-60 shadow-md'}
+          `}
+        >
+          <div className="flex items-center gap-4 mb-6">
+            <div className={`
+              p-3 rounded-full 
+              ${isPhaseActive('gathering') ? 'bg-blue-100' : 
+                isPhaseCompleted('gathering') ? 'bg-green-100' : 
+                'bg-slate-100'}
+            `}>
+              {isPhaseCompleted('gathering') ? (
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              ) : isPhaseActive('gathering') ? (
+                <Activity className="h-6 w-6 text-blue-600 animate-pulse" />
+              ) : (
+                <Clock className="h-6 w-6 text-slate-400" />
+              )}
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-800">Phase 1: Gathering Data</h3>
+              <p className="text-slate-600">
+                {isPhaseCompleted('gathering') ? 'Provider quotes collected successfully' :
+                 isPhaseActive('gathering') ? 'Collecting provider quotes...' :
+                 'Waiting to collect provider quotes'}
+              </p>
+            </div>
+          </div>
+
+          {isPhaseStarted('gathering') && (
+            <div className={`grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 transition-opacity duration-500 ${
+              isPhaseStarted('gathering') ? 'opacity-100' : 'opacity-0'
+            }`}>
+              {providerData.map((provider, idx) => (
+                <div 
+                  key={provider.provider}
+                  className="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 p-3 text-center transform transition-all duration-500 hover:scale-105 hover:shadow-lg hover:border-blue-300"
+                  style={{
+                    animationDelay: `${idx * 80}ms`, // Reduced from 150ms to 80ms
+                    animation: isPhaseActive('gathering') ? 'slideInUp 0.8s ease-out forwards' : 'none',
+                    transform: 'translate3d(0, 0, 0)', // GPU acceleration
+                    willChange: 'transform, opacity'
+                  }}
+                >
+                  <div className="w-10 h-10 mx-auto mb-2 rounded-lg border border-slate-200 flex items-center justify-center bg-white shadow-sm">
+                    <ProviderLogo provider={provider.provider as ProviderType} />
+                  </div>
+                  <div className="text-xs font-semibold text-slate-700 capitalize mb-1">
+                    {provider.provider}
+                  </div>
+                  <div className="text-sm font-bold text-blue-600">
+                    {formatMoney(provider.price, currency)}
+                  </div>
+                </div>
+              ))}
+              
+              {/* Enhanced placeholder cards */}
+              {isPhaseActive('gathering') && Array.from({ length: Math.max(0, 7 - providerData.length) }).map((_, idx) => (
+                <div 
+                  key={`placeholder-${idx}`}
+                  className="bg-slate-100 rounded-xl border border-slate-200 p-3 text-center animate-pulse"
+                >
+                  <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-slate-200" />
+                  <div className="h-3 bg-slate-200 rounded mb-1" />
+                  <div className="h-4 bg-slate-200 rounded" />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Phase 2: Analyzing Variance */}
+        <div 
+          id="phase-analyzing" 
+          className={`
+            bg-white rounded-xl border-2 shadow-lg p-6 transition-all duration-700 ease-in-out transform
+            ${isPhaseActive('analyzing') ? 'border-purple-500 shadow-purple-200 shadow-2xl scale-[1.02]' : 
+              isPhaseCompleted('analyzing') ? 'border-green-500 shadow-green-200 shadow-xl' : 
+              'border-slate-200 opacity-60 shadow-md'}
+          `}
+        >
+          <div className="flex items-center gap-4 mb-6">
+            <div className={`
+              p-3 rounded-full 
+              ${isPhaseActive('analyzing') ? 'bg-purple-100' : 
+                isPhaseCompleted('analyzing') ? 'bg-green-100' : 
+                'bg-slate-100'}
+            `}>
+              {isPhaseCompleted('analyzing') ? (
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              ) : isPhaseActive('analyzing') ? (
+                <BarChart3 className="h-6 w-6 text-purple-600 animate-pulse" />
+              ) : (
+                <Clock className="h-6 w-6 text-slate-400" />
+              )}
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-800">Phase 2: Analyzing Variance</h3>
+              <p className="text-slate-600">
+                {isPhaseCompleted('analyzing') ? 'Price variance analysis completed' :
+                 isPhaseActive('analyzing') ? 'Analyzing price variance against Deel baseline...' :
+                 'Waiting to analyze price variance'}
+              </p>
+            </div>
+          </div>
+
+          {isPhaseStarted('analyzing') && providerData.length > 0 && (
+            <div className="bg-slate-50 rounded-lg p-4">
+              <div className="space-y-3">
+                {providerData.map((provider) => {
+                  const deelProvider = providerData.find(p => p.provider === 'deel')
+                  const deelPrice = deelProvider?.price || 0
+                  const percentage = deelPrice > 0 ? ((provider.price - deelPrice) / deelPrice * 100) : 0
+                  const barWidth = Math.min(100, Math.max(10, (provider.price / Math.max(...providerData.map(p => p.price))) * 100))
+                  
+                  return (
+                    <div key={provider.provider} className="flex items-center gap-3">
+                      <div className="w-16 text-xs font-medium text-slate-700 capitalize">
+                        {provider.provider}
+                      </div>
+                      <div className="flex-1 relative">
+                        <div className="h-6 bg-slate-200 rounded-lg overflow-hidden shadow-inner">
+                          <div 
+                            className={`h-full transition-all duration-700 ease-out transform-gpu ${
+                              provider.inRange ? 'bg-gradient-to-r from-green-400 via-green-500 to-green-600' : 
+                              'bg-gradient-to-r from-red-400 via-red-500 to-red-600'
+                            }`}
+                            style={{ 
+                              width: `${barWidth}%`,
+                              transitionDelay: `${providerData.indexOf(provider) * 100}ms`,
+                              transform: 'translate3d(0, 0, 0)', // GPU acceleration
+                              willChange: 'width'
+                            }}
+                          />
+                        </div>
+                        <div className="absolute inset-y-0 left-2 flex items-center">
+                          <span className="text-xs font-medium text-white">
+                            {formatMoney(provider.price, currency)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {provider.inRange ? (
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                        ) : (
+                          <XCircle className="h-4 w-4 text-red-600" />
+                        )}
+                        <span className={`text-xs font-medium ${
+                          provider.inRange ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {percentage >= 0 ? '+' : ''}{percentage.toFixed(1)}%
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Phase 3: Selecting Optimal */}
+        <div 
+          id="phase-selecting" 
+          className={`
+            bg-white rounded-xl border-2 shadow-lg p-6 transition-all duration-700 ease-in-out transform
+            ${isPhaseActive('selecting') ? 'border-yellow-500 shadow-yellow-200 shadow-2xl scale-[1.02]' : 
+              isPhaseCompleted('selecting') ? 'border-green-500 shadow-green-200 shadow-xl' : 
+              'border-slate-200 opacity-60 shadow-md'}
+          `}
+        >
+          <div className="flex items-center gap-4 mb-6">
+            <div className={`
+              p-3 rounded-full 
+              ${isPhaseActive('selecting') ? 'bg-yellow-100' : 
+                isPhaseCompleted('selecting') ? 'bg-green-100' : 
+                'bg-slate-100'}
+            `}>
+              {isPhaseCompleted('selecting') ? (
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              ) : isPhaseActive('selecting') ? (
+                <Target className="h-6 w-6 text-yellow-600 animate-pulse" />
+              ) : (
+                <Clock className="h-6 w-6 text-slate-400" />
+              )}
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-800">Phase 3: Selecting Optimal Provider</h3>
+              <p className="text-slate-600">
+                {isPhaseCompleted('selecting') ? 'Optimal provider selected successfully' :
+                 isPhaseActive('selecting') ? 'Selecting optimal provider from candidates...' :
+                 'Waiting to select optimal provider'}
+              </p>
+            </div>
+          </div>
+
+          {isPhaseStarted('selecting') && (
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+              {providerData.map((provider) => (
+                <div 
+                  key={provider.provider}
+                  className={`
+                    bg-slate-50 rounded-lg border-2 p-3 text-center transition-all duration-700 transform
+                    ${provider.isWinner ? 'border-yellow-400 shadow-lg scale-105 bg-gradient-to-br from-yellow-50 to-orange-50' :
+                      provider.inRange ? 'border-green-200' : 
+                      'border-slate-200 opacity-50'}
+                  `}
+                >
+                  {provider.isWinner && (
+                    <Crown className="h-4 w-4 text-yellow-500 mx-auto mb-1" />
+                  )}
+                  <div className="w-10 h-10 mx-auto mb-2 rounded-lg border flex items-center justify-center bg-white">
+                    <ProviderLogo provider={provider.provider as ProviderType} />
+                  </div>
+                  <div className="text-xs font-medium text-slate-800 capitalize mb-1">
+                    {provider.provider}
+                  </div>
+                  <div className={`text-sm font-bold ${
+                    provider.isWinner ? 'text-yellow-600' : 
+                    provider.inRange ? 'text-green-600' : 'text-slate-600'
+                  }`}>
+                    {formatMoney(provider.price, currency)}
+                  </div>
+                  {provider.isWinner && (
+                    <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 text-xs mt-1">
+                      Winner
+                    </Badge>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Phase 4: Analysis Complete */}
+        <div 
+          id="phase-complete" 
+          className={`
+            bg-white rounded-xl border-2 shadow-lg p-6 transition-all duration-700 ease-in-out transform
+            ${isPhaseActive('complete') || isPhaseCompleted('complete') ? 'border-green-500 shadow-green-200 shadow-2xl scale-[1.02]' : 
+              'border-slate-200 opacity-60 shadow-md'}
+          `}
+        >
+          <div className="flex items-center gap-4 mb-6">
+            <div className={`
+              p-3 rounded-full 
+              ${isPhaseStarted('complete') ? 'bg-green-100' : 'bg-slate-100'}
+            `}>
+              {isPhaseStarted('complete') ? (
+                <Crown className="h-6 w-6 text-green-600" />
+              ) : (
+                <Clock className="h-6 w-6 text-slate-400" />
+              )}
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-800">Analysis Complete</h3>
+              <p className="text-slate-600">
+                {isPhaseStarted('complete') ? 'Provider recommendation ready' : 'Waiting for analysis to complete'}
+              </p>
+            </div>
+          </div>
+
+          {isPhaseStarted('complete') && finalChoice && (
+            <div className="bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 rounded-xl p-8 border-2 border-green-200 shadow-xl transition-all duration-500 smooth-appear">
+              <div className="text-center mb-8">
+                <div className="w-24 h-24 mx-auto mb-6 rounded-2xl border-3 border-green-300 flex items-center justify-center bg-white shadow-2xl transition-transform duration-300 hover:scale-110">
+                  <ProviderLogo provider={finalChoice.provider as ProviderType} />
+                </div>
+                <div className="text-3xl font-bold text-slate-900 capitalize mb-3 tracking-tight">
+                  {finalChoice.provider}
+                </div>
+                <div className="text-5xl font-bold text-green-600 mb-6 tracking-tight">
+                  {formatMoney(finalChoice.price, finalChoice.currency)}
+                </div>
+                <Badge className="bg-green-100 text-green-800 border-green-200 px-4 py-2 text-sm font-semibold">
+                  ✨ Recommended Provider
+                </Badge>
+              </div>
+              
+              <div className="flex justify-center">
+                <Button 
+                  onClick={() => console.log('Download Quote Started!')}
+                  size="lg"
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 px-8 py-3 text-base font-semibold"
+                >
+                  <Rocket className="h-5 w-5 mr-3" />
+                  Download Quote
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   const startReconciliation = async () => {
     setIsReconModalOpen(true)
     setReconSteps([])
     setFinalChoice(null)
+    setCompletedPhases(new Set())
+    setActivePhase('gathering')
+    setProgressPercent(0)
+    setProviderData([])
 
     const currency = (quoteData?.formData as EORFormData)?.currency || 'USD'
 
     try {
-      await sleep(500)
-      setReconSteps(prev => [...prev, { type: 'start', title: 'Starting Reconciliation' }])
+      // Phase 1: Gathering Data (0-25%)
+      startPhase('gathering')
+      await smoothProgressUpdate(5)
+      setReconSteps([{ type: 'start', title: 'Starting Reconciliation Analysis' }])
 
       const prices: { provider: string; price: number }[] = allProviders
-        .map(p => ({ provider: p, price: enhancements[p]?.finalTotal! }))
-        .filter(p => p.price !== undefined && p.price !== null);
+        .map(p => ({ provider: p, price: enhancements[p]?.finalTotal || 0 }))
+        .filter(p => p.price !== undefined && p.price !== null && p.price > 0);
 
       if (prices.length === 0) {
         setReconSteps(prev => [...prev, { type: 'error', title: 'Error: No provider prices available.'}]);
         return;
       }
+
+      // Optimized staggered provider cards
+      for (let i = 0; i < prices.length; i++) {
+        setProviderData(prev => [...prev, prices[i]])
+        const targetProgress = 5 + ((i + 1) / prices.length) * 20
+        await smoothProgressUpdate(targetProgress)
+        setReconSteps(prev => [...prev, { type: 'data', title: `Collected ${prices[i].provider} quote`, description: `${formatMoney(prices[i].price, currency)}` }])
+        await sleep(80) // Reduced from 150ms to 80ms
+      }
+
+      completePhase('gathering')
       
-      await sleep(500)
-      setReconSteps(prev => [...prev, { type: 'data', title: 'Fetched Final Prices', description: `Found ${prices.length} enhanced quotes.` }])
+      // Reduced delay before next phase
+      await sleep(1500) // Reduced from 2500ms to 1500ms
+      
+      // Phase 2: Analyzing Variance (25-60%)
+      startPhase('analyzing')
+      await smoothProgressUpdate(30)
 
       const deel = prices.find(p => p.provider === 'deel');
       if (!deel) {
@@ -347,45 +753,65 @@ const QuotePageContent = memo(() => {
         return;
       }
 
-      await sleep(500)
-      setReconSteps(prev => [...prev, { type: 'target', title: 'Set Deel as Reference', description: `Using Deel's price of ${formatMoney(deel.price, currency)} as the baseline.` }]);
+      setReconSteps(prev => [...prev, { type: 'target', title: 'Set Deel as Baseline', description: `Reference price: ${formatMoney(deel.price, currency)}` }]);
 
+      await sleep(500) // Reduced from 800ms
       const lowerBound = deel.price * 0.96;
       const upperBound = deel.price * 1.04;
-      await sleep(500)
-      setReconSteps(prev => [...prev, { type: 'calculate', title: 'Calculated 4% Range', description: `[${formatMoney(lowerBound, currency)}, ${formatMoney(upperBound, currency)}]` }]);
+      await smoothProgressUpdate(45)
+      setReconSteps(prev => [...prev, { type: 'calculate', title: 'Calculated 4% Variance Range', description: `Range: ${formatMoney(lowerBound, currency)} - ${formatMoney(upperBound, currency)}` }]);
 
-      const candidates: { provider: string; price: number }[] = [];
-      setReconSteps(prev => [...prev, { type: 'filter', title: 'Filtering Providers'}]);
-      
-      for (const p of prices) {
-        await sleep(500);
-        const inRange = p.price >= lowerBound && p.price <= upperBound;
-        if (inRange) candidates.push(p);
-        const step = {
-          type: 'check' as const,
-          title: `Checked ${p.provider}`,
-          description: `${formatMoney(p.price, currency)} -> ${inRange ? '✅ Within range' : '❌ Outside range'}`
-        }
-        setReconSteps(prev => [...prev, step]);
-      }
+      await sleep(500) // Reduced from 800ms
+      // Update provider data with range analysis
+      const analyzedProviders = prices.map(p => ({
+        ...p,
+        inRange: p.price >= lowerBound && p.price <= upperBound
+      }))
+      setProviderData(analyzedProviders)
+      await smoothProgressUpdate(60)
+      completePhase('analyzing')
+
+      // Reduced delay before next phase
+      await sleep(1500) // Reduced from 2500ms to 1500ms
+
+      // Phase 3: Selecting Optimal (60-90%)
+      startPhase('selecting')
+      await smoothProgressUpdate(65)
+
+      const candidates = analyzedProviders.filter(p => p.inRange);
+      setReconSteps(prev => [...prev, { type: 'filter', title: 'Filtered Candidates', description: `${candidates.length} providers within range: ${candidates.map(c => c.provider).join(', ')}` }]);
 
       if (candidates.length === 0) {
         setReconSteps(prev => [...prev, { type: 'error', title: 'No providers found within the 4% range.'}]);
         return;
       }
 
-      await sleep(500);
-      setReconSteps(prev => [...prev, { type: 'list', title: 'Identified Candidates', description: `${candidates.map(c => c.provider).join(', ')}` }]);
-
-      await sleep(500);
-      setReconSteps(prev => [...prev, { type: 'select', title: 'Selecting Highest Price from Candidates' }]);
-      
+      await sleep(600) // Reduced from 1000ms
+      await smoothProgressUpdate(80)
       const choice = candidates.reduce((max, current) => (current.price > max.price ? current : max), candidates[0]);
+      
+      await sleep(400) // Reduced from 700ms - quicker winner selection
+      // Mark winner in provider data
+      const finalProviders = analyzedProviders.map(p => ({
+        ...p,
+        isWinner: p.provider === choice.provider
+      }))
+      setProviderData(finalProviders)
+      await smoothProgressUpdate(90)
+      
+      setReconSteps(prev => [...prev, { type: 'select', title: 'Selected Optimal Provider', description: `${choice.provider} offers highest price within acceptable range` }]);
+      completePhase('selecting')
 
-      await sleep(800);
+      // Reduced delay before final phase
+      await sleep(1500) // Reduced from 2500ms to 1500ms
+
+      // Phase 4: Complete (90-100%)
+      startPhase('complete')
+      await smoothProgressUpdate(100)
+      await sleep(200) // Reduced fade-in delay from 400ms to 200ms
       setFinalChoice({ ...choice, currency });
-      setReconSteps(prev => [...prev, { type: 'trophy', title: `Provider of Choice: ${choice.provider}` }]);
+      setReconSteps(prev => [...prev, { type: 'trophy', title: `Analysis Complete: ${choice.provider} Recommended` }]);
+      completePhase('complete')
 
     } catch (error) {
       console.error("Reconciliation failed", error);
@@ -749,89 +1175,153 @@ const QuotePageContent = memo(() => {
         </div>
       </div>
 
-      {/* --- SIMPLE RECONCILIATION MODAL (streamlined) --- */}
+      {/* --- DASHBOARD-STYLE RECONCILIATION MODAL --- */}
       {isReconModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-gradient-to-br from-black/60 to-slate-900/60 backdrop-blur-md">
           <div className="absolute inset-0" onClick={() => setIsReconModalOpen(false)} />
-          <div className="relative w-[80vw] max-w-7xl max-h-[90vh] bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden">
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-slate-50">
-              <div className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-slate-600" />
-                <h2 className="text-lg font-semibold text-slate-800">Reconciliation</h2>
+          <Card className="relative w-[90vw] max-w-7xl max-h-[90vh] border-0 shadow-2xl bg-white/98 backdrop-blur-lg overflow-hidden">
+            
+            {/* Top Banner: Progress Bar + Phase */}
+            <div className="px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg shadow-lg">
+                    <Activity className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                      Provider Reconciliation Dashboard
+                    </h2>
+                    <p className="text-sm text-slate-600 mt-0.5">
+                      {activePhase === 'gathering' && 'Collecting provider data...'}
+                      {activePhase === 'analyzing' && 'Analyzing price variance...'}
+                      {activePhase === 'selecting' && 'Selecting optimal provider...'}
+                      {activePhase === 'complete' && 'Analysis complete - Provider recommended'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-slate-700">{progressPercent}%</div>
+                    <div className="text-xs text-slate-500">Complete</div>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => setIsReconModalOpen(false)} className="ml-4">
+                    <XCircle className="h-4 w-4 mr-1.5" />
+                    Close
+                  </Button>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button size="sm" onClick={() => console.log('Acid Test Started!')} disabled={!finalChoice}>
-                  <Rocket className="h-4 w-4 mr-2" />
-                  Launch Acid Test
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => setIsReconModalOpen(false)} className="text-slate-600 hover:text-slate-900 hover:bg-slate-100 px-2 rounded-md">
-                  <XCircle className="h-4 w-4 mr-1" />
-                  Close
-                </Button>
+              
+              {/* Progress Bar */}
+              <div className="mt-4 bg-slate-200 rounded-full h-2.5 overflow-hidden shadow-inner">
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${progressPercent}%` }}
+                />
               </div>
             </div>
 
-            {/* Body */}
-            <div className="p-6 overflow-y-auto" style={{ maxHeight: '70vh' }}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Left: Steps (minimal list) */}
-                <div>
-                  {reconSteps.length > 0 ? (
-                    <>
-                      <h3 className="text-base font-medium text-slate-700 mb-3">Steps</h3>
-                      <ul className="space-y-2">
-                        {reconSteps.map((step, idx) => {
-                          const Icon = getEnhancedStepIcon(step.type)
-                          return (
-                            <li key={idx} className="flex items-start gap-2">
-                              <Icon className="h-5 w-5 text-slate-500 mt-0.5" />
-                              <div>
-                                <p className="text-base text-slate-800">{step.title}</p>
-                                {step.description && (
-                                  <p className="text-sm text-slate-500 mt-0.5">{step.description}</p>
-                                )}
-                              </div>
-                            </li>
-                          )
-                        })}
-                      </ul>
-                    </>
-                  ) : (
-                    <div className="text-center py-8 border border-dashed border-slate-200 rounded-lg">
-                      <p className="text-base text-slate-600">Click "Start Reconciliation" to begin analysis.</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Right: Result (compact) */}
-                <div>
-                  {finalChoice && (
-                    <div className="border border-slate-200 rounded-lg p-4 bg-white">
-                      <p className="text-base font-medium text-slate-700 mb-3">Provider of Choice</p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-md border border-slate-200 flex items-center justify-center bg-slate-50">
-                            <ProviderLogo provider={finalChoice.provider as ProviderType} />
-                          </div>
-                          <div>
-                            <p className="text-slate-800 font-semibold capitalize text-lg">{finalChoice.provider}</p>
-                            <p className="text-slate-500 text-sm">Monthly total</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-xl font-bold text-slate-900">{formatMoney(finalChoice.price, finalChoice.currency)}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+            {/* Main Timeline Area */}
+            <div className="flex-1 overflow-y-auto" style={{ scrollBehavior: 'smooth', transform: 'translate3d(0, 0, 0)' }}>
+              {renderTimelinePhases()}
             </div>
-
-          </div>
+          </Card>
         </div>
       )}
+
+      {/* Enhanced CSS for premium dashboard animations with GPU acceleration */}
+      <style jsx>{`
+        @keyframes slideInUp {
+          from {
+            opacity: 0;
+            transform: translate3d(0, 40px, 0) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+          }
+        }
+        
+        @keyframes fadeInScale {
+          from {
+            opacity: 0;
+            transform: scale3d(0.85, 0.85, 1);
+          }
+          to {
+            opacity: 1;
+            transform: scale3d(1, 1, 1);
+          }
+        }
+        
+        @keyframes pulse-glow {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+          }
+          50% {
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+          }
+        }
+        
+        @keyframes shimmer {
+          0% {
+            background-position: -200px 0;
+          }
+          100% {
+            background-position: calc(200px + 100%) 0;
+          }
+        }
+        
+        @keyframes slideInLeft {
+          from {
+            opacity: 0;
+            transform: translate3d(-20px, 0, 0);
+          }
+          to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+          }
+        }
+        
+        @keyframes bounceIn {
+          0% {
+            opacity: 0;
+            transform: scale3d(0.3, 0.3, 1);
+          }
+          50% {
+            opacity: 1;
+            transform: scale3d(1.05, 1.05, 1);
+          }
+          70% {
+            transform: scale3d(0.98, 0.98, 1);
+          }
+          100% {
+            opacity: 1;
+            transform: scale3d(1, 1, 1);
+          }
+        }
+        
+        /* GPU-accelerated utility classes */
+        .transform-gpu {
+          transform: translate3d(0, 0, 0);
+          backface-visibility: hidden;
+        }
+        
+        .smooth-appear {
+          animation: fadeInScale 0.6s ease-out forwards;
+          will-change: transform, opacity;
+        }
+        
+        .stagger-appear {
+          animation: slideInUp 0.8s ease-out forwards;
+          will-change: transform, opacity;
+        }
+        
+        /* Optimized scroll container */
+        .scroll-smooth {
+          scroll-behavior: smooth;
+          -webkit-overflow-scrolling: touch;
+        }
+      `}</style>
     </div>
   )
 });
