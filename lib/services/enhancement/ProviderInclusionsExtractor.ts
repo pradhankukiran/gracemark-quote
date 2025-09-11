@@ -67,7 +67,7 @@ const categorize = (nameRaw: string): keyof StandardizedBenefitData["includedBen
   }
   
   // Social Security patterns (expanded international coverage)
-  if (/social\s*security|social\s*insur|employer\s*contrib|pension|ni\b|inps|ssf|contrib.*social|fica|ssi|unemployment\s*insur|disability\s*insur|workers.*comp/.test(name)) {
+  if (/social\s*security|social\s*insur|employer\s*contrib|pension|ni\b|inps|ssf|contrib.*social|fica|ssi|unemployment\s*insur|disability\s*insur|workers.*comp|\bfgts\b|indemnity\s*fund|severance\s*indemnity/.test(name)) {
     return 'socialSecurity'
   }
   

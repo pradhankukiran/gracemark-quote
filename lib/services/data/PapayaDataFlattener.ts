@@ -158,6 +158,87 @@ export class PapayaDataFlattener {
   }
 
   /**
+   * Flatten Papaya data focusing ONLY on sections needed to compute quotes.
+   * Keeps the payload compact to reduce LLM transport/streaming issues.
+   */
+  static flattenForQuote(papayaData: PapayaCountryData): FlattenedPapayaData {
+    const data = papayaData.data
+    if (!data) {
+      return {
+        country: papayaData.country || 'Unknown',
+        currency: '',
+        data: 'No legal data available',
+        extractedAt: new Date().toISOString()
+      }
+    }
+
+    const sections: string[] = []
+
+    // Extract currency
+    const currency = this.extractCurrency(data)
+
+    // Keep ONLY the most relevant sections for cost computation
+    // 1) Employer contributions
+    if (data.contribution?.employer_contributions) {
+      sections.push('EMPLOYER_CONTRIBUTIONS:')
+      data.contribution.employer_contributions.forEach(contrib => {
+        const rate = this.cleanText(contrib.rate)
+        const desc = this.cleanText(contrib.description)
+        sections.push(`- ${desc}: ${rate}`)
+      })
+      sections.push('')
+    }
+
+    // 2) Payroll requirements (13th/14th)
+    if (data.payroll) {
+      sections.push('PAYROLL_REQUIREMENTS:')
+      if (data.payroll['13th_salary']) {
+        sections.push(`13th Salary: ${this.cleanText(data.payroll['13th_salary'])}`)
+      }
+      if (data.payroll['14th_salary']) {
+        sections.push(`14th Salary: ${this.cleanText(data.payroll['14th_salary'])}`)
+      }
+      sections.push('')
+    }
+
+    // 3) Termination rules
+    if (data.termination) {
+      sections.push('TERMINATION_REQUIREMENTS:')
+      if (data.termination.notice_period) {
+        sections.push(`Notice Period: ${this.cleanText(data.termination.notice_period)}`)
+      }
+      if (data.termination.severance_pay) {
+        sections.push(`Severance Pay: ${this.cleanText(data.termination.severance_pay)}`)
+      }
+      if (data.termination.probation_period) {
+        sections.push(`Probation Period: ${this.cleanText(data.termination.probation_period)}`)
+      }
+      sections.push('')
+    }
+
+    // 4) Common benefits (non-mandatory, for all-inclusive)
+    if (data.common_benefits && Array.isArray(data.common_benefits)) {
+      sections.push('COMMON_BENEFITS:')
+      data.common_benefits.forEach(benefit => {
+        sections.push(`- ${this.cleanText(benefit)}`)
+      })
+      sections.push('')
+    }
+
+    const compactData = sections.join('\n').trim()
+    // Hard cap length to reduce transport issues
+    const maxLen = 20000
+    const clipped = compactData.length > maxLen ? (compactData.slice(0, maxLen) + '\n[truncated]') : compactData
+
+    return {
+      country: papayaData.country || 'Unknown',
+      currency,
+      data: clipped,
+      extractedAt: new Date().toISOString()
+    }
+  }
+
+  /**
    * Clean text by removing excessive whitespace and normalizing
    */
   private static cleanText(text: string): string {

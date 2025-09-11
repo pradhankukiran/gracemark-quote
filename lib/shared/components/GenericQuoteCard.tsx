@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { DollarSign, Loader2 } from "lucide-react";
+import { DollarSign, Loader2, Calculator } from "lucide-react";
 import { Quote, USDConversions, DualCurrencyQuotes } from "@/lib/shared/types";
 import { formatCurrency } from "@/lib/shared/utils/currencyUtils";
 import { ProviderLogo } from "@/app/quote/components/ProviderLogo";
@@ -26,6 +26,11 @@ interface GenericQuoteCardProps {
   dualCurrencyQuotes?: DualCurrencyQuotes;
   originalCurrency?: string;
   selectedCurrency?: string;
+  // Merged full-quote support (local currency)
+  mergedTotalMonthly?: number;
+  mergedCurrency?: string;
+  mergedExtras?: Array<{ name: string; amount: number }>;
+  recalcBaseItems?: string[];
 }
 
 const providerThemes: { [key in 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity']: ProviderTheme } = {
@@ -86,6 +91,10 @@ export const GenericQuoteCard = memo(({
   dualCurrencyQuotes,
   originalCurrency,
   selectedCurrency,
+  mergedTotalMonthly,
+  mergedCurrency,
+  mergedExtras,
+  recalcBaseItems,
 }: GenericQuoteCardProps) => {
   const theme = providerThemes[provider];
 
@@ -252,6 +261,9 @@ export const GenericQuoteCard = memo(({
     return total;
   }
 
+  const hasMerged = typeof mergedTotalMonthly === 'number' && Number.isFinite(mergedTotalMonthly as number)
+  const mergedTotal = hasMerged ? (mergedTotalMonthly as number) : undefined
+
   return (
     <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
       <CardContent className="p-6">
@@ -372,11 +384,22 @@ export const GenericQuoteCard = memo(({
               ? Number.parseFloat(changedQuote.costs[index].amount) 
               : undefined;
             const usdAmount = getUSDCostAmount(index);
+            const rawName = String(cost.name || '').trim();
+            const needsRecalcToken = /##RECALC##/i.test(rawName);
+            const needsRecalcList = Array.isArray(recalcBaseItems) && recalcBaseItems.includes(rawName);
+            const needsRecalc = needsRecalcToken || needsRecalcList;
+            const cleanName = rawName.replace(/##RECALC##/gi, '').trim();
+            const labelNode = (
+              <span className="inline-flex items-center gap-1">
+                <span>{cleanName}</span>
+                {needsRecalc && <Calculator className="h-4 w-4 text-red-500" />}
+              </span>
+            );
 
             return (
               <div key={index}>
                 {renderCostRow(
-                  cost.name,
+                  labelNode,
                   primaryAmount, // Primary: original currency amount
                   isDualCurrencyMode 
                     ? changedAmount // Secondary: changed currency in dual mode
@@ -413,6 +436,8 @@ export const GenericQuoteCard = memo(({
                 >
                   {isCalculatingLocal ? (
                     <span className="text-blue-500 animate-pulse">Loading...</span>
+                  ) : hasMerged && mergedTotal !== undefined ? (
+                    formatCurrency(mergedTotal, mergedCurrency || primaryQuote?.currency || '')
                   ) : primaryQuote ? (
                     (() => {
                       const val = computeDisplayTotal(primaryQuote)
@@ -488,19 +513,40 @@ export const GenericQuoteCard = memo(({
                   Total Monthly Cost
                 </span>
                 <span className={`${theme.brandColor} ${textSizes.total} font-bold`}>
-                  {primaryQuote ? (
-                    (() => {
-                      const val = computeDisplayTotal(primaryQuote)
-                      return formatCurrency(val || 0, primaryQuote.currency)
-                    })()
-                  ) : (
-                    <span className="text-slate-400">Pending...</span>
-                  )}
+                  {hasMerged && mergedTotal !== undefined
+                    ? formatCurrency(mergedTotal, mergedCurrency || primaryQuote?.currency || '')
+                    : (primaryQuote
+                      ? (() => {
+                          const val = computeDisplayTotal(primaryQuote)
+                          return formatCurrency(val || 0, primaryQuote.currency)
+                        })()
+                      : (<span className="text-slate-400">Pending...</span>)
+                    )}
                 </span>
               </div>
             )}
           </div>
         </div>
+
+        {/* Added Benefits (from merged full quote) */}
+        {mergedExtras && mergedExtras.length > 0 && (
+          <div className="mt-4 border-t border-slate-200 pt-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-slate-700 font-semibold">Additional Benefits</span>
+              {mergedCurrency && (
+                <span className="text-xs text-slate-500">Currency: {mergedCurrency}</span>
+              )}
+            </div>
+            <div className="space-y-2">
+              {mergedExtras.map((it, idx) => (
+                <div key={idx} className="flex items-center justify-between">
+                  <span className="text-slate-700 text-sm">{it.name}</span>
+                  <span className="text-slate-900 text-sm font-medium">{formatCurrency(it.amount || 0, mergedCurrency || primaryQuote?.currency || '')}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

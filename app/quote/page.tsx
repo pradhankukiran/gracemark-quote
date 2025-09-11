@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Loader2, Brain, Filter, Target, Trophy, ListChecks, Zap, BarChart3, TrendingUp, Sparkles, Star, Crown, Rocket, ChevronRight, Play, Pause, RotateCcw, Activity, TrendingDown } from "lucide-react"
+import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Loader2, Brain, Filter, Target, Trophy, ListChecks, Zap, BarChart3, TrendingUp, Sparkles, Star, Crown, Rocket, ChevronRight, Play, Pause, RotateCcw, Activity, TrendingDown, FileText } from "lucide-react"
 import Link from "next/link"
 import { useQuoteResults } from "./hooks/useQuoteResults"
 import { useUSDConversion } from "../eor-calculator/hooks/useUSDConversion"
@@ -21,6 +21,7 @@ import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, 
 import { EORFormData, RemoteAPIResponse } from "@/lib/shared/types"
 import { EnhancedQuoteCard } from "@/components/enhancement/EnhancedQuoteCard"
 import { ProviderType, EnhancedQuote } from "@/lib/types/enhancement"
+import { downloadQuotePDF, DownloadProgress, handleDownloadError, validatePDFData } from "@/lib/pdf/downloadHandler"
 
 const LoadingSpinner = () => (
   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -65,7 +66,12 @@ const QuotePageContent = memo(() => {
   const { enhancements } = useEnhancementContext()
   const [isReconModalOpen, setIsReconModalOpen] = useState(false)
   const [reconSteps, setReconSteps] = useState<{type: string, title: string, description?: string}[]>([])
-  const [finalChoice, setFinalChoice] = useState<{ provider: string; price: number; currency: string } | null>(null)
+  const [finalChoice, setFinalChoice] = useState<{ 
+    provider: string; 
+    price: number; 
+    currency: string;
+    enhancedQuote?: EnhancedQuote;
+  } | null>(null)
   
   // Timeline-style reconciliation state
   const [completedPhases, setCompletedPhases] = useState<Set<string>>(new Set())
@@ -73,6 +79,11 @@ const QuotePageContent = memo(() => {
   const [progressPercent, setProgressPercent] = useState(0)
   const [providerData, setProviderData] = useState<{ provider: string; price: number; inRange?: boolean; isWinner?: boolean }[]>([])
   const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null)
+
+  // PDF Download state
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false)
+  const [downloadProgress, setDownloadProgress] = useState<DownloadProgress | null>(null)
+  const [downloadError, setDownloadError] = useState<string | null>(null)
 
   // Body scroll lock when modal is open
   useEffect(() => {
@@ -688,14 +699,45 @@ const QuotePageContent = memo(() => {
               
               <div className="flex justify-center">
                 <Button 
-                  onClick={() => console.log('Download Quote Started!')}
+                  onClick={handleDownloadPDF}
+                  disabled={isDownloadingPDF || !finalChoice || !providerData.length}
                   size="lg"
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 px-8 py-3 text-base font-semibold"
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 px-8 py-3 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
-                  <Rocket className="h-5 w-5 mr-3" />
-                  Download Quote
+                  {isDownloadingPDF ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                      {downloadProgress?.message || 'Generating PDF...'}
+                    </>
+                  ) : (
+                    <>
+                      <Rocket className="h-5 w-5 mr-3" />
+                      Download Quote
+                    </>
+                  )}
                 </Button>
               </div>
+
+              {/* Download Error Display */}
+              {downloadError && (
+                <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-start gap-2">
+                    <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-red-800">PDF Generation Failed</p>
+                      <p className="text-sm text-red-600 mt-1">{downloadError}</p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setDownloadError(null)}
+                        className="mt-2 text-red-600 border-red-300 hover:bg-red-50"
+                      >
+                        Dismiss
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -809,7 +851,14 @@ const QuotePageContent = memo(() => {
       startPhase('complete')
       await smoothProgressUpdate(100)
       await sleep(200) // Reduced fade-in delay from 400ms to 200ms
-      setFinalChoice({ ...choice, currency });
+      
+      // Get the enhanced quote data for the selected provider
+      const selectedEnhancement = enhancements[choice.provider as ProviderType];
+      setFinalChoice({ 
+        ...choice, 
+        currency,
+        enhancedQuote: selectedEnhancement || undefined
+      });
       setReconSteps(prev => [...prev, { type: 'trophy', title: `Analysis Complete: ${choice.provider} Recommended` }]);
       completePhase('complete')
 
@@ -818,6 +867,63 @@ const QuotePageContent = memo(() => {
       setReconSteps(prev => [...prev, { type: 'error', title: 'An unexpected error occurred during reconciliation.'}]);
     }
   }
+
+  // PDF Download Handler
+  const handleDownloadPDF = async () => {
+    // Pre-validation with user-friendly messages
+    const validation = validatePDFData(finalChoice, providerData, quoteData);
+    
+    if (!validation.isValid) {
+      setDownloadError(`Cannot generate PDF:\n${validation.errors.join('\n')}`);
+      return;
+    }
+
+    // Show warnings if any (but continue with download)
+    if (validation.warnings.length > 0) {
+      console.log('PDF Generation Warnings:', validation.warnings.join(', '));
+    }
+
+    setIsDownloadingPDF(true);
+    setDownloadError(null);
+    setDownloadProgress(null);
+
+    try {
+      await downloadQuotePDF(
+        finalChoice,
+        providerData,
+        quoteData,
+        enhancements,
+        {
+          onProgress: (progress) => {
+            setDownloadProgress(progress);
+          },
+          onError: (error) => {
+            const userFriendlyMessage = handleDownloadError(error);
+            setDownloadError(userFriendlyMessage);
+            setIsDownloadingPDF(false);
+            setDownloadProgress(null);
+          },
+          onSuccess: (filename) => {
+            setIsDownloadingPDF(false);
+            setDownloadProgress(null);
+            // Show success message
+            console.log(`✅ PDF downloaded successfully: ${filename}`);
+            
+            // Optionally show warnings that were resolved
+            if (validation.warnings.length > 0) {
+              console.log('ℹ️ Note: Some optional data was missing but PDF was generated successfully');
+            }
+          },
+          includeLogos: true
+        }
+      );
+    } catch (error) {
+      const userFriendlyMessage = handleDownloadError(error);
+      setDownloadError(userFriendlyMessage);
+      setIsDownloadingPDF(false);
+      setDownloadProgress(null);
+    }
+  };
 
   // --- RENDER LOGIC (UNCHANGED) ---
   const renderQuote = () => {
@@ -908,29 +1014,109 @@ const QuotePageContent = memo(() => {
 
     if (!quote && !dualCurrencyQuotes) return null;
 
+    // Merge LLM full-quote items into base quote for a single, unified card
+    let mergedQuote: any = quote
+    let extendedConversions = conversions
+    try {
+      const enh = (enhancements as any)?.[currentProvider as string]
+      const fq = enh?.fullQuote
+      if (quote && fq && typeof fq.total_monthly === 'number' && Array.isArray(fq.items)) {
+        const cloned = { ...(quote as any) }
+        const existingCosts = Array.isArray(cloned.costs) ? [...cloned.costs] : []
+        const originalCostsLength = existingCosts.length
+        const toAmountStr = (n: number) => {
+          const v = Number(n)
+          return Number.isFinite(v) ? v.toFixed(2) : '0'
+        }
+
+        // Calculate exchange rate from existing conversions for new items
+        let exchangeRate: number | null = null
+        if (conversions?.costs && Array.isArray(conversions.costs) && existingCosts.length > 0) {
+          // Find a non-zero base item to calculate exchange rate
+          for (let i = 0; i < Math.min(existingCosts.length, conversions.costs.length); i++) {
+            const localAmount = Number.parseFloat(existingCosts[i].amount)
+            const usdAmount = conversions.costs[i]
+            if (localAmount > 0 && usdAmount > 0) {
+              exchangeRate = usdAmount / localAmount
+              break
+            }
+          }
+        }
+
+        // Append extras as cost rows and calculate their USD conversions
+        const newUsdConversions: number[] = []
+        fq.items.forEach((it: any) => {
+          const amt = Number(it?.monthly_amount) || 0
+          if (amt <= 0) return
+          existingCosts.push({
+            name: String(it?.name || it?.key || 'Additional Benefit'),
+            amount: toAmountStr(amt),
+            frequency: 'monthly',
+            country: cloned.country,
+            country_code: cloned.country_code,
+          })
+          
+          // Calculate USD conversion for this new item
+          if (exchangeRate !== null) {
+            newUsdConversions.push(amt * exchangeRate)
+          } else {
+            newUsdConversions.push(0) // Fallback to 0 if no exchange rate available
+          }
+        })
+
+        // Extend USD conversions array with new item conversions
+        if (conversions?.costs && newUsdConversions.length > 0) {
+          extendedConversions = {
+            ...conversions,
+            costs: [...conversions.costs, ...newUsdConversions]
+          }
+        }
+
+        cloned.costs = existingCosts
+        // Compute non-decreasing merged total using base displayed total vs LLM total
+        const parseNum = (v?: string | number) => {
+          if (typeof v === 'number') return v
+          const n = Number.parseFloat((v || '0') as string)
+          return Number.isFinite(n) ? n : 0
+        }
+        const baseTotal = (() => {
+          const t = parseNum((quote as any)?.total_costs)
+          if (currentProvider === 'deel') {
+            const fee = parseNum((quote as any)?.deel_fee)
+            const accr = parseNum((quote as any)?.severance_accural)
+            return Math.max(0, t - fee - accr)
+          }
+          return t
+        })()
+        const llmTotal = Number(fq.total_monthly) || 0
+        const mergedTotal = Math.max(baseTotal, llmTotal)
+        const totalStr = toAmountStr(mergedTotal)
+        cloned.total_costs = totalStr
+        cloned.employer_costs = totalStr
+        if (currentProvider === 'deel') {
+          cloned.deel_fee = '0'
+          cloned.severance_accural = '0'
+        }
+        mergedQuote = cloned
+      }
+    } catch { /* noop */ }
+
     return (
       <div className="space-y-6">
         <GenericQuoteCard
-          quote={dualCurrencyQuotes?.isDualCurrencyMode ? undefined : quote}
+          quote={dualCurrencyQuotes?.isDualCurrencyMode ? undefined : mergedQuote}
           title={`${quote?.country || eorForm.country}`}
           provider={currentProvider}
-          usdConversions={conversions}
+          usdConversions={extendedConversions}
           isConvertingToUSD={isConvertingToUSD}
           usdConversionError={usdConversionError}
           dualCurrencyQuotes={dualCurrencyQuotes}
           originalCurrency={eorForm.originalCurrency || undefined}
           selectedCurrency={eorForm.currency}
+          recalcBaseItems={(enhancements as any)?.[currentProvider as string]?.recalcBaseItems || []}
         />
 
-        {quote && (
-          <EnhancedQuoteCard
-            provider={currentProvider as ProviderType}
-            baseQuote={quote}
-            formData={eorForm}
-            quoteType={eorForm.quoteType}
-            showRetry={true}
-          />
-        )}
+        {/* Merged into base card; hide separate enhanced card */}
       </div>
     );
   };

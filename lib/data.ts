@@ -3238,7 +3238,24 @@ export const getCountryByCode = (code: string): CountryInfo | null => {
 }
 
 export const getCountryByName = (name: string): CountryInfo | null => {
-  return allCountries.find((country) => country.name === name) || null
+  if (!name) return null;
+  
+  // First try exact name match
+  const byName = allCountries.find((country) => country.name === name);
+  if (byName) return byName;
+  
+  // If no name match, try by country code (handles cases like "US" input)
+  const nameUpper = name.trim().toUpperCase();
+  const byCode = allCountries.find((country) => country.code === nameUpper);
+  if (byCode) return byCode;
+  
+  // Case-insensitive name search as fallback
+  const nameLower = name.trim().toLowerCase();
+  const byCaseInsensitiveName = allCountries.find((country) => 
+    country.name.toLowerCase() === nameLower
+  );
+  
+  return byCaseInsensitiveName || null;
 }
 
 export const getCurrencyForCountry = (countryCode: string): string => {

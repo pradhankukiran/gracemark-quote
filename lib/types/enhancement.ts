@@ -283,6 +283,24 @@ export interface EnhancedQuote {
   baseCurrency: string
   displayCurrency?: string
   exchangeRate?: number
+  
+  // Optional: Full quote assembled in local currency (Papaya)
+  fullQuote?: {
+    type: 'all-inclusive' | 'statutory-only'
+    country: string
+    currency: string
+    base_salary_monthly: number
+    items: Array<{ key: string; name: string; monthly_amount: number }>
+    subtotals: {
+      contributions: number
+      bonuses: number
+      allowances: number
+      termination: number
+    }
+    total_monthly: number
+  }
+  // Optional: Names of base-quote items that the LLM marked as needing recomputation (UI hint only)
+  recalcBaseItems?: string[]
 }
 
 // Groq LLM Input/Output Types

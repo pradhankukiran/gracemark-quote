@@ -240,7 +240,8 @@ export class EnhancementEngine {
         throw new Error(`No Papaya Global data available for country: ${params.formData.country}`)
       }
 
-      const flattenedPapaya = PapayaDataFlattener.flatten(papayaData)
+      // Use compact quote-focused flattener to reduce LLM payload and avoid stream errors
+      const flattenedPapaya = PapayaDataFlattener.flattenForQuote(papayaData)
       
       // Step 3: Extract provider benefits (what they already include)
       let extractedBenefits = enhancementCache.getExtraction(
@@ -546,10 +547,28 @@ export class EnhancementEngine {
     if (enhancementData.additionalContributions) {
       Object.values(enhancementData.additionalContributions).forEach(v => addIf(v))
     }
+    // Map aggregate employer contributions total if present in LLM output
+    const aggContrib: any = (groqResponse as any)?.enhancements?.employer_contributions_total
+    if (aggContrib && typeof aggContrib.monthly_amount === 'number' && isFinite(aggContrib.monthly_amount)) {
+      enhancementData.additionalContributions = {
+        ...(enhancementData.additionalContributions || {}),
+        employer_contributions_total: aggContrib.monthly_amount
+      }
+      addIf(aggContrib.monthly_amount)
+    }
 
-    const computedMonthlyEnhancement = monthlyEnhancements.reduce((s, n) => s + n, 0)
+    let computedMonthlyEnhancement = monthlyEnhancements.reduce((s, n) => s + n, 0)
     const baseMonthly = baseQuote.monthlyTotal
-    // For consistency, compute final total strictly as base + computed enhancements
+
+    // If a fullQuote is present, override enhancement total to align with full monthly total
+    let fullQuote = (groqResponse as any)?.full_quote as (EnhancedQuote['fullQuote'] | undefined)
+    if (fullQuote && typeof fullQuote === 'object') {
+      try {
+        const fqTotal = Number((fullQuote as any)?.total_monthly) || 0
+        if (fqTotal > 0) computedMonthlyEnhancement = Math.max(0, fqTotal - baseMonthly)
+      } catch { /* noop */ }
+    }
+
     const safeEnhancementMonthly = computedMonthlyEnhancement
     const safeTotalsMonthly = baseMonthly + safeEnhancementMonthly
 
@@ -565,12 +584,14 @@ export class EnhancementEngine {
         enhancements: safeEnhancementMonthly,
         total: safeTotalsMonthly
       },
-      overallConfidence: confidence_scores.overall || 0.5,
+      overallConfidence: confidence_scores.overall || 0.0,
       explanations: this.extractExplanations(enhancementData),
       warnings: groqResponse.warnings || [],
       overlapAnalysis,
       calculatedAt: new Date().toISOString(),
-      baseCurrency: baseQuote.currency
+      baseCurrency: (groqResponse as any)?.output_currency || fullQuote?.currency || baseQuote.currency,
+      fullQuote: fullQuote && typeof fullQuote === 'object' ? fullQuote : undefined,
+      recalcBaseItems: Array.isArray((groqResponse as any)?.recalc_base_items) ? (groqResponse as any)?.recalc_base_items : undefined
     }
   }
 

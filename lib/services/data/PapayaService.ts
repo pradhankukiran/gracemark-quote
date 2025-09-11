@@ -40,6 +40,21 @@ export class PapayaService {
   private static cache = new Map<string, PapayaCountryData>()
   private static coreCache = new Map<string, PapayaCountryData["data"]>()
 
+  // Minimal alias map for non-standard/alternate codes seen in inputs
+  // Keep this list intentionally short and data-driven per repo contents.
+  // Example: Papaya stores United Kingdom under GB, but some inputs use UK.
+  private static CODE_ALIASES: Record<string, string> = {
+    UK: 'GB', // United Kingdom -> Great Britain ISO2
+    EL: 'GR', // Greece (EU usage EL) -> GR
+  }
+
+  private static resolveCodeForPapaya(input: string): string {
+    const raw = (input || '').trim().toUpperCase()
+    // Apply known aliases first
+    const aliased = this.CODE_ALIASES[raw] || raw
+    return aliased
+  }
+
   /**
    * Get country data from Papaya Global JSON files
    */
@@ -50,15 +65,19 @@ export class PapayaService {
         return this.cache.get(countryCode)!
       }
 
-      const filePath = path.join(
-        process.cwd(), 
-        'lib', 
-        'country_data', 
-        `papaya_global_data_${countryCode.toUpperCase()}.json`
-      )
+      // Resolve with minimal aliasing for non-standard codes (e.g., UK -> GB)
+      const resolved = this.resolveCodeForPapaya(countryCode)
+      const directPath = path.join(process.cwd(), 'lib', 'country_data', `papaya_global_data_${resolved}.json`)
+      const fallbackPath = resolved === countryCode.toUpperCase()
+        ? null
+        : path.join(process.cwd(), 'lib', 'country_data', `papaya_global_data_${countryCode.toUpperCase()}.json`)
 
-      if (!fs.existsSync(filePath)) {
-        console.warn(`Papaya data not found for country: ${countryCode}`)
+      const filePath = fs.existsSync(directPath)
+        ? directPath
+        : (fallbackPath && fs.existsSync(fallbackPath) ? fallbackPath : '')
+
+      if (!filePath) {
+        console.warn(`Papaya data not found for country: ${countryCode} (resolved: ${resolved})`)
         return null
       }
 
@@ -86,10 +105,17 @@ export class PapayaService {
       // Check core cache first
       if (this.coreCache.has(countryCode)) return this.coreCache.get(countryCode)!
 
-      const filePath = path.join(
-        process.cwd(), 'lib', 'country_data', `papaya_global_data_${countryCode.toUpperCase()}.json`
-      )
-      if (!fs.existsSync(filePath)) return null
+      // Resolve with minimal aliasing for non-standard codes (e.g., UK -> GB)
+      const resolved = this.resolveCodeForPapaya(countryCode)
+      const directPath = path.join(process.cwd(), 'lib', 'country_data', `papaya_global_data_${resolved}.json`)
+      const fallbackPath = resolved === countryCode.toUpperCase()
+        ? null
+        : path.join(process.cwd(), 'lib', 'country_data', `papaya_global_data_${countryCode.toUpperCase()}.json`)
+
+      const filePath = fs.existsSync(directPath)
+        ? directPath
+        : (fallbackPath && fs.existsSync(fallbackPath) ? fallbackPath : '')
+      if (!filePath) return null
 
       const fileContent = fs.readFileSync(filePath, 'utf-8')
       const jsonData = JSON.parse(fileContent)

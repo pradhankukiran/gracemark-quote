@@ -588,70 +588,85 @@ ${quoteType === 'statutory-only'
   static buildBaselineSystemPrompt(): string {
     return `You are an expert EOR (Employer of Record) cost analyst.
 
-TASK: Compute a LEGAL BASELINE of employer costs from Papaya Global data + the given form context ONLY. Do NOT reconcile with any provider quote. Do NOT subtract anything. Output conservative, monthly amounts in the base quote currency.
+TASK: Assemble a COMPLETE monthly quote using Papaya Global data + the given form context ONLY. Do NOT reconcile with any provider quote. Do NOT subtract anything. Build the quote directly.
 
 STRICT RULES:
-- Baseline first: derive what the employer must budget monthly (termination accrual, 13th/14th, vacation bonus, required employer contributions, common allowances/vouchers if applicable).
-- Monthly amounts only. If yearly → divide by 12. If daily → multiply by 22 working days. Round to 2 decimals (half-up).
-- Use canonical keys and structure exactly as specified. Do not invent keys.
-- Evidence: for each computed item, include a short evidence field referencing the Papaya section/line used.
-- No reconciliation: do not check provider coverage, do not mark already_included, do not compute deltas.
-- Currency: assume Papaya values are in the country’s local currency. Output in the base quote currency provided. If currencies differ and you cannot convert, return amount=0 and add a warning about currency mismatch for that item.
+- Currency: ALWAYS output in the local country currency detected from Papaya (no conversion). Use that as the single output currency.
+- Base salary: The base salary provided is MONTHLY and must be used as-is.
+- Quote types:
+  - statutory-only: include ONLY legally mandated employer costs (social security, mandatory pension/insurances, mandatory bonuses where applicable, legally required allowances, and termination provisions if applicable and monthlyized).
+  - all-inclusive: include statutory baseline PLUS commonly provided allowances/benefits listed by Papaya with clear amounts.
+- Statutory-only EXCLUSIONS: Do NOT include enhanced/optional pension uplifts, private healthcare, meal/food allowances, remote/WFH allowances, car allowances, wellness/gym, or any other common benefits that are not explicitly mandated by law. Do NOT include leave entitlements (e.g., paternity/maternity) as monthly costs unless Papaya specifies a concrete monthly employer payment.
+- Conditional items: If a statutory item is conditional (e.g., UK Apprenticeship Levy requires exceeding a paybill threshold) and the condition cannot be determined from inputs, set the amount to 0 and add a short warning.
+- De-duplication: EXCLUDE any item that matches BASE ITEMS (by meaning or close name). Normalize names (lowercase, remove punctuation/stop-words like 'contribution', 'fund', 'fee'). Prefer the base item and do not output a duplicate.
+- Monthly amounts only. If yearly → divide by 12. If daily → multiply by 22 working days. If ranges → midpoint. Round to 2 decimals (half-up).
+- Markers: For any item that requires recomputation (e.g., annual → monthly, banded %, provisions), append the token ##RECALC## to the item.key (and you may also append to the item.name). Do NOT perform the math; just mark it.
+ - Monthly amounts only. If yearly → divide by 12. If daily → multiply by 22 working days. If ranges → midpoint. Round to 2 decimals (half-up).
+  - Use the exact JSON schema provided. Do not add analysis/confidence fields.
+  - Do not subtract or compare to provider coverage.
 
 RESPONSE JSON SHAPE (exact keys):
 {
-  "enhancements": {
-    "baseline": {
-      "termination": { "total": 0, "monthly_amount": 0, "months_used": 0, "evidence": "" },
-      "thirteenth_salary": { "monthly_amount": 0, "evidence": "" },
-      "fourteenth_salary": { "monthly_amount": 0, "evidence": "" },
-      "vacation_bonus": { "monthly_amount": 0, "evidence": "" },
-      "transportation_allowance": { "monthly_amount": 0, "mandatory": false, "evidence": "" },
-      "remote_work_allowance": { "monthly_amount": 0, "mandatory": false, "evidence": "" },
-      "meal_vouchers": { "monthly_amount": 0, "evidence": "" },
-      "contributions": {
-        "items": { "employer_social_security": 0 },
-        "total_monthly": 0,
-        "evidence": ""
-      }
-    }
+  "quote": {
+    "type": "statutory-only" | "all-inclusive",
+    "country": "string",
+    "currency": "string",
+    "base_salary_monthly": 0,
+    "items": [
+      { "key": "string", "name": "string", "monthly_amount": 0 }
+    ],
+    "subtotals": {
+      "contributions": 0,
+      "bonuses": 0,
+      "allowances": 0,
+      "termination": 0
+    },
+    "total_monthly": 0
   },
-  "warnings": [],
-  "assumptions": []
+  "recalc_base_items": ["string"],
+  "warnings": []
 }`
   }
 
   // Baseline-First User Prompt
   static buildBaselineUserPrompt(params: {
-    baseQuote: { country: string; currency: string; monthlyTotal: number }
+    baseQuote: { country: string; currency: string; monthlyTotal: number; baseCost: number }
     formData: { baseSalary: string }
     papayaData: string
     papayaCurrency: string
     quoteType: 'all-inclusive' | 'statutory-only'
     contractMonths: number
+    baseItems?: string[]
   }): string {
-    const { baseQuote, formData, papayaData, papayaCurrency, quoteType, contractMonths } = params
+    const { baseQuote, formData, papayaData, papayaCurrency, quoteType, contractMonths, baseItems } = params
 
     const limitedPapayaData = typeof papayaData === 'string' && papayaData.length > 50000
       ? papayaData.slice(0, 50000) + '\n[truncated]'
       : papayaData
 
     return [
-      `LEGAL BASELINE REQUEST (no reconciliation)`,
+      `FULL QUOTE REQUEST (no reconciliation)`,
       `COUNTRY: ${baseQuote.country}`,
-      `BASE CURRENCY: ${baseQuote.currency}`,
-      `PAPAYA CURRENCY (if present in text): ${papayaCurrency}`,
-      `BASE SALARY: ${formData.baseSalary} ${baseQuote.currency}`,
+      `LOCAL CURRENCY (detected from Papaya): ${papayaCurrency}`,
+      `BASE SALARY MONTHLY (from base quote): ${baseQuote.baseCost}`,
       `CONTRACT MONTHS: ${contractMonths}`,
       `QUOTE TYPE: ${quoteType}`,
+      '',
+      'BASE ITEMS (already present in base quote):',
+      Array.isArray(baseItems) && baseItems.length > 0 ? JSON.stringify(baseItems, null, 2) : '[]',
       '',
       'PAPAYA GLOBAL DATA (flattened):',
       limitedPapayaData,
       '',
       'RESPONSE INSTRUCTIONS:',
-      '- Compute the monthly legal baseline using the provided schema under enhancements.baseline.',
-      '- Do not reconcile or compare with any provider coverage.',
-      '- Use base currency for all outputs; if conversion impossible, set 0 and add a warning about currency mismatch.',
+      '- Always use LOCAL currency (Papaya) as the quote.currency.',
+      '- Use the provided base salary as MONTHLY base_salary_monthly.',
+      '- For statutory-only: include only legally mandated employer items (employer contributions from Papaya contributions section, mandatory 13th/14th if explicitly required, termination provisions monthlyized when applicable). Exclude enhanced pension uplifts, private healthcare, meal/food, WFH/remote allowances, car, wellness/gym, and leave entitlements as recurring monthly items.',
+      '- For all-inclusive: include statutory baseline plus common benefits with amounts from Papaya.',
+      '- De-duplication: REMOVE any item that matches BASE ITEMS (by meaning or close name). Normalize names (lowercase, remove punctuation/stop-words like contribution/fund/fee). Choose the base item over your generated one.',
+      '- Markers: For any item that needs recompute (e.g., annual → monthly), append ##RECALC## to item.key (and optionally to item.name). Do not compute the amount; just mark it.',
+      '- Compute subtotals per category and total_monthly = base_salary_monthly + sum(items).',
+      '- No analysis/confidence fields; strictly follow the schema.',
     ].join('\n')
   }
 }

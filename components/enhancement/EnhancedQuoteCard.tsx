@@ -165,7 +165,7 @@ export const EnhancedQuoteCard: React.FC<EnhancedQuoteCardProps> = ({
               )}
             </div>
             
-            {enhancement && (
+            {enhancement && enhancement.overallConfidence > 0 && (
               <ConfidenceIndicator 
                 score={enhancement.overallConfidence} 
                 size="large"
@@ -231,7 +231,49 @@ export const EnhancedQuoteCard: React.FC<EnhancedQuoteCardProps> = ({
           </div>
         )}
 
-        {/* Enhancement Breakdown */}
+        {/* Full Quote (Local Currency) Itemization */}
+        {enhancement?.fullQuote && !compact && (
+          <>
+            <Separator />
+            <div className="space-y-3">
+              <h4 className="font-medium text-slate-700">Full Quote (Local Currency)</h4>
+              <div className="rounded-lg border border-slate-200">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 bg-slate-50 text-xs text-slate-500">
+                  <div>Item</div>
+                  <div className="text-right">Monthly Amount</div>
+                  <div className="hidden sm:block text-right">Currency</div>
+                </div>
+                <div className="divide-y">
+                  {enhancement.fullQuote.items?.filter(i => (i?.monthly_amount || 0) > 0).map((it, idx) => {
+                    const raw = String(it?.name || it?.key || '').trim()
+                    const needsRecalc = /##RECALC##/i.test(raw)
+                    const clean = raw.replace(/##RECALC##/gi, '').trim()
+                    return (
+                      <div key={idx} className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3">
+                        <div className="text-slate-700 text-sm inline-flex items-center gap-1">
+                          <span>{clean}</span>
+                          {needsRecalc && <Calculator className="h-4 w-4 text-red-500" />}
+                        </div>
+                        <div className="text-right font-medium text-slate-900">{formatCurrency(it.monthly_amount || 0, enhancement.fullQuote!.currency)}</div>
+                        <div className="hidden sm:block text-right text-slate-600 text-sm">{enhancement.fullQuote!.currency}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="p-3 bg-slate-50">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+                    <div className="flex items-center justify-between"><span className="text-slate-600">Contributions</span><span className="font-medium">{formatCurrency(enhancement.fullQuote.subtotals.contributions || 0, enhancement.fullQuote.currency)}</span></div>
+                    <div className="flex items-center justify-between"><span className="text-slate-600">Bonuses</span><span className="font-medium">{formatCurrency(enhancement.fullQuote.subtotals.bonuses || 0, enhancement.fullQuote.currency)}</span></div>
+                    <div className="flex items-center justify-between"><span className="text-slate-600">Allowances</span><span className="font-medium">{formatCurrency(enhancement.fullQuote.subtotals.allowances || 0, enhancement.fullQuote.currency)}</span></div>
+                    <div className="flex items-center justify-between"><span className="text-slate-600">Termination</span><span className="font-medium">{formatCurrency(enhancement.fullQuote.subtotals.termination || 0, enhancement.fullQuote.currency)}</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Enhancement Breakdown (legacy delta view) */}
         {enhancement && !compact && (
           <>
             <Separator />

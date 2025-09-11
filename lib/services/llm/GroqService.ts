@@ -297,15 +297,59 @@ export class GroqService {
       // Rate limiting
       await this.checkRateLimit()
 
-      // Baseline-first prompting (Papaya-only baseline, no reconciliation)
+      // Full-quote prompting (Papaya-only; assemble complete monthly quote in LOCAL currency)
       let systemPrompt = PromptEngine.buildBaselineSystemPrompt()
+      // Build BASE ITEMS (names only) from the base quote originalResponse for LLM-side de-dup
+      const baseItems: string[] = []
+      try {
+        const or: any = input.baseQuote.originalResponse || {}
+        // Generic costs[]
+        if (Array.isArray(or?.costs)) {
+          for (const c of or.costs) {
+            const n = String(c?.name || '').trim()
+            if (n) baseItems.push(n)
+          }
+        }
+        // Remote breakdown lists
+        const costs = or?.employment?.employer_currency_costs
+        if (costs) {
+          const lists = [
+            Array.isArray(costs?.monthly_contributions_breakdown) ? costs.monthly_contributions_breakdown : [],
+            Array.isArray(costs?.monthly_benefits_breakdown) ? costs.monthly_benefits_breakdown : []
+          ]
+          for (const arr of lists) {
+            for (const it of arr as any[]) {
+              const n = String(it?.name || '').trim()
+              if (n) baseItems.push(n)
+            }
+          }
+        }
+        // Rivermate taxItems
+        if (Array.isArray((or as any)?.taxItems)) {
+          for (const it of (or as any).taxItems) {
+            const n = String(it?.name || '').trim()
+            if (n) baseItems.push(n)
+          }
+        }
+        // Oyster contributions
+        if (Array.isArray((or as any)?.contributions)) {
+          for (const it of (or as any).contributions) {
+            const n = String(it?.name || '').trim()
+            if (n) baseItems.push(n)
+          }
+        }
+        // Always include base salary as a named item for clarity
+        baseItems.unshift('Base Salary')
+      } catch { /* noop */ }
+
       let userPrompt = PromptEngine.buildBaselineUserPrompt({
-        baseQuote: input.baseQuote,
+        baseQuote: input.baseQuote as any, // includes baseCost (monthly)
         formData: { baseSalary: input.formData.baseSalary },
         papayaData: input.papayaData,
         papayaCurrency: input.papayaCurrency,
         quoteType: input.quoteType,
-        contractMonths: input.contractDurationMonths
+        contractMonths: input.contractDurationMonths,
+        baseItems
       })
 
       // Minify prompts to reduce token count
@@ -315,8 +359,8 @@ export class GroqService {
         userPrompt = compact(userPrompt)
       } catch { /* noop */ }
 
-      // Debug logging for development
-      if (input.provider === 'remote') {
+      // Debug logging for development (provider-agnostic, but keep payload preview short)
+      if (process.env.NODE_ENV === 'development') {
         try {
           const shorten = (txt: string, max = 1800) => {
             if (!txt) return txt
@@ -332,6 +376,7 @@ export class GroqService {
             contractMonths: input.contractDurationMonths,
             papayaCurrency: input.papayaCurrency,
             extractedBenefitKeys: Object.keys(input.extractedBenefits.includedBenefits),
+            papayaDataLength: (input.papayaData || '').length,
             prompts: { system: shorten(systemPrompt, 600), user: shorten(userPrompt, 2000) }
           })
         } catch {/* noop */}
@@ -359,23 +404,70 @@ export class GroqService {
 
       const content = (response as ChatCompletion).choices?.[0]?.message?.content
       if (!content) {
-        throw new Error('No content received from Groq direct enhancement')
+        // Safe fallback: return zero-delta object to avoid breaking UI
+        const zeroDelta = 0
+        const groqLike: any = {
+          analysis: { provider_coverage: [], missing_requirements: [], double_counting_risks: [] },
+          enhancements: { employer_contributions_total: { monthly_amount: zeroDelta, explanation: 'LLM returned empty content', confidence: 0.0, already_included: true } },
+          totals: {
+            total_monthly_enhancement: 0,
+            total_yearly_enhancement: 0,
+            final_monthly_total: input.baseQuote.monthlyTotal
+          },
+          confidence_scores: { overall: 0.0, termination_costs: 0.0, salary_enhancements: 0.0, allowances: 0.0 },
+          recommendations: [],
+          warnings: ['LLM returned no content for full-quote request'],
+          output_currency: input.papayaCurrency || input.baseQuote.currency
+        }
+        return groqLike as unknown as GroqEnhancementResponse
       }
 
-      // Parse baseline and reconcile with provider coverage in code
+      // Parse full quote (local currency) and transform into a GroqEnhancementResponse-compatible structure
       const jsonText = this.extractJson(content)
-      const baseline = JSON.parse(jsonText) as any
-      const reconciled = this.reconcileBaselineWithProvider(
-        baseline,
-        {
-          baseQuote: input.baseQuote,
-          quoteType: input.quoteType,
-          contractMonths: input.contractDurationMonths,
-          extractedBenefits: input.extractedBenefits
+      const parsed = JSON.parse(jsonText) as any
+      const quote = parsed?.quote
+      if (!quote || typeof quote.total_monthly !== 'number' || typeof quote.base_salary_monthly !== 'number') {
+        // Safe fallback: retain base totals with warning
+        const groqLike: any = {
+          analysis: { provider_coverage: [], missing_requirements: [], double_counting_risks: [] },
+          enhancements: { employer_contributions_total: { monthly_amount: 0, explanation: 'Invalid full-quote response; fallback to base', confidence: 0.0, already_included: true } },
+          totals: {
+            total_monthly_enhancement: 0,
+            total_yearly_enhancement: 0,
+            final_monthly_total: input.baseQuote.monthlyTotal
+          },
+          confidence_scores: { overall: 0.0, termination_costs: 0.0, salary_enhancements: 0.0, allowances: 0.0 },
+          recommendations: [],
+          warnings: ['Invalid full-quote response from LLM'],
+          output_currency: input.papayaCurrency || input.baseQuote.currency
         }
-      )
-      this.validateResponse(reconciled)
-      return reconciled
+        return groqLike as unknown as GroqEnhancementResponse
+      }
+
+      // Build a minimal GroqEnhancementResponse where the entire delta equals the difference to provider monthly total
+      // This lets downstream transformation compute final_total correctly while we show a complete monthly total.
+      const delta = Math.max(0, Number(quote.total_monthly) - Number(input.baseQuote.monthlyTotal || 0))
+      const groqLike: any = {
+        analysis: { provider_coverage: [], missing_requirements: [], double_counting_risks: [] },
+        enhancements: {
+          // Use aggregate catch-all so transform can add it to totals
+          employer_contributions_total: { monthly_amount: delta, explanation: 'Full-quote aggregate (local currency)', confidence: 0.0, already_included: false }
+        },
+        totals: {
+          total_monthly_enhancement: delta,
+          total_yearly_enhancement: delta * 12,
+          final_monthly_total: quote.total_monthly
+        },
+        confidence_scores: { overall: 0.0, termination_costs: 0.0, salary_enhancements: 0.0, allowances: 0.0 },
+        recommendations: [],
+        warnings: Array.isArray(parsed?.warnings) ? parsed.warnings : [] ,
+        output_currency: quote.currency || input.papayaCurrency || input.baseQuote.currency,
+        full_quote: quote,
+        recalc_base_items: Array.isArray(parsed?.recalc_base_items) ? parsed.recalc_base_items : []
+      }
+
+      // Return compatible structure
+      return groqLike as unknown as GroqEnhancementResponse
 
     } catch (error) {
       throw this.handleError(error, input.provider)

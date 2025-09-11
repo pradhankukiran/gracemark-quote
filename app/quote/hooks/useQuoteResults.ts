@@ -943,7 +943,13 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
 
           const hasBase = hasProviderData(provider, data);
           if (!hasBase) {
-            updateProviderState(provider, { status: 'inactive', hasData: false });
+            // Do not downgrade to inactive if a base call is still in-flight.
+            // Keep spinner visible to reflect ongoing fetch.
+            if (baseInFlightRef.current[provider]) {
+              updateProviderState(provider, { status: 'loading-base', hasData: false });
+            } else {
+              updateProviderState(provider, { status: 'inactive', hasData: false });
+            }
             return;
           }
 
