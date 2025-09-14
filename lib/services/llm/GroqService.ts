@@ -17,6 +17,7 @@ import {
   ArithmeticComputeInput,
   DirectEnhancementInput
 } from "@/lib/types/enhancement"
+import type { PrepassLegalProfile } from "@/lib/services/llm/CerebrasService"
 
 // Rate limiting interface
 interface RateLimiter {
@@ -109,7 +110,7 @@ export class GroqService {
       }
       // Only log on server side
       if (typeof window === 'undefined') {
-        console.log('[GroqService] init:', summary)
+        // console.log('[GroqService] init:', summary)
       }
     } catch {
       // ignore
@@ -171,7 +172,24 @@ export class GroqService {
       // Build extraction prompts
       const systemPrompt = PromptEngine.buildExtractionSystemPrompt()
       const userPrompt = PromptEngine.buildExtractionUserPrompt(originalResponse, provider)
-      
+
+      // Debug logging for development
+       if (typeof window === 'undefined') {
+        try {
+          console.log('[Groq] Extract Benefits - Request Details:', {
+            method: 'extractBenefits',
+            provider: provider,
+            model: this.config.model,
+            temperature: this.config.temperature,
+            max_tokens: this.config.maxTokens,
+            prompts: {
+              system: systemPrompt,
+              user: userPrompt
+            }
+          })
+        } catch {/* noop */}
+      }
+
       // Make API call using Groq SDK (Pass 1)
       const client = this.getClient('pass1')
       const response = await this.requestWithRetry((opts) => client.chat.completions.create({
@@ -191,6 +209,25 @@ export class GroqService {
 
       // Update rate limiter
       this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
+
+      // Debug logging for development
+       if (typeof window === 'undefined') {
+        try {
+          const usage = (response as ChatCompletion).usage
+          const content = (response as ChatCompletion).choices?.[0]?.message?.content || ''
+          console.log('[Groq] Extract Benefits - Response Details:', {
+            method: 'extractBenefits',
+            provider: provider,
+            usage: {
+              prompt_tokens: usage?.prompt_tokens,
+              completion_tokens: usage?.completion_tokens,
+              total_tokens: usage?.total_tokens
+            },
+            response_length: content.length,
+            raw_content: content
+          })
+        } catch {/* noop */}
+      }
 
       // Parse and validate response
       const content = (response as ChatCompletion).choices?.[0]?.message?.content
@@ -359,14 +396,11 @@ export class GroqService {
         userPrompt = compact(userPrompt)
       } catch { /* noop */ }
 
-      // Debug logging for development (provider-agnostic, but keep payload preview short)
-      if (process.env.NODE_ENV === 'development') {
+      // Debug logging for development
+       if (typeof window === 'undefined') {
         try {
-          const shorten = (txt: string, max = 1800) => {
-            if (!txt) return txt
-            return txt.length > max ? `${txt.slice(0, max)}... [truncated, ${txt.length - max} chars more]` : txt
-          }
-          console.log('[Groq] Direct Enhancement - Payload Preview:', {
+          console.log('[Groq] Direct Enhancement - Request Details:', {
+            method: 'computeDirectEnhancements',
             provider: input.provider,
             baseTotal: input.baseQuote.monthlyTotal,
             baseSalary: input.baseQuote.baseCost,
@@ -375,9 +409,15 @@ export class GroqService {
             quoteType: input.quoteType,
             contractMonths: input.contractDurationMonths,
             papayaCurrency: input.papayaCurrency,
-            extractedBenefitKeys: Object.keys(input.extractedBenefits.includedBenefits),
+            extractedBenefitKeys: Object.keys(input.extractedBenefits.includedBenefits || {}),
             papayaDataLength: (input.papayaData || '').length,
-            prompts: { system: shorten(systemPrompt, 600), user: shorten(userPrompt, 2000) }
+            model: this.config.model,
+            temperature: this.config.temperature,
+            max_tokens: this.config.maxTokens,
+            prompts: {
+              system: systemPrompt,
+              user: userPrompt
+            }
           })
         } catch {/* noop */}
       }
@@ -401,6 +441,25 @@ export class GroqService {
 
       // Update rate limiter usage
       this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
+
+      // Debug logging for development
+       if (typeof window === 'undefined') {
+        try {
+          const usage = (response as ChatCompletion).usage
+          const responseContent = (response as ChatCompletion).choices?.[0]?.message?.content || ''
+          console.log('[Groq] Direct Enhancement - Response Details:', {
+            method: 'computeDirectEnhancements',
+            provider: input.provider,
+            usage: {
+              prompt_tokens: usage?.prompt_tokens,
+              completion_tokens: usage?.completion_tokens,
+              total_tokens: usage?.total_tokens
+            },
+            response_length: responseContent.length,
+            raw_content: responseContent
+          })
+        } catch {/* noop */}
+      }
 
       const content = (response as ChatCompletion).choices?.[0]?.message?.content
       if (!content) {
@@ -471,6 +530,232 @@ export class GroqService {
 
     } catch (error) {
       throw this.handleError(error, input.provider)
+    }
+  }
+
+  /**
+   * Enhancement using Cerebras pre-pass baseline + provider coverage.
+   * Baseline amounts are converted to provider currency before prompting; Groq computes deltas and packaging.
+   */
+  async computeEnhancementsWithPrepass(input: {
+    provider: ProviderType
+    baseQuote: { provider: string; monthlyTotal: number; baseCost: number; currency: string; country: string; breakdown?: Record<string, number | undefined>; originalResponse?: unknown }
+    quoteType: 'all-inclusive' | 'statutory-only'
+    contractDurationMonths: number
+    extractedBenefits: StandardizedBenefitData
+    prepass: PrepassLegalProfile
+  }): Promise<GroqEnhancementResponse> {
+    await this.checkRateLimit()
+
+    const providerCurrency = input.baseQuote.currency
+    const isStatutory = input.quoteType === 'statutory-only'
+
+    // Build provider coverage map (monthly)
+    const prov = input.extractedBenefits?.includedBenefits || {}
+    const monthlyOf = (x: any): number => {
+      if (!x) return 0
+      const amt = typeof x.amount === 'number' ? x.amount : 0
+      const freq = (x.frequency || '').toLowerCase()
+      return freq === 'yearly' ? amt / 12 : amt
+    }
+    const providerCoverage: Record<string, number> = {
+      thirteenth_salary: monthlyOf((prov as any).thirteenthSalary),
+      fourteenth_salary: monthlyOf((prov as any).fourteenthSalary),
+      vacation_bonus: monthlyOf((prov as any).vacationBonus),
+      transportation_allowance: monthlyOf((prov as any).transportAllowance),
+      remote_work_allowance: monthlyOf((prov as any).remoteWorkAllowance),
+      meal_vouchers: monthlyOf((prov as any).mealVouchers),
+      social_security: monthlyOf((prov as any).socialSecurity)
+    }
+
+    // Convert baseline items → provider currency and map to known keys
+    const baselineProviderCurrency: Record<string, number> = {}
+    const baselineMandatoryFlags: Record<string, boolean> = {}
+    const localCurrency = input.prepass.meta.currency || providerCurrency
+    const convertAmount = async (amount: number): Promise<number> => {
+      try {
+        if (!amount || localCurrency === providerCurrency) return amount || 0
+        const { PapayaCurrencyProvider } = await import('@/lib/providers/papaya-currency-provider')
+        const conv = new PapayaCurrencyProvider()
+        const res = await conv.convertCurrency(amount, localCurrency, providerCurrency)
+        if (res.success && res.data?.conversion_data?.target_amount) return res.data.conversion_data.target_amount
+        return amount
+      } catch { return amount }
+    }
+    const items = Array.isArray(input.prepass.items) ? input.prepass.items : []
+    for (const item of items) {
+      const localMonthly = typeof item.monthly_amount_local === 'number' ? item.monthly_amount_local : Number(item.monthly_amount_local || 0)
+      const providerMonthly = await convertAmount(localMonthly)
+      // Map to known keys
+      const key = item.key || ''
+      const mapKey = (() => {
+        if (key.includes('13') || key === 'thirteenth_salary') return 'thirteenth_salary'
+        if (key.includes('14') || key === 'fourteenth_salary') return 'fourteenth_salary'
+        if (key.includes('vacation') && item.category === 'bonuses') return 'vacation_bonus'
+        if (key.includes('transport')) return 'transportation_allowance'
+        if (key.includes('remote')) return 'remote_work_allowance'
+        if (key.includes('meal')) return 'meal_vouchers'
+        if (item.category === 'termination') return 'termination_costs'
+        if (item.category === 'contributions') return 'employer_contributions_total'
+        return ''
+      })()
+      if (!mapKey) continue
+      // Aggregate where appropriate
+      if (mapKey === 'employer_contributions_total' || mapKey === 'termination_costs') {
+        baselineProviderCurrency[mapKey] = (baselineProviderCurrency[mapKey] || 0) + (providerMonthly || 0)
+      } else if (mapKey === 'vacation_bonus') {
+        // store monthly equivalent for uniformity
+        baselineProviderCurrency[mapKey] = (baselineProviderCurrency[mapKey] || 0) + (providerMonthly || 0)
+      } else {
+        baselineProviderCurrency[mapKey] = (baselineProviderCurrency[mapKey] || 0) + (providerMonthly || 0)
+      }
+      baselineMandatoryFlags[mapKey] = !!item.mandatory
+    }
+
+    // In statutory-only mode, zero-out non-mandatory allowances from baseline
+    if (isStatutory) {
+      const optionalAllowanceKeys = ['transportation_allowance', 'remote_work_allowance', 'meal_vouchers']
+      for (const k of optionalAllowanceKeys) {
+        if (!baselineMandatoryFlags[k]) baselineProviderCurrency[k] = 0
+      }
+    }
+
+    // Build prompts
+    let systemPrompt = PromptEngine.buildPrepassSystemPrompt()
+    let userPrompt = PromptEngine.buildPrepassUserPrompt({
+      provider: input.provider,
+      currency: providerCurrency,
+      quoteType: input.quoteType,
+      contractMonths: input.contractDurationMonths,
+      baseMonthly: input.baseQuote.monthlyTotal,
+      baselineProviderCurrency,
+      baselineMandatoryFlags,
+      providerCoverage
+    })
+    try {
+      const compact = (s: string) => s.replace(/\s+/g, ' ').trim()
+      systemPrompt = compact(systemPrompt)
+      userPrompt = compact(userPrompt)
+    } catch { /* noop */ }
+
+    // Debug logging for development
+     if (typeof window === 'undefined') {
+      try {
+        console.log('[Groq] Enhancements With Prepass - Request Details:', {
+          method: 'computeEnhancementsWithPrepass',
+          provider: input.provider,
+          baseMonthly: input.baseQuote.monthlyTotal,
+          currency: providerCurrency,
+          quoteType: input.quoteType,
+          contractMonths: input.contractDurationMonths,
+          model: this.config.model,
+          temperature: this.config.temperature,
+          max_tokens: this.config.maxTokens,
+          prompts: {
+            system: systemPrompt,
+            user: userPrompt
+          }
+        })
+      } catch {/* noop */}
+    }
+
+    const client = this.getProviderClient(input.provider)
+    try {
+      const response = await this.requestWithRetry((opts) => client.chat.completions.create({
+        model: this.config.model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        tools: [],
+        tool_choice: 'none',
+        temperature: this.config.temperature,
+        max_tokens: this.config.maxTokens,
+        top_p: 1,
+        stream: false,
+        response_format: { type: 'json_object' }
+      }, { signal: opts?.signal }))
+
+      this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
+
+      // Debug logging for development
+       if (typeof window === 'undefined') {
+        try {
+          const usage = (response as ChatCompletion).usage
+          const responseContent = (response as ChatCompletion).choices?.[0]?.message?.content || ''
+          console.log('[Groq] Enhancements With Prepass - Response Details:', {
+            method: 'computeEnhancementsWithPrepass',
+            provider: input.provider,
+            usage: {
+              prompt_tokens: usage?.prompt_tokens,
+              completion_tokens: usage?.completion_tokens,
+              total_tokens: usage?.total_tokens
+            },
+            response_length: responseContent.length,
+            raw_content: responseContent
+          })
+        } catch {/* noop */}
+      }
+
+      const content = (response as ChatCompletion).choices?.[0]?.message?.content
+      if (content) {
+        const jsonText = this.extractJson(content)
+        const parsed = JSON.parse(jsonText)
+        // Minimal shape safeguard
+        if (parsed && parsed.enhancements && parsed.totals) {
+          return parsed as GroqEnhancementResponse
+        }
+      }
+      // Fallback to deterministic delta compute
+      return await this.computeDeltasFallback(baselineProviderCurrency, baselineMandatoryFlags, providerCoverage, input.baseQuote.monthlyTotal)
+    } catch (error) {
+      // Fallback deterministic
+      return await this.computeDeltasFallback(baselineProviderCurrency, baselineMandatoryFlags, providerCoverage, input.baseQuote.monthlyTotal)
+    }
+  }
+
+  private async computeDeltasFallback(
+    baseline: Record<string, number>,
+    mandatory: Record<string, boolean>,
+    coverage: Record<string, number>,
+    baseMonthly: number
+  ): Promise<GroqEnhancementResponse> {
+    const get = (k: string) => Math.max(0, Number(baseline[k] || 0))
+    const cov = (k: string) => Math.max(0, Number(coverage[k] || 0))
+    const delta = (k: string) => Math.max(0, get(k) - cov(k))
+
+    const d_th13 = delta('thirteenth_salary')
+    const d_th14 = delta('fourteenth_salary')
+    const d_vac = delta('vacation_bonus')
+    const d_trans = delta('transportation_allowance')
+    const d_remote = delta('remote_work_allowance')
+    const d_meal = delta('meal_vouchers')
+    const d_contrib = delta('employer_contributions_total')
+    const d_term = get('termination_costs') // treat as monthly provision (no provider coverage mapping)
+
+    const total = Number((d_th13 + d_th14 + (d_vac) + d_trans + d_remote + d_meal + d_contrib + d_term).toFixed(2))
+
+    const enhancements: any = {}
+    if (get('termination_costs') > 0) enhancements.termination_costs = { total: Number((get('termination_costs') * 12).toFixed(2)), explanation: 'Monthly termination accrual × 12', confidence: 0.7 }
+    if (get('thirteenth_salary') > 0) enhancements.thirteenth_salary = { monthly_amount: d_th13, yearly_amount: Number((d_th13 * 12).toFixed(2)), explanation: '13th salary delta', confidence: 0.75, already_included: d_th13 === 0 }
+    if (get('fourteenth_salary') > 0) enhancements.fourteenth_salary = { monthly_amount: d_th14, yearly_amount: Number((d_th14 * 12).toFixed(2)), explanation: '14th salary delta', confidence: 0.7, already_included: d_th14 === 0 }
+    if (get('vacation_bonus') > 0) enhancements.vacation_bonus = { amount: Number((d_vac * 12).toFixed(2)), explanation: 'Vacation bonus delta', confidence: 0.6, already_included: d_vac === 0 }
+    if (get('transportation_allowance') > 0) enhancements.transportation_allowance = { monthly_amount: d_trans, explanation: 'Transportation allowance delta', confidence: 0.6, already_included: d_trans === 0, mandatory: !!mandatory['transportation_allowance'] }
+    if (get('remote_work_allowance') > 0) enhancements.remote_work_allowance = { monthly_amount: d_remote, explanation: 'Remote work allowance delta', confidence: 0.6, already_included: d_remote === 0, mandatory: !!mandatory['remote_work_allowance'] }
+    if (get('meal_vouchers') > 0) enhancements.meal_vouchers = { monthly_amount: d_meal, explanation: 'Meal vouchers delta', confidence: 0.6, already_included: d_meal === 0 }
+    if (get('employer_contributions_total') > 0) enhancements.employer_contributions_total = { monthly_amount: d_contrib, explanation: 'Employer contributions delta', confidence: 0.7, already_included: d_contrib === 0 }
+
+    return {
+      analysis: { provider_coverage: [], missing_requirements: [], double_counting_risks: [] },
+      enhancements,
+      totals: {
+        total_monthly_enhancement: total,
+        total_yearly_enhancement: Number((total * 12).toFixed(2)),
+        final_monthly_total: Number((baseMonthly + total).toFixed(2))
+      },
+      confidence_scores: { overall: 0.7, termination_costs: get('termination_costs') > 0 ? 0.7 : 0.0, salary_enhancements: (get('thirteenth_salary') + get('fourteenth_salary') + get('vacation_bonus')) > 0 ? 0.7 : 0.0, allowances: (get('transportation_allowance') + get('remote_work_allowance') + get('meal_vouchers')) > 0 ? 0.6 : 0.0 },
+      recommendations: [],
+      warnings: []
     }
   }
 
@@ -1042,6 +1327,22 @@ export class GroqService {
    */
   async healthCheck(): Promise<boolean> {
     try {
+      // Debug logging for development
+       if (typeof window === 'undefined') {
+        try {
+          console.log('[Groq] Health Check - Request Details:', {
+            method: 'healthCheck',
+            model: this.config.model,
+            max_tokens: 16,
+            temperature: 0,
+            messages: [
+              { role: "system", content: "You are a health check. Reply with JSON only." },
+              { role: "user", content: "ping" }
+            ]
+          })
+        } catch {/* noop */}
+      }
+
       const client = this.getClient('pass2')
       const response = await client.chat.completions.create({
         model: this.config.model,
@@ -1057,6 +1358,23 @@ export class GroqService {
       })
 
       const content = response.choices[0]?.message?.content || ''
+
+      // Debug logging for development
+       if (typeof window === 'undefined') {
+        try {
+          console.log('[Groq] Health Check - Response Details:', {
+            method: 'healthCheck',
+            usage: {
+              prompt_tokens: response.usage?.prompt_tokens,
+              completion_tokens: response.usage?.completion_tokens,
+              total_tokens: response.usage?.total_tokens
+            },
+            response_length: content.length,
+            raw_content: content
+          })
+        } catch {/* noop */}
+      }
+
       const json = this.extractJson(content)
       const parsed = JSON.parse(json)
       return parsed && (parsed.status === 'ok' || parsed.ok === true)
@@ -1103,6 +1421,27 @@ export class GroqService {
         userPrompt = compact(userPrompt)
       } catch { /* noop */ }
 
+      // Debug logging for development
+       if (typeof window === 'undefined') {
+        try {
+          console.log('[Groq] Reconcile - Request Details:', {
+            method: 'reconcile',
+            currency: input.settings.currency,
+            threshold: input.settings.threshold,
+            riskMode: input.settings.riskMode,
+            providers_count: input.providers.length,
+            providers: input.providers.map(p => ({ provider: p.provider, total: p.total, confidence: p.confidence })),
+            model: this.config.model,
+            temperature: this.config.temperature,
+            max_tokens: this.config.maxTokens,
+            prompts: {
+              system: systemPrompt,
+              user: userPrompt
+            }
+          })
+        } catch {/* noop */}
+      }
+
       // Use only the default single-key client (GROQ_API_KEY) for reconciliation
       const client = this.getDefaultClientForReconciliation()
       const response = await this.requestWithRetry((opts) => client.chat.completions.create({
@@ -1121,6 +1460,24 @@ export class GroqService {
       }, { signal: opts?.signal }))
 
       this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
+
+      // Debug logging for development
+       if (typeof window === 'undefined') {
+        try {
+          const usage = (response as ChatCompletion).usage
+          const responseContent = (response as ChatCompletion).choices?.[0]?.message?.content || ''
+          console.log('[Groq] Reconcile - Response Details:', {
+            method: 'reconcile',
+            usage: {
+              prompt_tokens: usage?.prompt_tokens,
+              completion_tokens: usage?.completion_tokens,
+              total_tokens: usage?.total_tokens
+            },
+            response_length: responseContent.length,
+            raw_content: responseContent
+          })
+        } catch {/* noop */}
+      }
 
       const content = (response as ChatCompletion).choices?.[0]?.message?.content
       if (!content) throw new Error('No content received from Groq reconciliation')

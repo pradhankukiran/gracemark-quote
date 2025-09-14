@@ -56,9 +56,9 @@ export const createQuoteRequestData = (
   formData: EORFormData,
   useComparisonData = false
 ): QuoteRequestData => {
-  console.log('🔍 createQuoteRequestData - DEBUG START')
-  console.log('📋 Full formData object:', JSON.stringify(formData, null, 2))
-  console.log('🔄 useComparisonData flag:', useComparisonData)
+  // console.log('🔍 createQuoteRequestData - DEBUG START')
+  // console.log('📋 Full formData object:', JSON.stringify(formData, null, 2))
+  // console.log('🔄 useComparisonData flag:', useComparisonData)
   
   const extractedFields = {
     baseSalary: formData.baseSalary,
@@ -71,7 +71,7 @@ export const createQuoteRequestData = (
     state: formData.state,
     compareState: formData.compareState
   }
-  console.log('🏷️ Extracted key fields:', JSON.stringify(extractedFields, null, 2))
+  // console.log('🏷️ Extracted key fields:', JSON.stringify(extractedFields, null, 2))
 
   const baseData: QuoteRequestData = {
     salary: useComparisonData ? formData.compareSalary : formData.baseSalary,
@@ -87,7 +87,7 @@ export const createQuoteRequestData = (
     baseData.state = state
   }
 
-  console.log('📤 Final baseData being returned:', JSON.stringify(baseData, null, 2))
+  // console.log('📤 Final baseData being returned:', JSON.stringify(baseData, null, 2))
   
   // DEFENSIVE VALIDATION: Check for undefined/null values in critical fields
   const criticalFields = ['salary', 'country', 'currency', 'clientCountry'] as const
@@ -127,8 +127,8 @@ export const createQuoteRequestData = (
     throw new Error(`Invalid salary value: "${baseData.salary}". Salary must be a positive number.`)
   }
   
-  console.log('✅ All validation checks passed')
-  console.log('🔍 createQuoteRequestData - DEBUG END')
+  // console.log('✅ All validation checks passed')
+  // console.log('🔍 createQuoteRequestData - DEBUG END')
   return baseData
 }
 

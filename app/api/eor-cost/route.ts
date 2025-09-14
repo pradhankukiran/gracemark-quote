@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
     }
     const { salary, country, currency, state } = parsed
-    console.log('Deel API - Incoming request:', { salary, country, currency, state })
+    // console.log('Deel API - Incoming request:', { salary, country, currency, state })
 
     if (!salary || !country || !currency) {
       return NextResponse.json({ error: "Missing required fields: salary, country, currency" }, { status: 400 })

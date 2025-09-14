@@ -18,14 +18,14 @@ export async function POST(request: NextRequest) {
     const iso3 = iso3From2 || (provided.length === 3 ? provided.toUpperCase() : '')
 
     // Add debugging logs for country code resolution
-    console.log('Rivermate Country Resolution:', {
-      input: country,
-      countryData: countryData?.name,
-      countryCode: countryData?.code,
-      candidateIso2,
-      iso3From2,
-      finalIso3: iso3
-    })
+    // console.log('Rivermate Country Resolution:', {
+    //   input: country,
+    //   countryData: countryData?.name,
+    //   countryCode: countryData?.code,
+    //   candidateIso2,
+    //   iso3From2,
+    //   finalIso3: iso3
+    // })
 
     // Use annual salary as is (the API expects annual)
     const annualSalary = Math.round(parseFloat(String(salary).replace(/[\,\s]/g, '')))

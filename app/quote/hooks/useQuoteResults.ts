@@ -139,10 +139,10 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       }
       
       // Enhanced logging for state transitions
-      console.log(`🔄 ${provider} state: ${current.status} → ${next.status}${next.error ? ` (${next.error})` : ''}`, {
-        hasData: next.hasData,
-        enhancementError: next.enhancementError
-      });
+      // console.log(`🔄 ${provider} state: ${current.status} → ${next.status}${next.error ? ` (${next.error})` : ''}`, {
+      //   hasData: next.hasData,
+      //   enhancementError: next.enhancementError
+      // });
       
       return { ...prev, [provider]: next };
     });
@@ -178,7 +178,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       return false;
     }
     
-    console.log(`✅ ${provider} has valid base quote data`);
+    // console.log(`✅ ${provider} has valid base quote data`);
     return true;
   }, [isValidProviderQuote]);
 
@@ -325,7 +325,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       if (enhancementInFlightRef.current[provider]) return
       enhancementInFlightRef.current[provider] = true
       updateProviderState(provider, { status: 'loading-enhanced', hasData: true })
-      console.log(`🚀 Starting enhancement for ${provider} with validated quote`);
+      // console.log(`🚀 Starting enhancement for ${provider} with validated quote`);
       
       const providerQuoteForEnhancement = (provider === 'remote' && isRemoteAPIResponse(quote))
         ? transformRemoteResponseToQuote(quote)
@@ -375,30 +375,30 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
 
   // Sequential loading processor
   const processNextProvider = useCallback(async () => {
-    console.log('🔧 processNextProvider - START');
-    console.log('🔧 Current quoteData state:', {
-      hasQuoteData: !!quoteData,
-      status: quoteData?.status,
-      hasFormData: !!quoteData?.formData,
-      formDataType: typeof quoteData?.formData,
-      formDataKeys: quoteData?.formData ? Object.keys(quoteData.formData) : 'N/A'
-    });
+    // console.log('🔧 processNextProvider - START');
+    // console.log('🔧 Current quoteData state:', {
+    //   hasQuoteData: !!quoteData,
+    //   status: quoteData?.status,
+    //   hasFormData: !!quoteData?.formData,
+    //   formDataType: typeof quoteData?.formData,
+    //   formDataKeys: quoteData?.formData ? Object.keys(quoteData.formData) : 'N/A'
+    // });
     
     const currentQuoteData = quoteData; // Capture current value to avoid stale closure
     
     if (!currentQuoteData || !isSequentialLoadingRef.current || currentQueueIndex >= SEQUENTIAL_LOADING_QUEUE.length) {
       if (currentQueueIndex >= SEQUENTIAL_LOADING_QUEUE.length) {
-        console.log('✅ Sequential loading queue completed');
+        // console.log('✅ Sequential loading queue completed');
       }
-      console.log('🔧 processNextProvider - EXIT (early conditions)');
+      // console.log('🔧 processNextProvider - EXIT (early conditions)');
       return;
     }
     
-    console.log('🔧 Full currentQuoteData object:', JSON.stringify(currentQuoteData, null, 2));
+    // console.log('🔧 Full currentQuoteData object:', JSON.stringify(currentQuoteData, null, 2));
     
     // CRITICAL: Validate formData before processing any provider
     const form = currentQuoteData.formData as EORFormData;
-    console.log('🔧 Extracted form object:', JSON.stringify(form, null, 2));
+    // console.log('🔧 Extracted form object:', JSON.stringify(form, null, 2));
     
     const hasValidFormData = form && 
                            form.country && form.country.trim() !== '' &&
@@ -406,16 +406,16 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
                            form.clientCountry && form.clientCountry.trim() !== '' &&
                            (form.currency && form.currency.trim() !== '');
     
-    console.log(`🔍 ProcessNextProvider formData validation:`, {
-      hasForm: !!form,
-      country: form?.country,
-      baseSalary: form?.baseSalary,
-      clientCountry: form?.clientCountry,
-      currency: form?.currency,
-      hasValidFormData,
-      formType: typeof form,
-      formConstructor: form?.constructor?.name
-    });
+    // console.log(`🔍 ProcessNextProvider formData validation:`, {
+    //   hasForm: !!form,
+    //   country: form?.country,
+    //   baseSalary: form?.baseSalary,
+    //   clientCountry: form?.clientCountry,
+    //   currency: form?.currency,
+    //   hasValidFormData,
+    //   formType: typeof form,
+    //   formConstructor: form?.constructor?.name
+    // });
     
     if (!hasValidFormData) {
       console.error(`❌ CRITICAL: FormData is invalid for provider processing, aborting`);
@@ -433,7 +433,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       return;
     }
     
-    console.log(`🔄 Processing provider ${currentQueueIndex + 1}/${SEQUENTIAL_LOADING_QUEUE.length}: ${nextProvider}`);
+    // console.log(`🔄 Processing provider ${currentQueueIndex + 1}/${SEQUENTIAL_LOADING_QUEUE.length}: ${nextProvider}`);
     
     try {
       // Update state to loading base quote
@@ -442,15 +442,15 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       // Check if we already have data for this provider
       const hasData = hasProviderData(nextProvider, currentQuoteData);
       if (hasData) {
-        console.log(`✅ ${nextProvider} already has base data, checking enhanced quote...`);
+        // console.log(`✅ ${nextProvider} already has base data, checking enhanced quote...`);
 
         // Check if enhanced quote exists
         const hasEnhancement = enhancements[nextProvider];
         if (hasEnhancement) {
-          console.log(`✅ ${nextProvider} already has enhanced quote, marking as active`);
+          // console.log(`✅ ${nextProvider} already has enhanced quote, marking as active`);
           updateProviderState(nextProvider, { status: 'active', hasData: true });
         } else {
-          console.log(`🧠 ${nextProvider} has base quote but needs enhancement... (parallel scheduling)`);
+          // console.log(`🧠 ${nextProvider} has base quote but needs enhancement... (parallel scheduling)`);
         }
 
         // Move to next provider immediately after scheduling enhancement
@@ -458,18 +458,18 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         return;
       }
       
-      console.log(`🔍 Calculating ${nextProvider} base quote...`);
+      // console.log(`🔍 Calculating ${nextProvider} base quote...`);
       
       // Calculate quote for this provider
       const form = currentQuoteData.formData as EORFormData;
       
       // DEFENSIVE CHECK: Final validation before API call
-      console.log(`🛡️ Final formData check for ${nextProvider}:`, {
-        country: form?.country,
-        baseSalary: form?.baseSalary,  
-        clientCountry: form?.clientCountry,
-        currency: form?.currency
-      });
+      // console.log(`🛡️ Final formData check for ${nextProvider}:`, {
+      //   country: form?.country,
+      //   baseSalary: form?.baseSalary,
+      //   clientCountry: form?.clientCountry,
+      //   currency: form?.currency
+      // });
       
       // Double-check form data integrity right before API call
       if (!form || !form.country || !form.baseSalary || !form.clientCountry || !form.currency) {
@@ -487,7 +487,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       
       switch (nextProvider) {
         case 'remote':
-          console.log('📞 Calling Remote API...');
+          // console.log('📞 Calling Remote API...');
           try {
             calculatedQuote = await calculateRemoteQuote(form, currentQuoteData);
           } catch (apiError) {
@@ -496,7 +496,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           }
           break;
         case 'rivermate':
-          console.log('📞 Calling Rivermate API...');
+          // console.log('📞 Calling Rivermate API...');
           try {
             calculatedQuote = await calculateRivermateQuote(form, currentQuoteData);
           } catch (apiError) {
@@ -505,7 +505,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           }
           break;
         case 'oyster':
-          console.log('📞 Calling Oyster API...');
+          // console.log('📞 Calling Oyster API...');
           try {
             calculatedQuote = await calculateOysterQuote(form, currentQuoteData);
           } catch (apiError) {
@@ -514,7 +514,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           }
           break;
         case 'rippling':
-          console.log('📞 Calling Rippling API...');
+          // console.log('📞 Calling Rippling API...');
           try {
             calculatedQuote = await calculateRipplingQuote(form, currentQuoteData);
           } catch (apiError) {
@@ -523,7 +523,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           }
           break;
         case 'skuad':
-          console.log('📞 Calling Skuad API...');
+          // console.log('📞 Calling Skuad API...');
           try {
             calculatedQuote = await calculateSkuadQuote(form, currentQuoteData);
           } catch (apiError) {
@@ -532,7 +532,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           }
           break;
         case 'velocity':
-          console.log('📞 Calling Velocity API...');
+          // console.log('📞 Calling Velocity API...');
           try {
             calculatedQuote = await calculateVelocityQuote(form, currentQuoteData);
           } catch (apiError) {
@@ -553,7 +553,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         const isValid = isValidProviderQuote(nextProvider, providerQuoteData);
         
         if (isValid) {
-          console.log(`✅ ${nextProvider} base quote calculated and validated successfully`);
+          // console.log(`✅ ${nextProvider} base quote calculated and validated successfully`);
           // Update quote data and save to storage
           setQuoteData(calculatedQuote);
           if (quoteId) {
@@ -563,7 +563,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           // Enhancement handled by parallel scheduler
 
           // Move to next provider immediately after scheduling enhancement
-          console.log(`➡️ Moving to next provider after ${nextProvider} BASE COMPLETE (${currentQueueIndex + 1} → ${currentQueueIndex + 2})`);
+          // console.log(`➡️ Moving to next provider after ${nextProvider} BASE COMPLETE (${currentQueueIndex + 1} → ${currentQueueIndex + 2})`);
           setCurrentQueueIndex(prev => prev + 1);
         } else {
           console.warn(`❌ ${nextProvider} quote validation failed - invalid structure`);
@@ -574,7 +574,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           });
           
           // No valid base quote, no enhancement possible, move to next provider
-          console.log(`➡️ Moving to next provider after ${nextProvider} quote validation failure (${currentQueueIndex + 1} → ${currentQueueIndex + 2})`);
+          // console.log(`➡️ Moving to next provider after ${nextProvider} quote validation failure (${currentQueueIndex + 1} → ${currentQueueIndex + 2})`);
           setCurrentQueueIndex(prev => prev + 1);
         }
       } else {
@@ -583,7 +583,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         updateProviderState(nextProvider, { status: 'failed', error: 'No quote data returned' });
         
         // No base quote, no enhancement possible, move to next provider
-        console.log(`➡️ Moving to next provider after ${nextProvider} base quote failure (${currentQueueIndex + 1} → ${currentQueueIndex + 2})`);
+        // console.log(`➡️ Moving to next provider after ${nextProvider} base quote failure (${currentQueueIndex + 1} → ${currentQueueIndex + 2})`);
         setCurrentQueueIndex(prev => prev + 1);
       }
       
@@ -608,7 +608,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       });
       
       // Base quote failed, no enhancement possible, move to next provider
-      console.log(`➡️ Moving to next provider after ${nextProvider} base quote error (${currentQueueIndex + 1} → ${currentQueueIndex + 2})`);
+      // console.log(`➡️ Moving to next provider after ${nextProvider} base quote error (${currentQueueIndex + 1} → ${currentQueueIndex + 2})`);
       setCurrentQueueIndex(prev => prev + 1);
     }
   }, [currentQueueIndex, updateProviderState, hasProviderData, quoteId, quoteData,
@@ -689,13 +689,13 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       calculateOysterQuote, calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote, providerLoading]);
 
   const refreshQuote = useCallback(() => {
-    console.log("Refreshing quote...");
+    // console.log("Refreshing quote...");
   }, []);
   
   // Effect to process next provider when queue index changes (legacy sequential; inactive in PARALLEL_MODE)
   useEffect(() => {
     if (!PARALLEL_MODE && isSequentialLoadingRef.current && currentQueueIndex >= 0 && currentQueueIndex < SEQUENTIAL_LOADING_QUEUE.length) {
-      console.log(`🕰️ Scheduling provider ${currentQueueIndex + 1}/${SEQUENTIAL_LOADING_QUEUE.length} in 2 seconds...`);
+      // console.log(`🕰️ Scheduling provider ${currentQueueIndex + 1}/${SEQUENTIAL_LOADING_QUEUE.length} in 2 seconds...`);
       
       // Longer delay to be more API-friendly
       sequentialTimeoutRef.current = setTimeout(() => {
@@ -706,7 +706,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     } else if (!PARALLEL_MODE && currentQueueIndex >= SEQUENTIAL_LOADING_QUEUE.length && currentQueueIndex > 0) {
       // Sequential loading complete
       isSequentialLoadingRef.current = false;
-      console.log('🎉 Sequential loading completed - all providers processed!');
+      // console.log('🎉 Sequential loading completed - all providers processed!');
     }
     
     return () => {
@@ -744,8 +744,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
 
   useEffect(() => {
     const processQuote = async () => {
-      console.log('🏁 useQuoteResults processQuote - START')
-      console.log('🆔 Quote ID:', quoteId)
+      // console.log('🏁 useQuoteResults processQuote - START')
+      // console.log('🆔 Quote ID:', quoteId)
       setLoading(true);
 
       const idValidation = validateQuoteId(quoteId);
@@ -756,7 +756,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         return;
       }
 
-      console.log('📂 Loading from session storage...')
+      // console.log('📂 Loading from session storage...')
       const storageResult = getJsonFromSessionStorage<QuoteData>(quoteId!);
       if (!storageResult.success || !storageResult.data) {
         console.error('❌ Failed to load from session storage:', storageResult.error)
@@ -765,8 +765,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         return;
       }
 
-      console.log('📦 Raw data loaded from session storage:', JSON.stringify(storageResult.data, null, 2))
-      console.log('🔍 FormData from session storage:', JSON.stringify(storageResult.data.formData, null, 2))
+      // console.log('📦 Raw data loaded from session storage:', JSON.stringify(storageResult.data, null, 2))
+      // console.log('🔍 FormData from session storage:', JSON.stringify(storageResult.data.formData, null, 2))
 
       const validationResult = safeValidateQuoteData(storageResult.data);
       if (!validationResult.isValid || !validationResult.data) {
@@ -777,21 +777,21 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       }
 
       const data = validationResult.data;
-      console.log('✅ Validated quote data:', {
-        status: data.status,
-        hasFormData: !!data.formData,
-        formDataKeys: data.formData ? Object.keys(data.formData) : []
-      })
-      console.log('🔍 Key formData fields after validation:', {
-        country: data.formData?.country,
-        baseSalary: data.formData?.baseSalary,
-        currency: data.formData?.currency,
-        clientCountry: data.formData?.clientCountry
-      })
+      // console.log('✅ Validated quote data:', {
+      //   status: data.status,
+      //   hasFormData: !!data.formData,
+      //   formDataKeys: data.formData ? Object.keys(data.formData) : []
+      // })
+      // console.log('🔍 Key formData fields after validation:', {
+      //   country: data.formData?.country,
+      //   baseSalary: data.formData?.baseSalary,
+      //   currency: data.formData?.currency,
+      //   clientCountry: data.formData?.clientCountry
+      // })
       setQuoteData(data);
 
       if (data.status === 'calculating') {
-        console.log('⚡ Quote is in calculating status, starting Deel (then others in parallel)...')
+        // console.log('⚡ Quote is in calculating status, starting Deel (then others in parallel)...')
         const form = data.formData as EORFormData
 
         // Helper to merge provider-specific results safely
@@ -826,14 +826,14 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
             try {
               if (baseInFlightRef.current.deel || hasProviderData('deel', (quoteData || data) as QuoteData)) return
               baseInFlightRef.current.deel = true
-              console.log('📤 Starting Deel base quote...')
+              // console.log('📤 Starting Deel base quote...')
               const deelResult = await calculateDeelQuote(form, (quoteData || data) as QuoteData)
               
               // Validate the calculated Deel quote before considering it successful (flexible check)
               const isValid = isValidProviderQuote('deel', deelResult.quotes.deel);
               
               if (isValid) {
-                console.log(`✅ Deel parallel base quote calculated and validated successfully`);
+                // console.log(`✅ Deel parallel base quote calculated and validated successfully`);
                 mergeAndPersist(deelResult)
                 // Immediately schedule enhancement for Deel (parallel mode)
                 if (!enhancementEnqueuedRef.current.deel && !enhancementInFlightRef.current.deel) {
@@ -887,7 +887,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
                     const isValid = isValidProviderQuote(provider, providerQuoteData);
                     
                     if (isValid) {
-                      console.log(`✅ ${provider} parallel base quote calculated and validated successfully`);
+                      // console.log(`✅ ${provider} parallel base quote calculated and validated successfully`);
                       mergeAndPersist(result)
                       // Immediately schedule enhancement for this provider (parallel mode)
                       if (!enhancementEnqueuedRef.current[provider] && !enhancementInFlightRef.current[provider]) {
@@ -1009,7 +1009,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         }
       }
       setLoading(false);
-      console.log('🏁 useQuoteResults processQuote - END')
+      // console.log('🏁 useQuoteResults processQuote - END')
     };
 
     processQuote();
@@ -1017,12 +1017,12 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   
   // Separate useEffect for sequential loading trigger (prevents circular dependency)
   useEffect(() => {
-    console.log('🔍 Sequential trigger check:', {
-      status: quoteData?.status,
-      hasStarted: hasStartedSequentialRef.current,
-      isLoading: isSequentialLoadingRef.current,
-      quoteId
-    });
+    // console.log('🔍 Sequential trigger check:', {
+    //   status: quoteData?.status,
+    //   hasStarted: hasStartedSequentialRef.current,
+    //   isLoading: isSequentialLoadingRef.current,
+    //   quoteId
+    // });
     
     if (quoteData?.status === 'completed') {
       // CRITICAL: Validate formData integrity before starting sequential loading
@@ -1033,14 +1033,14 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
                                formData.clientCountry && formData.clientCountry.trim() !== '' &&
                                (formData.currency && formData.currency.trim() !== '');
       
-      console.log('🔍 FormData validation:', {
-        hasFormData: !!formData,
-        country: formData?.country,
-        baseSalary: formData?.baseSalary,
-        clientCountry: formData?.clientCountry,
-        currency: formData?.currency,
-        hasValidFormData
-      });
+      // console.log('🔍 FormData validation:', {
+      //   hasFormData: !!formData,
+      //   country: formData?.country,
+      //   baseSalary: formData?.baseSalary,
+      //   clientCountry: formData?.clientCountry,
+      //   currency: formData?.currency,
+      //   hasValidFormData
+      // });
       
       if (!hasValidFormData) {
         console.error('❌ CRITICAL: FormData is invalid/incomplete, aborting sequential loading');
@@ -1062,48 +1062,48 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         }
       });
       
-      console.log('🔍 Sequential conditions:', {
-        hasDeelData,
-        missingCount: missingProviders.length,
-        missingProviders,
-        allQuotes: Object.keys(quoteData.quotes || {}),
-        enhancementCount: Object.keys(enhancements || {}).length
-      });
+      // console.log('🔍 Sequential conditions:', {
+      //   hasDeelData,
+      //   missingCount: missingProviders.length,
+      //   missingProviders,
+      //   allQuotes: Object.keys(quoteData.quotes || {}),
+      //   enhancementCount: Object.keys(enhancements || {}).length
+      // });
       
       if (!PARALLEL_MODE && !hasStartedSequentialRef.current && !isSequentialLoadingRef.current) {
         if (hasDeelData && missingProviders.length > 0) {
-          console.log(`🚀 TRIGGERING sequential loading for ${missingProviders.length} providers: ${missingProviders.join(', ')}`);
+          // console.log(`🚀 TRIGGERING sequential loading for ${missingProviders.length} providers: ${missingProviders.join(', ')}`);
           hasStartedSequentialRef.current = true;
           
           // Longer delay to ensure formData is completely stable
           setTimeout(() => {
-            console.log('⏰ Sequential loading timeout triggered');
-            console.log('⏰ QuoteData state during timeout:', {
-              hasQuoteData: !!quoteData,
-              status: quoteData?.status,
-              hasFormData: !!quoteData?.formData,
-              formDataType: typeof quoteData?.formData
-            });
+            // console.log('⏰ Sequential loading timeout triggered');
+            // console.log('⏰ QuoteData state during timeout:', {
+            //   hasQuoteData: !!quoteData,
+            //   status: quoteData?.status,
+            //   hasFormData: !!quoteData?.formData,
+            //   formDataType: typeof quoteData?.formData
+            // });
             
             // Double-check formData is still valid before starting
             const currentData = quoteData;
-            console.log('⏰ CurrentData during timeout:', JSON.stringify(currentData, null, 2));
+            // console.log('⏰ CurrentData during timeout:', JSON.stringify(currentData, null, 2));
             
             const currentFormData = currentData?.formData as EORFormData;
-            console.log('⏰ CurrentFormData during timeout:', JSON.stringify(currentFormData, null, 2));
+            // console.log('⏰ CurrentFormData during timeout:', JSON.stringify(currentFormData, null, 2));
             
             const isStillValid = currentFormData && 
                                 currentFormData.country && currentFormData.country.trim() !== '' &&
                                 currentFormData.baseSalary && currentFormData.baseSalary.trim() !== '' &&
                                 currentFormData.clientCountry && currentFormData.clientCountry.trim() !== '';
             
-            console.log('⏰ FormData validity check during timeout:', {
-              hasCurrentFormData: !!currentFormData,
-              country: currentFormData?.country,
-              baseSalary: currentFormData?.baseSalary,
-              clientCountry: currentFormData?.clientCountry,
-              isStillValid
-            });
+            // console.log('⏰ FormData validity check during timeout:', {
+            //   hasCurrentFormData: !!currentFormData,
+            //   country: currentFormData?.country,
+            //   baseSalary: currentFormData?.baseSalary,
+            //   clientCountry: currentFormData?.clientCountry,
+            //   isStillValid
+            // });
             
             if (!isStillValid) {
               console.error('❌ FormData became invalid during delay, aborting sequential loading');
@@ -1113,31 +1113,31 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
             }
             
             if (!isSequentialLoadingRef.current) {
-              console.log('🎯 Starting sequential loading process...');
+              // console.log('🎯 Starting sequential loading process...');
               isSequentialLoadingRef.current = true;
               setCurrentQueueIndex(0);
             } else {
-              console.log('⚠️ Sequential loading already in progress, skipping');
+              // console.log('⚠️ Sequential loading already in progress, skipping');
             }
           }, 2500); // Increased delay to ensure stability
         } else if (!PARALLEL_MODE) {
-          console.log('❌ Sequential loading conditions not met:', { hasDeelData, missingCount: missingProviders.length });
+          // console.log('❌ Sequential loading conditions not met:', { hasDeelData, missingCount: missingProviders.length });
         }
       } else if (!PARALLEL_MODE) {
-        console.log('❌ Sequential loading already started or in progress:', {
-          hasStarted: hasStartedSequentialRef.current,
-          isLoading: isSequentialLoadingRef.current
-        });
+        // console.log('❌ Sequential loading already started or in progress:', {
+        //   hasStarted: hasStartedSequentialRef.current,
+        //   isLoading: isSequentialLoadingRef.current
+        // });
       }
     } else {
-      console.log('❌ Quote not completed yet:', quoteData?.status);
+      // console.log('❌ Quote not completed yet:', quoteData?.status);
     }
   }, [quoteData, enhancements, quoteId]); // include quoteData and enhancements for correctness
   
   // Debug logging for provider states (development only)
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('🗺️ Provider states updated:', Object.entries(providerStates).map(([provider, state]) => `${provider}: ${state?.status || 'unknown'}`).join(', '));
+      // console.log('🗺️ Provider states updated:', Object.entries(providerStates).map(([provider, state]) => `${provider}: ${state?.status || 'unknown'}`).join(', '));
     }
   }, [providerStates]);
 
@@ -1169,7 +1169,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   // Reset sequential loading flags when quote changes (cleanup)
   useEffect(() => {
     // Reset flags when new quote starts
-    console.log('🔄 Resetting sequential flags for new quote:', quoteId);
+    // console.log('🔄 Resetting sequential flags for new quote:', quoteId);
     hasStartedSequentialRef.current = false;
     isSequentialLoadingRef.current = false;
     enhancementFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
@@ -1177,7 +1177,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     
     return () => {
       // Cleanup on unmount or quote change
-      console.log('🧹 Cleaning up sequential loading for quote:', quoteId);
+      // console.log('🧹 Cleaning up sequential loading for quote:', quoteId);
       if (sequentialTimeoutRef.current) {
         clearTimeout(sequentialTimeoutRef.current);
         sequentialTimeoutRef.current = null;

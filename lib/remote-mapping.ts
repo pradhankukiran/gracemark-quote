@@ -23,21 +23,21 @@ remoteData.data.forEach((country) => {
 export function getRemoteRegionSlug(countryInput: string): string | null {
   if (!countryInput) return null;
 
-  console.log('🔍 Remote Region Slug Lookup:', { input: countryInput });
+  // console.log('🔍 Remote Region Slug Lookup:', { input: countryInput });
 
   // Normalize country name for Remote provider compatibility
   const normalizedCountry = REMOTE_COUNTRY_NAME_MAP[countryInput] || countryInput;
   if (normalizedCountry !== countryInput) {
-    console.log('🔄 Remote Region Slug - Country name normalized:', { 
-      original: countryInput, 
-      normalized: normalizedCountry 
-    });
+    // console.log('🔄 Remote Region Slug - Country name normalized:', {
+    //   original: countryInput,
+    //   normalized: normalizedCountry
+    // });
   }
 
   // Try direct name lookup first (exact match)
   const directLookup = REMOTE_REGION_MAPPING[normalizedCountry];
   if (directLookup) {
-    console.log('✅ Remote Region Slug - Direct name match:', { input: countryInput, normalized: normalizedCountry, slug: directLookup });
+    // console.log('✅ Remote Region Slug - Direct name match:', { input: countryInput, normalized: normalizedCountry, slug: directLookup });
     return directLookup;
   }
 
@@ -50,19 +50,19 @@ export function getRemoteRegionSlug(countryInput: string): string | null {
     const iso3Code = iso2ToIso3(inputUpper);
     if (iso3Code) {
       targetCode = iso3Code;
-      console.log('🔄 Remote Region Slug - ISO2→ISO3 conversion:', { iso2: inputUpper, iso3: targetCode });
+      // console.log('🔄 Remote Region Slug - ISO2→ISO3 conversion:', { iso2: inputUpper, iso3: targetCode });
     }
   }
 
   // Find Remote country by ISO3 code
   const remoteCountry = remoteData.data.find(country => country.code === targetCode);
   if (remoteCountry) {
-    console.log('✅ Remote Region Slug - Found by ISO3 code:', { 
-      input: countryInput, 
-      iso3: targetCode, 
-      countryName: remoteCountry.name, 
-      slug: remoteCountry.region_slug 
-    });
+    // console.log('✅ Remote Region Slug - Found by ISO3 code:', {
+    //   input: countryInput,
+    //   iso3: targetCode,
+    //   countryName: remoteCountry.name,
+    //   slug: remoteCountry.region_slug
+    // });
     return remoteCountry.region_slug;
   }
 
@@ -72,15 +72,15 @@ export function getRemoteRegionSlug(countryInput: string): string | null {
     country.name.toLowerCase() === inputLower
   );
   if (caseInsensitiveMatch) {
-    console.log('✅ Remote Region Slug - Case insensitive name match:', { 
-      input: countryInput, 
-      countryName: caseInsensitiveMatch.name, 
-      slug: caseInsensitiveMatch.region_slug 
-    });
+    // console.log('✅ Remote Region Slug - Case insensitive name match:', {
+    //   input: countryInput,
+    //   countryName: caseInsensitiveMatch.name,
+    //   slug: caseInsensitiveMatch.region_slug
+    // });
     return caseInsensitiveMatch.region_slug;
   }
 
-  console.log('❌ Remote Region Slug - No match found:', { input: countryInput });
+  // console.log('❌ Remote Region Slug - No match found:', { input: countryInput });
   return null;
 }
 
@@ -100,22 +100,22 @@ export function getRemoteCountryStates(
 ): Array<{ code: string; name: string; slug: string }> | null {
   if (!countryName) return null;
 
-  console.log('🔍 Remote Country States Lookup:', { input: countryName });
+  // console.log('🔍 Remote Country States Lookup:', { input: countryName });
 
   // Normalize country name for Remote provider compatibility
   const normalizedCountry = REMOTE_COUNTRY_NAME_MAP[countryName] || countryName;
   if (normalizedCountry !== countryName) {
-    console.log('🔄 Remote Country States - Country name normalized:', { 
-      original: countryName, 
-      normalized: normalizedCountry 
-    });
+    // console.log('🔄 Remote Country States - Country name normalized:', {
+    //   original: countryName,
+    //   normalized: normalizedCountry
+    // });
   }
 
   // Try direct name lookup first (exact match)
   const directLookup = remoteData.data.find((c) => c.name === normalizedCountry);
   if (directLookup) {
     const states = directLookup?.child_regions && directLookup.child_regions.length > 0 ? directLookup.child_regions : null;
-    console.log('✅ Remote Country States - Direct name match:', { input: countryName, normalized: normalizedCountry, states: states?.length || 0 });
+    // console.log('✅ Remote Country States - Direct name match:', { input: countryName, normalized: normalizedCountry, states: states?.length || 0 });
     return states;
   }
 
@@ -128,7 +128,7 @@ export function getRemoteCountryStates(
     const iso3Code = iso2ToIso3(inputUpper);
     if (iso3Code) {
       targetCode = iso3Code;
-      console.log('🔄 Remote Country States - ISO2→ISO3 conversion:', { iso2: inputUpper, iso3: targetCode });
+      // console.log('🔄 Remote Country States - ISO2→ISO3 conversion:', { iso2: inputUpper, iso3: targetCode });
     }
   }
 
@@ -136,12 +136,12 @@ export function getRemoteCountryStates(
   const remoteCountry = remoteData.data.find(country => country.code === targetCode);
   if (remoteCountry) {
     const states = remoteCountry?.child_regions && remoteCountry.child_regions.length > 0 ? remoteCountry.child_regions : null;
-    console.log('✅ Remote Country States - Found by ISO3 code:', { 
-      input: countryName, 
-      iso3: targetCode, 
-      countryName: remoteCountry.name, 
-      states: states?.length || 0 
-    });
+    // console.log('✅ Remote Country States - Found by ISO3 code:', {
+    //   input: countryName,
+    //   iso3: targetCode,
+    //   countryName: remoteCountry.name,
+    //   states: states?.length || 0
+    // });
     return states;
   }
 
@@ -152,37 +152,37 @@ export function getRemoteCountryStates(
   );
   if (caseInsensitiveMatch) {
     const states = caseInsensitiveMatch?.child_regions && caseInsensitiveMatch.child_regions.length > 0 ? caseInsensitiveMatch.child_regions : null;
-    console.log('✅ Remote Country States - Case insensitive name match:', { 
-      input: countryName, 
-      countryName: caseInsensitiveMatch.name, 
-      states: states?.length || 0 
-    });
+    // console.log('✅ Remote Country States - Case insensitive name match:', {
+    //   input: countryName,
+    //   countryName: caseInsensitiveMatch.name,
+    //   states: states?.length || 0
+    // });
     return states;
   }
 
-  console.log('❌ Remote Country States - No match found:', { input: countryName });
+  // console.log('❌ Remote Country States - No match found:', { input: countryName });
   return null;
 }
 
 export function getRemoteCountryCurrency(countryName: string): string | null {
   if (!countryName) return null;
 
-  console.log('🔍 Remote Country Currency Lookup:', { input: countryName });
+  // console.log('🔍 Remote Country Currency Lookup:', { input: countryName });
 
   // Normalize country name for Remote provider compatibility
   const normalizedCountry = REMOTE_COUNTRY_NAME_MAP[countryName] || countryName;
   if (normalizedCountry !== countryName) {
-    console.log('🔄 Remote Country Currency - Country name normalized:', { 
-      original: countryName, 
-      normalized: normalizedCountry 
-    });
+    // console.log('🔄 Remote Country Currency - Country name normalized:', {
+    //   original: countryName,
+    //   normalized: normalizedCountry
+    // });
   }
 
   // Try direct name lookup first (exact match)
   const directLookup = remoteData.data.find((c) => c.name === normalizedCountry);
   if (directLookup) {
     const currency = directLookup?.currency?.code || null;
-    console.log('✅ Remote Country Currency - Direct name match:', { input: countryName, normalized: normalizedCountry, currency });
+    // console.log('✅ Remote Country Currency - Direct name match:', { input: countryName, normalized: normalizedCountry, currency });
     return currency;
   }
 
@@ -195,7 +195,7 @@ export function getRemoteCountryCurrency(countryName: string): string | null {
     const iso3Code = iso2ToIso3(inputUpper);
     if (iso3Code) {
       targetCode = iso3Code;
-      console.log('🔄 Remote Country Currency - ISO2→ISO3 conversion:', { iso2: inputUpper, iso3: targetCode });
+      // console.log('🔄 Remote Country Currency - ISO2→ISO3 conversion:', { iso2: inputUpper, iso3: targetCode });
     }
   }
 
@@ -203,12 +203,12 @@ export function getRemoteCountryCurrency(countryName: string): string | null {
   const remoteCountry = remoteData.data.find(country => country.code === targetCode);
   if (remoteCountry) {
     const currency = remoteCountry?.currency?.code || null;
-    console.log('✅ Remote Country Currency - Found by ISO3 code:', { 
-      input: countryName, 
-      iso3: targetCode, 
-      countryName: remoteCountry.name, 
-      currency 
-    });
+    // console.log('✅ Remote Country Currency - Found by ISO3 code:', {
+    //   input: countryName,
+    //   iso3: targetCode,
+    //   countryName: remoteCountry.name,
+    //   currency
+    // });
     return currency;
   }
 
@@ -219,14 +219,14 @@ export function getRemoteCountryCurrency(countryName: string): string | null {
   );
   if (caseInsensitiveMatch) {
     const currency = caseInsensitiveMatch?.currency?.code || null;
-    console.log('✅ Remote Country Currency - Case insensitive name match:', { 
-      input: countryName, 
-      countryName: caseInsensitiveMatch.name, 
-      currency 
-    });
+    // console.log('✅ Remote Country Currency - Case insensitive name match:', {
+    //   input: countryName,
+    //   countryName: caseInsensitiveMatch.name,
+    //   currency
+    // });
     return currency;
   }
 
-  console.log('❌ Remote Country Currency - No match found:', { input: countryName });
+  // console.log('❌ Remote Country Currency - No match found:', { input: countryName });
   return null;
 }

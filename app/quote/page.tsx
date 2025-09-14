@@ -211,14 +211,16 @@ const QuotePageContent = memo(() => {
     if ((quoteData.quotes as any).comparisonVelocity) autoConvertQuote((quoteData.quotes as any).comparisonVelocity as any, 'compareVelocity')
   }, [quoteData?.status, quoteData?.quotes, autoConvertQuote, autoConvertRemoteQuote])
 
-  // --- LOADING & ERROR STATES (UNCHANGED) ---
-  if (loading) {
+  // --- LOADING & ERROR STATES (Updated: show spinner until current provider base is ready) ---
+  const showGlobalLoader = loading || providerLoading[currentProvider] || (quoteData?.status === 'calculating' && providerLoading[currentProvider])
+
+  if (showGlobalLoader) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
         <div className="container mx-auto px-6 py-8 max-w-7xl">
           <div className="text-center space-y-6 flex flex-col items-center">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-              Loading Quote...
+              Loading Quotes...
             </h1>
             <LoadingSpinner />
           </div>
@@ -277,36 +279,7 @@ const QuotePageContent = memo(() => {
     )
   }
 
-  if (quoteData.status === 'calculating') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
-        <div className="container mx-auto px-6 py-8 max-w-7xl">
-          <div className="text-center space-y-6">
-            <div className="space-y-3">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                Generating Your Quote
-              </h1>
-              <p className="text-lg text-slate-600">
-                Please wait while we calculate your EOR costs for {(quoteData.formData as EORFormData).country}...
-              </p>
-            </div>
-
-            <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm max-w-2xl mx-auto">
-              <CardContent className="p-12">
-                <div className="flex flex-col items-center space-y-6">
-                  <LoadingSpinner />
-                  <div className="flex items-center gap-2 text-sm text-slate-500">
-                    <Clock className="h-4 w-4" />
-                    <span>Estimated time: 5-10 seconds</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  // calculating handled by the unified loading block above
 
   // --- REFRESHED RECONCILIATION LOGIC ---
   const allProviders: Array<ProviderType> = ['deel','remote','rivermate','oyster','rippling','skuad','velocity']
@@ -880,7 +853,7 @@ const QuotePageContent = memo(() => {
 
     // Show warnings if any (but continue with download)
     if (validation.warnings.length > 0) {
-      console.log('PDF Generation Warnings:', validation.warnings.join(', '));
+      // console.log('PDF Generation Warnings:', validation.warnings.join(', '));
     }
 
     setIsDownloadingPDF(true);
@@ -907,11 +880,11 @@ const QuotePageContent = memo(() => {
             setIsDownloadingPDF(false);
             setDownloadProgress(null);
             // Show success message
-            console.log(`✅ PDF downloaded successfully: ${filename}`);
+            // console.log(`✅ PDF downloaded successfully: ${filename}`);
             
             // Optionally show warnings that were resolved
             if (validation.warnings.length > 0) {
-              console.log('ℹ️ Note: Some optional data was missing but PDF was generated successfully');
+              // console.log('ℹ️ Note: Some optional data was missing but PDF was generated successfully');
             }
           },
           includeLogos: true
@@ -932,7 +905,7 @@ const QuotePageContent = memo(() => {
         <div className="flex justify-center items-center h-40">
           <div className="text-center space-y-3">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="text-slate-600">Loading {currentProvider === 'deel' ? 'Deel' : currentProvider === 'remote' ? 'Remote' : currentProvider === 'rivermate' ? 'Rivermate' : currentProvider === 'oyster' ? 'Oyster' : currentProvider === 'rippling' ? 'Rippling' : currentProvider === 'skuad' ? 'Skuad' : 'Velocity Global'} quote...</p>
+            {/* <p className="text-slate-600">Loading {currentProvider === 'deel' ? 'Deel' : currentProvider === 'remote' ? 'Remote' : currentProvider === 'rivermate' ? 'Rivermate' : currentProvider === 'oyster' ? 'Oyster' : currentProvider === 'rippling' ? 'Rippling' : currentProvider === 'skuad' ? 'Skuad' : 'Velocity Global'} quote...</p> */}
           </div>
         </div>
       );
@@ -1101,6 +1074,133 @@ const QuotePageContent = memo(() => {
       }
     } catch { /* noop */ }
 
+    const isEnhPending = (!((enhancements as any)?.[currentProvider as string])) && (providerStates[currentProvider]?.status === 'loading-enhanced')
+
+    // Build additional extras from deterministic/LLM enhancements when missing in full-quote
+    const extras: Array<{ name: string; amount: number; guards?: string[] }> = []
+    try {
+      const enh = (enhancements as any)?.[currentProvider as string]
+      const costs = Array.isArray(mergedQuote?.costs) ? mergedQuote.costs : []
+      const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+      const hasItemLike = (needle: string) => costs.some((c: any) => norm(c?.name).includes(norm(needle)))
+      const addExtra = (name: string, amount: number, guardNames: string[] = []) => {
+        const amt = Number(amount)
+        if (!isFinite(amt) || amt <= 0) return
+        const dup = guardNames.some(g => hasItemLike(g))
+        if (!dup) extras.push({ name, amount: amt, guards: guardNames })
+      }
+
+      if (enh && enh.enhancements) {
+        // Termination (monthlyized)
+        const tc = enh.enhancements.terminationCosts
+        if (tc && typeof tc.totalTerminationCost === 'number' && tc.totalTerminationCost > 0) {
+          const months = Math.max(1, Number(tc.basedOnContractMonths || (enh?.contractDurationMonths || 12)))
+          const monthly = tc.totalTerminationCost / months
+          addExtra('Termination Provision', monthly, ['termination', 'severance', 'notice', 'accrual', 'provision'])
+        }
+        // 13th salary
+        const th13 = enh.enhancements.thirteenthSalary
+        if (th13 && th13.isAlreadyIncluded !== true) {
+          const m = Number(th13.monthlyAmount || 0) || (Number(th13.yearlyAmount || 0) / 12)
+          addExtra('13th Salary', m, ['13th', 'thirteenth'])
+        }
+        // 14th salary
+        const th14 = enh.enhancements.fourteenthSalary
+        if (th14 && th14.isAlreadyIncluded !== true) {
+          const m = Number(th14.monthlyAmount || 0) || (Number(th14.yearlyAmount || 0) / 12)
+          addExtra('14th Salary', m, ['14th', 'fourteenth'])
+        }
+        // Allowances
+        const ta = enh.enhancements.transportationAllowance
+        if (ta && ta.isAlreadyIncluded !== true) addExtra('Transportation Allowance', Number(ta.monthlyAmount || 0), ['transportation'])
+        const rwa = enh.enhancements.remoteWorkAllowance
+        if (rwa && rwa.isAlreadyIncluded !== true) addExtra('Remote Work Allowance', Number(rwa.monthlyAmount || 0), ['remote work', 'wfh'])
+        const mv = enh.enhancements.mealVouchers
+        if (mv && mv.isAlreadyIncluded !== true) addExtra('Meal Vouchers', Number(mv.monthlyAmount || 0), ['meal voucher'])
+        // Additional contributions (includes employer contributions + local office)
+        const addc = enh.enhancements.additionalContributions || {}
+        Object.entries(addc).forEach(([k, v]) => {
+          const n = Number(v)
+          if (!isFinite(n) || n <= 0) return
+          const label = (() => {
+            const key = String(k || '').toLowerCase()
+            if (key.includes('baseline') && key.includes('employer')) return 'Employer Contributions (baseline)'
+            if (key.includes('employer') && key.includes('contribution')) return 'Employer Contributions'
+            if (key.includes('local_meal_voucher')) return 'Meal Voucher (Local Office)'
+            if (key.includes('local_transportation')) return 'Transportation (Local Office)'
+            if (key.includes('local_wfh')) return 'WFH (Local Office)'
+            if (key.includes('local_health_insurance')) return 'Health Insurance (Local Office)'
+            if (key.includes('local_office_monthly_payments')) return 'Local Office Monthly Payments'
+            if (key.includes('local_office_vat')) return 'VAT on Local Office Payments'
+            return String(k).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+          })()
+          addExtra(label, n)
+        })
+      }
+    } catch { /* noop */ }
+
+    // Append extras into mergedQuote cost rows so they render inline, and update USD conversions and totals
+    try {
+      if (extras.length > 0) {
+        const existingCosts = Array.isArray(mergedQuote?.costs) ? mergedQuote.costs : []
+
+        // Recompute an approximate exchange rate for USD conversions
+        let exchangeRate: number | null = null
+        if (conversions?.costs && Array.isArray(conversions.costs) && existingCosts.length > 0) {
+          for (let i = 0; i < Math.min(existingCosts.length, conversions.costs.length); i++) {
+            const localAmount = Number.parseFloat(existingCosts[i].amount)
+            const usdAmount = conversions.costs[i]
+            if (localAmount > 0 && usdAmount > 0) {
+              exchangeRate = usdAmount / localAmount
+              break
+            }
+          }
+        }
+
+        const toAmountStr = (n: number) => {
+          const v = Number(n)
+          return Number.isFinite(v) ? v.toFixed(2) : '0'
+        }
+
+        const newUsdConversions: number[] = []
+        for (const ex of extras) {
+          // Double-check duplication just before inserting
+          const dup = (ex.guards || []).some(g => hasItemLike(g))
+          if (dup) continue
+
+          existingCosts.push({
+            name: ex.name,
+            amount: toAmountStr(ex.amount),
+            frequency: 'monthly',
+            country: (quote as any)?.country,
+            country_code: (quote as any)?.country_code,
+          })
+
+          if (exchangeRate !== null) newUsdConversions.push(ex.amount * exchangeRate)
+        }
+
+        if (conversions?.costs && newUsdConversions.length > 0) {
+          extendedConversions = {
+            ...conversions,
+            costs: [...conversions.costs, ...newUsdConversions]
+          }
+        }
+
+        // Update totals by adding the extras sum
+        const sumExtras = extras.reduce((s, it) => s + (it.amount || 0), 0)
+        const parseNumSimple = (v?: string | number) => typeof v === 'number' ? v : Number.parseFloat((v || '0') as string)
+        const baseTotalSimple = parseNumSimple((mergedQuote as any)?.total_costs)
+        const updatedTotal = isFinite(baseTotalSimple) ? (baseTotalSimple + sumExtras) : baseTotalSimple
+        mergedQuote = {
+          ...(mergedQuote || {}),
+          costs: existingCosts,
+          total_costs: toAmountStr(updatedTotal),
+          employer_costs: toAmountStr(updatedTotal),
+        }
+      }
+    } catch { /* noop */ }
+
+    const isDualMode = !!dualCurrencyQuotes?.isDualCurrencyMode
     return (
       <div className="space-y-6">
         <GenericQuoteCard
@@ -1114,6 +1214,10 @@ const QuotePageContent = memo(() => {
           originalCurrency={eorForm.originalCurrency || undefined}
           selectedCurrency={eorForm.currency}
           recalcBaseItems={(enhancements as any)?.[currentProvider as string]?.recalcBaseItems || []}
+          {...(isDualMode ? { mergedExtras: extras, mergedCurrency: quote?.currency } : {})}
+          
+          enhancementPending={isEnhPending}
+          shimmerExtrasCount={3}
         />
 
         {/* Merged into base card; hide separate enhanced card */}

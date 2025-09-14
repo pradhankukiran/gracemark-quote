@@ -19,7 +19,19 @@ const BatchEnhancementRequestSchema = z.object({
     clientCountry: z.string().optional(),
     currency: z.string().optional(),
     workVisaRequired: z.boolean().optional(),
-    startDate: z.string().optional()
+    startDate: z.string().optional(),
+    // Accept local office info so we can include local benefits deterministically
+    localOfficeInfo: z.object({
+      mealVoucher: z.string().optional(),
+      transportation: z.string().optional(),
+      wfh: z.string().optional(),
+      healthInsurance: z.string().optional(),
+      monthlyPaymentsToLocalOffice: z.string().optional(),
+      vat: z.string().optional(),
+      preEmploymentMedicalTest: z.string().optional(),
+      drugTest: z.string().optional(),
+      backgroundCheckViaDeel: z.string().optional(),
+    }).optional()
   }),
   providerQuotes: z.record(z.object({
     provider: z.string(),

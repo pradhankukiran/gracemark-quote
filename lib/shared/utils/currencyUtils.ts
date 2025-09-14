@@ -34,7 +34,7 @@ export const convertDeelQuoteToUsd = async (
     return { success: false, error: "No Deel quote provided" }
   }
 
-  console.log("=== DEEL USD CONVERSION ===", quote.currency, "->", "USD")
+  // console.log("=== DEEL USD CONVERSION ===", quote.currency, "->", "USD")
 
   const sourceCurrency = quote.currency
   if (sourceCurrency === "USD") {
@@ -85,7 +85,7 @@ export const convertDeelQuoteToUsd = async (
       totalCosts: convertedTotal - convertedFee - convertedSeverance,
     }
 
-    console.log("✅ Deel USD conversion successful")
+    // console.log("✅ Deel USD conversion successful")
     return { success: true, data: result }
   } catch (error) {
     console.error("❌ Deel USD conversion failed:", error instanceof Error ? error.message : error)
@@ -114,7 +114,7 @@ export const convertRivermateQuoteToUsd = async (
     return { success: false, error: "No Rivermate quote provided" }
   }
 
-  console.log("=== RIVERMATE USD CONVERSION ===", quote.currency, "->", "USD")
+  // console.log("=== RIVERMATE USD CONVERSION ===", quote.currency, "->", "USD")
 
   const sourceCurrency = quote.currency
   if (sourceCurrency === "USD") {
@@ -156,7 +156,7 @@ export const convertRivermateQuoteToUsd = async (
       totalCosts: convertedTotal, // Salary + tax items only
     }
 
-    console.log("✅ Rivermate USD conversion successful")
+    // console.log("✅ Rivermate USD conversion successful")
     return { success: true, data: result }
   } catch (error) {
     console.error("❌ Rivermate USD conversion failed:", error instanceof Error ? error.message : error)
@@ -185,7 +185,7 @@ export const convertRemoteQuoteToUsd = async (
     return { success: false, error: "No Remote quote provided" }
   }
 
-  console.log("=== REMOTE USD CONVERSION ===", quote.currency, "->", "USD")
+  // console.log("=== REMOTE USD CONVERSION ===", quote.currency, "->", "USD")
 
   const sourceCurrency = quote.currency
   if (sourceCurrency === "USD") {
@@ -225,7 +225,7 @@ export const convertRemoteQuoteToUsd = async (
       monthlyTce: convertedAmounts[3],
     }
 
-    console.log("✅ Remote USD conversion successful")
+    // console.log("✅ Remote USD conversion successful")
     return { success: true, data: result }
   } catch (error) {
     console.error("❌ Remote USD conversion failed:", error instanceof Error ? error.message : error)

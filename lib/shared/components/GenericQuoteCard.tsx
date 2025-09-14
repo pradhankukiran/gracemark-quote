@@ -31,6 +31,9 @@ interface GenericQuoteCardProps {
   mergedCurrency?: string;
   mergedExtras?: Array<{ name: string; amount: number }>;
   recalcBaseItems?: string[];
+  // Shimmer placeholders for pending enhanced extras
+  enhancementPending?: boolean;
+  shimmerExtrasCount?: number;
 }
 
 const providerThemes: { [key in 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity']: ProviderTheme } = {
@@ -95,6 +98,8 @@ export const GenericQuoteCard = memo(({
   mergedCurrency,
   mergedExtras,
   recalcBaseItems,
+  enhancementPending = false,
+  shimmerExtrasCount = 0,
 }: GenericQuoteCardProps) => {
   const theme = providerThemes[provider];
 
@@ -137,6 +142,46 @@ export const GenericQuoteCard = memo(({
   const textSizes = compact
     ? { title: "text-2xl", amount: "text-base", total: "text-xl" }
     : { title: "text-2xl", amount: "text-xl", total: "text-3xl" };
+
+  const LoadingDots = () => (
+    <span aria-hidden="true">
+      <span className="inline-block animate-pulse" style={{ animationDelay: '0ms' }}>.</span>
+      <span className="inline-block animate-pulse" style={{ animationDelay: '150ms' }}>.</span>
+      <span className="inline-block animate-pulse" style={{ animationDelay: '300ms' }}>.</span>
+    </span>
+  )
+
+  const renderShimmerRow = (key: number) => {
+    const gridCols = totalDataColumns === 3 ? "grid-cols-4" : totalDataColumns === 2 ? "grid-cols-3" : "grid-cols-2";
+    const AmountSkeleton = () => (
+      <span className={`font-bold ${textSizes.amount} text-slate-900 text-right w-full flex justify-end`}>
+        <span className="h-4 bg-slate-200/70 rounded w-24 animate-pulse" />
+      </span>
+    )
+    return (
+      <div
+        key={`shimmer-${key}`}
+        className={`${compact ? "py-2 px-2" : "py-3 px-4"} bg-gray-50 ${
+          showMultipleColumns
+            ? `grid ${gridCols} ${compact ? "gap-2" : "gap-4"} items-center`
+            : "flex justify-between items-center"
+        }`}
+      >
+        <span className={`text-slate-600 font-medium text-base flex items-center`}>
+          Loading extra benefits<LoadingDots />
+        </span>
+        {showMultipleColumns ? (
+          <>
+            <AmountSkeleton />
+            <AmountSkeleton />
+            {showUSDInDualMode && <AmountSkeleton />}
+          </>
+        ) : (
+          <AmountSkeleton />
+        )}
+      </div>
+    )
+  }
 
   const renderCostRow = (
     label: string,
@@ -378,7 +423,7 @@ export const GenericQuoteCard = memo(({
 
           {/* Platform/management fees are excluded from display */}
 
-          {primaryQuote?.costs?.map((cost, index) => {
+  {primaryQuote?.costs?.map((cost, index) => {
             const primaryAmount = Number.parseFloat(cost.amount);
             const changedAmount = isDualCurrencyMode && changedQuote?.costs?.[index] 
               ? Number.parseFloat(changedQuote.costs[index].amount) 
@@ -409,7 +454,14 @@ export const GenericQuoteCard = memo(({
                 )}
               </div>
             );
-          }) || []}
+  }) || []}
+
+          {/* Shimmer placeholders for pending enhanced extras */}
+          {enhancementPending && shimmerExtrasCount > 0 && (
+            <>
+              {Array.from({ length: shimmerExtrasCount }).map((_, idx) => renderShimmerRow(idx))}
+            </>
+          )}
 
           <Separator className="my-4" />
 

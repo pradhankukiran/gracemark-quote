@@ -30,7 +30,19 @@ const EnhancementRequestSchema = z.object({
     clientCountry: z.string().optional(),
     currency: z.string().optional(),
     workVisaRequired: z.boolean().optional(),
-    startDate: z.string().optional()
+    startDate: z.string().optional(),
+    // Accept local office info so we can include local benefits deterministically
+    localOfficeInfo: z.object({
+      mealVoucher: z.string().optional(),
+      transportation: z.string().optional(),
+      wfh: z.string().optional(),
+      healthInsurance: z.string().optional(),
+      monthlyPaymentsToLocalOffice: z.string().optional(),
+      vat: z.string().optional(),
+      preEmploymentMedicalTest: z.string().optional(),
+      drugTest: z.string().optional(),
+      backgroundCheckViaDeel: z.string().optional(),
+    }).optional()
   }),
   quoteType: z.enum(['all-inclusive', 'statutory-only']).optional()
 })
@@ -63,12 +75,28 @@ export async function POST(request: NextRequest) {
         ? validatedInput.formData.quoteType 
         : 'all-inclusive')
 
-    const enhancedQuote = await enhancementEngine.enhanceQuoteDirect({
+    const enhancedQuote = await enhancementEngine.enhanceQuote({
       provider: validatedInput.provider,
       providerQuote: validatedInput.providerQuote,
       formData: validatedInput.formData as EORFormData,
       quoteType: effectiveQuoteType
     })
+
+    // Debug logging for API response
+    if (typeof window === 'undefined') {
+      try {
+        console.log(`[API] Enhanced Quote Response for ${validatedInput.provider}:`, {
+          success: true,
+          provider: validatedInput.provider,
+          baseTotal: enhancedQuote.baseQuote?.monthlyTotal || 0,
+          finalTotal: enhancedQuote.finalTotal,
+          totalEnhancement: enhancedQuote.totalEnhancement,
+          currency: enhancedQuote.baseCurrency,
+          processingTime: Date.now() - startTime,
+          overallConfidence: enhancedQuote.overallConfidence
+        })
+      } catch {/* noop */}
+    }
 
     // Return successful response
     return NextResponse.json({

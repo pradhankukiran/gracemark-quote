@@ -76,28 +76,28 @@ export async function downloadQuotePDF(
     });
 
     // Comprehensive logging for debugging
-    console.log('📊 PDF Generation Data Debug:');
-    console.log('🎯 Final Choice:', finalChoice);
-    console.log('📋 Provider Data:', providerData);
-    console.log('📝 Quote Data Structure:', {
-      calculatorType: quoteData?.calculatorType,
-      status: quoteData?.status,
-      hasFormData: !!quoteData?.formData,
-      formDataKeys: quoteData?.formData ? Object.keys(quoteData.formData) : [],
-      hasQuotes: !!quoteData?.quotes,
-      quotesKeys: quoteData?.quotes ? Object.keys(quoteData.quotes) : []
-    });
-    console.log('🤖 Enhancements Available:', Object.keys(enhancements || {}));
+    // console.log('📊 PDF Generation Data Debug:');
+    // console.log('🎯 Final Choice:', finalChoice);
+    // console.log('📋 Provider Data:', providerData);
+    // console.log('📝 Quote Data Structure:', {
+    //   calculatorType: quoteData?.calculatorType,
+    //   status: quoteData?.status,
+    //   hasFormData: !!quoteData?.formData,
+    //   formDataKeys: quoteData?.formData ? Object.keys(quoteData.formData) : [],
+    //   hasQuotes: !!quoteData?.quotes,
+    //   quotesKeys: quoteData?.quotes ? Object.keys(quoteData.quotes) : []
+    // });
+    // console.log('🤖 Enhancements Available:', Object.keys(enhancements || {}));
     
     // Log specific form data for debugging
     if (quoteData?.formData) {
-      console.log('👤 Form Data Details:', {
-        employeeName: quoteData.formData.employeeName,
-        baseSalary: quoteData.formData.baseSalary,
-        country: quoteData.formData.country,
-        selectedBenefits: quoteData.formData.selectedBenefits,
-        selectedBenefitsKeys: quoteData.formData.selectedBenefits ? Object.keys(quoteData.formData.selectedBenefits) : []
-      });
+      // console.log('👤 Form Data Details:', {
+      //   employeeName: quoteData.formData.employeeName,
+      //   baseSalary: quoteData.formData.baseSalary,
+      //   country: quoteData.formData.country,
+      //   selectedBenefits: quoteData.formData.selectedBenefits,
+      //   selectedBenefitsKeys: quoteData.formData.selectedBenefits ? Object.keys(quoteData.formData.selectedBenefits) : []
+      // });
     }
 
     const pdfData: PDFQuoteData = transformQuoteDataForPDF(
@@ -108,15 +108,15 @@ export async function downloadQuotePDF(
     );
 
     // Log transformed PDF data
-    console.log('📄 PDF Data Generated:', {
-      documentTitle: pdfData.documentTitle,
-      employeeName: pdfData.employee.employeeName,
-      baseSalary: pdfData.employee.baseSalary,
-      benefitsCount: pdfData.employee.benefits.length,
-      providerComparisonCount: pdfData.providerComparison.length,
-      hasEnhancedAnalysis: !!pdfData.enhancedAnalysis
-    });
-    console.log('🏆 Benefits Extracted:', pdfData.employee.benefits);
+    // console.log('📄 PDF Data Generated:', {
+    //   documentTitle: pdfData.documentTitle,
+    //   employeeName: pdfData.employee.employeeName,
+    //   baseSalary: pdfData.employee.baseSalary,
+    //   benefitsCount: pdfData.employee.benefits.length,
+    //   providerComparisonCount: pdfData.providerComparison.length,
+    //   hasEnhancedAnalysis: !!pdfData.enhancedAnalysis
+    // });
+    // console.log('🏆 Benefits Extracted:', pdfData.employee.benefits);
 
     // Step 3: Load provider logos (if requested)
     let providerLogos: Record<string, ProviderLogoData> = {};

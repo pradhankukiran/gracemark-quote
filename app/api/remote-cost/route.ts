@@ -10,14 +10,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { salary, salaryFrequency = "annual", country, currency, clientCountry, state } = body
 
-    console.log('🔍 Remote API - Incoming request:', {
-      salary,
-      salaryFrequency,
-      country,
-      currency,
-      clientCountry,
-      state
-    })
+    // console.log('🔍 Remote API - Incoming request:', {
+    //   salary,
+    //   salaryFrequency,
+    //   country,
+    //   currency,
+    //   clientCountry,
+    //   state
+    // })
 
     // Parse salary from string to number with validation
     const salaryNumber = parseFloat(salary?.toString().replace(/[,\s]/g, '') || '0')
@@ -35,16 +35,16 @@ export async function POST(request: NextRequest) {
     // Get employee's regional currency
     const regionalCurrency = getRemoteCountryCurrency(country)
     
-    console.log('🔍 Remote API - Currency analysis:', {
-      inputCurrency: currency,
-      regionalCurrency,
-      inputSalary: annualSalary,
-      needsConversion: currency !== regionalCurrency
-    })
+    // console.log('🔍 Remote API - Currency analysis:', {
+    //   inputCurrency: currency,
+    //   regionalCurrency,
+    //   inputSalary: annualSalary,
+    //   needsConversion: currency !== regionalCurrency
+    // })
 
     // Convert salary to regional currency if needed (Remote API expects salary in employee's regional currency)
     if (currency !== regionalCurrency && regionalCurrency) {
-      console.log('🔄 Remote API - Converting salary from employer currency to regional currency')
+      // console.log('🔄 Remote API - Converting salary from employer currency to regional currency')
       
       // Use currency providers directly (server-side)
       const papayaProvider = new PapayaCurrencyProvider()
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       let conversionResult = await papayaProvider.convertCurrency(annualSalary, currency, regionalCurrency)
       
       if (!conversionResult.success) {
-        console.log('🔄 Remote API - Papaya failed, trying Remote provider')
+        // console.log('🔄 Remote API - Papaya failed, trying Remote provider')
         conversionResult = await remoteProvider.convertCurrency(annualSalary, currency, regionalCurrency)
       }
       
@@ -75,13 +75,13 @@ export async function POST(request: NextRequest) {
       }
       
       annualSalary = Math.round(convertedAmount)
-      console.log('✅ Remote API - Salary converted:', {
-        originalAmount: salaryNumber,
-        originalCurrency: currency,
-        convertedAmount: annualSalary,
-        targetCurrency: regionalCurrency,
-        exchangeRate: conversionResult.data.conversion_data.exchange_rate
-      })
+      // console.log('✅ Remote API - Salary converted:', {
+      //   originalAmount: salaryNumber,
+      //   originalCurrency: currency,
+      //   convertedAmount: annualSalary,
+      //   targetCurrency: regionalCurrency,
+      //   exchangeRate: conversionResult.data.conversion_data.exchange_rate
+      // })
     }
     
     // Final validation before sending to Remote
@@ -96,11 +96,11 @@ export async function POST(request: NextRequest) {
     // Remote will handle conversions and provide both regional and employer currency costs
     const employerCurrencySlug = getRemoteCurrencySlug(currency)
 
-    console.log('🔍 Remote API - Slug mapping:', {
-      regionSlug,
-      employerCurrencySlug,
-      currency
-    })
+    // console.log('🔍 Remote API - Slug mapping:', {
+    //   regionSlug,
+    //   employerCurrencySlug,
+    //   currency
+    // })
 
     if (state && country) {
       const { getRemoteCountryStates } = await import("@/lib/remote-mapping")
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
         const selectedState = states.find((s) => s.name === state)
         if (selectedState) {
           regionSlug = selectedState.slug
-          console.log('🔍 Remote API - State override:', { state, newRegionSlug: regionSlug })
+          // console.log('🔍 Remote API - State override:', { state, newRegionSlug: regionSlug })
         }
       }
     }
@@ -139,8 +139,8 @@ export async function POST(request: NextRequest) {
       include_management_fee: false,
     }
 
-    console.log('🔍 Remote API - Request body:', JSON.stringify(requestBody, null, 2))
-    console.log('🔍 Remote API - Final salary amount being sent:', annualSalary, regionalCurrency || currency)
+    // console.log('🔍 Remote API - Request body:', JSON.stringify(requestBody, null, 2))
+    // console.log('🔍 Remote API - Final salary amount being sent:', annualSalary, regionalCurrency || currency)
 
     const remoteOptions = {
       method: "POST",
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(requestBody),
     }
 
-    console.log('🔍 Remote API - Making request to Remote...')
+    // console.log('🔍 Remote API - Making request to Remote...')
     const response = await fetch("https://gateway.remote.com/v1/cost-calculator/estimation", remoteOptions)
 
     if (!response.ok) {
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
       }, { status: response.status })
     }
 
-    console.log('✅ Remote API - Response received successfully')
+    // console.log('✅ Remote API - Response received successfully')
     const rawData: RemoteRawAPIResponse = await response.json()
 
     // console.log('🔍 Remote API - Raw response:', JSON.stringify(rawData, null, 2))
@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
     }
 
     const employment = rawData.data.employments[0]
-    console.log('✅ Remote API - Employment data extracted:', employment.country.name, employment.employer_currency_costs.currency.code)
+    // console.log('✅ Remote API - Employment data extracted:', employment.country.name, employment.employer_currency_costs.currency.code)
 
     // Transform Remote response while preserving detailed breakdown data
     const transformedResponse: RemoteAPIResponse = {
@@ -199,7 +199,7 @@ export async function POST(request: NextRequest) {
       raw_response: rawData,
     }
 
-    console.log('✅ Remote API - Returning transformed response')
+    // console.log('✅ Remote API - Returning transformed response')
     return NextResponse.json(transformedResponse)
   } catch (error) {
     console.error("Remote API Error:", error)

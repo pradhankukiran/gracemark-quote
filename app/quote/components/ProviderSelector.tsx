@@ -60,7 +60,7 @@ export const ProviderSelector = memo(({
           
           // Debug: Log provider states to help diagnose missing failure indicators
           if (isFailed || isEnhancementFailed) {
-            console.log(`[ProviderSelector] ${provider} status: ${status}`, { providerState, isFailed, isEnhancementFailed });
+            // console.log(`[ProviderSelector] ${provider} status: ${status}`, { providerState, isFailed, isEnhancementFailed });
           }
           
           // Allow switching when active, enhancement in-progress, or enhancement failed (base quote available)

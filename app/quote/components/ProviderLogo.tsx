@@ -16,7 +16,7 @@ export const ProviderLogo = memo(({
   }
 
   if (provider === 'remote') {
-    return <Image src="/remote_logo.png" alt="Remote Logo" width={size * 3} height={size} className="object-contain" priority />;
+    return <Image src="/remote_logo.png" alt="Remote Logo" width={size * 3.5} height={size} className="object-contain" priority />;
   }
 
   if (provider === 'rivermate') {
@@ -36,7 +36,7 @@ export const ProviderLogo = memo(({
   }
 
   if (provider === 'velocity') {
-    return <Image src="/velocity_logo.png" alt="Velocity Global Logo" width={size * 5} height={size} className="object-contain" priority />;
+    return <Image src="/pebl_logo.png" alt="Velocity Global Logo" width={size * 2} height={size} className="object-contain" priority />;
   }
 
   return null;

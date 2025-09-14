@@ -380,7 +380,7 @@ export function transformQuoteDataForPDF(
       });
     }
     
-    console.log(`PDF: Extracted ${enhancementDetails.length} enhancement details from LLM response`);
+    // console.log(`PDF: Extracted ${enhancementDetails.length} enhancement details from LLM response`);
   }
 
   return {
@@ -465,9 +465,9 @@ function extractUnifiedBenefits(
   const benefits: string[] = [];
   const uniqueBenefits = new Set<string>(); // Prevent duplicates
   
-  console.log('🔍 Extracting Benefits Debug Info:');
-  console.log('📋 Form Data Selected Benefits:', formData?.selectedBenefits);
-  console.log('🤖 Enhancement Data:', selectedProviderEnhancement);
+  // console.log('🔍 Extracting Benefits Debug Info:');
+  // console.log('📋 Form Data Selected Benefits:', formData?.selectedBenefits);
+  // console.log('🤖 Enhancement Data:', selectedProviderEnhancement);
   
   // 1. Add statutory employment basics (always included)
   const statutoryBenefits = [
@@ -494,7 +494,7 @@ function extractUnifiedBenefits(
         baseIncludedAdded++;
       }
     });
-    console.log(`PDF: Added ${baseIncludedAdded} base included benefits from provider quote`);
+    // console.log(`PDF: Added ${baseIncludedAdded} base included benefits from provider quote`);
   }
   
   // 3. Extract benefits from form data (user selections)
@@ -514,7 +514,7 @@ function extractUnifiedBenefits(
         }
       }
     });
-    console.log(`📦 Added ${formBenefitsAdded} benefits from form selections`);
+    // console.log(`📦 Added ${formBenefitsAdded} benefits from form selections`);
   }
   
   // 3. Extract legal requirements from enhancement analysis
@@ -537,7 +537,7 @@ function extractUnifiedBenefits(
         }
       }
     });
-    console.log(`⚖ Added ${legalBenefitsAdded} legal requirements as benefits`);
+    // console.log(`⚖ Added ${legalBenefitsAdded} legal requirements as benefits`);
   }
   
   // 4. Extract enhancement breakdown items as additional coverage
@@ -559,7 +559,7 @@ function extractUnifiedBenefits(
         }
       }
     });
-    console.log(`💼 Added ${enhancementBenefitsAdded} enhancement items as benefits`);
+    // console.log(`💼 Added ${enhancementBenefitsAdded} enhancement items as benefits`);
   }
   
   // 5. Add compliance warnings as benefit considerations
@@ -582,17 +582,17 @@ function extractUnifiedBenefits(
         }
       }
     });
-    console.log(`⚠ Added ${warningBenefitsAdded} compliance warnings as benefit notes`);
+    // console.log(`⚠ Added ${warningBenefitsAdded} compliance warnings as benefit notes`);
   }
   
   // 6. Fallback if no benefits found
   if (benefits.length === statutoryBenefits.length) {
     benefits.push('Additional benefits analysis in progress');
-    console.log('PDF: Added fallback message - no additional benefits found');
+    // console.log('PDF: Added fallback message - no additional benefits found');
   }
   
-  console.log(`PDF: Total Benefits Extracted: ${benefits.length}`);
-  console.log('PDF: Final Benefits List:', benefits);
+  // console.log(`PDF: Total Benefits Extracted: ${benefits.length}`);
+  // console.log('PDF: Final Benefits List:', benefits);
   
   return benefits;
 }
@@ -606,8 +606,8 @@ function extractEnhancedBenefits(
   const benefits: string[] = [];
   const uniqueBenefits = new Set<string>();
   
-  console.log('🔍 Enhanced Benefits Extraction Debug:');
-  console.log('🤖 Enhanced Quote Data:', selectedProviderEnhancement);
+  // console.log('🔍 Enhanced Benefits Extraction Debug:');
+  // console.log('🤖 Enhanced Quote Data:', selectedProviderEnhancement);
   
   // 1. Add statutory employment basics (always included)
   const statutoryBenefits = [
@@ -703,7 +703,7 @@ function extractEnhancedBenefits(
       enhancementBenefitsAdded++;
     }
     
-    console.log(`💼 Added ${enhancementBenefitsAdded} AI-calculated enhancements`);
+    // console.log(`💼 Added ${enhancementBenefitsAdded} AI-calculated enhancements`);
   }
   
   // 3. Add base included benefits (from provider quote) if not already covered
@@ -719,7 +719,7 @@ function extractEnhancedBenefits(
         baseIncludedAdded++;
       }
     });
-    console.log(`📦 Added ${baseIncludedAdded} base provider benefits`);
+    // console.log(`📦 Added ${baseIncludedAdded} base provider benefits`);
   }
   
   // 4. Add user-selected benefits from form (if not covered by enhancements)
@@ -739,7 +739,7 @@ function extractEnhancedBenefits(
         }
       }
     });
-    console.log(`📋 Added ${formBenefitsAdded} user-selected benefits`);
+    // console.log(`📋 Added ${formBenefitsAdded} user-selected benefits`);
   }
   
   // 5. Add legal requirements as compliance coverage
@@ -757,17 +757,17 @@ function extractEnhancedBenefits(
         }
       }
     });
-    console.log(`⚖ Added ${complianceBenefitsAdded} compliance requirements`);
+    // console.log(`⚖ Added ${complianceBenefitsAdded} compliance requirements`);
   }
   
   // 6. Fallback if no enhanced benefits found
   if (benefits.length === statutoryBenefits.length) {
     benefits.push('• Additional benefits as per local employment law');
-    console.log('PDF: Added fallback benefit message');
+    // console.log('PDF: Added fallback benefit message');
   }
   
-  console.log(`PDF Enhanced: Total Benefits Extracted: ${benefits.length}`);
-  console.log('PDF Enhanced: Final Benefits List:', benefits);
+  // console.log(`PDF Enhanced: Total Benefits Extracted: ${benefits.length}`);
+  // console.log('PDF Enhanced: Final Benefits List:', benefits);
   
   return benefits;
 }

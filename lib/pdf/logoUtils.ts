@@ -49,9 +49,9 @@ export const PROVIDER_LOGOS: Record<ProviderType, ProviderLogoData> = {
     height: 24
   },
   velocity: {
-    name: 'Velocity Global',
-    imagePath: '/velocity_logo.png',
-    width: 120,
+    name: 'Pebl',
+    imagePath: '/pebl_logo.png',
+    width: 60,
     height: 24
   }
 };

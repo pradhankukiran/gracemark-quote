@@ -24,6 +24,8 @@ import { LegalProfileService } from "../data/LegalProfileService"
 import { QuoteNormalizer } from "../data/QuoteNormalizer"
 import { enhancementCache, EnhancementPerformanceMonitor } from "./EnhancementCache"
 import { ProviderInclusionsExtractor } from "./ProviderInclusionsExtractor"
+import type { PrepassLegalProfile } from "@/lib/services/llm/CerebrasService"
+import { PapayaAvailability } from "@/lib/services/data/PapayaAvailability"
 
 export class EnhancementEngine {
   private groqService: GroqService
@@ -156,16 +158,39 @@ export class EnhancementEngine {
         throw new Error('No response received from Groq LLM service')
       }
 
-      console.log(`[Enhancement] Enhancements computed for ${params.provider}. Transforming response...`)
+      // console.log(`[Enhancement] Enhancements computed for ${params.provider}. Transforming response...`)
       // Step 5: Transform Groq response to EnhancedQuote format
       const enhancedQuote = this.transformGroqResponse(
-        groqResponse, 
-        normalizedQuote, 
+        groqResponse,
+        normalizedQuote,
         {
           quoteType,
-          contractDurationMonths: legalProfile.contractMonths
+          contractDurationMonths: legalProfile.contractMonths,
+          formData: params.formData,
+          legalRequirements: legalProfile.requirements
         }
       )
+
+      // Debug logging for enhanced quote result
+      if (typeof window === 'undefined') {
+        try {
+          const baseTotal = normalizedQuote.monthlyTotal
+          const enhancement = enhancedQuote.totalEnhancement
+          const finalTotal = enhancedQuote.finalTotal
+          console.log(`[Enhancement] Enhanced Quote Result for ${params.provider}: Base: ${baseTotal.toLocaleString()} ${enhancedQuote.baseCurrency} → Enhanced: ${finalTotal.toLocaleString()} ${enhancedQuote.baseCurrency} (+${enhancement.toLocaleString()} ${enhancedQuote.baseCurrency})`, {
+            baseTotal,
+            totalEnhancement: enhancement,
+            finalTotal,
+            currency: enhancedQuote.baseCurrency,
+            overallConfidence: enhancedQuote.overallConfidence,
+            keyEnhancements: {
+              terminationCosts: enhancedQuote.enhancements.terminationCosts?.monthlyProvision || 0,
+              thirteenthSalary: enhancedQuote.enhancements.thirteenthSalary?.monthlyAmount || 0,
+              employerContributions: enhancedQuote.enhancements.additionalContributions ? Object.values(enhancedQuote.enhancements.additionalContributions).reduce((sum, val) => sum + (val || 0), 0) : 0
+            }
+          })
+        } catch {/* noop */}
+      }
 
       // Step 6: Validate and cache result
       this.validateEnhancedQuote(enhancedQuote)
@@ -232,16 +257,68 @@ export class EnhancementEngine {
         normalizedQuote = QuoteNormalizer.normalize(params.provider, params.providerQuote)
       }
       
-      // Step 2: Get and flatten Papaya Global data
+      // Step 2: Build a Papaya Legal Profile via pre-pass (Cerebras)
       const countryCode = this.getCountryCode(params.formData.country)
       const papayaData = PapayaService.getCountryData(countryCode)
-      
-      if (!papayaData) {
-        throw new Error(`No Papaya Global data available for country: ${params.formData.country}`)
+      if (!papayaData) throw new Error(`No Papaya Global data available for country: ${params.formData.country}`)
+
+      // Prepare quote-level pre-pass key components
+      const contractDurationMonths = Math.max(1, parseInt(params.formData.contractDuration || '12') || 12)
+      const baseSalaryMonthly = Number(params.formData.baseSalary || 0) || 0
+      const employmentType = (params.formData.employmentType || '').toString()
+      const prepassKey = {
+        countryCode,
+        baseSalaryMonthly,
+        contractMonths: contractDurationMonths,
+        quoteType,
+        employmentType
       }
 
-      // Use compact quote-focused flattener to reduce LLM payload and avoid stream errors
-      const flattenedPapaya = PapayaDataFlattener.flattenForQuote(papayaData)
+      // Run pre-pass with cache/in-flight dedupe in parallel with provider extraction
+      const cerebrasPrepassPromise = (async () => {
+        // Try cache first
+        const cached = enhancementCache.getPrepassBaseline(prepassKey)
+        if (cached) return cached
+
+        // Check in-flight
+        const inflight = enhancementCache.getPrepassInflight(prepassKey)
+        if (inflight) return await inflight
+
+        // Start new request and register as in-flight
+        const p = (async () => {
+          try {
+            const { CerebrasService } = await import("@/lib/services/llm/CerebrasService")
+            const cerebras = CerebrasService.getInstance()
+            const baseline = await cerebras.buildLegalProfile({ countryCode, formData: params.formData })
+            // Cache on success
+            enhancementCache.setPrepassBaseline(prepassKey, baseline, 30 * 60 * 1000)
+            return baseline
+          } catch (err) {
+            console.warn('[Enhancement] Cerebras pre-pass failed, using deterministic baseline:', err instanceof Error ? err.message : 'Unknown')
+            const deterministicBaseline = this.buildDeterministicPrepassBaseline({
+              countryCode,
+              countryName: params.formData.country,
+              formData: params.formData
+            })
+            enhancementCache.setPrepassBaseline(prepassKey, deterministicBaseline, 30 * 60 * 1000)
+            return deterministicBaseline
+          }
+        })()
+        enhancementCache.setPrepassInflight(prepassKey, p)
+        try {
+          const result = await p
+          return result
+        } finally {
+          enhancementCache.clearPrepassInflight(prepassKey)
+        }
+      })()
+
+      // Build legal profile for deterministic safety net
+      const legalProfile = LegalProfileService.getProfile({
+        countryCode,
+        countryName: params.formData.country,
+        formData: params.formData
+      })
       
       // Step 3: Extract provider benefits (what they already include)
       let extractedBenefits = enhancementCache.getExtraction(
@@ -260,54 +337,101 @@ export class EnhancementEngine {
       }
 
       // Step 4: Contract duration calculation
-      const contractDurationMonths = Math.max(1, parseInt(params.formData.contractDuration || '12') || 12)
-      
-      // Step 5: Direct enhancement computation using flattened Papaya data
-      console.log(`[Enhancement] Computing direct enhancements for ${params.provider}...`)
-      let groqResponse
-      let lastError: unknown
-      
-      for (let attempt = 1; attempt <= 2; attempt++) {
+      // (already computed above as contractDurationMonths)
+      // Step 5: Wait for pre-pass (Cerebras) and compute deterministic deltas using the legal profile
+      console.log(`[Enhancement] Building legal baseline via Cerebras pre-pass for ${params.provider}...`)
+      let groqLikeResponse
+      try {
+        const legalBaseline = await cerebrasPrepassPromise
+        // Use Groq with Cerebras pre-pass baseline to compute final enhancements per provider
+        groqLikeResponse = await this.groqService.computeEnhancementsWithPrepass({
+          provider: params.provider,
+          baseQuote: normalizedQuote,
+          quoteType,
+          contractDurationMonths: contractDurationMonths,
+          extractedBenefits,
+          prepass: legalBaseline
+        })
+      } catch (prepassError) {
+        console.warn('[Enhancement] Cerebras pre-pass failed, attempting deterministic baseline:', prepassError instanceof Error ? prepassError.message : 'Unknown')
         try {
-          const directInput: DirectEnhancementInput = {
+          const deterministicBaseline = this.buildDeterministicPrepassBaseline({
+            countryCode,
+            countryName: params.formData.country,
+            formData: params.formData
+          })
+          groqLikeResponse = await this.groqService.computeEnhancementsWithPrepass({
             provider: params.provider,
             baseQuote: normalizedQuote,
-            formData: params.formData,
-            papayaData: flattenedPapaya.data,
-            papayaCurrency: flattenedPapaya.currency,
             quoteType,
             contractDurationMonths,
-            extractedBenefits
+            extractedBenefits,
+            prepass: deterministicBaseline
+          })
+        } catch (detErr) {
+          console.warn('[Enhancement] Deterministic baseline failed, falling back to direct Groq path:', detErr instanceof Error ? detErr.message : 'Unknown')
+          const flattenedPapaya = PapayaDataFlattener.flattenForQuote(papayaData)
+          let lastError: unknown
+          for (let attempt = 1; attempt <= 2; attempt++) {
+            try {
+              const directInput: DirectEnhancementInput = {
+                provider: params.provider,
+                baseQuote: normalizedQuote,
+                formData: params.formData,
+                papayaData: flattenedPapaya.data,
+                papayaCurrency: flattenedPapaya.currency,
+                quoteType,
+                contractDurationMonths,
+                extractedBenefits
+              }
+              groqLikeResponse = await this.groqService.computeDirectEnhancements(directInput)
+              break
+            } catch (error) {
+              lastError = error
+              if (attempt === 1) {
+                console.warn(`[Enhancement] Direct Groq call attempt ${attempt} failed for ${params.provider}, retrying once...`, error instanceof Error ? error.message : 'Unknown error')
+              } else {
+                console.error(`[Enhancement] Direct Groq call attempt ${attempt} failed for ${params.provider}, giving up.`, error instanceof Error ? error.message : 'Unknown error')
+                throw error
+              }
+            }
           }
-
-          groqResponse = await this.groqService.computeDirectEnhancements(directInput)
-          break // Success - exit retry loop
-        } catch (error) {
-          lastError = error
-          if (attempt === 1) {
-            console.warn(`[Enhancement] Direct Groq call attempt ${attempt} failed for ${params.provider}, retrying once...`, error instanceof Error ? error.message : 'Unknown error')
-          } else {
-            console.error(`[Enhancement] Direct Groq call attempt ${attempt} failed for ${params.provider}, giving up.`, error instanceof Error ? error.message : 'Unknown error')
-            throw error // Final failure - re-throw
-          }
+          if (!groqLikeResponse) throw detErr || new Error('Fallback Groq path failed')
         }
       }
 
-      if (!groqResponse) {
-        throw new Error('No response received from Groq LLM service for direct enhancement')
-      }
-
-      console.log(`[Enhancement] Direct enhancements computed for ${params.provider}. Transforming response...`)
-      
-      // Step 6: Transform Groq response to EnhancedQuote format (reuse existing transformer)
+      // console.log(`[Enhancement] Enhancements computed for ${params.provider}. Transforming response...`)
       const enhancedQuote = this.transformGroqResponse(
-        groqResponse, 
-        normalizedQuote, 
+        groqLikeResponse,
+        normalizedQuote,
         {
           quoteType,
-          contractDurationMonths
+          contractDurationMonths,
+          formData: params.formData,
+          legalRequirements: legalProfile?.requirements
         }
       )
+
+      // Debug logging for enhanced quote result
+      if (typeof window === 'undefined') {
+        try {
+          const baseTotal = normalizedQuote.monthlyTotal
+          const enhancement = enhancedQuote.totalEnhancement
+          const finalTotal = enhancedQuote.finalTotal
+          console.log(`[Enhancement] Enhanced Quote Result for ${params.provider}: Base: ${baseTotal.toLocaleString()} ${enhancedQuote.baseCurrency} → Enhanced: ${finalTotal.toLocaleString()} ${enhancedQuote.baseCurrency} (+${enhancement.toLocaleString()} ${enhancedQuote.baseCurrency})`, {
+            baseTotal,
+            totalEnhancement: enhancement,
+            finalTotal,
+            currency: enhancedQuote.baseCurrency,
+            overallConfidence: enhancedQuote.overallConfidence,
+            keyEnhancements: {
+              terminationCosts: enhancedQuote.enhancements.terminationCosts?.monthlyProvision || 0,
+              thirteenthSalary: enhancedQuote.enhancements.thirteenthSalary?.monthlyAmount || 0,
+              employerContributions: enhancedQuote.enhancements.additionalContributions ? Object.values(enhancedQuote.enhancements.additionalContributions).reduce((sum, val) => sum + (val || 0), 0) : 0
+            }
+          })
+        } catch {/* noop */}
+      }
 
       // Step 7: Validate and cache result
       this.validateEnhancedQuote(enhancedQuote)
@@ -375,7 +499,7 @@ export class EnhancementEngine {
   private transformGroqResponse(
     groqResponse: GroqEnhancementResponse,
     baseQuote: NormalizedQuote,
-    input: { quoteType: 'all-inclusive' | 'statutory-only'; contractDurationMonths: number }
+    input: { quoteType: 'all-inclusive' | 'statutory-only'; contractDurationMonths: number; formData?: EORFormData; legalRequirements?: LegalRequirements }
   ): EnhancedQuote {
     const { enhancements, confidence_scores, analysis } = groqResponse
 
@@ -489,6 +613,113 @@ export class EnhancementEngine {
       }
     }
 
+    // Deterministic baseline safety net: ensure key statutory items are present using LegalProfile
+    try {
+      const baseSalary = Number(baseQuote.baseCost) || 0
+      const months = Math.max(1, Number(input.contractDurationMonths) || 12)
+      const lr = input.legalRequirements
+
+      if (lr && baseSalary > 0) {
+        // Termination costs (monthlyized)
+        const hasLLMTermination = !!enhancementData.terminationCosts && (enhancementData.terminationCosts.totalTerminationCost || 0) > 0
+        const noticeDays = Math.max(0, Number(lr.terminationCosts?.noticePeriodDays || 0))
+        const severanceMonths = Math.max(0, Number(lr.terminationCosts?.severanceMonths || 0))
+        const derivedMonths = (noticeDays / 30) + severanceMonths
+        const effectiveMonths = derivedMonths > 0 ? derivedMonths : 3 // fallback: 3 months total if parsing unavailable
+        const termTotal = effectiveMonths * baseSalary
+        const termMonthly = months > 0 ? (termTotal / months) : 0
+        if (!hasLLMTermination && termMonthly > 0) {
+          enhancementData.terminationCosts = {
+            noticePeriodCost: (noticeDays / 30) > 0 ? (noticeDays / 30) * baseSalary : 0,
+            severanceCost: severanceMonths > 0 ? (severanceMonths * baseSalary) : (effectiveMonths >= 3 ? termTotal : 0),
+            totalTerminationCost: termTotal,
+            explanation: 'Deterministic termination provision based on Papaya legal profile (notice + severance).',
+            confidence: 0.8,
+            basedOnContractMonths: months
+          }
+        }
+
+        // 13th salary
+        const hasTh13 = !!enhancementData.thirteenthSalary && ((enhancementData.thirteenthSalary.monthlyAmount || 0) > 0 || (enhancementData.thirteenthSalary.yearlyAmount || 0) > 0)
+        if (!hasTh13 && lr.mandatorySalaries?.has13thSalary) {
+          const m = baseSalary / 12
+          enhancementData.thirteenthSalary = {
+            monthlyAmount: m,
+            yearlyAmount: m * 12,
+            explanation: 'Deterministic 13th salary accrual (Papaya indicates mandatory).',
+            confidence: 0.8,
+            isAlreadyIncluded: false
+          }
+        }
+
+        // 14th salary
+        const hasTh14 = !!enhancementData.fourteenthSalary && ((enhancementData.fourteenthSalary.monthlyAmount || 0) > 0 || (enhancementData.fourteenthSalary.yearlyAmount || 0) > 0)
+        if (!hasTh14 && lr.mandatorySalaries?.has14thSalary) {
+          const m = baseSalary / 12
+          enhancementData.fourteenthSalary = {
+            monthlyAmount: m,
+            yearlyAmount: m * 12,
+            explanation: 'Deterministic 14th salary accrual (Papaya indicates mandatory).',
+            confidence: 0.75,
+            isAlreadyIncluded: false
+          }
+        }
+
+        // Vacation bonus (as yearly percentage; monthlyized later)
+        const hasVac = !!enhancementData.vacationBonus && (enhancementData.vacationBonus.amount || 0) > 0
+        const vacPct = Number(lr.bonuses?.vacationBonusPercentage || 0)
+        if (!hasVac && vacPct > 0 && input.quoteType !== 'statutory-only') {
+          const yearly = baseSalary * (vacPct / 100)
+          enhancementData.vacationBonus = {
+            amount: yearly,
+            frequency: 'yearly',
+            explanation: 'Deterministic vacation bonus from Papaya employer contribution guidance.',
+            confidence: 0.6,
+            isAlreadyIncluded: false
+          }
+        }
+
+        // Employer contributions from Papaya (prefer per-item details over aggregate if provider hasn't included them)
+        const hasLLMAggContrib = !!(groqResponse as any)?.enhancements?.employer_contributions_total && typeof (groqResponse as any)?.enhancements?.employer_contributions_total?.monthly_amount === 'number'
+        const employerRates = lr.contributions?.employerRates || {}
+        const sumRate = Object.values(employerRates).reduce((s, r) => s + (Number(r) || 0), 0)
+        const providerHasContribBreakdown = typeof baseQuote.breakdown?.statutoryContributions === 'number' && isFinite(baseQuote.breakdown!.statutoryContributions!) && (baseQuote.breakdown!.statutoryContributions! > 0)
+        if (!hasLLMAggContrib && !providerHasContribBreakdown && sumRate > 0) {
+          const perItem: Record<string, number> = {}
+          Object.entries(employerRates).forEach(([key, rate]) => {
+            const pct = Number(rate) || 0
+            if (pct > 0) {
+              const monthly = baseSalary * (pct / 100)
+              perItem[`employer_contrib_${key}`] = monthly
+            }
+          })
+          if (Object.keys(perItem).length > 0) {
+            enhancementData.additionalContributions = {
+              ...(enhancementData.additionalContributions || {}),
+              ...perItem
+            }
+          }
+        }
+
+        // Common allowances from Papaya (include in all-inclusive mode)
+        if (input.quoteType === 'all-inclusive') {
+          const allow = lr.allowances || {}
+          const addIf = (cond: boolean, key: string, amt?: number) => {
+            const n = Number(amt || 0)
+            if (cond && n > 0) {
+              enhancementData.additionalContributions = {
+                ...(enhancementData.additionalContributions || {}),
+                [key]: n
+              }
+            }
+          }
+          addIf(true, 'allowance_meal_vouchers', allow.mealVoucherAmount)
+          addIf(true, 'allowance_transportation', allow.transportationAmount)
+          addIf(true, 'allowance_remote_work', allow.remoteWorkAmount)
+        }
+      }
+    } catch { /* noop deterministic safety */ }
+
     // Build overlap analysis
     const overlapAnalysis: OverlapAnalysis = {
       providerIncludes: analysis?.provider_coverage || [],
@@ -565,12 +796,68 @@ export class EnhancementEngine {
     if (fullQuote && typeof fullQuote === 'object') {
       try {
         const fqTotal = Number((fullQuote as any)?.total_monthly) || 0
-        if (fqTotal > 0) computedMonthlyEnhancement = Math.max(0, fqTotal - baseMonthly)
+        if (fqTotal > 0) {
+          const llmDelta = computedMonthlyEnhancement
+          const fqDelta = Math.max(0, fqTotal - baseMonthly)
+          // Do not lose deterministic or LLM deltas when full-quote under-reports
+          computedMonthlyEnhancement = Math.max(llmDelta, fqDelta)
+        }
       } catch { /* noop */ }
     }
 
-    const safeEnhancementMonthly = computedMonthlyEnhancement
-    const safeTotalsMonthly = baseMonthly + safeEnhancementMonthly
+    let safeEnhancementMonthly = computedMonthlyEnhancement
+    let safeTotalsMonthly = baseMonthly + safeEnhancementMonthly
+
+    // Deterministic inclusion of Local Office benefits (if provided and currency matches)
+    try {
+      const targetCurrency = ((groqResponse as any)?.output_currency || fullQuote?.currency || baseQuote.currency || '').toString()
+      const sourceCurrency = input.formData?.currency || ''
+      const local = input.formData?.localOfficeInfo as (EORFormData['localOfficeInfo'] | undefined)
+
+      const parseNum = (v?: string) => {
+        if (!v) return 0
+        const t = v.trim()
+        if (!t || t.toLowerCase() === 'n/a' || t.toLowerCase() === 'no') return 0
+        const n = Number(t)
+        return isFinite(n) && n > 0 ? n : 0
+      }
+
+      if (local && targetCurrency && sourceCurrency && targetCurrency === sourceCurrency) {
+        const mv = parseNum(local.mealVoucher)
+        const tr = parseNum(local.transportation)
+        const wfh = parseNum(local.wfh)
+        const hi = parseNum(local.healthInsurance)
+        const mpo = parseNum(local.monthlyPaymentsToLocalOffice)
+        const vatPct = parseNum(local.vat)
+        const vatAmt = mpo > 0 && vatPct > 0 ? (mpo * vatPct) / 100 : 0
+
+        const additions: Record<string, number> = {}
+        if (mv > 0) additions['local_meal_voucher'] = mv
+        if (tr > 0) additions['local_transportation'] = tr
+        if (wfh > 0) additions['local_wfh'] = wfh
+        if (hi > 0) additions['local_health_insurance'] = hi
+        if (mpo > 0) additions['local_office_monthly_payments'] = mpo
+        if (vatAmt > 0) additions['local_office_vat'] = Number(vatAmt.toFixed(2))
+
+        const localSum = Object.values(additions).reduce((s, n) => s + n, 0)
+        if (localSum > 0) {
+          enhancementData.additionalContributions = {
+            ...(enhancementData.additionalContributions || {}),
+            ...additions
+          }
+          safeEnhancementMonthly += localSum
+          safeTotalsMonthly += localSum
+        }
+      } else if (local && targetCurrency && sourceCurrency && targetCurrency !== sourceCurrency) {
+        // Append a warning if currencies mismatch; we skip adding to avoid mixing currencies
+        try {
+          (groqResponse as any).warnings = [
+            ...((groqResponse as any)?.warnings || []),
+            `Local benefits provided in ${sourceCurrency} not added to totals (current quote currency ${targetCurrency}).`
+          ]
+        } catch { /* noop */ }
+      }
+    } catch { /* noop */ }
 
     return {
       provider: baseQuote.provider,
@@ -593,6 +880,296 @@ export class EnhancementEngine {
       fullQuote: fullQuote && typeof fullQuote === 'object' ? fullQuote : undefined,
       recalcBaseItems: Array.isArray((groqResponse as any)?.recalc_base_items) ? (groqResponse as any)?.recalc_base_items : undefined
     }
+  }
+
+  // Build a deterministic pre-pass baseline using LegalProfileService and form inputs (provider-agnostic)
+  private buildDeterministicPrepassBaseline(params: { countryCode: string; countryName: string; formData: EORFormData }): PrepassLegalProfile {
+    const { countryCode, countryName, formData } = params
+    const legalProfile = LegalProfileService.getProfile({ countryCode, countryName, formData })
+    const availability = PapayaAvailability.getFlags(countryCode)
+
+    const baseSalary = Math.max(0, Number(formData.baseSalary || 0) || 0)
+    const contractMonths = Math.max(1, parseInt(formData.contractDuration || '12') || 12)
+    const quoteType = (formData.quoteType || 'all-inclusive') as 'all-inclusive' | 'statutory-only'
+    const currency = formData.currency || 'USD'
+
+    const items: PrepassLegalProfile['items'] = []
+
+    // Termination monthly provision
+    const noticeDays = Math.max(0, Number(legalProfile?.requirements?.terminationCosts?.noticePeriodDays || 0))
+    const severanceMonths = Math.max(0, Number(legalProfile?.requirements?.terminationCosts?.severanceMonths || 0))
+    const termMonths = (noticeDays / 30) + severanceMonths
+    const termMonthly = termMonths > 0 ? (baseSalary * termMonths) / contractMonths : 0
+    if (termMonthly > 0) {
+      items.push({
+        key: 'termination_costs',
+        name: 'Termination Provision',
+        category: 'termination',
+        mandatory: true,
+        formula: '((notice_days/30)+severance_months) * base_salary / contract_months',
+        variables: { notice_days: noticeDays, severance_months: severanceMonths },
+        monthly_amount_local: Number(termMonthly.toFixed(2)),
+        notes: 'Deterministic baseline from legal profile'
+      })
+    }
+
+    // 13th/14th salary
+    if (legalProfile?.requirements?.mandatorySalaries?.has13thSalary) {
+      const m = Number((baseSalary / 12).toFixed(2))
+      items.push({ key: 'thirteenth_salary', name: '13th Month Salary', category: 'bonuses', mandatory: true, formula: 'base/12', monthly_amount_local: m })
+    }
+    if (legalProfile?.requirements?.mandatorySalaries?.has14thSalary) {
+      const m = Number((baseSalary / 12).toFixed(2))
+      items.push({ key: 'fourteenth_salary', name: '14th Month Salary', category: 'bonuses', mandatory: true, formula: 'base/12', monthly_amount_local: m })
+    }
+
+    // Allowances (only include in all-inclusive mode)
+    const allow = legalProfile?.requirements?.allowances || {}
+    const addAllowance = (key: string, name: string, amt?: number) => {
+      const n = Math.max(0, Number(amt || 0))
+      if (n > 0 && quoteType === 'all-inclusive') {
+        items.push({ key, name, category: 'allowances', mandatory: false, monthly_amount_local: Number(n.toFixed(2)) })
+      }
+    }
+    addAllowance('meal_vouchers', 'Meal Vouchers', (allow as any).mealVoucherAmount)
+    addAllowance('transportation_allowance', 'Transportation Allowance', (allow as any).transportationAmount)
+    addAllowance('remote_work_allowance', 'Remote Work Allowance', (allow as any).remoteWorkAmount)
+
+    // Employer contributions (aggregate monthly cost from percentage rates)
+    const rates = legalProfile?.requirements?.contributions?.employerRates || {}
+    Object.entries(rates).forEach(([k, v]) => {
+      const pct = Math.max(0, Number(v || 0))
+      if (pct > 0) {
+        const amt = Number((baseSalary * (pct / 100)).toFixed(2))
+        items.push({ key: `employer_contrib_${k}`, name: `Employer Contribution - ${k}`, category: 'contributions', mandatory: true, monthly_amount_local: amt })
+      }
+    })
+
+    // Subtotals and totals
+    const subtotals = items.reduce((acc, it) => {
+      acc[it.category] = Number((acc[it.category as keyof typeof acc] + it.monthly_amount_local).toFixed(2))
+      return acc
+    }, { contributions: 0, bonuses: 0, allowances: 0, termination: 0 } as { contributions: number; bonuses: number; allowances: number; termination: number })
+    const total = Number((subtotals.contributions + subtotals.bonuses + subtotals.allowances + subtotals.termination).toFixed(2))
+
+    const baseline: PrepassLegalProfile = {
+      meta: {
+        country_code: countryCode.toUpperCase(),
+        country: countryName,
+        currency, // use form currency; conversion happens downstream per provider
+        base_salary_monthly: baseSalary,
+        contract_months: contractMonths,
+        quote_type: quoteType
+      },
+      availability: availability,
+      items,
+      subtotals,
+      total_monthly_local: total,
+      warnings: ['Deterministic baseline used due to Cerebras pre-pass failure']
+    }
+    return baseline
+  }
+
+  /**
+   * Reconcile a pre-pass legal profile (local currency) with provider inclusions to produce a GroqEnhancementResponse-like object.
+   * Performs currency conversion per item using PapayaCurrencyProvider if needed.
+   */
+  private async reconcilePrepassWithProvider(
+    baseline: import('../llm/CerebrasService').PrepassLegalProfile,
+    params: {
+      baseQuote: { provider: string; monthlyTotal: number; baseCost: number; currency: string; country: string; breakdown?: Record<string, number | undefined> }
+      quoteType: 'all-inclusive' | 'statutory-only'
+      contractMonths: number
+      extractedBenefits: StandardizedBenefitData
+    }
+  ): Promise<import('@/lib/types/enhancement').GroqEnhancementResponse> {
+    const providerCurrency = params.baseQuote.currency
+    const localCurrency = baseline.meta.currency || providerCurrency
+
+    const getNum = (v: unknown): number => {
+      const n = typeof v === 'number' ? v : Number(v)
+      return isFinite(n) && n > 0 ? n : 0
+    }
+    const prov = params.extractedBenefits?.includedBenefits || {}
+    const monthlyOf = (x: any): number => {
+      if (!x) return 0
+      const amt = typeof x.amount === 'number' ? x.amount : 0
+      const freq = (x.frequency || '').toLowerCase()
+      return freq === 'yearly' ? amt / 12 : amt
+    }
+
+    // Provider coverage map (monthly, provider currency)
+    const providerCoverage = {
+      thirteenth_salary: monthlyOf((prov as any).thirteenthSalary),
+      fourteenth_salary: monthlyOf((prov as any).fourteenthSalary),
+      vacation_bonus: monthlyOf((prov as any).vacationBonus),
+      transportation_allowance: monthlyOf((prov as any).transportAllowance),
+      remote_work_allowance: monthlyOf((prov as any).remoteWorkAllowance),
+      meal_vouchers: monthlyOf((prov as any).mealVouchers),
+      social_security: monthlyOf((prov as any).socialSecurity)
+    }
+
+    // Convert local baseline items → provider currency
+    const convertAmount = async (amount: number): Promise<number> => {
+      try {
+        if (!amount || localCurrency === providerCurrency) return amount || 0
+        const { PapayaCurrencyProvider } = await import('@/lib/providers/papaya-currency-provider')
+        const conv = new PapayaCurrencyProvider()
+        const res = await conv.convertCurrency(amount, localCurrency, providerCurrency)
+        if (res.success && res.data?.conversion_data?.target_amount) return res.data.conversion_data.target_amount
+        return amount // fallback: no conversion
+      } catch {
+        return amount
+      }
+    }
+
+    const enhancements: any = {}
+    const missing: string[] = []
+    const coverageStrs: string[] = []
+    const warnings: string[] = Array.isArray(baseline.warnings) ? baseline.warnings.slice() : []
+
+    // Helper to accumulate totals
+    const deltas: number[] = []
+    const addDelta = (n: number) => { if (isFinite(n) && n > 0) deltas.push(n) }
+
+    const isStatutory = params.quoteType === 'statutory-only'
+
+    const addCoverageStr = (k: string, v: number) => { if (v > 0) coverageStrs.push(`${k}: ${v.toFixed(2)} ${providerCurrency}`) }
+    Object.entries(providerCoverage).forEach(([k,v]) => addCoverageStr(k, v as number))
+
+    // Iterate pre-pass items and compute per-item delta
+    const tasks = baseline.items.map(async item => {
+      // Skip optional allowances in statutory-only
+      if (isStatutory && !item.mandatory && item.category === 'allowances') return
+      const localMonthly = getNum(item.monthly_amount_local)
+      const providerMonthly = await convertAmount(localMonthly)
+      const key = item.key
+
+      // Map to known keys where possible
+      const mapKey = (() => {
+        if (key.includes('13') || key === 'thirteenth_salary') return 'thirteenth_salary'
+        if (key.includes('14') || key === 'fourteenth_salary') return 'fourteenth_salary'
+        if (key.includes('vacation') && item.category === 'bonuses') return 'vacation_bonus'
+        if (key.includes('transport')) return 'transportation_allowance'
+        if (key.includes('remote')) return 'remote_work_allowance'
+        if (key.includes('meal')) return 'meal_vouchers'
+        if (item.category === 'termination') return 'termination_costs'
+        if (item.category === 'contributions') return 'employer_contributions_total'
+        return key
+      })()
+
+      // Provider coverage for mapped key
+      const coverage = (providerCoverage as any)[mapKey] || 0
+
+      if (mapKey === 'termination_costs') {
+        // For termination, treat as monthly provision, compute total over contract for explanation
+        const total = providerMonthly * Math.max(1, params.contractMonths)
+        enhancements.termination_costs = {
+          notice_period_cost: 0,
+          severance_cost: 0,
+          total,
+          explanation: 'Termination liability monthly accrual from legal baseline',
+          confidence: 0.7
+        }
+        addDelta(providerMonthly)
+        return
+      }
+
+      // Contributions: aggregate as one top-up to avoid duplicate UI entries
+      if (mapKey === 'employer_contributions_total') {
+        const delta = Math.max(0, providerMonthly - Math.max(coverage, 0))
+        if (delta > 0) {
+          enhancements.employer_contributions_total = {
+            monthly_amount: delta,
+            explanation: 'Employer contributions baseline vs provider coverage',
+            confidence: 0.7,
+            already_included: delta === 0
+          }
+          addDelta(delta)
+          missing.push('employer_contributions')
+        }
+        return
+      }
+
+      // Regular mapped items
+      const delta = Math.max(0, providerMonthly - Math.max(coverage, 0))
+      if (mapKey === 'thirteenth_salary') {
+        enhancements.thirteenth_salary = {
+          monthly_amount: delta,
+          yearly_amount: delta * 12,
+          explanation: '13th salary baseline vs provider coverage',
+          confidence: 0.75,
+          already_included: delta === 0
+        }
+      } else if (mapKey === 'fourteenth_salary') {
+        enhancements.fourteenth_salary = {
+          monthly_amount: delta,
+          yearly_amount: delta * 12,
+          explanation: '14th salary baseline vs provider coverage',
+          confidence: 0.7,
+          already_included: delta === 0
+        }
+      } else if (mapKey === 'vacation_bonus') {
+        enhancements.vacation_bonus = {
+          amount: delta * 12,
+          explanation: 'Vacation bonus baseline vs provider coverage',
+          confidence: 0.7,
+          already_included: delta === 0
+        }
+      } else if (mapKey === 'transportation_allowance') {
+        if (!isStatutory || item.mandatory) {
+          enhancements.transportation_allowance = {
+            monthly_amount: delta,
+            explanation: 'Transportation allowance baseline vs provider coverage',
+            confidence: 0.6,
+            already_included: delta === 0,
+            mandatory: !!item.mandatory
+          }
+        }
+      } else if (mapKey === 'remote_work_allowance') {
+        if (!isStatutory || item.mandatory) {
+          enhancements.remote_work_allowance = {
+            monthly_amount: delta,
+            explanation: 'Remote work allowance baseline vs provider coverage',
+            confidence: 0.6,
+            already_included: delta === 0,
+            mandatory: !!item.mandatory
+          }
+        }
+      } else if (mapKey === 'meal_vouchers') {
+        if (!isStatutory || item.mandatory) {
+          enhancements.meal_vouchers = {
+            monthly_amount: delta,
+            explanation: 'Meal vouchers baseline vs provider coverage',
+            confidence: 0.6,
+            already_included: delta === 0
+          }
+        }
+      }
+      if (delta > 0) missing.push(mapKey)
+      addDelta(delta)
+    })
+
+    // Wait for conversions
+    await Promise.all(tasks)
+    const total = deltas.reduce((s, n) => s + n, 0)
+    const resp: import('@/lib/types/enhancement').GroqEnhancementResponse = {
+      analysis: {
+        provider_coverage: coverageStrs,
+        missing_requirements: missing,
+        double_counting_risks: []
+      },
+      enhancements,
+      totals: {
+        total_monthly_enhancement: Number(total.toFixed(2)),
+        total_yearly_enhancement: Number((total * 12).toFixed(2)),
+        final_monthly_total: Number((params.baseQuote.monthlyTotal + total).toFixed(2))
+      },
+      confidence_scores: { overall: 0.75, termination_costs: enhancements.termination_costs ? 0.7 : 0, salary_enhancements: (enhancements.thirteenth_salary || enhancements.fourteenth_salary) ? 0.75 : 0, allowances: (enhancements.transportation_allowance || enhancements.remote_work_allowance || enhancements.meal_vouchers) ? 0.6 : 0 },
+      recommendations: [],
+      warnings
+    }
+    return resp
   }
 
   /**

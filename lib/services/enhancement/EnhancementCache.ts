@@ -19,6 +19,10 @@ interface EnhancementCacheKey {
 
 class EnhancementCacheService {
   private cache = new Map<string, CacheEntry<any>>()
+  // Dedicated cache for Cerebras pre-pass legal baseline (quote-level)
+  private prepassCache = new Map<string, CacheEntry<any>>()
+  // In-flight dedupe to avoid multiple concurrent Cerebras calls for same key
+  private prepassInflight = new Map<string, Promise<any>>()
   private defaultTTL = 30 * 60 * 1000 // 30 minutes
   private maxCacheSize = 100
 
@@ -92,6 +96,126 @@ class EnhancementCacheService {
     
     const toRemove = entries.slice(0, entries.length - this.maxCacheSize)
     toRemove.forEach(([key]) => this.cache.delete(key))
+  }
+
+  // Ensure pre-pass cache doesn't exceed size limit (managed separately)
+  private enforcePrepassSize(): void {
+    if (this.prepassCache.size <= this.maxCacheSize) return
+    const entries = Array.from(this.prepassCache.entries())
+    entries.sort((a, b) => a[1].timestamp - b[1].timestamp)
+    const toRemove = entries.slice(0, entries.length - this.maxCacheSize)
+    toRemove.forEach(([key]) => this.prepassCache.delete(key))
+  }
+
+  // --- Pre-pass (Cerebras) baseline caching ---
+
+  // Generate a cache key for the pre-pass baseline using quote-level inputs
+  private generatePrepassKey(params: {
+    countryCode: string
+    baseSalaryMonthly: number | string
+    contractMonths: number | string
+    quoteType: string
+    employmentType?: string
+  }): string {
+    const base = [
+      (params.countryCode || '').toUpperCase(),
+      String(params.baseSalaryMonthly || 0),
+      String(params.contractMonths || 12),
+      String(params.quoteType || 'all-inclusive'),
+      String(params.employmentType || '')
+    ]
+    return `prepass|${base.join('|')}`
+  }
+
+  public getPrepassBaseline(params: {
+    countryCode: string
+    baseSalaryMonthly: number | string
+    contractMonths: number | string
+    quoteType: string
+    employmentType?: string
+  }): any | null {
+    try {
+      const key = this.generatePrepassKey(params)
+      const entry = this.prepassCache.get(key)
+      if (!entry || !this.isValidEntry(entry)) {
+        if (entry) this.prepassCache.delete(key)
+        return null
+      }
+      return entry.data
+    } catch {
+      return null
+    }
+  }
+
+  public setPrepassBaseline(
+    params: {
+      countryCode: string
+      baseSalaryMonthly: number | string
+      contractMonths: number | string
+      quoteType: string
+      employmentType?: string
+    },
+    baseline: any,
+    ttl?: number
+  ): void {
+    try {
+      const key = this.generatePrepassKey(params)
+      const entry: CacheEntry<any> = {
+        data: baseline,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + (ttl || this.defaultTTL)
+      }
+      this.prepassCache.set(key, entry)
+      // Keep prepass cache within bounds
+      this.enforcePrepassSize()
+    } catch {
+      // ignore cache set failures
+    }
+  }
+
+  public getPrepassInflight(params: {
+    countryCode: string
+    baseSalaryMonthly: number | string
+    contractMonths: number | string
+    quoteType: string
+    employmentType?: string
+  }): Promise<any> | undefined {
+    try {
+      const key = this.generatePrepassKey(params)
+      return this.prepassInflight.get(key)
+    } catch {
+      return undefined
+    }
+  }
+
+  public setPrepassInflight(params: {
+    countryCode: string
+    baseSalaryMonthly: number | string
+    contractMonths: number | string
+    quoteType: string
+    employmentType?: string
+  }, promise: Promise<any>): void {
+    try {
+      const key = this.generatePrepassKey(params)
+      this.prepassInflight.set(key, promise)
+    } catch {
+      // ignore
+    }
+  }
+
+  public clearPrepassInflight(params: {
+    countryCode: string
+    baseSalaryMonthly: number | string
+    contractMonths: number | string
+    quoteType: string
+    employmentType?: string
+  }): void {
+    try {
+      const key = this.generatePrepassKey(params)
+      this.prepassInflight.delete(key)
+    } catch {
+      // ignore
+    }
   }
 
   // Store enhancement result in cache

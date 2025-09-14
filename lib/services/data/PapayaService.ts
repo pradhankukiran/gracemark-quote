@@ -537,7 +537,7 @@ export class PapayaService {
     if (monthMatches) return parseInt(monthMatches[1])
 
     // Look for "1 month's salary" type patterns
-    const salaryMatches = text.match(/(\d+)\s*month'?s?\s*salary/i)
+    const salaryMatches = text.match(/(\d+)\s*month(?:'|’)?s?\s*salary/i)
     if (salaryMatches) return parseInt(salaryMatches[1])
 
     return 0

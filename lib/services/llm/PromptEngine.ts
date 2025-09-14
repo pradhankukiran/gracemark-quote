@@ -628,6 +628,76 @@ RESPONSE JSON SHAPE (exact keys):
 }`
   }
 
+  // Pre-pass baseline reconciliation (Cerebras baseline used with provider coverage)
+  static buildPrepassSystemPrompt(): string {
+    return (
+      `You are an expert EOR cost analyst.\n` +
+      `TASK: Compute monthly enhancement deltas using a LEGAL BASELINE and PROVIDER COVERAGE.\n` +
+      `RULES:\n` +
+      `- All amounts are already in the PROVIDER CURRENCY. Do NOT perform currency conversion.\n` +
+      `- Compute deltas = max(0, baseline_monthly - provider_coverage_monthly).\n` +
+      `- Statutory-only: include ONLY mandatory items; skip non-mandatory allowances.\n` +
+      `- All-inclusive: include mandatory items and allowances present in baseline.\n` +
+      `- Avoid double counting (if provider coverage >= baseline, delta=0 with already_included=true).\n` +
+      `- Termination costs: use the provided baseline monthly provision as a single item (do not split).\n` +
+      `- Output strictly valid JSON with the exact keys requested (no extra text).`
+    )
+  }
+
+  static buildPrepassUserPrompt(input: {
+    provider: string
+    currency: string
+    quoteType: 'all-inclusive' | 'statutory-only'
+    contractMonths: number
+    baseMonthly: number
+    baselineProviderCurrency: Record<string, number>
+    baselineMandatoryFlags: Record<string, boolean>
+    providerCoverage: Record<string, number>
+  }): string {
+    const schema = [
+      '{',
+      '  "analysis": { "provider_coverage": [], "missing_requirements": [], "double_counting_risks": [] },',
+      '  "enhancements": {',
+      '    "termination_costs": { "total": 0, "explanation": "", "confidence": 0.7 },',
+      '    "thirteenth_salary": { "monthly_amount": 0, "yearly_amount": 0, "explanation": "", "confidence": 0.7, "already_included": false },',
+      '    "fourteenth_salary": { "monthly_amount": 0, "yearly_amount": 0, "explanation": "", "confidence": 0.7, "already_included": false },',
+      '    "vacation_bonus": { "amount": 0, "explanation": "", "confidence": 0.6, "already_included": false },',
+      '    "transportation_allowance": { "monthly_amount": 0, "explanation": "", "confidence": 0.6, "already_included": false, "mandatory": false },',
+      '    "remote_work_allowance": { "monthly_amount": 0, "explanation": "", "confidence": 0.6, "already_included": false, "mandatory": false },',
+      '    "meal_vouchers": { "monthly_amount": 0, "explanation": "", "confidence": 0.6, "already_included": false }',
+      '  },',
+      '  "totals": {',
+      '    "total_monthly_enhancement": 0,',
+      '    "total_yearly_enhancement": 0,',
+      '    "final_monthly_total": 0',
+      '  },',
+      '  "confidence_scores": { "overall": 0.7 },',
+      '  "warnings": []',
+      '}'
+    ].join('\n')
+
+    return [
+      `PRE-PASS RECONCILIATION REQUEST`,
+      `PROVIDER: ${input.provider}`,
+      `CURRENCY: ${input.currency}`,
+      `QUOTE TYPE: ${input.quoteType}`,
+      `CONTRACT MONTHS: ${input.contractMonths}`,
+      `BASE MONTHLY (provider): ${input.baseMonthly}`,
+      '',
+      'BASELINE (provider currency) MAP:',
+      JSON.stringify(input.baselineProviderCurrency),
+      'BASELINE MANDATORY FLAGS:',
+      JSON.stringify(input.baselineMandatoryFlags),
+      'PROVIDER COVERAGE (monthly):',
+      JSON.stringify(input.providerCoverage),
+      '',
+      'OUTPUT SCHEMA:',
+      schema,
+      '',
+      'Respond with strictly valid JSON only.'
+    ].join('\n')
+  }
+
   // Baseline-First User Prompt
   static buildBaselineUserPrompt(params: {
     baseQuote: { country: string; currency: string; monthlyTotal: number; baseCost: number }
