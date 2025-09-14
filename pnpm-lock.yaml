@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@cerebras/cerebras_cloud_sdk':
+        specifier: ^1.50.0
+        version: 1.50.0
       '@hookform/resolvers':
         specifier: ^3.10.0
         version: 3.10.0(react-hook-form@7.60.0(react@19.0.0))
@@ -221,6 +224,9 @@ packages:
   '@babel/runtime@7.28.3':
     resolution: {integrity: sha512-9uIQ10o0WGdpP6GDhXcdOJPJuDgFtIDtN/9+ArJQ2NAfAmiuhTQdzkaTGR33v43GYS2UrSA0eX2pPPHoFVvpxA==}
     engines: {node: '>=6.9.0'}
+
+  '@cerebras/cerebras_cloud_sdk@1.50.0':
+    resolution: {integrity: sha512-sFdqGE0W7ZipUKciPFKCy6zjM1nSdwYdxc8ic98E7/O5z5Gz1KK5Nrx0B0UTWlaFCtUeOSpmTftCp45VSzVByw==}
 
   '@date-fns/tz@1.2.0':
     resolution: {integrity: sha512-LBrd7MiJZ9McsOgxqWX7AaxrDjcFVjWH/tIKJd7pnR7McaslGYOP1QmmiBXdJH/H/yLCT+rcQ7FaPBUxRGUtrg==}
@@ -3445,6 +3451,18 @@ snapshots:
       '@jridgewell/trace-mapping': 0.3.30
 
   '@babel/runtime@7.28.3': {}
+
+  '@cerebras/cerebras_cloud_sdk@1.50.0':
+    dependencies:
+      '@types/node': 18.19.123
+      '@types/node-fetch': 2.6.13
+      abort-controller: 3.0.0
+      agentkeepalive: 4.6.0
+      form-data-encoder: 1.7.2
+      formdata-node: 4.4.1
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
 
   '@date-fns/tz@1.2.0': {}
 
