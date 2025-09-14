@@ -281,6 +281,67 @@ export const EnhancedQuoteCard: React.FC<EnhancedQuoteCardProps> = ({
           </>
         )}
 
+        {/* Compact key enhancements summary */}
+        {enhancement && compact && enhancement.totalEnhancement > 0 && (
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+            <div className="text-xs font-medium text-slate-600 mb-2">Key Enhancements (monthly)</div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
+              {/* Termination monthlyized */}
+              {(() => {
+                const tc = enhancement.enhancements.terminationCosts
+                if (!tc || !tc.totalTerminationCost) return null
+                const months = Math.max(1, Number(tc.basedOnContractMonths || 12))
+                const monthly = months > 0 ? (tc.totalTerminationCost / months) : 0
+                if (monthly <= 0) return null
+                return (
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-600">Termination</span>
+                    <span className="font-medium">{formatCurrency(monthly, getDisplayCurrency())}</span>
+                  </div>
+                )
+              })()}
+              {/* 13th salary */}
+              {enhancement.enhancements.thirteenthSalary && !enhancement.enhancements.thirteenthSalary.isAlreadyIncluded && (enhancement.enhancements.thirteenthSalary.monthlyAmount || 0) > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-600">13th Salary</span>
+                  <span className="font-medium">{formatCurrency(enhancement.enhancements.thirteenthSalary.monthlyAmount || 0, getDisplayCurrency())}</span>
+                </div>
+              )}
+              {/* Employer contributions (aggregate) */}
+              {(() => {
+                const extras = enhancement.enhancements.additionalContributions || {}
+                const sum = Object.values(extras).reduce((s, n) => s + (Number(n) || 0), 0)
+                if (sum <= 0) return null
+                return (
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-600">Contributions</span>
+                    <span className="font-medium">{formatCurrency(sum, getDisplayCurrency())}</span>
+                  </div>
+                )
+              })()}
+              {/* Allowances (if present) */}
+              {enhancement.enhancements.transportationAllowance && !enhancement.enhancements.transportationAllowance.isAlreadyIncluded && (enhancement.enhancements.transportationAllowance.monthlyAmount || 0) > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-600">Transportation</span>
+                  <span className="font-medium">{formatCurrency(enhancement.enhancements.transportationAllowance.monthlyAmount || 0, getDisplayCurrency())}</span>
+                </div>
+              )}
+              {enhancement.enhancements.remoteWorkAllowance && !enhancement.enhancements.remoteWorkAllowance.isAlreadyIncluded && (enhancement.enhancements.remoteWorkAllowance.monthlyAmount || 0) > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-600">Remote Work</span>
+                  <span className="font-medium">{formatCurrency(enhancement.enhancements.remoteWorkAllowance.monthlyAmount || 0, getDisplayCurrency())}</span>
+                </div>
+              )}
+              {enhancement.enhancements.mealVouchers && !enhancement.enhancements.mealVouchers.isAlreadyIncluded && (enhancement.enhancements.mealVouchers.monthlyAmount || 0) > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-600">Meal Vouchers</span>
+                  <span className="font-medium">{formatCurrency(enhancement.enhancements.mealVouchers.monthlyAmount || 0, getDisplayCurrency())}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Base Quote Information */}
         {!compact && (
           <>

@@ -1076,7 +1076,7 @@ const QuotePageContent = memo(() => {
 
     const isEnhPending = (!((enhancements as any)?.[currentProvider as string])) && (providerStates[currentProvider]?.status === 'loading-enhanced')
 
-    // Build additional extras from deterministic/LLM enhancements when missing in full-quote
+    // Build additional extras (deduped) from deterministic/LLM enhancements
     const extras: Array<{ name: string; amount: number; guards?: string[] }> = []
     try {
       const enh = (enhancements as any)?.[currentProvider as string]
@@ -1117,88 +1117,45 @@ const QuotePageContent = memo(() => {
         if (rwa && rwa.isAlreadyIncluded !== true) addExtra('Remote Work Allowance', Number(rwa.monthlyAmount || 0), ['remote work', 'wfh'])
         const mv = enh.enhancements.mealVouchers
         if (mv && mv.isAlreadyIncluded !== true) addExtra('Meal Vouchers', Number(mv.monthlyAmount || 0), ['meal voucher'])
-        // Additional contributions (includes employer contributions + local office)
+        // Additional contributions and local office
         const addc = enh.enhancements.additionalContributions || {}
+        let contribAgg = 0
+        let contribPerItem = 0
+        let contribAggPresent = false
+        const localExtras: Array<{ name: string; amount: number; guards?: string[] }> = []
+
         Object.entries(addc).forEach(([k, v]) => {
           const n = Number(v)
           if (!isFinite(n) || n <= 0) return
-          const label = (() => {
-            const key = String(k || '').toLowerCase()
-            if (key.includes('baseline') && key.includes('employer')) return 'Employer Contributions (baseline)'
-            if (key.includes('employer') && key.includes('contribution')) return 'Employer Contributions'
-            if (key.includes('local_meal_voucher')) return 'Meal Voucher (Local Office)'
-            if (key.includes('local_transportation')) return 'Transportation (Local Office)'
-            if (key.includes('local_wfh')) return 'WFH (Local Office)'
-            if (key.includes('local_health_insurance')) return 'Health Insurance (Local Office)'
-            if (key.includes('local_office_monthly_payments')) return 'Local Office Monthly Payments'
-            if (key.includes('local_office_vat')) return 'VAT on Local Office Payments'
-            return String(k).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-          })()
-          addExtra(label, n)
+          const key = String(k || '').toLowerCase()
+          if (key === 'employer_contributions_total' || (key.includes('baseline') && key.includes('employer') && key.includes('contribution'))) {
+            contribAgg += n
+            contribAggPresent = true
+            return
+          }
+          if (key.startsWith('employer_contrib_') || (key.includes('employer') && key.includes('contribution'))) {
+            contribPerItem += n
+            return
+          }
+          // Local office and other non-contribution extras
+          const label = key.includes('local_meal_voucher') ? 'Meal Voucher (Local Office)'
+            : key.includes('local_transportation') ? 'Transportation (Local Office)'
+            : key.includes('local_wfh') ? 'WFH (Local Office)'
+            : key.includes('local_health_insurance') ? 'Health Insurance (Local Office)'
+            : key.includes('local_office_monthly_payments') ? 'Local Office Monthly Payments'
+            : key.includes('local_office_vat') ? 'VAT on Local Office Payments'
+            : String(k).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+          localExtras.push({ name: label, amount: n })
         })
+
+        const contribTotal = contribAggPresent ? contribAgg : contribPerItem
+        if (contribTotal > 0) addExtra('Employer Contributions', contribTotal, ['employer', 'contribution', 'social security', 'statutory', 'indirect employment cost'])
+        localExtras.forEach(le => addExtra(le.name, le.amount))
       }
     } catch { /* noop */ }
 
-    // Append extras into mergedQuote cost rows so they render inline, and update USD conversions and totals
-    try {
-      if (extras.length > 0) {
-        const existingCosts = Array.isArray(mergedQuote?.costs) ? mergedQuote.costs : []
-
-        // Recompute an approximate exchange rate for USD conversions
-        let exchangeRate: number | null = null
-        if (conversions?.costs && Array.isArray(conversions.costs) && existingCosts.length > 0) {
-          for (let i = 0; i < Math.min(existingCosts.length, conversions.costs.length); i++) {
-            const localAmount = Number.parseFloat(existingCosts[i].amount)
-            const usdAmount = conversions.costs[i]
-            if (localAmount > 0 && usdAmount > 0) {
-              exchangeRate = usdAmount / localAmount
-              break
-            }
-          }
-        }
-
-        const toAmountStr = (n: number) => {
-          const v = Number(n)
-          return Number.isFinite(v) ? v.toFixed(2) : '0'
-        }
-
-        const newUsdConversions: number[] = []
-        for (const ex of extras) {
-          // Double-check duplication just before inserting
-          const dup = (ex.guards || []).some(g => hasItemLike(g))
-          if (dup) continue
-
-          existingCosts.push({
-            name: ex.name,
-            amount: toAmountStr(ex.amount),
-            frequency: 'monthly',
-            country: (quote as any)?.country,
-            country_code: (quote as any)?.country_code,
-          })
-
-          if (exchangeRate !== null) newUsdConversions.push(ex.amount * exchangeRate)
-        }
-
-        if (conversions?.costs && newUsdConversions.length > 0) {
-          extendedConversions = {
-            ...conversions,
-            costs: [...conversions.costs, ...newUsdConversions]
-          }
-        }
-
-        // Update totals by adding the extras sum
-        const sumExtras = extras.reduce((s, it) => s + (it.amount || 0), 0)
-        const parseNumSimple = (v?: string | number) => typeof v === 'number' ? v : Number.parseFloat((v || '0') as string)
-        const baseTotalSimple = parseNumSimple((mergedQuote as any)?.total_costs)
-        const updatedTotal = isFinite(baseTotalSimple) ? (baseTotalSimple + sumExtras) : baseTotalSimple
-        mergedQuote = {
-          ...(mergedQuote || {}),
-          costs: existingCosts,
-          total_costs: toAmountStr(updatedTotal),
-          employer_costs: toAmountStr(updatedTotal),
-        }
-      }
-    } catch { /* noop */ }
+    // Do not inject extras here to avoid double-counting.
+    // Extras are passed to GenericQuoteCard via mergedExtras for inline injection.
 
     const isDualMode = !!dualCurrencyQuotes?.isDualCurrencyMode
     return (
@@ -1214,8 +1171,9 @@ const QuotePageContent = memo(() => {
           originalCurrency={eorForm.originalCurrency || undefined}
           selectedCurrency={eorForm.currency}
           recalcBaseItems={(enhancements as any)?.[currentProvider as string]?.recalcBaseItems || []}
-          {...(isDualMode ? { mergedExtras: extras, mergedCurrency: quote?.currency } : {})}
-          
+          mergedExtras={extras}
+          mergedCurrency={quote?.currency}
+
           enhancementPending={isEnhPending}
           shimmerExtrasCount={3}
         />
@@ -1252,7 +1210,7 @@ const QuotePageContent = memo(() => {
               baseQuote={{ ...quoteData.quotes.deel, provider: 'deel' } as any}
               formData={{ ...eorForm, country: eorForm.country }}
               quoteType="all-inclusive"
-              compact={true}
+              compact={false}
               showRetry={true}
             />
             <EnhancedQuoteCard
@@ -1260,7 +1218,7 @@ const QuotePageContent = memo(() => {
               baseQuote={{ ...quoteData.quotes.comparisonDeel, provider: 'deel' } as any}
               formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }}
               quoteType="all-inclusive"
-              compact={true}
+              compact={false}
               showRetry={true}
             />
           </div>
@@ -1293,8 +1251,8 @@ const QuotePageContent = memo(() => {
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EnhancedQuoteCard provider="rivermate" baseQuote={primaryDisplay} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={true} showRetry={true} />
-            <EnhancedQuoteCard provider="rivermate" baseQuote={compareDisplay} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={true} showRetry={true} />
+            <EnhancedQuoteCard provider="rivermate" baseQuote={primaryDisplay} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
+            <EnhancedQuoteCard provider="rivermate" baseQuote={compareDisplay} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
           </div>
         </div>
       );
@@ -1322,8 +1280,8 @@ const QuotePageContent = memo(() => {
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EnhancedQuoteCard provider="oyster" baseQuote={oysterPrimaryDisplay} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={true} showRetry={true} />
-            <EnhancedQuoteCard provider="oyster" baseQuote={oysterCompareDisplay} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={true} showRetry={true} />
+            <EnhancedQuoteCard provider="oyster" baseQuote={oysterPrimaryDisplay} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
+            <EnhancedQuoteCard provider="oyster" baseQuote={oysterCompareDisplay} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
           </div>
         </div>
       );
@@ -1347,8 +1305,8 @@ const QuotePageContent = memo(() => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <EnhancedQuoteCard provider="remote" baseQuote={('employment' in (quoteData.quotes.remote as any)) ? transformRemoteResponseToQuote(quoteData.quotes.remote as RemoteAPIResponse) : undefined} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={true} showRetry={true} />
-              <EnhancedQuoteCard provider="remote" baseQuote={('employment' in (quoteData.quotes.comparisonRemote as any)) ? transformRemoteResponseToQuote(quoteData.quotes.comparisonRemote as RemoteAPIResponse) : undefined} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={true} showRetry={true} />
+              <EnhancedQuoteCard provider="remote" baseQuote={('employment' in (quoteData.quotes.remote as any)) ? transformRemoteResponseToQuote(quoteData.quotes.remote as RemoteAPIResponse) : undefined} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
+              <EnhancedQuoteCard provider="remote" baseQuote={('employment' in (quoteData.quotes.comparisonRemote as any)) ? transformRemoteResponseToQuote(quoteData.quotes.comparisonRemote as RemoteAPIResponse) : undefined} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
             </div>
           </div>
         );
@@ -1362,8 +1320,8 @@ const QuotePageContent = memo(() => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EnhancedQuoteCard provider="remote" baseQuote={('employment' in (quoteData.quotes.remote as any)) ? transformRemoteResponseToQuote(quoteData.quotes.remote as RemoteAPIResponse) : undefined} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={true} showRetry={true} />
-            <EnhancedQuoteCard provider="remote" baseQuote={('employment' in (quoteData.quotes.comparisonRemote as any)) ? transformRemoteResponseToQuote(quoteData.quotes.comparisonRemote as RemoteAPIResponse) : undefined} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={true} showRetry={true} />
+            <EnhancedQuoteCard provider="remote" baseQuote={('employment' in (quoteData.quotes.remote as any)) ? transformRemoteResponseToQuote(quoteData.quotes.remote as RemoteAPIResponse) : undefined} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
+            <EnhancedQuoteCard provider="remote" baseQuote={('employment' in (quoteData.quotes.comparisonRemote as any)) ? transformRemoteResponseToQuote(quoteData.quotes.comparisonRemote as RemoteAPIResponse) : undefined} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
           </div>
         </div>
       );
@@ -1375,8 +1333,8 @@ const QuotePageContent = memo(() => {
         <div className="space-y-6">
           <QuoteComparison provider="rippling" primaryQuote={quoteData.quotes.rippling as any} comparisonQuote={(quoteData.quotes as any).comparisonRippling as any} primaryTitle={eorForm.country} comparisonTitle={eorForm.compareCountry} usdConversions={usdConversions} isConvertingPrimaryToUSD={isConvertingRipplingToUsd} isConvertingComparisonToUSD={isConvertingCompareRipplingToUsd} usdConversionError={usdConversionError} dualCurrencyQuotes={(quoteData.dualCurrencyQuotes as any)?.rippling} />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EnhancedQuoteCard provider="rippling" baseQuote={{ ...(quoteData.quotes.rippling as any), provider: 'rippling' }} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={true} showRetry={true} />
-            <EnhancedQuoteCard provider="rippling" baseQuote={{ ...((quoteData.quotes as any).comparisonRippling as any), provider: 'rippling' }} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={true} showRetry={true} />
+            <EnhancedQuoteCard provider="rippling" baseQuote={{ ...(quoteData.quotes.rippling as any), provider: 'rippling' }} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
+            <EnhancedQuoteCard provider="rippling" baseQuote={{ ...((quoteData.quotes as any).comparisonRippling as any), provider: 'rippling' }} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
           </div>
         </div>
       );
@@ -1388,8 +1346,8 @@ const QuotePageContent = memo(() => {
         <div className="space-y-6">
           <QuoteComparison provider="skuad" primaryQuote={(quoteData.quotes as any).skuad as any} comparisonQuote={(quoteData.quotes as any).comparisonSkuad as any} primaryTitle={eorForm.country} comparisonTitle={eorForm.compareCountry} usdConversions={usdConversions} isConvertingPrimaryToUSD={isConvertingSkuadToUsd} isConvertingComparisonToUSD={isConvertingCompareSkuadToUsd} usdConversionError={usdConversionError} dualCurrencyQuotes={(quoteData.dualCurrencyQuotes as any)?.skuad} />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EnhancedQuoteCard provider="skuad" baseQuote={{ ...((quoteData.quotes as any).skuad as any), provider: 'skuad' }} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={true} showRetry={true} />
-            <EnhancedQuoteCard provider="skuad" baseQuote={{ ...((quoteData.quotes as any).comparisonSkuad as any), provider: 'skuad' }} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={true} showRetry={true} />
+            <EnhancedQuoteCard provider="skuad" baseQuote={{ ...((quoteData.quotes as any).skuad as any), provider: 'skuad' }} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
+            <EnhancedQuoteCard provider="skuad" baseQuote={{ ...((quoteData.quotes as any).comparisonSkuad as any), provider: 'skuad' }} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
           </div>
         </div>
       );
@@ -1401,8 +1359,8 @@ const QuotePageContent = memo(() => {
         <div className="space-y-6">
           <QuoteComparison provider="velocity" primaryQuote={(quoteData.quotes as any).velocity as any} comparisonQuote={(quoteData.quotes as any).comparisonVelocity as any} primaryTitle={eorForm.country} comparisonTitle={eorForm.compareCountry} usdConversions={usdConversions} isConvertingPrimaryToUSD={isConvertingVelocityToUsd} isConvertingComparisonToUSD={isConvertingCompareVelocityToUsd} usdConversionError={usdConversionError} dualCurrencyQuotes={(quoteData.dualCurrencyQuotes as any)?.velocity} />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EnhancedQuoteCard provider="velocity" baseQuote={{ ...((quoteData.quotes as any).velocity as any), provider: 'velocity' }} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={true} showRetry={true} />
-            <EnhancedQuoteCard provider="velocity" baseQuote={{ ...((quoteData.quotes as any).comparisonVelocity as any), provider: 'velocity' }} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={true} showRetry={true} />
+            <EnhancedQuoteCard provider="velocity" baseQuote={{ ...((quoteData.quotes as any).velocity as any), provider: 'velocity' }} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
+            <EnhancedQuoteCard provider="velocity" baseQuote={{ ...((quoteData.quotes as any).comparisonVelocity as any), provider: 'velocity' }} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
           </div>
         </div>
       );

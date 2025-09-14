@@ -184,7 +184,13 @@ export class EnhancementEngine {
             currency: enhancedQuote.baseCurrency,
             overallConfidence: enhancedQuote.overallConfidence,
             keyEnhancements: {
-              terminationCosts: enhancedQuote.enhancements.terminationCosts?.monthlyProvision || 0,
+              terminationCosts: (() => {
+                const tc = enhancedQuote.enhancements.terminationCosts
+                if (!tc) return 0
+                const months = Math.max(1, Number(tc.basedOnContractMonths || 12))
+                const total = Number(tc.totalTerminationCost || 0)
+                return months > 0 ? Number((total / months).toFixed(2)) : 0
+              })(),
               thirteenthSalary: enhancedQuote.enhancements.thirteenthSalary?.monthlyAmount || 0,
               employerContributions: enhancedQuote.enhancements.additionalContributions ? Object.values(enhancedQuote.enhancements.additionalContributions).reduce((sum, val) => sum + (val || 0), 0) : 0
             }
@@ -425,7 +431,13 @@ export class EnhancementEngine {
             currency: enhancedQuote.baseCurrency,
             overallConfidence: enhancedQuote.overallConfidence,
             keyEnhancements: {
-              terminationCosts: enhancedQuote.enhancements.terminationCosts?.monthlyProvision || 0,
+              terminationCosts: (() => {
+                const tc = enhancedQuote.enhancements.terminationCosts
+                if (!tc) return 0
+                const months = Math.max(1, Number(tc.basedOnContractMonths || 12))
+                const total = Number(tc.totalTerminationCost || 0)
+                return months > 0 ? Number((total / months).toFixed(2)) : 0
+              })(),
               thirteenthSalary: enhancedQuote.enhancements.thirteenthSalary?.monthlyAmount || 0,
               employerContributions: enhancedQuote.enhancements.additionalContributions ? Object.values(enhancedQuote.enhancements.additionalContributions).reduce((sum, val) => sum + (val || 0), 0) : 0
             }

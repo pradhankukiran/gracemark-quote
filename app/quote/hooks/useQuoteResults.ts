@@ -1193,6 +1193,33 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     };
   }, [quoteId]);
 
+  // Ensure enhancements are scheduled even when loading a persisted quote with status='completed'
+  useEffect(() => {
+    if (!quoteData || quoteData.status !== 'completed') return;
+
+    const form = quoteData.formData as EORFormData;
+    const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'];
+    providers.forEach((provider) => {
+      try {
+        // Skip if no base quote available for this provider
+        if (!hasProviderData(provider, quoteData)) return;
+
+        // Skip if already enhanced, in-flight, enqueued, or previously failed
+        if (enhancements[provider] || enhancementInFlightRef.current[provider] || enhancementEnqueuedRef.current[provider] || enhancementFailedRef.current[provider]) {
+          return;
+        }
+
+        const providerQuoteData = (quoteData.quotes as Record<string, unknown>)[provider];
+        if (!providerQuoteData) return;
+
+        // Schedule enhancement (same logic as calculating-path)
+        void scheduleEnhancement(provider, providerQuoteData, form);
+      } catch {
+        /* noop */
+      }
+    });
+  }, [quoteData, enhancements]);
+
   // Calculate progress for reconciliation button (parallel mode): single batch view
   const enhancementBatchInfo = useMemo(() => {
     const allProviders: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity']

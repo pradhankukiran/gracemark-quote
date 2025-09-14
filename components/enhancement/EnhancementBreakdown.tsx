@@ -17,7 +17,8 @@ import {
   UtensilsCrossed,
   Stethoscope,
   Info,
-  AlertCircle
+  AlertCircle,
+  Percent
 } from "lucide-react"
 import { EnhancedQuote } from "@/lib/types/enhancement"
 import { ConfidenceIndicator } from "./ConfidenceIndicator"
@@ -170,6 +171,57 @@ export const EnhancementBreakdown: React.FC<EnhancementBreakdownProps> = ({
         isMandatory: true,
         frequency: "one-time"
       })
+    }
+
+    // Employer contributions and other additions (per-item rows)
+    if (enhancements.additionalContributions) {
+      const pretty = (k: string) => {
+        const clean = k
+          .replace(/^employer_contrib_/, '')
+          .replace(/^allowance_/, '')
+          .replace(/^local_/, 'Local ')
+          .replace(/_/g, ' ')
+        return clean.replace(/\b\w/g, c => c.toUpperCase())
+      }
+      const entries = Object.entries(enhancements.additionalContributions)
+      // If only aggregate exists, show it as a single row
+      const onlyAggregate = entries.length === 1 && 'employer_contributions_total' in enhancements.additionalContributions
+      if (onlyAggregate) {
+        const amt = Number(enhancements.additionalContributions['employer_contributions_total'] || 0)
+        if (amt > 0) {
+          items.push({
+            icon: Percent,
+            title: 'Employer Contributions (Aggregate)',
+            amount: amt,
+            currency: baseCurrency,
+            explanation: 'Aggregate employer statutory contributions (monthly)',
+            confidence: 0.6,
+            isMandatory: true,
+            frequency: 'monthly'
+          })
+        }
+      }
+
+      entries
+        .filter(([k, v]) => (Number(v) || 0) > 0)
+        // Skip aggregate and allowance mirror entries (allowances already listed above)
+        .filter(([k]) => k !== 'employer_contributions_total' && !k.startsWith('allowance_'))
+        .forEach(([key, amount]) => {
+          items.push({
+            icon: Percent,
+            title: pretty(key),
+            amount: Number(amount || 0),
+            currency: baseCurrency,
+            explanation: key.startsWith('local_')
+              ? 'Local office expense (monthly)'
+              : (key.startsWith('employer_contrib_')
+                  ? 'Employer statutory contribution (monthly)'
+                  : 'Additional monthly cost'),
+            confidence: 0.6,
+            isMandatory: key.startsWith('employer_contrib_'),
+            frequency: 'monthly'
+          })
+        })
     }
 
     return items

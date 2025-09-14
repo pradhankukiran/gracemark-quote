@@ -127,18 +127,35 @@ export const useQuoteEnhancement = (): UseQuoteEnhancementReturn => {
     })
   }, [persistState])
 
-  // Validate enhancement data for required numeric fields
+  // Validate enhancement data for all required EnhancedQuote fields
   const validateEnhancementData = useCallback((enhancement: EnhancedQuote): EnhancedQuote => {
     return {
-      ...enhancement,
-      finalTotal: safeNumber(enhancement.finalTotal, 0),
+      provider: enhancement.provider,
+      baseQuote: enhancement.baseQuote,
+      quoteType: enhancement.quoteType || 'all-inclusive',
+      enhancements: enhancement.enhancements || {},
       totalEnhancement: safeNumber(enhancement.totalEnhancement, 0),
-      overallConfidence: safeNumber(enhancement.overallConfidence, 0),
+      finalTotal: safeNumber(enhancement.finalTotal, 0),
       monthlyCostBreakdown: {
         baseCost: safeNumber(enhancement.monthlyCostBreakdown?.baseCost, 0),
         enhancements: safeNumber(enhancement.monthlyCostBreakdown?.enhancements, 0),
         total: safeNumber(enhancement.monthlyCostBreakdown?.total, 0)
-      }
+      },
+      overallConfidence: safeNumber(enhancement.overallConfidence, 0),
+      explanations: enhancement.explanations || [],
+      warnings: enhancement.warnings || [],
+      overlapAnalysis: enhancement.overlapAnalysis || {
+        providerIncludes: [],
+        providerMissing: [],
+        doubleCountingRisk: [],
+        recommendations: []
+      },
+      calculatedAt: enhancement.calculatedAt || new Date().toISOString(),
+      baseCurrency: enhancement.baseCurrency || 'USD',
+      displayCurrency: enhancement.displayCurrency,
+      exchangeRate: enhancement.exchangeRate,
+      fullQuote: enhancement.fullQuote,
+      recalcBaseItems: enhancement.recalcBaseItems
     }
   }, [])
 

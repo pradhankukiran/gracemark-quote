@@ -115,8 +115,91 @@ export const GenericQuoteCard = memo(({
   const isCalculatingLocal = dualCurrencyQuotes?.isCalculatingLocal;
 
   // Always map Local -> localCurrencyQuote, Changed -> selectedCurrencyQuote
-  const originalQuote = isDualCurrencyMode ? localQuote : quote;
-  const changedQuote = isDualCurrencyMode ? selectedQuote : undefined;
+  let originalQuote = isDualCurrencyMode ? localQuote : quote;
+  let changedQuote = isDualCurrencyMode ? selectedQuote : undefined;
+  // Track an effective USD conversions object (may be extended)
+  let effectiveUsdConv: any = usdConversions as any
+
+  // Inject merged extras into quote rows (inline) and update totals/US conversions
+  try {
+    const extras = Array.isArray(mergedExtras) ? mergedExtras.filter(e => (e && typeof e.amount === 'number' && e.amount > 0)) : []
+    if (extras.length > 0 && originalQuote) {
+      const toAmountStr = (n: number) => {
+        const v = Number(n)
+        return Number.isFinite(v) ? v.toFixed(2) : '0'
+      }
+      const cloneWithExtras = (src: any, scale: number = 1) => {
+        const q = { ...(src || {}) }
+        const costs = Array.isArray(q.costs) ? [...q.costs] : []
+        const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+        const hasItemLike = (needle: string) => costs.some((c: any) => norm(c?.name).includes(norm(needle)))
+        const defaultGuardsFor = (name: string): string[] => {
+          const n = name.toLowerCase()
+          if (n.includes('termination')) return ['termination', 'severance', 'notice', 'provision', 'accrual']
+          if (n.includes('13')) return ['13th', 'thirteenth', 'aguinaldo']
+          if (n.includes('14')) return ['14th', 'fourteenth']
+          if (n.includes('meal')) return ['meal', 'voucher', 'ticket', 'food']
+          if (n.includes('transport')) return ['transport', 'commute', 'bus', 'metro']
+          if (n.includes('employer') && n.includes('contrib')) return ['employer', 'contribution', 'contrib', 'social security', 'statutory', 'indirect employment cost']
+          return [name]
+        }
+        // Derive USD exchange rate from existing conversions if available
+        let exchangeRate: number | null = null
+        const conv = usdConversions as any
+        if (conv?.costs && Array.isArray(conv.costs) && costs.length > 0) {
+          for (let i = 0; i < Math.min(costs.length, conv.costs.length); i++) {
+            const localAmount = Number.parseFloat(costs[i].amount)
+            const usdAmount = conv.costs[i]
+            if (localAmount > 0 && usdAmount > 0) {
+              exchangeRate = usdAmount / localAmount
+              break
+            }
+          }
+        }
+        const newUsd: number[] = []
+        extras.forEach(ex => {
+          const amt = Math.max(0, Number(ex.amount) * (Number.isFinite(scale) && scale > 0 ? scale : 1))
+          // Skip if a similar item already exists (avoid duplicates)
+          const guards = Array.isArray((ex as any)?.guards) ? (ex as any).guards : defaultGuardsFor(String(ex.name || ''))
+          const dup = guards.some(g => hasItemLike(g))
+          if (dup) return
+          costs.push({
+            name: ex.name,
+            amount: toAmountStr(amt),
+            frequency: 'monthly',
+            country: q.country,
+            country_code: q.country_code,
+          })
+          if (exchangeRate !== null) newUsd.push(amt * exchangeRate)
+        })
+        // Extend conversions if possible
+        if (conv?.costs && newUsd.length > 0) {
+          conv.costs = [...conv.costs, ...newUsd]
+        }
+        // Update totals
+        const parseNum = (v?: string | number) => typeof v === 'number' ? v : Number.parseFloat((v || '0') as string)
+        const baseTotal = parseNum(q.total_costs)
+        const sumExtras = extras.reduce((s, it) => s + (Number(it.amount) || 0) * (Number.isFinite(scale) && scale > 0 ? scale : 1), 0)
+        const newTotal = baseTotal + sumExtras
+        q.costs = costs
+        q.total_costs = toAmountStr(newTotal)
+        q.employer_costs = q.total_costs
+        return q
+      }
+
+      // Always inject into original/local quote
+      originalQuote = cloneWithExtras(originalQuote)
+
+      // If dual mode, inject also into changed/selected quote by scaling extras to match totals ratio
+      if (isDualCurrencyMode && changedQuote) {
+        const parseNum = (v?: string | number) => typeof v === 'number' ? v : Number.parseFloat((v || '0') as string)
+        const baseLocal = parseNum((localQuote as any)?.total_costs)
+        const baseChanged = parseNum((selectedQuote as any)?.total_costs)
+        const ratio = baseLocal > 0 ? (baseChanged / baseLocal) : 1
+        changedQuote = cloneWithExtras(changedQuote, Number.isFinite(ratio) && ratio > 0 ? ratio : 1)
+      }
+    }
+  } catch { /* noop extras injection */ }
 
   // Basic column logic
   const hasUSDData = usdConversions && Object.keys(usdConversions).length > 0;
@@ -275,18 +358,23 @@ export const GenericQuoteCard = memo(({
   }
 
   const getUSDCostAmount = (index: number) => {
-  if (provider === 'deel' || provider === 'rivermate' || provider === 'oyster' || provider === 'rippling' || provider === 'skuad' || provider === 'velocity') {
-      return (usdConversions as USDConversions["deel"])?.costs?.[index];
-  }
-    if (provider === 'remote') {
-      // Approximate per-line USD values by distributing total across items
-      const remoteCosts = (usdConversions as USDConversions["remote"])?.monthlyTotal;
-      if (remoteCosts && primaryQuote?.costs?.[index]) {
-        const costPercentage = Number.parseFloat(primaryQuote.costs[index].amount) / Number.parseFloat(primaryQuote.total_costs);
-        return remoteCosts * costPercentage;
+    // Prefer per-line conversions when available
+    const arr = (effectiveUsdConv as any)?.costs as number[] | undefined
+    if (Array.isArray(arr) && typeof arr[index] === 'number') return arr[index]
+
+    // Fallback: proportional distribution using totals
+    const parseNum = (v?: string | number) => typeof v === 'number' ? v : Number.parseFloat((v || '0') as string)
+    const localTotal = parseNum((originalQuote as any)?.total_costs)
+    const lineLocal = originalQuote?.costs?.[index] ? parseNum(originalQuote.costs[index].amount) : 0
+    if (localTotal > 0 && lineLocal > 0) {
+      const usdTotal = provider === 'remote'
+        ? (effectiveUsdConv as USDConversions['remote'])?.monthlyTotal
+        : (effectiveUsdConv as USDConversions[keyof USDConversions])?.totalCosts
+      if (usdTotal && usdTotal > 0) {
+        return lineLocal * (usdTotal / localTotal)
       }
     }
-    return undefined;
+    return undefined
   }
 
   const parseNumber = (v?: string | number) => {
@@ -423,7 +511,7 @@ export const GenericQuoteCard = memo(({
 
           {/* Platform/management fees are excluded from display */}
 
-  {primaryQuote?.costs?.map((cost, index) => {
+  {originalQuote?.costs?.map((cost, index) => {
             const primaryAmount = Number.parseFloat(cost.amount);
             const changedAmount = isDualCurrencyMode && changedQuote?.costs?.[index] 
               ? Number.parseFloat(changedQuote.costs[index].amount) 
@@ -580,25 +668,7 @@ export const GenericQuoteCard = memo(({
           </div>
         </div>
 
-        {/* Added Benefits (from merged full quote) */}
-        {mergedExtras && mergedExtras.length > 0 && (
-          <div className="mt-4 border-t border-slate-200 pt-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-slate-700 font-semibold">Additional Benefits</span>
-              {mergedCurrency && (
-                <span className="text-xs text-slate-500">Currency: {mergedCurrency}</span>
-              )}
-            </div>
-            <div className="space-y-2">
-              {mergedExtras.map((it, idx) => (
-                <div key={idx} className="flex items-center justify-between">
-                  <span className="text-slate-700 text-sm">{it.name}</span>
-                  <span className="text-slate-900 text-sm font-medium">{formatCurrency(it.amount || 0, mergedCurrency || primaryQuote?.currency || '')}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Additional Benefits block removed; extras are injected inline into rows */}
       </CardContent>
     </Card>
   );

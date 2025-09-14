@@ -247,13 +247,13 @@ export class PapayaService {
 
     const lowerText = checkTexts.toLowerCase()
 
-    // Enhanced 13th salary detection
+    // Enhanced 13th salary detection (stricter: avoid "customary/optional" false positives)
     if (this.detectMandatorySalary(lowerText, '13th')) {
       result.has13thSalary = true
       result.monthlyMultiplier13th = 1/12 // 1 month divided over 12 months
     }
 
-    // Enhanced 14th salary detection
+    // Enhanced 14th salary detection (stricter)
     if (this.detectMandatorySalary(lowerText, '14th')) {
       result.has14thSalary = true
       result.monthlyMultiplier14th = 1/12
@@ -266,49 +266,30 @@ export class PapayaService {
    * Detect if a salary bonus (13th, 14th) is mandatory based on text analysis
    */
   private static detectMandatorySalary(text: string, salaryType: '13th' | '14th'): boolean {
-    const patterns = salaryType === '13th' 
+    const mentions = salaryType === '13th'
       ? ['13th', 'thirteenth', '13-month', 'christmas bonus', 'aguinaldo', 'décimo terceiro']
       : ['14th', 'fourteenth', '14-month']
 
-    // Check if any pattern is mentioned
-    const hasMention = patterns.some(pattern => text.includes(pattern))
-    if (!hasMention) return false
+    // Require an explicit mention of the salary type
+    if (!mentions.some(p => text.includes(p))) return false
 
-    // Check for explicit negative indicators
-    const negativePatterns = [
-      'no ' + salaryType,
-      'not applicable',
-      'not required',
-      'not mandatory', 
-      'optional',
-      'does not apply',
-      'n/a'
+    // Negative/soft indicators that imply non-mandatory or discretionary/common practice
+    const softNegative = [
+      'customary', 'customarily', 'commonly', 'common', 'typical', 'typically',
+      'discretionary', 'at employer discretion', 'may be paid', 'might be paid', 'can be paid',
+      'optional', 'not mandatory', 'not required', 'not obligated', 'no legal requirement',
+      'depends on company policy', 'case by case', 'subject to contract', 'n/a'
     ]
-    
-    const hasNegative = negativePatterns.some(pattern => text.includes(pattern))
-    if (hasNegative) return false
+    if (softNegative.some(w => text.includes(w))) return false
 
-    // Check for positive indicators that suggest mandatory nature
-    const positivePatterns = [
-      'mandatory', 
-      'required', 
-      'must', 
-      'obligatory',
-      'law',
-      'legal',
-      'regulation',
-      'statutory',
-      'payment',
-      'bonus',
-      'receive',
-      'entitled'
+    // Strong positive/mandatory indicators
+    const mandatorySignals = [
+      'mandatory', 'required', 'must', 'obligatory', 'by law', 'legal requirement',
+      'statutory', 'entitled', 'guaranteed', 'shall', 'is paid' // "is paid" alone isn't perfect but often used in mandatory contexts
     ]
 
-    const hasPositive = positivePatterns.some(pattern => text.includes(pattern))
-    
-    // If we found the salary type mentioned and no negatives, it's likely mandatory
-    // Especially if there are positive indicators
-    return hasPositive || text.length > 50 // Longer descriptions usually indicate mandatory benefits
+    // Only treat as mandatory if positive mandatory signals present (avoid long-text heuristics)
+    return mandatorySignals.some(w => text.includes(w))
   }
 
   /**
@@ -492,7 +473,18 @@ export class PapayaService {
 
     if (contribution?.employer_contributions) {
       contribution.employer_contributions.forEach((contrib: PapayaContribution) => {
-        const key = this.normalizeContributionKey(contrib.description)
+        const desc = (contrib.description || '').toString()
+        const key = this.normalizeContributionKey(desc)
+        // Skip aggregate/roll-up lines like "Total Employment Cost" to avoid double counting
+        const lower = desc.toLowerCase()
+        const isAggregate = (
+          lower.includes('total employment cost') ||
+          lower.includes('total employee cost') ||
+          (lower.includes('total') && lower.includes('cost')) ||
+          lower.includes('overall')
+        )
+        if (isAggregate) return
+
         const rate = this.extractPercentageFromText(contrib.rate)
         if (rate > 0) {
           result.employerRates[key] = rate
@@ -502,7 +494,17 @@ export class PapayaService {
 
     if (contribution?.employee_contributions) {
       contribution.employee_contributions.forEach((contrib: PapayaContribution) => {
-        const key = this.normalizeContributionKey(contrib.description)
+        const desc = (contrib.description || '').toString()
+        const key = this.normalizeContributionKey(desc)
+        const lower = desc.toLowerCase()
+        const isAggregate = (
+          lower.includes('total employment cost') ||
+          lower.includes('total employee cost') ||
+          (lower.includes('total') && lower.includes('cost')) ||
+          lower.includes('overall')
+        )
+        if (isAggregate) return
+
         const rate = this.extractPercentageFromText(contrib.rate)
         if (rate > 0) {
           result.employeeRates[key] = rate
@@ -547,16 +549,37 @@ export class PapayaService {
    * Utility: Extract percentage from text (e.g., "2.75%" -> 2.75, "20.00% to 26.80%" -> 23.4)
    */
   private static extractPercentageFromText(text: string): number {
-    // Handle range patterns like "20.00% to 26.80%" - take average
-    const rangeMatch = text.match(/([\d.]+)%\s*(?:to|-|–)\s*([\d.]+)%/)
+    const t = (text || '').toString()
+
+    // Handle explicit range patterns like "20.00% to 26.80%" - take average
+    const rangeMatch = t.match(/([\d.]+)%\s*(?:to|-|–)\s*([\d.]+)%/i)
     if (rangeMatch) {
       const min = parseFloat(rangeMatch[1])
       const max = parseFloat(rangeMatch[2])
-      return (min + max) / 2
+      if (isFinite(min) && isFinite(max)) return (min + max) / 2
     }
 
-    // Handle single percentage
-    const singleMatch = text.match(/([\d.]+)%/)
+    // Handle additive patterns like "7.30% + 0.85%" - sum all percentages around plus signs
+    if (t.includes('+')) {
+      // Only sum numbers that have a % sign (avoid summing footnotes like ages)
+      const parts = t.split('+')
+      let sum = 0
+      let counted = 0
+      for (const part of parts) {
+        const m = part.match(/([\d.]+)\s*%/)
+        if (m) {
+          const v = parseFloat(m[1])
+          if (isFinite(v)) {
+            sum += v
+            counted++
+          }
+        }
+      }
+      if (counted >= 2) return sum
+    }
+
+    // Otherwise pick the first percentage in the text
+    const singleMatch = t.match(/([\d.]+)\s*%/)
     return singleMatch ? parseFloat(singleMatch[1]) : 0
   }
 

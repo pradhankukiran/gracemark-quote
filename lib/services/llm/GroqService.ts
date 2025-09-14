@@ -503,23 +503,140 @@ export class GroqService {
         return groqLike as unknown as GroqEnhancementResponse
       }
 
-      // Build a minimal GroqEnhancementResponse where the entire delta equals the difference to provider monthly total
-      // This lets downstream transformation compute final_total correctly while we show a complete monthly total.
+      // Parse the LLM response to extract detailed enhancement items
       const delta = Math.max(0, Number(quote.total_monthly) - Number(input.baseQuote.monthlyTotal || 0))
+      const items = Array.isArray(quote.items) ? quote.items : []
+      const baseSalary = Number(input.baseQuote.baseCost || 0)
+      const contractMonths = input.contractDurationMonths || 12
+      const isStatutory = input.quoteType === 'statutory-only'
+
+      // Build detailed enhancement objects from LLM response items
+      const enhancements: any = {}
+      const analysis = { provider_coverage: [], missing_requirements: [], double_counting_risks: [] }
+
+      let totalEnhancement = 0
+
+      for (const item of items) {
+        if (!item || typeof item !== 'object') continue
+
+        const category = String(item.category || '').toLowerCase()
+        const name = String(item.name || '').toLowerCase()
+        const monthlyAmount = Math.max(0, Number(item.monthly_amount_local || 0))
+        const mandatory = !!item.mandatory
+
+        if (monthlyAmount <= 0) continue
+
+        // Map items to enhancement objects based on category and name
+        if (category === 'termination' || name.includes('termination')) {
+          const totalTermination = monthlyAmount * contractMonths
+          enhancements.termination_costs = {
+            notice_period_cost: 0,
+            severance_cost: 0,
+            total: totalTermination,
+            explanation: item.notes || 'Termination provision based on legal requirements',
+            confidence: 0.7
+          }
+          totalEnhancement += monthlyAmount
+        } else if (name.includes('13th') || name.includes('thirteenth')) {
+          enhancements.thirteenth_salary = {
+            monthly_amount: monthlyAmount,
+            yearly_amount: monthlyAmount * 12,
+            explanation: item.notes || '13th month salary as required by law',
+            confidence: 0.8,
+            already_included: false
+          }
+          totalEnhancement += monthlyAmount
+        } else if (name.includes('14th') || name.includes('fourteenth')) {
+          enhancements.fourteenth_salary = {
+            monthly_amount: monthlyAmount,
+            yearly_amount: monthlyAmount * 12,
+            explanation: item.notes || '14th month salary as required by law',
+            confidence: 0.75,
+            already_included: false
+          }
+          totalEnhancement += monthlyAmount
+        } else if (name.includes('vacation') && category === 'bonuses') {
+          enhancements.vacation_bonus = {
+            amount: monthlyAmount * 12,
+            explanation: item.notes || 'Vacation bonus as required by law',
+            confidence: 0.7,
+            already_included: false
+          }
+          totalEnhancement += monthlyAmount
+        } else if (name.includes('transport')) {
+          if (!isStatutory || mandatory) {
+            enhancements.transportation_allowance = {
+              monthly_amount: monthlyAmount,
+              explanation: item.notes || 'Transportation allowance',
+              confidence: 0.65,
+              already_included: false,
+              mandatory: mandatory
+            }
+            totalEnhancement += monthlyAmount
+          }
+        } else if (name.includes('remote') && name.includes('work')) {
+          if (!isStatutory || mandatory) {
+            enhancements.remote_work_allowance = {
+              monthly_amount: monthlyAmount,
+              explanation: item.notes || 'Remote work allowance',
+              confidence: 0.6,
+              already_included: false,
+              mandatory: mandatory
+            }
+            totalEnhancement += monthlyAmount
+          }
+        } else if (name.includes('meal')) {
+          if (!isStatutory || mandatory) {
+            enhancements.meal_vouchers = {
+              monthly_amount: monthlyAmount,
+              explanation: item.notes || 'Meal voucher allowance',
+              confidence: 0.6,
+              already_included: false
+            }
+            totalEnhancement += monthlyAmount
+          }
+        } else if (category === 'contributions' || name.includes('contribution')) {
+          // Aggregate employer contributions
+          if (!enhancements.employer_contributions_total) {
+            enhancements.employer_contributions_total = {
+              monthly_amount: 0,
+              explanation: 'Employer contributions based on legal requirements',
+              confidence: 0.7,
+              already_included: false
+            }
+          }
+          enhancements.employer_contributions_total.monthly_amount += monthlyAmount
+          totalEnhancement += monthlyAmount
+        }
+      }
+
+      // If we couldn't parse detailed items, fall back to aggregate enhancement
+      if (totalEnhancement === 0 && delta > 0) {
+        enhancements.employer_contributions_total = {
+          monthly_amount: delta,
+          explanation: 'Legal compliance enhancement (aggregate)',
+          confidence: 0.5,
+          already_included: false
+        }
+        totalEnhancement = delta
+      }
+
       const groqLike: any = {
-        analysis: { provider_coverage: [], missing_requirements: [], double_counting_risks: [] },
-        enhancements: {
-          // Use aggregate catch-all so transform can add it to totals
-          employer_contributions_total: { monthly_amount: delta, explanation: 'Full-quote aggregate (local currency)', confidence: 0.0, already_included: false }
-        },
+        analysis,
+        enhancements,
         totals: {
-          total_monthly_enhancement: delta,
-          total_yearly_enhancement: delta * 12,
-          final_monthly_total: quote.total_monthly
+          total_monthly_enhancement: Number(totalEnhancement.toFixed(2)),
+          total_yearly_enhancement: Number((totalEnhancement * 12).toFixed(2)),
+          final_monthly_total: Number((input.baseQuote.monthlyTotal + totalEnhancement).toFixed(2))
         },
-        confidence_scores: { overall: 0.0, termination_costs: 0.0, salary_enhancements: 0.0, allowances: 0.0 },
+        confidence_scores: {
+          overall: Object.keys(enhancements).length > 0 ? 0.7 : 0.0,
+          termination_costs: enhancements.termination_costs ? 0.7 : 0.0,
+          salary_enhancements: (enhancements.thirteenth_salary || enhancements.fourteenth_salary) ? 0.75 : 0.0,
+          allowances: (enhancements.transportation_allowance || enhancements.remote_work_allowance || enhancements.meal_vouchers) ? 0.6 : 0.0
+        },
         recommendations: [],
-        warnings: Array.isArray(parsed?.warnings) ? parsed.warnings : [] ,
+        warnings: Array.isArray(parsed?.warnings) ? parsed.warnings : [],
         output_currency: quote.currency || input.papayaCurrency || input.baseQuote.currency,
         full_quote: quote,
         recalc_base_items: Array.isArray(parsed?.recalc_base_items) ? parsed.recalc_base_items : []
@@ -612,6 +729,63 @@ export class GroqService {
       baselineMandatoryFlags[mapKey] = !!item.mandatory
     }
 
+    // Gate baseline with deterministic legal requirements to avoid LLM pre-pass false positives (e.g., "customary" 13th salary)
+    try {
+      const prepassCode = (input.prepass?.meta?.country_code || '').toString().trim().toUpperCase()
+      const code = prepassCode || this.countryToCode(input.baseQuote.country)
+      const core = PapayaService.getCountryCoreData(code)
+      const legal = PapayaService.extractLegalRequirementsFromCore(core as any)
+      if (legal && legal.mandatorySalaries) {
+        const isAllInclusive = (input.quoteType === 'all-inclusive')
+        const presence = (input.prepass?.availability as any) || {}
+        const baseMonthlyFromPrepass = Math.max(0, Number((input.prepass?.meta as any)?.base_salary_monthly || 0))
+        const baseMonthlyFromQuote = Math.max(0, Number(input.baseQuote.baseCost || 0))
+        const baseMonthly = baseMonthlyFromPrepass || baseMonthlyFromQuote
+
+        // Statutory-only: keep only mandatory salaries
+        if (input.quoteType === 'statutory-only') {
+          if (!legal.mandatorySalaries.has13thSalary) {
+            baselineProviderCurrency['thirteenth_salary'] = 0
+            baselineMandatoryFlags['thirteenth_salary'] = false
+          }
+          if (!legal.mandatorySalaries.has14thSalary) {
+            baselineProviderCurrency['fourteenth_salary'] = 0
+            baselineMandatoryFlags['fourteenth_salary'] = false
+          }
+        } else if (isAllInclusive) {
+          // All-inclusive: include if legally mandatory OR presence flag true
+          if (presence.payroll_13th_salary && !baselineProviderCurrency['thirteenth_salary']) {
+            baselineProviderCurrency['thirteenth_salary'] = Number((baseMonthly / 12).toFixed(2))
+            baselineMandatoryFlags['thirteenth_salary'] = !!legal.mandatorySalaries.has13thSalary // mark true only if mandatory
+          }
+          if (legal.mandatorySalaries.has13thSalary && !baselineProviderCurrency['thirteenth_salary']) {
+            baselineProviderCurrency['thirteenth_salary'] = Number((baseMonthly / 12).toFixed(2))
+            baselineMandatoryFlags['thirteenth_salary'] = true
+          }
+          if (presence.payroll_14th_salary && !baselineProviderCurrency['fourteenth_salary']) {
+            baselineProviderCurrency['fourteenth_salary'] = Number((baseMonthly / 12).toFixed(2))
+            baselineMandatoryFlags['fourteenth_salary'] = !!legal.mandatorySalaries.has14thSalary
+          }
+          if (legal.mandatorySalaries.has14thSalary && !baselineProviderCurrency['fourteenth_salary']) {
+            baselineProviderCurrency['fourteenth_salary'] = Number((baseMonthly / 12).toFixed(2))
+            baselineMandatoryFlags['fourteenth_salary'] = true
+          }
+        }
+
+        // Termination fallback: if baseline lacks termination monthly, derive from legal hints
+        try {
+          const noticeDays = Math.max(0, Number((legal as any)?.terminationCosts?.noticePeriodDays || 0))
+          const severanceMonths = Math.max(0, Number((legal as any)?.terminationCosts?.severanceMonths || 0))
+          const months = (noticeDays / 30) + severanceMonths
+          if (!baselineProviderCurrency['termination_costs'] && months > 0 && baseMonthly > 0) {
+            const monthlyProvision = (baseMonthly * months) / Math.max(1, Number(input.contractDurationMonths || 12))
+            baselineProviderCurrency['termination_costs'] = Number(monthlyProvision.toFixed(2))
+            baselineMandatoryFlags['termination_costs'] = true
+          }
+        } catch { /* noop */ }
+      }
+    } catch {/* noop */}
+
     // In statutory-only mode, zero-out non-mandatory allowances from baseline
     if (isStatutory) {
       const optionalAllowanceKeys = ['transportation_allowance', 'remote_work_allowance', 'meal_vouchers']
@@ -703,6 +877,27 @@ export class GroqService {
         const parsed = JSON.parse(jsonText)
         // Minimal shape safeguard
         if (parsed && parsed.enhancements && parsed.totals) {
+          // Ensure employer contributions delta is present deterministically if LLM omitted it
+          try {
+            const baselineContrib = Math.max(0, Number(baselineProviderCurrency['employer_contributions_total'] || 0))
+            const providerContrib = Math.max(0, Number(providerCoverage['social_security'] || 0))
+            const dContrib = Math.max(0, Number((baselineContrib - providerContrib).toFixed(2)))
+            const hasContrib = parsed.enhancements && (parsed.enhancements as any).employer_contributions_total && typeof (parsed.enhancements as any).employer_contributions_total.monthly_amount === 'number' && (parsed.enhancements as any).employer_contributions_total.monthly_amount > 0
+            if (!hasContrib && dContrib > 0) {
+              ;(parsed.enhancements as any).employer_contributions_total = {
+                monthly_amount: dContrib,
+                explanation: 'Deterministic employer contributions delta (baseline minus provider coverage)',
+                confidence: 0.7,
+                already_included: false
+              }
+              // Adjust totals conservatively by adding the missing delta
+              if (parsed.totals && typeof parsed.totals.total_monthly_enhancement === 'number') {
+                parsed.totals.total_monthly_enhancement = Number((parsed.totals.total_monthly_enhancement + dContrib).toFixed(2))
+                parsed.totals.total_yearly_enhancement = Number((parsed.totals.total_monthly_enhancement * 12).toFixed(2))
+                parsed.totals.final_monthly_total = Number((input.baseQuote.monthlyTotal + parsed.totals.total_monthly_enhancement).toFixed(2))
+              }
+            }
+          } catch {/* noop */}
           return parsed as GroqEnhancementResponse
         }
       }
@@ -712,6 +907,12 @@ export class GroqService {
       // Fallback deterministic
       return await this.computeDeltasFallback(baselineProviderCurrency, baselineMandatoryFlags, providerCoverage, input.baseQuote.monthlyTotal)
     }
+  }
+
+  private countryToCode(country: string): string {
+    const m = (country || '').toLowerCase()
+    const map: Record<string, string> = { 'germany': 'DE', 'france': 'FR', 'spain': 'ES', 'italy': 'IT', 'netherlands': 'NL', 'united kingdom': 'GB', 'uk': 'GB', 'united states': 'US', 'usa': 'US', 'brazil': 'BR', 'argentina': 'AR', 'colombia': 'CO', 'mexico': 'MX', 'chile': 'CL', 'peru': 'PE' }
+    return map[m] || m.slice(0, 2).toUpperCase()
   }
 
   private async computeDeltasFallback(

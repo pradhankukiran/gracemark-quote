@@ -75,7 +75,9 @@ export async function POST(request: NextRequest) {
         ? validatedInput.formData.quoteType 
         : 'all-inclusive')
 
-    const enhancedQuote = await enhancementEngine.enhanceQuote({
+    // Use the pre-pass pipeline for single-provider enhancement so each provider
+    // gets Cerebras baseline reconciliation before Groq computes deltas.
+    const enhancedQuote = await enhancementEngine.enhanceQuoteDirect({
       provider: validatedInput.provider,
       providerQuote: validatedInput.providerQuote,
       formData: validatedInput.formData as EORFormData,
