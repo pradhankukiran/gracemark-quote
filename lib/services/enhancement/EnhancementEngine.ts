@@ -606,14 +606,8 @@ export class EnhancementEngine {
       }
     }
 
-    // Employer contributions (custom extension from LLM response)
-    const extraContribMonthly = (enhancements as any)?.employer_contributions_total?.monthly_amount
-    if (typeof extraContribMonthly === 'number' && isFinite(extraContribMonthly) && extraContribMonthly > 0) {
-      enhancementData.additionalContributions = {
-        ...(enhancementData.additionalContributions || {}),
-        employer_contributions: extraContribMonthly
-      }
-    }
+    // Note: Do not mirror main employer_contributions_total into additionalContributions here to avoid double counting.
+    // The aggregate contribution is handled later in the totals section in a single, canonical place.
 
     // Medical exam
     if (enhancements.medical_exam) {

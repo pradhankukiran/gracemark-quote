@@ -132,7 +132,18 @@ export const GenericQuoteCard = memo(({
         const q = { ...(src || {}) }
         const costs = Array.isArray(q.costs) ? [...q.costs] : []
         const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
-        const hasItemLike = (needle: string) => costs.some((c: any) => norm(c?.name).includes(norm(needle)))
+        const hasItemLike = (needle: string) => {
+          const needleNorm = norm(needle)
+          return costs.some((c: any) => {
+            const costName = norm(c?.name)
+            // For employer contributions, require high semantic similarity to prevent false positives
+            if (needleNorm.includes('employer') && needleNorm.includes('contribution')) {
+              return costName.includes('employer') && costName.includes('contribution')
+            }
+            // For other items, use the original includes logic
+            return costName.includes(needleNorm)
+          })
+        }
         const defaultGuardsFor = (name: string): string[] => {
           const n = name.toLowerCase()
           if (n.includes('termination')) return ['termination', 'severance', 'notice', 'provision', 'accrual']
@@ -140,7 +151,7 @@ export const GenericQuoteCard = memo(({
           if (n.includes('14')) return ['14th', 'fourteenth']
           if (n.includes('meal')) return ['meal', 'voucher', 'ticket', 'food']
           if (n.includes('transport')) return ['transport', 'commute', 'bus', 'metro']
-          if (n.includes('employer') && n.includes('contrib')) return ['employer', 'contribution', 'contrib', 'social security', 'statutory', 'indirect employment cost']
+          if (n.includes('employer') && n.includes('contrib')) return ['employer contributions', 'employer contribution', 'statutory contributions', 'statutory contribution']
           return [name]
         }
         // Derive USD exchange rate from existing conversions if available

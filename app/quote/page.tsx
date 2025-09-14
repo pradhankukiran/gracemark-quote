@@ -1117,6 +1117,13 @@ const QuotePageContent = memo(() => {
         if (rwa && rwa.isAlreadyIncluded !== true) addExtra('Remote Work Allowance', Number(rwa.monthlyAmount || 0), ['remote work', 'wfh'])
         const mv = enh.enhancements.mealVouchers
         if (mv && mv.isAlreadyIncluded !== true) addExtra('Meal Vouchers', Number(mv.monthlyAmount || 0), ['meal voucher'])
+
+        // Main employer contributions
+        const ec = enh.enhancements.employer_contributions_total
+        if (ec && ec.isAlreadyIncluded !== true && typeof ec.monthly_amount === 'number' && ec.monthly_amount > 0) {
+          addExtra('Employer Contributions', Number(ec.monthly_amount), ['employer contributions', 'employer contribution', 'statutory contributions', 'statutory contribution'])
+        }
+
         // Additional contributions and local office
         const addc = enh.enhancements.additionalContributions || {}
         let contribAgg = 0
@@ -1124,16 +1131,38 @@ const QuotePageContent = memo(() => {
         let contribAggPresent = false
         const localExtras: Array<{ name: string; amount: number; guards?: string[] }> = []
 
+        // Check if main enhancements already have employer contributions to prevent duplication
+        const hasMainEmployerContrib = !!(enh.enhancements?.employer_contributions_total)
+        if (hasMainEmployerContrib && addc.employer_contributions_total) {
+          console.warn('[Quote Processing] Skipping employer_contributions_total from additionalContributions - already present in main enhancements', {
+            main: enh.enhancements.employer_contributions_total,
+            additional: addc.employer_contributions_total
+          })
+        }
+
         Object.entries(addc).forEach(([k, v]) => {
           const n = Number(v)
           if (!isFinite(n) || n <= 0) return
           const key = String(k || '').toLowerCase()
+
+          // Skip employer contributions from additionalContributions if already in main enhancements
+          if ((key === 'employer_contributions_total' || (key.includes('baseline') && key.includes('employer') && key.includes('contribution'))) && hasMainEmployerContrib) {
+            return // Skip this item to prevent duplication
+          }
+
           if (key === 'employer_contributions_total' || (key.includes('baseline') && key.includes('employer') && key.includes('contribution'))) {
             contribAgg += n
             contribAggPresent = true
             return
           }
           if (key.startsWith('employer_contrib_') || (key.includes('employer') && key.includes('contribution'))) {
+            // Also check individual employer contribution items to prevent semantic duplicates
+            if (hasMainEmployerContrib) {
+              const mainAmount = Number(enh.enhancements.employer_contributions_total?.monthly_amount || 0)
+              // If individual items might sum to similar amount as main, skip them to prevent double-counting
+              console.warn(`[Quote Processing] Skipping individual employer contribution '${k}' (${n}) - main employer contribution already exists (${mainAmount})`)
+              return
+            }
             contribPerItem += n
             return
           }
@@ -1149,7 +1178,7 @@ const QuotePageContent = memo(() => {
         })
 
         const contribTotal = contribAggPresent ? contribAgg : contribPerItem
-        if (contribTotal > 0) addExtra('Employer Contributions', contribTotal, ['employer', 'contribution', 'social security', 'statutory', 'indirect employment cost'])
+        if (contribTotal > 0) addExtra('Employer Contributions', contribTotal, ['employer contributions', 'employer contribution', 'statutory contributions', 'statutory contribution'])
         localExtras.forEach(le => addExtra(le.name, le.amount))
       }
     } catch { /* noop */ }

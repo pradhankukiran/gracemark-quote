@@ -6,6 +6,8 @@ import { z } from "zod"
 import { PromptEngine } from "./PromptEngine"
 import { PapayaService } from "@/lib/services/data/PapayaService"
 import { PapayaDataFlattener } from "@/lib/services/data/PapayaDataFlattener"
+import { PapayaAvailability } from "@/lib/services/data/PapayaAvailability"
+import { getCountryByName } from "@/lib/country-data"
 import type { EORFormData } from "@/lib/shared/types"
 import { 
   GroqConfig, 
@@ -26,6 +28,15 @@ interface RateLimiter {
   lastRequestTime: number
   tokenCount: number
   requestCount: number
+}
+
+// Employer contributions processing interface
+interface EmployerContributionData {
+  monthlyAmount: number
+  explanation: string
+  confidence: number
+  alreadyIncluded: boolean
+  source: 'item_aggregation' | 'fallback' | 'deterministic_delta' | 'direct_computation' | 'papaya_baseline'
 }
 
 export class GroqService {
@@ -478,7 +489,7 @@ export class GroqService {
           warnings: ['LLM returned no content for full-quote request'],
           output_currency: input.papayaCurrency || input.baseQuote.currency
         }
-        return groqLike as unknown as GroqEnhancementResponse
+        return this.deduplicateEnhancementResponse(groqLike, input.provider) as unknown as GroqEnhancementResponse
       }
 
       // Parse full quote (local currency) and transform into a GroqEnhancementResponse-compatible structure
@@ -500,11 +511,38 @@ export class GroqService {
           warnings: ['Invalid full-quote response from LLM'],
           output_currency: input.papayaCurrency || input.baseQuote.currency
         }
-        return groqLike as unknown as GroqEnhancementResponse
+        return this.deduplicateEnhancementResponse(groqLike, input.provider) as unknown as GroqEnhancementResponse
+      }
+
+      // Prepare currency conversion (Papaya/local -> provider currency)
+      const providerCurrency = input.baseQuote.currency
+      const localCurrency = (quote.currency || input.papayaCurrency || providerCurrency) as string
+
+      let rate: number | null = null
+      const convertLocalToProvider = async (amount: number): Promise<number> => {
+        try {
+          if (!amount || localCurrency === providerCurrency) return amount || 0
+          // Use a one-shot rate fetch to avoid multiple network calls
+          if (rate === null) {
+            const { PapayaCurrencyProvider } = await import('@/lib/providers/papaya-currency-provider')
+            const conv = new PapayaCurrencyProvider()
+            const one = await conv.convertCurrency(1, localCurrency, providerCurrency)
+            const parsed = parseFloat((one as any)?.data?.conversion_data?.exchange_rate || 'NaN')
+            rate = Number.isFinite(parsed) && parsed > 0 ? parsed : 0
+          }
+          if (rate && rate > 0) return Number((amount * rate).toFixed(2))
+          // Fallback to per-amount conversion if rate not available
+          const { PapayaCurrencyProvider } = await import('@/lib/providers/papaya-currency-provider')
+          const conv = new PapayaCurrencyProvider()
+          const res = await conv.convertCurrency(amount, localCurrency, providerCurrency)
+          const tgt = (res as any)?.data?.conversion_data?.target_amount
+          return typeof tgt === 'number' && isFinite(tgt) ? Number(tgt.toFixed(2)) : amount
+        } catch { return amount }
       }
 
       // Parse the LLM response to extract detailed enhancement items
-      const delta = Math.max(0, Number(quote.total_monthly) - Number(input.baseQuote.monthlyTotal || 0))
+      const deltaLocal = Math.max(0, Number(quote.total_monthly) - Number(quote.base_salary_monthly || 0))
+      const delta = await convertLocalToProvider(deltaLocal)
       const items = Array.isArray(quote.items) ? quote.items : []
       const baseSalary = Number(input.baseQuote.baseCost || 0)
       const contractMonths = input.contractDurationMonths || 12
@@ -521,7 +559,9 @@ export class GroqService {
 
         const category = String(item.category || '').toLowerCase()
         const name = String(item.name || '').toLowerCase()
-        const monthlyAmount = Math.max(0, Number(item.monthly_amount_local || 0))
+        // Accept both monthly_amount (as per prompt schema) and monthly_amount_local (older)
+        const monthlyLocal = Math.max(0, Number((item as any).monthly_amount ?? (item as any).monthly_amount_local ?? 0))
+        const monthlyAmount = await convertLocalToProvider(monthlyLocal)
         const mandatory = !!item.mandatory
 
         if (monthlyAmount <= 0) continue
@@ -563,62 +603,134 @@ export class GroqService {
             already_included: false
           }
           totalEnhancement += monthlyAmount
-        } else if (name.includes('transport')) {
-          if (!isStatutory || mandatory) {
-            enhancements.transportation_allowance = {
-              monthly_amount: monthlyAmount,
-              explanation: item.notes || 'Transportation allowance',
-              confidence: 0.65,
-              already_included: false,
-              mandatory: mandatory
-            }
-            totalEnhancement += monthlyAmount
-          }
-        } else if (name.includes('remote') && name.includes('work')) {
-          if (!isStatutory || mandatory) {
-            enhancements.remote_work_allowance = {
-              monthly_amount: monthlyAmount,
-              explanation: item.notes || 'Remote work allowance',
-              confidence: 0.6,
-              already_included: false,
-              mandatory: mandatory
-            }
-            totalEnhancement += monthlyAmount
-          }
-        } else if (name.includes('meal')) {
-          if (!isStatutory || mandatory) {
-            enhancements.meal_vouchers = {
-              monthly_amount: monthlyAmount,
-              explanation: item.notes || 'Meal voucher allowance',
-              confidence: 0.6,
-              already_included: false
-            }
-            totalEnhancement += monthlyAmount
-          }
         } else if (category === 'contributions' || name.includes('contribution')) {
-          // Aggregate employer contributions
-          if (!enhancements.employer_contributions_total) {
+          // Use consolidated employer contributions processing
+          const currentAmount = enhancements.employer_contributions_total?.monthly_amount || 0
+          const contributionData = this.processEmployerContributions({
+            source: 'item_aggregation',
+            monthlyAmount: currentAmount + monthlyAmount,
+            explanation: 'Employer contributions based on legal requirements'
+          })
+
+          if (contributionData) {
             enhancements.employer_contributions_total = {
-              monthly_amount: 0,
-              explanation: 'Employer contributions based on legal requirements',
-              confidence: 0.7,
-              already_included: false
+              monthly_amount: contributionData.monthlyAmount,
+              explanation: contributionData.explanation,
+              confidence: contributionData.confidence,
+              already_included: contributionData.alreadyIncluded
+            }
+            totalEnhancement += monthlyAmount
+          }
+        } else {
+          // Dynamic country-aware benefit mapping instead of hardcoded patterns
+          const countryCode = this.countryToCode(input.baseQuote.country)
+
+          // Check for transportation allowance
+          if (PapayaAvailability.shouldIncludeAllowanceType(countryCode, 'transportation') &&
+              (name.includes('transport') || name.includes('commut') || name.includes('car'))) {
+            if (!isStatutory || mandatory) {
+              enhancements.transportation_allowance = {
+                monthly_amount: monthlyAmount,
+                explanation: item.notes || 'Transportation allowance',
+                confidence: 0.65,
+                already_included: false,
+                mandatory: mandatory
+              }
+              totalEnhancement += monthlyAmount
             }
           }
-          enhancements.employer_contributions_total.monthly_amount += monthlyAmount
-          totalEnhancement += monthlyAmount
+          // Check for remote work allowance
+          else if (PapayaAvailability.shouldIncludeAllowanceType(countryCode, 'remote_work') &&
+                   ((name.includes('remote') && name.includes('work')) || name.includes('home') || name.includes('office'))) {
+            if (!isStatutory || mandatory) {
+              enhancements.remote_work_allowance = {
+                monthly_amount: monthlyAmount,
+                explanation: item.notes || 'Remote work allowance',
+                confidence: 0.6,
+                already_included: false,
+                mandatory: mandatory
+              }
+              totalEnhancement += monthlyAmount
+            }
+          }
+          // Check for meal allowance
+          else if (PapayaAvailability.shouldIncludeAllowanceType(countryCode, 'meal') &&
+                   (name.includes('meal') || name.includes('food') || name.includes('lunch') || name.includes('voucher'))) {
+            if (!isStatutory || mandatory) {
+              enhancements.meal_vouchers = {
+                monthly_amount: monthlyAmount,
+                explanation: item.notes || 'Meal voucher allowance',
+                confidence: 0.6,
+                already_included: false
+              }
+              totalEnhancement += monthlyAmount
+            }
+          }
+          // Check for wellness/health allowance
+          else if (PapayaAvailability.shouldIncludeAllowanceType(countryCode, 'wellness') &&
+                   (name.includes('wellness') || name.includes('health') || name.includes('gym') || name.includes('fitness'))) {
+            if (!isStatutory || mandatory) {
+              enhancements.wellness_allowance = {
+                monthly_amount: monthlyAmount,
+                explanation: item.notes || 'Wellness allowance',
+                confidence: 0.55,
+                already_included: false,
+                mandatory: mandatory
+              }
+              totalEnhancement += monthlyAmount
+            }
+          }
+          // Check for phone/internet allowance
+          else if (PapayaAvailability.shouldIncludeAllowanceType(countryCode, 'phone') &&
+                   (name.includes('phone') || name.includes('internet') || name.includes('mobile') || name.includes('communication'))) {
+            if (!isStatutory || mandatory) {
+              enhancements.phone_allowance = {
+                monthly_amount: monthlyAmount,
+                explanation: item.notes || 'Phone and internet allowance',
+                confidence: 0.55,
+                already_included: false,
+                mandatory: mandatory
+              }
+              totalEnhancement += monthlyAmount
+            }
+          }
+          // Check for other common benefits dynamically
+          else if (PapayaAvailability.getFlags(countryCode).common_benefits &&
+                   (name.includes('allowance') || name.includes('benefit') || name.includes('voucher'))) {
+            if (!isStatutory || mandatory) {
+              enhancements.other_allowances = enhancements.other_allowances || []
+              enhancements.other_allowances.push({
+                name: item.name || 'Other allowance',
+                monthly_amount: monthlyAmount,
+                explanation: item.notes || 'Additional allowance',
+                confidence: 0.5,
+                already_included: false,
+                mandatory: mandatory
+              })
+              totalEnhancement += monthlyAmount
+            }
+          }
         }
       }
 
       // If we couldn't parse detailed items, fall back to aggregate enhancement
       if (totalEnhancement === 0 && delta > 0) {
-        enhancements.employer_contributions_total = {
-          monthly_amount: delta,
+        const contributionData = this.processEmployerContributions({
+          source: 'fallback',
+          delta,
           explanation: 'Legal compliance enhancement (aggregate)',
-          confidence: 0.5,
-          already_included: false
+          confidence: 0.5
+        })
+
+        if (contributionData) {
+          enhancements.employer_contributions_total = {
+            monthly_amount: contributionData.monthlyAmount,
+            explanation: contributionData.explanation,
+            confidence: contributionData.confidence,
+            already_included: contributionData.alreadyIncluded
+          }
+          totalEnhancement = contributionData.monthlyAmount
         }
-        totalEnhancement = delta
       }
 
       const groqLike: any = {
@@ -637,13 +749,14 @@ export class GroqService {
         },
         recommendations: [],
         warnings: Array.isArray(parsed?.warnings) ? parsed.warnings : [],
-        output_currency: quote.currency || input.papayaCurrency || input.baseQuote.currency,
+        // Keep all reported totals in provider currency to avoid mixing
+        output_currency: providerCurrency,
         full_quote: quote,
         recalc_base_items: Array.isArray(parsed?.recalc_base_items) ? parsed.recalc_base_items : []
       }
 
       // Return compatible structure
-      return groqLike as unknown as GroqEnhancementResponse
+      return this.deduplicateEnhancementResponse(groqLike, input.provider) as unknown as GroqEnhancementResponse
 
     } catch (error) {
       throw this.handleError(error, input.provider)
@@ -881,24 +994,34 @@ export class GroqService {
           try {
             const baselineContrib = Math.max(0, Number(baselineProviderCurrency['employer_contributions_total'] || 0))
             const providerContrib = Math.max(0, Number(providerCoverage['social_security'] || 0))
-            const dContrib = Math.max(0, Number((baselineContrib - providerContrib).toFixed(2)))
             const hasContrib = parsed.enhancements && (parsed.enhancements as any).employer_contributions_total && typeof (parsed.enhancements as any).employer_contributions_total.monthly_amount === 'number' && (parsed.enhancements as any).employer_contributions_total.monthly_amount > 0
-            if (!hasContrib && dContrib > 0) {
-              ;(parsed.enhancements as any).employer_contributions_total = {
-                monthly_amount: dContrib,
-                explanation: 'Deterministic employer contributions delta (baseline minus provider coverage)',
-                confidence: 0.7,
-                already_included: false
-              }
-              // Adjust totals conservatively by adding the missing delta
-              if (parsed.totals && typeof parsed.totals.total_monthly_enhancement === 'number') {
-                parsed.totals.total_monthly_enhancement = Number((parsed.totals.total_monthly_enhancement + dContrib).toFixed(2))
-                parsed.totals.total_yearly_enhancement = Number((parsed.totals.total_monthly_enhancement * 12).toFixed(2))
-                parsed.totals.final_monthly_total = Number((input.baseQuote.monthlyTotal + parsed.totals.total_monthly_enhancement).toFixed(2))
+
+            if (!hasContrib && baselineContrib > 0) {
+              const contributionData = this.processEmployerContributions({
+                source: 'deterministic_delta',
+                baselineAmount: baselineContrib,
+                providerAmount: providerContrib,
+                explanation: 'Deterministic employer contributions delta (baseline minus provider coverage)'
+              })
+
+              if (contributionData) {
+                ;(parsed.enhancements as any).employer_contributions_total = {
+                  monthly_amount: contributionData.monthlyAmount,
+                  explanation: contributionData.explanation,
+                  confidence: contributionData.confidence,
+                  already_included: contributionData.alreadyIncluded
+                }
+
+                // Adjust totals conservatively by adding the missing delta
+                if (parsed.totals && typeof parsed.totals.total_monthly_enhancement === 'number') {
+                  parsed.totals.total_monthly_enhancement = Number((parsed.totals.total_monthly_enhancement + contributionData.monthlyAmount).toFixed(2))
+                  parsed.totals.total_yearly_enhancement = Number((parsed.totals.total_monthly_enhancement * 12).toFixed(2))
+                  parsed.totals.final_monthly_total = Number((input.baseQuote.monthlyTotal + parsed.totals.total_monthly_enhancement).toFixed(2))
+                }
               }
             }
           } catch {/* noop */}
-          return parsed as GroqEnhancementResponse
+          return this.deduplicateEnhancementResponse(parsed, input.provider) as GroqEnhancementResponse
         }
       }
       // Fallback to deterministic delta compute
@@ -910,9 +1033,20 @@ export class GroqService {
   }
 
   private countryToCode(country: string): string {
-    const m = (country || '').toLowerCase()
-    const map: Record<string, string> = { 'germany': 'DE', 'france': 'FR', 'spain': 'ES', 'italy': 'IT', 'netherlands': 'NL', 'united kingdom': 'GB', 'uk': 'GB', 'united states': 'US', 'usa': 'US', 'brazil': 'BR', 'argentina': 'AR', 'colombia': 'CO', 'mexico': 'MX', 'chile': 'CL', 'peru': 'PE' }
-    return map[m] || m.slice(0, 2).toUpperCase()
+    try {
+      const c = getCountryByName(country)
+      if (c?.code) return c.code.toUpperCase()
+    } catch { /* noop */ }
+    const fallback = (country || '').toUpperCase().trim()
+    // Accept already-ISO2 fallback if user provided that
+    if (fallback.length === 2) return fallback
+    // Minimal heuristics for a few common names
+    const map: Record<string, string> = {
+      'UNITED STATES': 'US', 'USA': 'US', 'UNITED KINGDOM': 'GB', 'UK': 'GB',
+      'GERMANY': 'DE', 'FRANCE': 'FR', 'SPAIN': 'ES', 'ITALY': 'IT', 'NETHERLANDS': 'NL',
+      'BRAZIL': 'BR', 'ARGENTINA': 'AR', 'COLOMBIA': 'CO', 'MEXICO': 'MX', 'CHILE': 'CL', 'PERU': 'PE'
+    }
+    return map[fallback] || fallback.slice(0, 2)
   }
 
   private async computeDeltasFallback(
@@ -944,7 +1078,22 @@ export class GroqService {
     if (get('transportation_allowance') > 0) enhancements.transportation_allowance = { monthly_amount: d_trans, explanation: 'Transportation allowance delta', confidence: 0.6, already_included: d_trans === 0, mandatory: !!mandatory['transportation_allowance'] }
     if (get('remote_work_allowance') > 0) enhancements.remote_work_allowance = { monthly_amount: d_remote, explanation: 'Remote work allowance delta', confidence: 0.6, already_included: d_remote === 0, mandatory: !!mandatory['remote_work_allowance'] }
     if (get('meal_vouchers') > 0) enhancements.meal_vouchers = { monthly_amount: d_meal, explanation: 'Meal vouchers delta', confidence: 0.6, already_included: d_meal === 0 }
-    if (get('employer_contributions_total') > 0) enhancements.employer_contributions_total = { monthly_amount: d_contrib, explanation: 'Employer contributions delta', confidence: 0.7, already_included: d_contrib === 0 }
+    if (get('employer_contributions_total') > 0) {
+      const contributionData = this.processEmployerContributions({
+        source: 'direct_computation',
+        delta: d_contrib,
+        explanation: 'Employer contributions delta'
+      })
+
+      if (contributionData) {
+        enhancements.employer_contributions_total = {
+          monthly_amount: contributionData.monthlyAmount,
+          explanation: contributionData.explanation,
+          confidence: contributionData.confidence,
+          already_included: contributionData.alreadyIncluded
+        }
+      }
+    }
 
     return {
       analysis: { provider_coverage: [], missing_requirements: [], double_counting_risks: [] },
@@ -1096,11 +1245,19 @@ export class GroqService {
       }
     }
     if (base_contrib_total > 0) {
-      ;(enhancements as any).employer_contributions_total = {
-        monthly_amount: delta_contrib,
-        explanation: 'Papaya baseline vs provider aggregate/per-item contributions',
-        confidence: 0.7,
-        already_included: delta_contrib === 0
+      const contributionData = this.processEmployerContributions({
+        source: 'papaya_baseline',
+        delta: delta_contrib,
+        explanation: 'Papaya baseline vs provider aggregate/per-item contributions'
+      })
+
+      if (contributionData) {
+        ;(enhancements as any).employer_contributions_total = {
+          monthly_amount: contributionData.monthlyAmount,
+          explanation: contributionData.explanation,
+          confidence: contributionData.confidence,
+          already_included: contributionData.alreadyIncluded
+        }
       }
     }
 
@@ -1416,6 +1573,210 @@ export class GroqService {
 
     // Give up – return original (will fail parse and be handled by caller)
     return trimmed
+  }
+
+  /**
+   * Consolidated employer contributions processing
+   * Prevents multiple code paths from creating duplicate employer_contributions_total
+   */
+  private processEmployerContributions(context: {
+    source: EmployerContributionData['source']
+    monthlyAmount?: number
+    baselineAmount?: number
+    providerAmount?: number
+    delta?: number
+    explanation?: string
+    confidence?: number
+    alreadyIncluded?: boolean
+  }): EmployerContributionData | null {
+    const {
+      source,
+      monthlyAmount = 0,
+      baselineAmount = 0,
+      providerAmount = 0,
+      delta = 0,
+      explanation,
+      confidence = 0.7,
+      alreadyIncluded = false
+    } = context
+
+    // Calculate final amount based on source type
+    let finalAmount = 0
+    let finalExplanation = explanation || 'Employer statutory contributions'
+    let finalAlreadyIncluded = alreadyIncluded
+
+    switch (source) {
+      case 'item_aggregation':
+        finalAmount = monthlyAmount
+        finalExplanation = explanation || 'Employer contributions based on legal requirements'
+        break
+
+      case 'fallback':
+        finalAmount = delta
+        finalExplanation = explanation || 'Legal compliance enhancement (aggregate)'
+        break
+
+      case 'deterministic_delta':
+        finalAmount = Math.max(0, baselineAmount - providerAmount)
+        finalExplanation = explanation || 'Deterministic employer contributions delta (baseline minus provider coverage)'
+        break
+
+      case 'direct_computation':
+      case 'papaya_baseline':
+        finalAmount = delta
+        finalExplanation = explanation || 'Employer contributions delta'
+        finalAlreadyIncluded = delta === 0
+        break
+    }
+
+    // Return null if no contribution needed
+    if (finalAmount <= 0) {
+      if (typeof window === 'undefined') {
+        console.log(`[GroqService] processEmployerContributions: No contribution needed for ${source}, amount: ${finalAmount}`)
+      }
+      return null
+    }
+
+    if (typeof window === 'undefined') {
+      console.log(`[GroqService] processEmployerContributions: Created contribution via ${source}: ${finalAmount.toFixed(2)}`)
+    }
+
+    return {
+      monthlyAmount: Number(finalAmount.toFixed(2)),
+      explanation: finalExplanation,
+      confidence,
+      alreadyIncluded: finalAlreadyIncluded,
+      source
+    }
+  }
+
+  /**
+   * Deduplicates LLM response to prevent double employer contributions
+   * Ensures only one employer_contributions_total exists across all enhancement structures
+   */
+  private deduplicateEnhancementResponse(response: any, provider?: ProviderType): any {
+    if (!response || typeof response !== 'object') return response
+
+    // Check if both main enhancements AND additionalContributions have employer contributions
+    const hasMainContrib = response.enhancements?.employer_contributions_total
+    const hasAdditionalContrib = response.enhancements?.additionalContributions?.employer_contributions_total
+
+    if (hasMainContrib && hasAdditionalContrib) {
+      if (typeof window === 'undefined') {
+        console.warn('[GroqService] deduplicateEnhancementResponse: Found duplicate employer contributions, removing from additionalContributions')
+        console.warn('  Main enhancement:', hasMainContrib)
+        console.warn('  Additional contribution:', hasAdditionalContrib)
+      }
+
+      // Keep the main enhancement, remove from additionalContributions
+      delete response.enhancements.additionalContributions.employer_contributions_total
+
+      // If additionalContributions is now empty, remove it entirely
+      if (Object.keys(response.enhancements.additionalContributions).length === 0) {
+        delete response.enhancements.additionalContributions
+      }
+    }
+
+    // Also check for individual employer contribution items that might sum to the same total
+    if (hasMainContrib && response.enhancements?.additionalContributions) {
+      const mainAmount = hasMainContrib.monthly_amount || 0
+      const additionalKeys = Object.keys(response.enhancements.additionalContributions)
+      const employerContribKeys = additionalKeys.filter(key =>
+        key.toLowerCase().includes('employer') && key.toLowerCase().includes('contrib')
+      )
+
+      if (employerContribKeys.length > 0) {
+        const additionalTotal = employerContribKeys.reduce((sum, key) => {
+          const amount = response.enhancements.additionalContributions[key]
+          return sum + (typeof amount === 'number' ? amount : (amount?.monthly_amount || 0))
+        }, 0)
+
+        // If amounts are similar (within 10%), likely duplicate
+        if (Math.abs(mainAmount - additionalTotal) / Math.max(mainAmount, additionalTotal, 1) < 0.1) {
+          if (typeof window === 'undefined') {
+            console.warn(`[GroqService] deduplicateEnhancementResponse: Removing likely duplicate employer contrib items (main: ${mainAmount}, additional: ${additionalTotal})`)
+          }
+
+          employerContribKeys.forEach(key => {
+            delete response.enhancements.additionalContributions[key]
+          })
+        }
+      }
+    }
+
+    // Validate the response after deduplication
+    if (provider) {
+      this.validateEnhancementResponse(response, provider)
+    }
+
+    return response
+  }
+
+  /**
+   * Validates enhancement response for common issues and logs warnings
+   */
+  private validateEnhancementResponse(response: any, provider: ProviderType): void {
+    if (!response || typeof response !== 'object') return
+
+    const enhancements = response.enhancements || {}
+    const additionalContribs = enhancements.additionalContributions || {}
+
+    // Check for employer contributions duplication patterns
+    const mainEmployerContrib = enhancements.employer_contributions_total
+    const additionalEmployerContrib = additionalContribs.employer_contributions_total
+
+    // Individual employer contribution items in additionalContributions
+    const individualEmployerContribs = Object.keys(additionalContribs).filter(key =>
+      key.toLowerCase().includes('employer') && key.toLowerCase().includes('contrib')
+    )
+
+    if (typeof window === 'undefined') {
+      // Main validation logging
+      console.log(`[GroqService] Enhancement validation for ${provider}:`)
+
+      if (mainEmployerContrib) {
+        console.log(`  ✓ Main employer_contributions_total: ${mainEmployerContrib.monthly_amount} (confidence: ${mainEmployerContrib.confidence})`)
+      }
+
+      if (additionalEmployerContrib) {
+        console.warn(`  ⚠️ Additional employer_contributions_total: ${additionalEmployerContrib} - This should have been deduplicated!`)
+      }
+
+      if (individualEmployerContribs.length > 0) {
+        console.log(`  📋 Individual employer contribution items: ${individualEmployerContribs.length}`)
+        individualEmployerContribs.forEach(key => {
+          const amount = typeof additionalContribs[key] === 'number'
+            ? additionalContribs[key]
+            : additionalContribs[key]?.monthly_amount || 0
+          console.log(`    - ${key}: ${amount}`)
+        })
+
+        // Check for potential double-counting
+        if (mainEmployerContrib && individualEmployerContribs.length > 0) {
+          const individualTotal = individualEmployerContribs.reduce((sum, key) => {
+            const amount = typeof additionalContribs[key] === 'number'
+              ? additionalContribs[key]
+              : additionalContribs[key]?.monthly_amount || 0
+            return sum + amount
+          }, 0)
+
+          const mainAmount = mainEmployerContrib.monthly_amount || 0
+          const similarity = Math.abs(mainAmount - individualTotal) / Math.max(mainAmount, individualTotal, 1)
+
+          if (similarity < 0.2) { // Within 20% - likely duplicates
+            console.warn(`  🚨 Potential duplicate employer contributions detected!`)
+            console.warn(`     Main total: ${mainAmount}, Individual total: ${individualTotal}, Similarity: ${(similarity * 100).toFixed(1)}%`)
+          }
+        }
+      }
+
+      // Check totals consistency
+      if (response.totals) {
+        const enhancement = response.totals.total_monthly_enhancement || 0
+        const finalTotal = response.totals.final_monthly_total || 0
+        console.log(`  💰 Enhancement total: ${enhancement}, Final total: ${finalTotal}`)
+      }
+    }
   }
 
   /**

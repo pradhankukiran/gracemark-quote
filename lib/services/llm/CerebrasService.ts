@@ -373,11 +373,11 @@ export class CerebrasService {
       'SCOPE:',
       '- Exclude employee contributions and income tax; exclude aggregate roll-ups (e.g., "Total Employment Cost").',
       '- Statutory-only: include ONLY mandatory items.',
-      '- All-inclusive: include statutory + common benefits ONLY when numeric values are present or can be safely computed.',
+      '- All-inclusive: include statutory + common benefits. Use AVAILABILITY flags to determine which allowances are applicable for this country. For allowances without exact amounts, provide reasonable estimates based on typical ranges: meal vouchers (25-100), transportation (50-200), remote work allowance (25-100), wellness allowance (30-80), phone/internet allowance (20-60) monthly in local currency. Only include allowances that are common for the specific country.',
       '',
       'DATA USE:',
       '- Prefer numeric values extracted from Papaya text when present.',
-      '- If Papaya lacks numbers for a required item, use NUMERIC_HINTS as a fallback source.',
+      '- For allowances in all-inclusive quotes: use NUMERIC_HINTS as primary source if Papaya lacks specific amounts, or estimate typical amounts if hints are empty.',
       '- Use AVAILABILITY flags to include sections only when present for the country.',
       '- For employer contributions with multiple rate options (e.g., different company sizes), choose the higher/conservative rate and include only ONE entry per contribution type.',
       '',
@@ -386,6 +386,11 @@ export class CerebrasService {
   }
 
   private buildUserPrompt(input: { meta: PrepassLegalProfile['meta']; availability: PapayaAvailabilityFlags; numericHints: any; text: string }): string {
+    // Get country-specific benefit availability hints
+    const benefitHints = PapayaAvailability.getBenefitMappingHints(input.meta.country_code)
+    const countryBenefitGuidance = benefitHints.expectedBenefitCategories.length > 0
+      ? `EXPECTED_ALLOWANCES_FOR_${input.meta.country_code}: ${benefitHints.expectedBenefitCategories.join(', ')}`
+      : `No specific allowance categories identified for ${input.meta.country_code}`
     const schema = [
       '{',
       '  "meta": {',
@@ -437,6 +442,8 @@ export class CerebrasService {
       '',
       `META: ${JSON.stringify(input.meta)}`,
       `AVAILABILITY_FLAGS: ${JSON.stringify(input.availability)}`,
+      countryBenefitGuidance,
+      '',
       'NUMERIC_HINTS:',
       JSON.stringify(input.numericHints),
       'PAPAYA_TEXT (presence-gated):',
