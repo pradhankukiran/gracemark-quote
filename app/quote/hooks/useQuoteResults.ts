@@ -43,6 +43,11 @@ interface UseQuoteResultsReturn {
     batchProgress: { completed: number; total: number };
     isProcessing: boolean;
   };
+  // Comparison readiness helpers
+  isComparisonReady: (provider: Provider, data: QuoteData) => boolean;
+  isDualCurrencyComparisonReady: (provider: Provider, data: QuoteData) => boolean;
+  hasComparisonData: (provider: Provider, data: QuoteData) => boolean;
+  hasDualCurrencyData: (provider: Provider, data: QuoteData) => boolean;
 }
 
 export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn => {
@@ -151,7 +156,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   // Helper: check if provider has VALID base quote (flexible validation for different API formats)
   const hasProviderData = useCallback((provider: Provider, data: QuoteData): boolean => {
     let providerQuote: unknown;
-    
+
     switch (provider) {
       case 'deel': providerQuote = data.quotes.deel; break;
       case 'remote': providerQuote = data.quotes.remote; break;
@@ -162,12 +167,12 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       case 'velocity': providerQuote = data.quotes.velocity; break;
       default: return false;
     }
-    
+
     // First check: does quote data exist at all?
     if (!providerQuote) {
       return false;
     }
-    
+
     // Second check: is the quote structure valid for this provider? (flexible validation)
     const isValid = isValidProviderQuote(provider, providerQuote);
     if (!isValid) {
@@ -177,10 +182,133 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       });
       return false;
     }
-    
+
     // console.log(`✅ ${provider} has valid base quote data`);
     return true;
   }, [isValidProviderQuote]);
+
+  // Helper: check if provider has VALID comparison quote data
+  const hasComparisonData = useCallback((provider: Provider, data: QuoteData): boolean => {
+    let comparisonQuote: unknown;
+
+    switch (provider) {
+      case 'deel': comparisonQuote = data.quotes.comparisonDeel; break;
+      case 'remote': comparisonQuote = data.quotes.comparisonRemote; break;
+      case 'rivermate': comparisonQuote = data.quotes.comparisonRivermate; break;
+      case 'oyster': comparisonQuote = data.quotes.comparisonOyster; break;
+      case 'rippling': comparisonQuote = data.quotes.comparisonRippling; break;
+      case 'skuad': comparisonQuote = data.quotes.comparisonSkuad; break;
+      case 'velocity': comparisonQuote = data.quotes.comparisonVelocity; break;
+      default: return false;
+    }
+
+    if (!comparisonQuote) {
+      return false;
+    }
+
+    return isValidProviderQuote(provider, comparisonQuote);
+  }, [isValidProviderQuote]);
+
+  // Helper: check if provider has complete dual currency quotes
+  const hasDualCurrencyData = useCallback((provider: Provider, data: QuoteData): boolean => {
+    const dualQuotes = data.dualCurrencyQuotes;
+    if (!dualQuotes) return false;
+
+    let providerDual: any;
+    switch (provider) {
+      case 'deel': providerDual = dualQuotes.deel; break;
+      case 'remote': providerDual = dualQuotes.remote; break;
+      case 'rivermate': providerDual = dualQuotes.rivermate; break;
+      case 'oyster': providerDual = dualQuotes.oyster; break;
+      case 'rippling': providerDual = dualQuotes.rippling; break;
+      case 'skuad': providerDual = dualQuotes.skuad; break;
+      case 'velocity': providerDual = dualQuotes.velocity; break;
+      default: return false;
+    }
+
+    if (!providerDual) return false;
+
+    // Check if dual currency mode has complete data
+    if (providerDual.isDualCurrencyMode) {
+      return !!(providerDual.selectedCurrencyQuote && providerDual.localCurrencyQuote);
+    }
+
+    return false;
+  }, []);
+
+  // Helper: check if comparison mode is ready for a provider
+  const isComparisonReady = useCallback((provider: Provider, data: QuoteData): boolean => {
+    const form = data.formData as EORFormData;
+    if (!form?.enableComparison) return true; // Not in comparison mode, so always ready
+
+    const hasBase = hasProviderData(provider, data);
+    const hasComparison = hasComparisonData(provider, data);
+    const isBaseInFlight = baseInFlightRef.current[provider];
+    const isCompareInFlight = compareInFlightRef.current[provider];
+
+    // Debug logging for comparison readiness
+    const isReady = hasBase && hasComparison && !isBaseInFlight && !isCompareInFlight;
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`🔍 Comparison readiness check for ${provider}:`, {
+        hasBase,
+        hasComparison,
+        isBaseInFlight,
+        isCompareInFlight,
+        isReady,
+        enableComparison: form?.enableComparison
+      });
+    }
+
+    return isReady;
+  }, [hasProviderData, hasComparisonData]);
+
+  // Helper: check if dual currency comparison mode is ready for a provider
+  const isDualCurrencyComparisonReady = useCallback((provider: Provider, data: QuoteData): boolean => {
+    const form = data.formData as EORFormData;
+    const needsDual = form.isCurrencyManuallySet && !!form.originalCurrency && form.originalCurrency !== form.currency;
+
+    if (!needsDual) return true; // Not in dual currency mode, so always ready
+    if (!form?.enableComparison) return hasDualCurrencyData(provider, data); // Dual but not comparison
+
+    // Need both dual currency AND comparison data
+    const dualQuotes = data.dualCurrencyQuotes;
+    let providerDual: any;
+    switch (provider) {
+      case 'deel': providerDual = dualQuotes?.deel; break;
+      case 'remote': providerDual = dualQuotes?.remote; break;
+      case 'rivermate': providerDual = dualQuotes?.rivermate; break;
+      case 'oyster': providerDual = dualQuotes?.oyster; break;
+      case 'rippling': providerDual = dualQuotes?.rippling; break;
+      case 'skuad': providerDual = dualQuotes?.skuad; break;
+      case 'velocity': providerDual = dualQuotes?.velocity; break;
+      default: return false;
+    }
+
+    if (!providerDual) return false;
+
+    // Check if we have complete dual currency comparison data
+    const hasSelectedAndLocal = !!(providerDual.selectedCurrencyQuote && providerDual.localCurrencyQuote);
+    const hasComparisonData = !!(providerDual.compareSelectedCurrencyQuote && providerDual.compareLocalCurrencyQuote);
+    const isDualMode = providerDual.isDualCurrencyMode;
+    const hasComparison = providerDual.hasComparison;
+
+    // Debug logging for dual currency comparison readiness
+    const isReady = isDualMode && hasComparison && hasSelectedAndLocal && hasComparisonData;
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`🔍 Dual currency comparison readiness check for ${provider}:`, {
+        needsDual,
+        hasSelectedAndLocal,
+        hasComparisonData,
+        isDualMode,
+        hasComparison,
+        isReady,
+        enableComparison: !!form?.enableComparison,
+        isCurrencyManuallySet: !!form?.isCurrencyManuallySet
+      });
+    }
+
+    return isReady;
+  }, [hasDualCurrencyData]);
 
   
 
@@ -216,6 +344,46 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     velocity: false,
   })
   const enhancementFailedRef = useRef<Record<Provider, boolean>>({
+    deel: false,
+    remote: false,
+    rivermate: false,
+    oyster: false,
+    rippling: false,
+    skuad: false,
+    velocity: false,
+  })
+  // Track comparison base fetch in-flight per provider to avoid premature 'inactive' state
+  const compareInFlightRef = useRef<Record<Provider, boolean>>({
+    deel: false,
+    remote: false,
+    rivermate: false,
+    oyster: false,
+    rippling: false,
+    skuad: false,
+    velocity: false,
+  })
+  // Track when comparison quotes are fully loaded (both primary and comparison data)
+  const comparisonCompleteRef = useRef<Record<Provider, boolean>>({
+    deel: false,
+    remote: false,
+    rivermate: false,
+    oyster: false,
+    rippling: false,
+    skuad: false,
+    velocity: false,
+  })
+  // Track when dual currency quotes are fully loaded for a provider
+  const dualCurrencyCompleteRef = useRef<Record<Provider, boolean>>({
+    deel: false,
+    remote: false,
+    rivermate: false,
+    oyster: false,
+    rippling: false,
+    skuad: false,
+    velocity: false,
+  })
+  // Track base quote failures to preserve 'failed' status instead of reverting to 'inactive'
+  const baseFailedRef = useRef<Record<Provider, boolean>>({
     deel: false,
     remote: false,
     rivermate: false,
@@ -309,13 +477,11 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     // NORMALIZATION CHECK: Test if quote can be normalized for enhancement
     const normalizedQuote = normalizeQuoteForEnhancement(provider as any, quote);
     if (!normalizedQuote || !isValidNormalizedQuote(normalizedQuote)) {
-      console.warn(`🚫 ${provider} normalization failed - marking as inactive`);
-      // Requirement: base quote fails normalization pass -> tab should be INACTIVE
+      console.warn(`🚫 ${provider} normalization failed - skipping enhancement but keeping base active`);
       updateProviderState(provider, {
-        status: 'inactive',
-        hasData: false,
-        error: undefined,
-        enhancementError: undefined,
+        status: 'enhancement-failed',
+        hasData: true,
+        enhancementError: 'Base quote available, enhancement skipped (normalization failed)'
       });
       normalizationFailedRef.current[provider] = true;
       return;
@@ -827,7 +993,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
               if (baseInFlightRef.current.deel || hasProviderData('deel', (quoteData || data) as QuoteData)) return
               baseInFlightRef.current.deel = true
               // console.log('📤 Starting Deel base quote...')
-              const deelResult = await calculateDeelQuote(form, (quoteData || data) as QuoteData)
+              const deelResult = await calculateDeelQuote({ ...form, enableComparison: false } as EORFormData, (quoteData || data) as QuoteData)
               
               // Validate the calculated Deel quote before considering it successful (flexible check)
               const isValid = isValidProviderQuote('deel', deelResult.quotes.deel);
@@ -839,6 +1005,32 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
                 if (!enhancementEnqueuedRef.current.deel && !enhancementInFlightRef.current.deel) {
                   void scheduleEnhancement('deel', deelResult.quotes.deel, deelResult.formData as EORFormData)
                 }
+                // Start Deel comparison base fetch in background
+                compareInFlightRef.current.deel = true
+                ;(async () => {
+                  try {
+                    const compRes = await calculateDeelQuote(form, (quoteData || data) as QuoteData)
+                    if (compRes) {
+                      mergeAndPersist(compRes)
+                      // Check if comparison is now ready for Deel
+                      setQuoteData(currentData => {
+                        if (!currentData || !compRes) return currentData
+                        const isReady = isComparisonReady('deel', compRes)
+                        const isDualReady = isDualCurrencyComparisonReady('deel', compRes)
+                        if (isReady && isDualReady) {
+                          comparisonCompleteRef.current.deel = true
+                          dualCurrencyCompleteRef.current.deel = true
+                          // Update provider state to reflect comparison readiness
+                          updateProviderState('deel', { status: 'loading-enhanced', hasData: true })
+                        }
+                        return currentData
+                      })
+                    }
+                  } catch { /* noop */ }
+                  finally {
+                    compareInFlightRef.current.deel = false
+                  }
+                })()
               } else {
                 console.warn(`❌ Deel parallel quote validation failed - invalid structure`);
                 updateProviderState('deel', { 
@@ -867,17 +1059,17 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
             let result: QuoteData | undefined
                 switch (provider) {
                   case 'remote':
-                    result = await calculateRemoteQuote(form, baseData); break
+                    result = await calculateRemoteQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
                   case 'rivermate':
-                    result = await calculateRivermateQuote(form, baseData); break
+                    result = await calculateRivermateQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
                   case 'oyster':
-                    result = await calculateOysterQuote(form, baseData); break
+                    result = await calculateOysterQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
                   case 'rippling':
-                    result = await calculateRipplingQuote(form, baseData); break
+                    result = await calculateRipplingQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
                   case 'skuad':
-                    result = await calculateSkuadQuote(form, baseData); break
+                    result = await calculateSkuadQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
                   case 'velocity':
-                    result = await calculateVelocityQuote(form, baseData); break
+                    result = await calculateVelocityQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
                   default:
                     return
                 }
@@ -893,6 +1085,40 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
                       if (!enhancementEnqueuedRef.current[provider] && !enhancementInFlightRef.current[provider]) {
                         void scheduleEnhancement(provider, providerQuoteData, result.formData as EORFormData)
                       }
+                      // Start comparison base fetch in background for this provider
+                      compareInFlightRef.current[provider] = true
+                      ;(async () => {
+                        try {
+                          let compRes: QuoteData | undefined
+                          switch (provider) {
+                            case 'remote': compRes = await calculateRemoteQuote(form, (quoteData || data) as QuoteData); break
+                            case 'rivermate': compRes = await calculateRivermateQuote(form, (quoteData || data) as QuoteData); break
+                            case 'oyster': compRes = await calculateOysterQuote(form, (quoteData || data) as QuoteData); break
+                            case 'rippling': compRes = await calculateRipplingQuote(form, (quoteData || data) as QuoteData); break
+                            case 'skuad': compRes = await calculateSkuadQuote(form, (quoteData || data) as QuoteData); break
+                            case 'velocity': compRes = await calculateVelocityQuote(form, (quoteData || data) as QuoteData); break
+                          }
+                          if (compRes) {
+                            mergeAndPersist(compRes)
+                            // Check if comparison is now ready for this provider
+                            setQuoteData(currentData => {
+                              if (!currentData || !compRes) return currentData
+                              const isReady = isComparisonReady(provider, compRes)
+                              const isDualReady = isDualCurrencyComparisonReady(provider, compRes)
+                              if (isReady && isDualReady) {
+                                comparisonCompleteRef.current[provider] = true
+                                dualCurrencyCompleteRef.current[provider] = true
+                                // Update provider state to reflect comparison readiness
+                                updateProviderState(provider, { status: 'loading-enhanced', hasData: true })
+                              }
+                              return currentData
+                            })
+                          }
+                        } catch { /* noop */ }
+                        finally {
+                          compareInFlightRef.current[provider] = false
+                        }
+                      })()
                     } else {
                       console.warn(`❌ ${provider} parallel quote validation failed - invalid structure`);
                       updateProviderState(provider, { 
@@ -903,13 +1129,14 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
                   } else {
                     updateProviderState(provider, { status: 'failed', error: 'No quote data returned' })
                   }
-              } catch (e: unknown) {
-                console.error(`❌ ${provider} base quote failed:`, e)
-                const errorMessage = e instanceof Error ? e.message : 'Failed to calculate quote'
-                updateProviderState(provider, { status: 'failed', error: errorMessage })
-              } finally {
-                baseInFlightRef.current[provider] = false
-              }
+      } catch (e: unknown) {
+        console.error(`❌ ${provider} base quote failed:`, e)
+        const errorMessage = e instanceof Error ? e.message : 'Failed to calculate quote'
+        updateProviderState(provider, { status: 'failed', error: errorMessage })
+        baseFailedRef.current[provider] = true
+      } finally {
+        baseInFlightRef.current[provider] = false
+      }
             }
             void run()
           })
@@ -932,7 +1159,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           console.error('❌ Error during parallel base/enhancement kickoff:', error)
         }
       } else if (data.status === 'completed') {
-        // Update provider states with error-awareness. Preserve failures.
+        // Update provider states with comparison and dual currency readiness
         const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'];
         providers.forEach(provider => {
           // If normalization failed earlier, keep provider inactive
@@ -943,15 +1170,45 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
 
           const hasBase = hasProviderData(provider, data);
           if (!hasBase) {
-            // Do not downgrade to inactive if a base call is still in-flight.
-            // Keep spinner visible to reflect ongoing fetch.
-            if (baseInFlightRef.current[provider]) {
+            // Do not downgrade to inactive if a base or comparison call is still in-flight.
+            if (baseInFlightRef.current[provider] || compareInFlightRef.current[provider]) {
               updateProviderState(provider, { status: 'loading-base', hasData: false });
             } else {
-              updateProviderState(provider, { status: 'inactive', hasData: false });
+              // Preserve failed status if a base error was recorded
+              if (baseFailedRef.current[provider]) {
+                updateProviderState(provider, { status: 'failed', hasData: false });
+              } else {
+                updateProviderState(provider, { status: 'inactive', hasData: false });
+              }
             }
             return;
           }
+
+          // Check if comparison modes are ready
+          const comparisonReady = isComparisonReady(provider, data);
+          const dualCurrencyReady = isDualCurrencyComparisonReady(provider, data);
+
+          // Debug logging for provider state transitions
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`🏗️ Provider state update for ${provider}:`, {
+              hasBase: true,
+              comparisonReady,
+              dualCurrencyReady,
+              currentStatus: providerStates[provider]?.status,
+              willProceed: comparisonReady && dualCurrencyReady
+            });
+          }
+
+          // Provider has base data, now check if all required modes are ready
+          if (!comparisonReady || !dualCurrencyReady) {
+            // Still loading comparison or dual currency data
+            updateProviderState(provider, { status: 'loading-base', hasData: true });
+            return;
+          }
+
+          // Mark comparison as complete for this provider
+          comparisonCompleteRef.current[provider] = comparisonReady;
+          dualCurrencyCompleteRef.current[provider] = dualCurrencyReady;
 
           const hasEnh = !!enhancements[provider];
           const hadEnhancementError = enhancementFailedRef.current[provider] || !!errors?.[provider];
@@ -1147,17 +1404,23 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'];
     providers.forEach(provider => {
       const hasBase = hasProviderData(provider, quoteData);
-      if (!hasBase) return;
+      if (!hasBase) {
+        // If comparison is in-flight for this provider, keep it in loading-base instead of inactive
+        if (compareInFlightRef.current[provider] || baseInFlightRef.current[provider]) {
+          updateProviderState(provider, { status: 'loading-base', hasData: false });
+        }
+        return;
+      }
 
       const isEnhancing = !!enhancing[provider];
       const hasEnh = !!enhancements[provider];
       const hadEnhancementError = enhancementFailedRef.current[provider] || !!errors?.[provider];
       const hadNormalizationError = !!errors?.[provider]?.message?.toLowerCase?.().includes('failed to normalize quote data');
 
-      // If normalization failed, mark inactive and remember it
+      // If normalization failed, keep base active but mark enhancement as failed
       if (normalizationFailedRef.current[provider] || hadNormalizationError) {
         normalizationFailedRef.current[provider] = true;
-        updateProviderState(provider, { status: 'inactive', hasData: false, error: undefined, enhancementError: undefined });
+        updateProviderState(provider, { status: 'enhancement-failed', hasData: true, enhancementError: 'Enhancement unavailable (normalization failed)' });
       } else if (isEnhancing) {
         updateProviderState(provider, { status: 'loading-enhanced', hasData: true, error: undefined });
       } else if (hasEnh) {
@@ -1174,7 +1437,10 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     isSequentialLoadingRef.current = false;
     enhancementFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
     normalizationFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
-    
+    baseFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+    comparisonCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+    dualCurrencyCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+
     return () => {
       // Cleanup on unmount or quote change
       // console.log('🧹 Cleaning up sequential loading for quote:', quoteId);
@@ -1190,6 +1456,9 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       enhancementEnqueuedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
       enhancementFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
       normalizationFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+      compareInFlightRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+      comparisonCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+      dualCurrencyCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
     };
   }, [quoteId]);
 
@@ -1220,6 +1489,33 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     });
   }, [quoteData, enhancements]);
 
+  // Schedule comparison enhancements after primary enhancement completes (to limit API spikes)
+  useEffect(() => {
+    if (!quoteData || quoteData.status !== 'completed') return;
+    const form = quoteData.formData as EORFormData;
+    if (!form?.enableComparison) return;
+
+    const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+    const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'];
+    providers.forEach((provider) => {
+      try {
+        const primaryDone = !!enhancements[provider];
+        if (!primaryDone) return;
+
+        const compareKey = `${provider}::compare`;
+        if (enhancements[compareKey] || enhancing[compareKey]) return;
+
+        const compareProp = `comparison${cap(provider)}`;
+        const compareQuote = (quoteData.quotes as any)?.[compareProp];
+        if (!compareQuote) return;
+
+        // Trigger comparison enhancement using comparison country
+        const compareForm: EORFormData = { ...form, country: form.compareCountry || form.country } as EORFormData;
+        void enhanceQuote(provider as any, compareQuote, compareForm, (form.quoteType as any) || 'all-inclusive', { key: compareKey });
+      } catch { /* noop */ }
+    });
+  }, [quoteData, enhancements, enhancing, enhanceQuote]);
+
   // Calculate progress for reconciliation button (parallel mode): single batch view
   const enhancementBatchInfo = useMemo(() => {
     const allProviders: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity']
@@ -1246,5 +1542,10 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     providerLoading,
     providerStates,
     enhancementBatchInfo,
+    // Comparison readiness helpers
+    isComparisonReady,
+    isDualCurrencyComparisonReady,
+    hasComparisonData,
+    hasDualCurrencyData,
   };
 };

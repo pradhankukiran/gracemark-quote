@@ -33,7 +33,7 @@ export const PROVIDER_LOGOS: Record<ProviderType, ProviderLogoData> = {
   oyster: {
     name: 'Oyster',
     imagePath: '/oyster_logo.png',
-    width: 60,
+    width: 40,
     height: 24
   },
   rippling: {
@@ -45,13 +45,13 @@ export const PROVIDER_LOGOS: Record<ProviderType, ProviderLogoData> = {
   skuad: {
     name: 'Skuad',
     imagePath: '/skuad_logo.png',
-    width: 72,
+    width: 40,
     height: 24
   },
   velocity: {
     name: 'Pebl',
     imagePath: '/pebl_logo.png',
-    width: 60,
+    width: 40,
     height: 24
   }
 };

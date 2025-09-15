@@ -24,21 +24,28 @@ import { ProviderType, EnhancedQuote } from "@/lib/types/enhancement"
 import { downloadQuotePDF, DownloadProgress, handleDownloadError, validatePDFData } from "@/lib/pdf/downloadHandler"
 
 const LoadingSpinner = () => (
-  <div className="animate-spin h-8 w-8 border-b-2 border-primary"></div>
+  <div role="status" aria-label="Loading quotes" className="flex items-center justify-center">
+    <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-primary" />
+    <span className="sr-only">Loading...</span>
+  </div>
 )
 
 const QuotePageContent = memo(() => {
   const searchParams = useSearchParams()
   const quoteId = searchParams.get('id')
   
-  const { 
-    quoteData, 
-    loading, 
-    currentProvider, 
-    switchProvider, 
+  const {
+    quoteData,
+    loading,
+    currentProvider,
+    switchProvider,
     providerLoading,
     providerStates,
-    enhancementBatchInfo
+    enhancementBatchInfo,
+    isComparisonReady,
+    isDualCurrencyComparisonReady,
+    hasComparisonData,
+    hasDualCurrencyData
   } = useQuoteResults(quoteId)
   
   const {
@@ -402,8 +409,8 @@ const QuotePageContent = memo(() => {
                     animation: isPhaseActive('gathering') ? 'slideInUp 0.8s ease-out forwards' : 'none'
                   }}
                 >
-                  <div className="w-10 h-10 mx-auto mb-2 border border-slate-200 flex items-center justify-center bg-white">
-                    <ProviderLogo provider={provider.provider as ProviderType} />
+                  <div className="w-24 h-6 mx-auto mb-2 border border-slate-200 flex items-center justify-center bg-white">
+                    <ProviderLogo provider={provider.provider as ProviderType} maxWidth={120} maxHeight={24} />
                   </div>
                   <div className="text-xs font-semibold text-slate-700 capitalize mb-1">
                     {provider.provider}
@@ -567,8 +574,8 @@ const QuotePageContent = memo(() => {
                   {provider.isWinner && (
                     <Crown className="h-4 w-4 text-slate-900 mx-auto mb-1" />
                   )}
-                  <div className="w-10 h-10 mx-auto mb-2 border flex items-center justify-center bg-white">
-                    <ProviderLogo provider={provider.provider as ProviderType} />
+                  <div className="w-24 h-6 mx-auto mb-2 border flex items-center justify-center bg-white">
+                    <ProviderLogo provider={provider.provider as ProviderType} maxWidth={120} maxHeight={24} />
                   </div>
                   <div className="text-xs font-medium text-slate-800 capitalize mb-1">
                     {provider.provider}
@@ -1186,7 +1193,11 @@ const QuotePageContent = memo(() => {
     if (providerLoading[currentProvider] || !eorForm.enableComparison) return null;
 
     if (currentProvider === 'deel') {
-      if (!quoteData.quotes.deel || !quoteData.quotes.comparisonDeel) return null;
+      const comparisonReady = quoteData ? isComparisonReady('deel', quoteData) : false;
+      const dualCurrencyReady = quoteData ? isDualCurrencyComparisonReady('deel', quoteData) : false;
+      const isLoadingComparison = providerLoading.deel ||
+        (eorForm.enableComparison && (!quoteData.quotes.deel || !quoteData.quotes.comparisonDeel));
+
       return (
         <div className="space-y-6">
           <QuoteComparison
@@ -1200,35 +1211,22 @@ const QuotePageContent = memo(() => {
             isConvertingComparisonToUSD={isConvertingCompareToUsd}
             usdConversionError={usdConversionError}
             dualCurrencyQuotes={quoteData.dualCurrencyQuotes?.deel}
+            isComparisonReady={comparisonReady}
+            isDualCurrencyReady={dualCurrencyReady}
+            isLoadingComparison={isLoadingComparison}
           />
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EnhancedQuoteCard
-              provider="deel"
-              baseQuote={{ ...quoteData.quotes.deel, provider: 'deel' } as any}
-              formData={{ ...eorForm, country: eorForm.country }}
-              quoteType="all-inclusive"
-              compact={false}
-              showRetry={true}
-            />
-            <EnhancedQuoteCard
-              provider="deel"
-              baseQuote={{ ...quoteData.quotes.comparisonDeel, provider: 'deel' } as any}
-              formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }}
-              quoteType="all-inclusive"
-              compact={false}
-              showRetry={true}
-            />
-          </div>
         </div>
       );
     }
 
     if (currentProvider === 'rivermate') {
-      if (!quoteData.quotes.rivermate || !quoteData.quotes.comparisonRivermate) return null;
+      const comparisonReady = quoteData ? isComparisonReady('rivermate', quoteData) : false;
+      const dualCurrencyReady = quoteData ? isDualCurrencyComparisonReady('rivermate', quoteData) : false;
+      const isLoadingComparison = providerLoading.rivermate ||
+        (eorForm.enableComparison && (!quoteData.quotes.rivermate || !quoteData.quotes.comparisonRivermate));
 
-      const primaryIsOptimized = 'taxItems' in (quoteData.quotes.rivermate as any);
-      const compareIsOptimized = 'taxItems' in (quoteData.quotes.comparisonRivermate as any);
+      const primaryIsOptimized = quoteData.quotes.rivermate && 'taxItems' in (quoteData.quotes.rivermate as any);
+      const compareIsOptimized = quoteData.quotes.comparisonRivermate && 'taxItems' in (quoteData.quotes.comparisonRivermate as any);
 
       const primaryDisplay = primaryIsOptimized ? transformRivermateQuoteToDisplayQuote(quoteData.quotes.rivermate as any) : (quoteData.quotes.rivermate as any);
       const compareDisplay = compareIsOptimized ? transformRivermateQuoteToDisplayQuote(quoteData.quotes.comparisonRivermate as any) : (quoteData.quotes.comparisonRivermate as any);
@@ -1246,21 +1244,22 @@ const QuotePageContent = memo(() => {
             isConvertingComparisonToUSD={isConvertingCompareRivermateToUsd}
             usdConversionError={usdConversionError}
             dualCurrencyQuotes={quoteData.dualCurrencyQuotes?.rivermate}
+            isComparisonReady={comparisonReady}
+            isDualCurrencyReady={dualCurrencyReady}
+            isLoadingComparison={isLoadingComparison}
           />
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EnhancedQuoteCard provider="rivermate" baseQuote={primaryDisplay} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
-            <EnhancedQuoteCard provider="rivermate" baseQuote={compareDisplay} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
-          </div>
         </div>
       );
     }
 
     if (currentProvider === 'oyster') {
-      if (!quoteData.quotes.oyster || !quoteData.quotes.comparisonOyster) return null;
+      const comparisonReady = quoteData ? isComparisonReady('oyster', quoteData) : false;
+      const dualCurrencyReady = quoteData ? isDualCurrencyComparisonReady('oyster', quoteData) : false;
+      const isLoadingComparison = providerLoading.oyster ||
+        (eorForm.enableComparison && (!quoteData.quotes.oyster || !quoteData.quotes.comparisonOyster));
 
-      const oysterPrimaryDisplay = ('contributions' in (quoteData.quotes.oyster as any)) ? transformOysterQuoteToDisplayQuote(quoteData.quotes.oyster as any) : (quoteData.quotes.oyster as any);
-      const oysterCompareDisplay = ('contributions' in (quoteData.quotes.comparisonOyster as any)) ? transformOysterQuoteToDisplayQuote(quoteData.quotes.comparisonOyster as any) : (quoteData.quotes.comparisonOyster as any);
+      const oysterPrimaryDisplay = quoteData.quotes.oyster && ('contributions' in (quoteData.quotes.oyster as any)) ? transformOysterQuoteToDisplayQuote(quoteData.quotes.oyster as any) : (quoteData.quotes.oyster as any);
+      const oysterCompareDisplay = quoteData.quotes.comparisonOyster && ('contributions' in (quoteData.quotes.comparisonOyster as any)) ? transformOysterQuoteToDisplayQuote(quoteData.quotes.comparisonOyster as any) : (quoteData.quotes.comparisonOyster as any);
 
       return (
         <div className="space-y-6">
@@ -1275,91 +1274,121 @@ const QuotePageContent = memo(() => {
             isConvertingComparisonToUSD={isConvertingCompareOysterToUsd}
             usdConversionError={usdConversionError}
             dualCurrencyQuotes={quoteData.dualCurrencyQuotes?.oyster}
+            isComparisonReady={comparisonReady}
+            isDualCurrencyReady={dualCurrencyReady}
+            isLoadingComparison={isLoadingComparison}
           />
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EnhancedQuoteCard provider="oyster" baseQuote={oysterPrimaryDisplay} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
-            <EnhancedQuoteCard provider="oyster" baseQuote={oysterCompareDisplay} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
-          </div>
         </div>
       );
     }
 
     if (currentProvider === 'remote') {
-      if (!quoteData.quotes.remote || !quoteData.quotes.comparisonRemote) return null;
+      const comparisonReady = quoteData ? isComparisonReady('remote', quoteData) : false;
+      const dualCurrencyReady = quoteData ? isDualCurrencyComparisonReady('remote', quoteData) : false;
+      const isLoadingComparison = providerLoading.remote ||
+        (eorForm.enableComparison && (!quoteData.quotes.remote || !quoteData.quotes.comparisonRemote));
 
       const providerDual = quoteData.dualCurrencyQuotes?.remote;
       const hasDualCompare = providerDual?.isDualCurrencyMode && providerDual?.hasComparison;
 
-      const primaryCardDualQuotes = hasDualCompare ? { ...providerDual, selectedCurrencyQuote: providerDual.selectedCurrencyQuote, localCurrencyQuote: providerDual.localCurrencyQuote, compareSelectedCurrencyQuote: null, compareLocalCurrencyQuote: null, hasComparison: false } : undefined;
-      const comparisonCardDualQuotes = hasDualCompare ? { ...providerDual, selectedCurrencyQuote: providerDual.compareSelectedCurrencyQuote, localCurrencyQuote: providerDual.compareLocalCurrencyQuote, compareSelectedCurrencyQuote: null, compareLocalCurrencyQuote: null, hasComparison: false } : undefined;
-
-      if (hasDualCompare) {
-        return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <GenericQuoteCard quote={undefined} title={`${(quoteData.formData as EORFormData).country}`} provider="remote" badgeText="Main Quote" badgeColor="bg-blue-100 text-blue-800" usdConversions={usdConversions.remote} isConvertingToUSD={isConvertingRemoteToUsd} usdConversionError={usdConversionError} compact={true} originalCurrency={(quoteData.formData as EORFormData).originalCurrency || undefined} selectedCurrency={(quoteData.formData as EORFormData).currency} dualCurrencyQuotes={primaryCardDualQuotes} />
-              <GenericQuoteCard quote={undefined} title={`${quoteData.formData.compareCountry}`} provider="remote" badgeText="Compare Quote" badgeColor="bg-green-100 text-green-800" usdConversions={usdConversions.compareRemote} isConvertingToUSD={isConvertingCompareRemoteToUsd} usdConversionError={usdConversionError} compact={true} dualCurrencyQuotes={comparisonCardDualQuotes} />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <EnhancedQuoteCard provider="remote" baseQuote={('employment' in (quoteData.quotes.remote as any)) ? transformRemoteResponseToQuote(quoteData.quotes.remote as RemoteAPIResponse) : undefined} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
-              <EnhancedQuoteCard provider="remote" baseQuote={('employment' in (quoteData.quotes.comparisonRemote as any)) ? transformRemoteResponseToQuote(quoteData.quotes.comparisonRemote as RemoteAPIResponse) : undefined} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
-            </div>
-          </div>
-        );
-      }
-
       return (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <GenericQuoteCard quote={transformRemoteResponseToQuote(quoteData.quotes.remote as RemoteAPIResponse)} title={`${(quoteData.formData as EORFormData).country}`} provider="remote" badgeText="Main Quote" badgeColor="bg-blue-100 text-blue-800" usdConversions={usdConversions.remote} isConvertingToUSD={isConvertingRemoteToUsd} usdConversionError={usdConversionError} compact={true} />
-            <GenericQuoteCard quote={transformRemoteResponseToQuote(quoteData.quotes.comparisonRemote as RemoteAPIResponse)} title={`${quoteData.formData.compareCountry}`} provider="remote" badgeText="Compare Quote" badgeColor="bg-green-100 text-green-800" usdConversions={usdConversions.compareRemote} isConvertingToUSD={isConvertingCompareRemoteToUsd} usdConversionError={usdConversionError} compact={true} />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EnhancedQuoteCard provider="remote" baseQuote={('employment' in (quoteData.quotes.remote as any)) ? transformRemoteResponseToQuote(quoteData.quotes.remote as RemoteAPIResponse) : undefined} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
-            <EnhancedQuoteCard provider="remote" baseQuote={('employment' in (quoteData.quotes.comparisonRemote as any)) ? transformRemoteResponseToQuote(quoteData.quotes.comparisonRemote as RemoteAPIResponse) : undefined} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
-          </div>
+          <QuoteComparison
+            provider="remote"
+            primaryQuote={hasDualCompare ? undefined : transformRemoteResponseToQuote(quoteData.quotes.remote as RemoteAPIResponse)}
+            comparisonQuote={hasDualCompare ? undefined : transformRemoteResponseToQuote(quoteData.quotes.comparisonRemote as RemoteAPIResponse)}
+            primaryTitle={(quoteData.formData as EORFormData).country}
+            comparisonTitle={eorForm.compareCountry}
+            usdConversions={usdConversions}
+            isConvertingPrimaryToUSD={isConvertingRemoteToUsd}
+            isConvertingComparisonToUSD={isConvertingCompareRemoteToUsd}
+            usdConversionError={usdConversionError}
+            dualCurrencyQuotes={quoteData.dualCurrencyQuotes?.remote}
+            isComparisonReady={comparisonReady}
+            isDualCurrencyReady={dualCurrencyReady}
+            isLoadingComparison={isLoadingComparison}
+          />
         </div>
       );
     }
 
     if (currentProvider === 'rippling') {
-      if (!quoteData.quotes.rippling || !(quoteData.quotes as any).comparisonRippling) return null;
+      const comparisonReady = quoteData ? isComparisonReady('rippling', quoteData) : false;
+      const dualCurrencyReady = quoteData ? isDualCurrencyComparisonReady('rippling', quoteData) : false;
+      const isLoadingComparison = providerLoading.rippling ||
+        (eorForm.enableComparison && (!quoteData.quotes.rippling || !(quoteData.quotes as any).comparisonRippling));
+
       return (
         <div className="space-y-6">
-          <QuoteComparison provider="rippling" primaryQuote={quoteData.quotes.rippling as any} comparisonQuote={(quoteData.quotes as any).comparisonRippling as any} primaryTitle={eorForm.country} comparisonTitle={eorForm.compareCountry} usdConversions={usdConversions} isConvertingPrimaryToUSD={isConvertingRipplingToUsd} isConvertingComparisonToUSD={isConvertingCompareRipplingToUsd} usdConversionError={usdConversionError} dualCurrencyQuotes={(quoteData.dualCurrencyQuotes as any)?.rippling} />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EnhancedQuoteCard provider="rippling" baseQuote={{ ...(quoteData.quotes.rippling as any), provider: 'rippling' }} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
-            <EnhancedQuoteCard provider="rippling" baseQuote={{ ...((quoteData.quotes as any).comparisonRippling as any), provider: 'rippling' }} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
-          </div>
+          <QuoteComparison
+            provider="rippling"
+            primaryQuote={quoteData.quotes.rippling as any}
+            comparisonQuote={(quoteData.quotes as any).comparisonRippling as any}
+            primaryTitle={eorForm.country}
+            comparisonTitle={eorForm.compareCountry}
+            usdConversions={usdConversions}
+            isConvertingPrimaryToUSD={isConvertingRipplingToUsd}
+            isConvertingComparisonToUSD={isConvertingCompareRipplingToUsd}
+            usdConversionError={usdConversionError}
+            dualCurrencyQuotes={(quoteData.dualCurrencyQuotes as any)?.rippling}
+            isComparisonReady={comparisonReady}
+            isDualCurrencyReady={dualCurrencyReady}
+            isLoadingComparison={isLoadingComparison}
+          />
         </div>
       );
     }
 
     if (currentProvider === 'skuad') {
-      if (!((quoteData.quotes as any).skuad) || !((quoteData.quotes as any).comparisonSkuad)) return null;
+      const comparisonReady = quoteData ? isComparisonReady('skuad', quoteData) : false;
+      const dualCurrencyReady = quoteData ? isDualCurrencyComparisonReady('skuad', quoteData) : false;
+      const isLoadingComparison = providerLoading.skuad ||
+        (eorForm.enableComparison && (!((quoteData.quotes as any).skuad) || !((quoteData.quotes as any).comparisonSkuad)));
+
       return (
         <div className="space-y-6">
-          <QuoteComparison provider="skuad" primaryQuote={(quoteData.quotes as any).skuad as any} comparisonQuote={(quoteData.quotes as any).comparisonSkuad as any} primaryTitle={eorForm.country} comparisonTitle={eorForm.compareCountry} usdConversions={usdConversions} isConvertingPrimaryToUSD={isConvertingSkuadToUsd} isConvertingComparisonToUSD={isConvertingCompareSkuadToUsd} usdConversionError={usdConversionError} dualCurrencyQuotes={(quoteData.dualCurrencyQuotes as any)?.skuad} />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EnhancedQuoteCard provider="skuad" baseQuote={{ ...((quoteData.quotes as any).skuad as any), provider: 'skuad' }} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
-            <EnhancedQuoteCard provider="skuad" baseQuote={{ ...((quoteData.quotes as any).comparisonSkuad as any), provider: 'skuad' }} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
-          </div>
+          <QuoteComparison
+            provider="skuad"
+            primaryQuote={(quoteData.quotes as any).skuad as any}
+            comparisonQuote={(quoteData.quotes as any).comparisonSkuad as any}
+            primaryTitle={eorForm.country}
+            comparisonTitle={eorForm.compareCountry}
+            usdConversions={usdConversions}
+            isConvertingPrimaryToUSD={isConvertingSkuadToUsd}
+            isConvertingComparisonToUSD={isConvertingCompareSkuadToUsd}
+            usdConversionError={usdConversionError}
+            dualCurrencyQuotes={(quoteData.dualCurrencyQuotes as any)?.skuad}
+            isComparisonReady={comparisonReady}
+            isDualCurrencyReady={dualCurrencyReady}
+            isLoadingComparison={isLoadingComparison}
+          />
         </div>
       );
     }
 
     if (currentProvider === 'velocity') {
-      if (!((quoteData.quotes as any).velocity) || !((quoteData.quotes as any).comparisonVelocity)) return null;
+      const comparisonReady = quoteData ? isComparisonReady('velocity', quoteData) : false;
+      const dualCurrencyReady = quoteData ? isDualCurrencyComparisonReady('velocity', quoteData) : false;
+      const isLoadingComparison = providerLoading.velocity ||
+        (eorForm.enableComparison && (!((quoteData.quotes as any).velocity) || !((quoteData.quotes as any).comparisonVelocity)));
+
       return (
         <div className="space-y-6">
-          <QuoteComparison provider="velocity" primaryQuote={(quoteData.quotes as any).velocity as any} comparisonQuote={(quoteData.quotes as any).comparisonVelocity as any} primaryTitle={eorForm.country} comparisonTitle={eorForm.compareCountry} usdConversions={usdConversions} isConvertingPrimaryToUSD={isConvertingVelocityToUsd} isConvertingComparisonToUSD={isConvertingCompareVelocityToUsd} usdConversionError={usdConversionError} dualCurrencyQuotes={(quoteData.dualCurrencyQuotes as any)?.velocity} />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EnhancedQuoteCard provider="velocity" baseQuote={{ ...((quoteData.quotes as any).velocity as any), provider: 'velocity' }} formData={{ ...eorForm, country: eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
-            <EnhancedQuoteCard provider="velocity" baseQuote={{ ...((quoteData.quotes as any).comparisonVelocity as any), provider: 'velocity' }} formData={{ ...eorForm, country: eorForm.compareCountry || eorForm.country }} quoteType="all-inclusive" compact={false} showRetry={true} />
-          </div>
+          <QuoteComparison
+            provider="velocity"
+            primaryQuote={(quoteData.quotes as any).velocity as any}
+            comparisonQuote={(quoteData.quotes as any).comparisonVelocity as any}
+            primaryTitle={eorForm.country}
+            comparisonTitle={eorForm.compareCountry}
+            usdConversions={usdConversions}
+            isConvertingPrimaryToUSD={isConvertingVelocityToUsd}
+            isConvertingComparisonToUSD={isConvertingCompareVelocityToUsd}
+            usdConversionError={usdConversionError}
+            dualCurrencyQuotes={(quoteData.dualCurrencyQuotes as any)?.velocity}
+            isComparisonReady={comparisonReady}
+            isDualCurrencyReady={dualCurrencyReady}
+            isLoadingComparison={isLoadingComparison}
+          />
         </div>
       );
     }

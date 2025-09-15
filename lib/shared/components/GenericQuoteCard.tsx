@@ -219,9 +219,11 @@ export const GenericQuoteCard = memo(({
   const showUSDInSingleMode = !isDualCurrencyMode && quote && quote.currency !== "USD";
   
   // Dual currency mode: show original + changed + USD (if neither is USD)
-  const showUSDInDualMode = isDualCurrencyMode && 
-    originalQuote?.currency !== "USD" && 
-    changedQuote?.currency !== "USD";
+  // Show USD column in dual mode if either local or selected currency is non-USD
+  const showUSDInDualMode = isDualCurrencyMode && (
+    (originalQuote?.currency && originalQuote.currency !== "USD") ||
+    (changedQuote?.currency && changedQuote.currency !== "USD")
+  );
     
   const showMultipleColumns = isDualCurrencyMode || showUSDInSingleMode;
   const showUSDColumn = showUSDInSingleMode || showUSDInDualMode;

@@ -7,17 +7,24 @@ export const useRemoteQuote = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const calculateRemoteQuote = useCallback(async (formData: EORFormData, data: QuoteData): Promise<QuoteData> => {
+  const calculateRemoteQuote = useCallback(async (formData: EORFormData, data: QuoteData, options?: { fetchPrimary?: boolean; fetchComparison?: boolean }): Promise<QuoteData> => {
     setLoading(true);
     setError(null);
 
     try {
       const formDataWithDefaults = ensureFormDefaults(formData);
       const requestData = createQuoteRequestData(formDataWithDefaults);
+      const fetchPrimary = options?.fetchPrimary !== false;
+      const fetchComparison = options?.fetchComparison !== false;
 
-      const remoteQuoteResponse = await fetchRemoteCost(requestData);
-      const remoteQuote = transformToRemoteQuote(remoteQuoteResponse); // For USD conversion
-      const remoteDisplayQuote = transformRemoteResponseToQuote(remoteQuoteResponse); // For display
+      let remoteQuoteResponse: RemoteAPIResponse | undefined;
+      let remoteQuote: any | undefined;
+      let remoteDisplayQuote: any | undefined;
+      if (fetchPrimary) {
+        remoteQuoteResponse = await fetchRemoteCost(requestData);
+        remoteQuote = transformToRemoteQuote(remoteQuoteResponse);
+        remoteDisplayQuote = transformRemoteResponseToQuote(remoteQuoteResponse);
+      }
 
       // If user changed currency, also compute a local currency quote
       let localRemoteQuoteResponse: RemoteAPIResponse | null = null;
@@ -38,7 +45,7 @@ export const useRemoteQuote = () => {
 
       let comparisonQuoteResponse: RemoteAPIResponse | undefined;
       let compareSelectedCurrencyQuoteResponse: RemoteAPIResponse | null = null;
-      if (formData.enableComparison && formData.compareCountry) {
+      if (fetchComparison && formData.enableComparison && formData.compareCountry) {
         try {
           const compareRequestData = createQuoteRequestData(formDataWithDefaults, true);
           comparisonQuoteResponse = await fetchRemoteCost(compareRequestData);
@@ -76,27 +83,57 @@ export const useRemoteQuote = () => {
         }
       }
 
-      const dualCurrencyQuotes = localRemoteQuoteResponse ? {
-        ...data.dualCurrencyQuotes,
-        remote: {
-          selectedCurrencyQuote: remoteDisplayQuote,
-          localCurrencyQuote: localRemoteQuoteResponse ? transformRemoteResponseToQuote(localRemoteQuoteResponse) : null,
-          compareSelectedCurrencyQuote: compareSelectedCurrencyQuoteResponse ? transformRemoteResponseToQuote(compareSelectedCurrencyQuoteResponse) : null,
-          compareLocalCurrencyQuote: comparisonQuoteResponse ? transformRemoteResponseToQuote(comparisonQuoteResponse) : null,
-          isCalculatingSelected: false,
-          isCalculatingLocal: false,
-          isCalculatingCompareSelected: false,
-          isCalculatingCompareLocal: false,
-          isDualCurrencyMode: true,
-          hasComparison: Boolean(comparisonQuoteResponse && compareSelectedCurrencyQuoteResponse),
-        }
-      } : data.dualCurrencyQuotes;
+      const prev = data.dualCurrencyQuotes?.remote;
+
+      // Transform responses to quotes for consistency
+      const localDisplayQuote = localRemoteQuoteResponse ? transformRemoteResponseToQuote(localRemoteQuoteResponse) : null;
+      const compareSelectedDisplayQuote = compareSelectedCurrencyQuoteResponse ? transformRemoteResponseToQuote(compareSelectedCurrencyQuoteResponse) : null;
+      const compareLocalDisplayQuote = comparisonQuoteResponse ? transformRemoteResponseToQuote(comparisonQuoteResponse) : null;
+
+      // Build dual currency state in a coordinated way to prevent intermediate renders
+      const hasSelectedQuote = !!(remoteDisplayQuote || prev?.selectedCurrencyQuote);
+      const hasLocalQuote = !!(localDisplayQuote || prev?.localCurrencyQuote);
+      const hasCompareSelectedQuote = !!(compareSelectedDisplayQuote || prev?.compareSelectedCurrencyQuote);
+      const hasCompareLocalQuote = !!(compareLocalDisplayQuote || prev?.compareLocalCurrencyQuote);
+
+      // Only mark as dual currency mode if we have both selected and local quotes
+      const isDualCurrencyMode = hasSelectedQuote && hasLocalQuote;
+      // Only mark as having comparison if we have both comparison quotes in dual mode
+      const hasComparison = isDualCurrencyMode && hasCompareSelectedQuote && hasCompareLocalQuote;
+
+      const mergedDual = {
+        selectedCurrencyQuote: prev?.selectedCurrencyQuote ?? (remoteDisplayQuote || null),
+        localCurrencyQuote: prev?.localCurrencyQuote ?? localDisplayQuote,
+        compareSelectedCurrencyQuote: prev?.compareSelectedCurrencyQuote ?? compareSelectedDisplayQuote,
+        compareLocalCurrencyQuote: prev?.compareLocalCurrencyQuote ?? compareLocalDisplayQuote,
+        isCalculatingSelected: false,
+        isCalculatingLocal: false,
+        isCalculatingCompareSelected: false,
+        isCalculatingCompareLocal: false,
+        isDualCurrencyMode,
+        hasComparison,
+      };
+
+      // Only include dual currency quotes if we have meaningful data
+      const shouldIncludeDualQuotes = isDualCurrencyMode || hasComparison ||
+        mergedDual.selectedCurrencyQuote || mergedDual.localCurrencyQuote ||
+        mergedDual.compareSelectedCurrencyQuote || mergedDual.compareLocalCurrencyQuote;
+
+      const dualCurrencyQuotes = shouldIncludeDualQuotes
+        ? { ...data.dualCurrencyQuotes, remote: mergedDual }
+        : data.dualCurrencyQuotes;
+
+      const updatedQuotes = {
+        ...data.quotes,
+        ...(remoteQuoteResponse ? { remote: remoteQuoteResponse } : {}),
+        ...(comparisonQuoteResponse ? { comparisonRemote: comparisonQuoteResponse } : {}),
+      };
 
       return {
         ...data,
         formData: formDataWithDefaults,
-        quotes: { ...data.quotes, remote: remoteQuoteResponse, comparisonRemote: comparisonQuoteResponse },
-        metadata: { ...data.metadata, currency: remoteQuote.currency },
+        quotes: updatedQuotes,
+        metadata: { ...data.metadata, currency: remoteQuote?.currency || data.metadata.currency },
         dualCurrencyQuotes,
         status: 'completed',
       };

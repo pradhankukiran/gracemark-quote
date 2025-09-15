@@ -7,19 +7,25 @@ export const useDeelQuote = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const calculateDeelQuote = useCallback(async (formData: EORFormData, data: QuoteData): Promise<QuoteData> => {
+  const calculateDeelQuote = useCallback(async (formData: EORFormData, data: QuoteData, options?: { fetchPrimary?: boolean; fetchComparison?: boolean }): Promise<QuoteData> => {
     setLoading(true);
     setError(null);
 
     try {
       const formDataWithDefaults = ensureFormDefaults(formData);
       const requestData = createQuoteRequestData(formDataWithDefaults);
-      const rawDeelResponse = await fetchEORCost(requestData);
-      const deelQuote = transformToDeelQuote(rawDeelResponse);
+      const fetchPrimary = options?.fetchPrimary !== false;
+      const fetchComparison = options?.fetchComparison !== false;
+
+      let deelQuote: DeelQuote | undefined;
+      if (fetchPrimary) {
+        const rawDeelResponse = await fetchEORCost(requestData);
+        deelQuote = transformToDeelQuote(rawDeelResponse);
+      }
 
       // If user changed currency, also compute a local currency quote
       let localCurrencyQuote: DeelQuote | null = null;
-      if (formDataWithDefaults.isCurrencyManuallySet && formDataWithDefaults.originalCurrency && formDataWithDefaults.originalCurrency !== formDataWithDefaults.currency) {
+      if (fetchPrimary && formDataWithDefaults.isCurrencyManuallySet && formDataWithDefaults.originalCurrency && formDataWithDefaults.originalCurrency !== formDataWithDefaults.currency) {
         const currentSalary = parseFloat((formDataWithDefaults.baseSalary || '').toString().replace(/[\,\s]/g, ''));
         if (!isNaN(currentSalary) && currentSalary > 0) {
           try {
@@ -37,7 +43,7 @@ export const useDeelQuote = () => {
 
       let comparisonQuote: DeelQuote | undefined;
       let comparisonSelectedCurrencyQuote: DeelQuote | null = null;
-      if (formData.enableComparison && formData.compareCountry) {
+      if (fetchComparison && formData.enableComparison && formData.compareCountry) {
         try {
           const compareRequestData = createQuoteRequestData(formDataWithDefaults, true);
           const rawComparisonResponse = await fetchEORCost(compareRequestData);
@@ -77,27 +83,52 @@ export const useDeelQuote = () => {
         }
       }
 
-      const dualCurrencyQuotes = localCurrencyQuote ? {
-        ...data.dualCurrencyQuotes,
-        deel: {
-          selectedCurrencyQuote: deelQuote,
-          localCurrencyQuote: localCurrencyQuote,
-          compareSelectedCurrencyQuote: comparisonSelectedCurrencyQuote,
-          compareLocalCurrencyQuote: comparisonQuote || null,
-          isCalculatingSelected: false,
-          isCalculatingLocal: false,
-          isCalculatingCompareSelected: false,
-          isCalculatingCompareLocal: false,
-          isDualCurrencyMode: true,
-          hasComparison: Boolean(comparisonQuote && comparisonSelectedCurrencyQuote),
-        }
-      } : data.dualCurrencyQuotes;
+      const prev = data.dualCurrencyQuotes?.deel;
+
+      // Build dual currency state in a coordinated way to prevent intermediate renders
+      const hasSelectedQuote = !!(deelQuote || prev?.selectedCurrencyQuote);
+      const hasLocalQuote = !!(localCurrencyQuote || prev?.localCurrencyQuote);
+      const hasCompareSelectedQuote = !!(comparisonSelectedCurrencyQuote || prev?.compareSelectedCurrencyQuote);
+      const hasCompareLocalQuote = !!(comparisonQuote || prev?.compareLocalCurrencyQuote);
+
+      // Only mark as dual currency mode if we have both selected and local quotes
+      const isDualCurrencyMode = hasSelectedQuote && hasLocalQuote;
+      // Only mark as having comparison if we have both comparison quotes in dual mode
+      const hasComparison = isDualCurrencyMode && hasCompareSelectedQuote && hasCompareLocalQuote;
+
+      const mergedDual = {
+        selectedCurrencyQuote: deelQuote ?? prev?.selectedCurrencyQuote ?? null,
+        localCurrencyQuote: localCurrencyQuote ?? prev?.localCurrencyQuote ?? null,
+        compareSelectedCurrencyQuote: comparisonSelectedCurrencyQuote ?? prev?.compareSelectedCurrencyQuote ?? null,
+        compareLocalCurrencyQuote: (comparisonQuote || null) ?? prev?.compareLocalCurrencyQuote ?? null,
+        isCalculatingSelected: false,
+        isCalculatingLocal: false,
+        isCalculatingCompareSelected: false,
+        isCalculatingCompareLocal: false,
+        isDualCurrencyMode,
+        hasComparison
+      };
+
+      // Only include dual currency quotes if we have meaningful data
+      const shouldIncludeDualQuotes = isDualCurrencyMode || hasComparison ||
+        mergedDual.selectedCurrencyQuote || mergedDual.localCurrencyQuote ||
+        mergedDual.compareSelectedCurrencyQuote || mergedDual.compareLocalCurrencyQuote;
+
+      const dualCurrencyQuotes = shouldIncludeDualQuotes
+        ? { ...data.dualCurrencyQuotes, deel: mergedDual }
+        : data.dualCurrencyQuotes;
+
+      const updatedQuotes = {
+        ...data.quotes,
+        ...(deelQuote ? { deel: deelQuote } : {}),
+        ...(comparisonQuote ? { comparisonDeel: comparisonQuote } : {}),
+      };
 
       return {
         ...data,
         formData: formDataWithDefaults,
-        quotes: { ...data.quotes, deel: deelQuote, comparisonDeel: comparisonQuote },
-        metadata: { ...data.metadata, currency: deelQuote.currency },
+        quotes: updatedQuotes,
+        metadata: { ...data.metadata, currency: deelQuote?.currency || data.metadata.currency },
         dualCurrencyQuotes,
         status: 'completed',
       };

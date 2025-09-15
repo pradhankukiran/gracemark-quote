@@ -2,7 +2,7 @@
 
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -34,6 +34,7 @@ interface EnhancedQuoteCardProps {
   className?: string
   compact?: boolean
   showRetry?: boolean
+  enhancementKey?: string
 }
 
 export const EnhancedQuoteCard: React.FC<EnhancedQuoteCardProps> = ({
@@ -43,7 +44,8 @@ export const EnhancedQuoteCard: React.FC<EnhancedQuoteCardProps> = ({
   quoteType = 'all-inclusive',
   className = "",
   compact = false,
-  showRetry = true
+  showRetry = true,
+  enhancementKey
 }) => {
   const { 
     enhancing, 
@@ -55,20 +57,34 @@ export const EnhancedQuoteCard: React.FC<EnhancedQuoteCardProps> = ({
 
   const [validationError, setValidationError] = useState<string | null>(null)
   
-  const isEnhancing = enhancing[provider]
-  const enhancement = enhancements[provider]
-  const error = errors[provider]
-  const status = getEnhancementStatus(provider)
+  const key = enhancementKey || provider
+  const isEnhancing = enhancing[key]
+  const enhancement = enhancements[key]
+  const error = errors[key]
+  const status = getEnhancementStatus(key)
 
   // Validate quote data
   const quoteValidation = validateQuoteWithDebugging(provider, baseQuote)
   const hasValidQuote = quoteValidation.isValid
 
-  // Auto-enhancement disabled; enhancement is orchestrated sequentially upstream
+  // Auto-enhancement disabled; enhancement is orchestrated upstream.
+  // Exception: for comparison variants (enhancementKey provided), trigger only AFTER
+  // the primary enhancement for this provider has completed to avoid parallel spikes.
+  useEffect(() => {
+    if (!enhancementKey) return
+    if (!hasValidQuote) return
+    if (status !== 'idle') return
+    // Wait for primary (provider key) to finish enhancement first
+    const primaryDone = !!enhancements[provider] && !enhancing[provider]
+    if (!primaryDone) return
+    // Fire and forget; context tracks state
+    void enhanceQuote(provider, baseQuote, formData, quoteType, { key })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enhancementKey, hasValidQuote, status, provider, baseQuote, formData, quoteType, key, enhancements, enhancing])
 
   const handleRetry = () => {
     if (hasValidQuote) {
-      enhanceQuote(provider, baseQuote, formData, quoteType)
+      enhanceQuote(provider, baseQuote, formData, quoteType, { key })
       setValidationError(null)
     } else {
       console.warn(`Cannot retry enhancement - invalid quote data for provider ${provider}:`, quoteValidation)

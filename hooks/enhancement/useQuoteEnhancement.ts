@@ -31,7 +31,8 @@ interface UseQuoteEnhancementReturn {
     provider: ProviderType,
     providerQuote: unknown,
     formData: EORFormData,
-    quoteType?: 'all-inclusive' | 'statutory-only'
+    quoteType?: 'all-inclusive' | 'statutory-only',
+    options?: { key?: string }
   ) => Promise<EnhancedQuote | null>
   
   // Batch enhancement
@@ -42,10 +43,10 @@ interface UseQuoteEnhancementReturn {
   ) => Promise<MultiProviderResult | null>
   
   // Utilities
-  clearEnhancement: (provider: string) => void
+  clearEnhancement: (key: string) => void
   clearAllEnhancements: () => void
-  getEnhancementStatus: (provider: string) => 'idle' | 'loading' | 'success' | 'error'
-  retryEnhancement: (provider: string) => Promise<void>
+  getEnhancementStatus: (key: string) => 'idle' | 'loading' | 'success' | 'error'
+  retryEnhancement: (key: string) => Promise<void>
 }
 
 export const useQuoteEnhancement = (): UseQuoteEnhancementReturn => {
@@ -98,13 +99,13 @@ export const useQuoteEnhancement = (): UseQuoteEnhancementReturn => {
     }
   }, [getStorageKey])
 
-  // Utility to update state for a specific provider with performance optimization
+  // Utility to update state for a specific key (provider or variant) with performance optimization
   const updateProviderState = useCallback((
-    provider: string,
+    key: string,
     updates: Partial<EnhancementState[string]>
   ) => {
     setState(prev => {
-      const currentState = prev[provider]
+      const currentState = prev[key]
       
       // Only update if there are actual changes (prevents unnecessary re-renders)
       const hasChanges = !currentState || 
@@ -116,7 +117,7 @@ export const useQuoteEnhancement = (): UseQuoteEnhancementReturn => {
       
       const next = {
         ...prev,
-        [provider]: {
+        [key]: {
           ...currentState,
           ...updates
         }
@@ -164,19 +165,21 @@ export const useQuoteEnhancement = (): UseQuoteEnhancementReturn => {
     provider: ProviderType,
     providerQuote: any,
     formData: EORFormData,
-    quoteType: 'all-inclusive' | 'statutory-only' = 'all-inclusive'
+    quoteType: 'all-inclusive' | 'statutory-only' = 'all-inclusive',
+    options?: { key?: string }
   ): Promise<EnhancedQuote | null> => {
+    const stateKey = options?.key || provider
     // Cancel any existing request for this provider
-    if (abortControllersRef.current[provider]) {
-      abortControllersRef.current[provider].abort()
+    if (abortControllersRef.current[stateKey]) {
+      abortControllersRef.current[stateKey].abort()
     }
 
     // Create new abort controller
     const abortController = new AbortController()
-    abortControllersRef.current[provider] = abortController
+    abortControllersRef.current[stateKey] = abortController
 
     // Update state to loading
-    updateProviderState(provider, {
+    updateProviderState(stateKey, {
       loading: true,
       error: null
     })
@@ -221,7 +224,7 @@ export const useQuoteEnhancement = (): UseQuoteEnhancementReturn => {
       const enhancedQuote = validateEnhancementData(result.data as EnhancedQuote)
 
       // Update state with success
-      updateProviderState(provider, {
+      updateProviderState(stateKey, {
         loading: false,
         data: enhancedQuote,
         error: null
@@ -244,7 +247,7 @@ export const useQuoteEnhancement = (): UseQuoteEnhancementReturn => {
           }
 
       // Update state with error
-      updateProviderState(provider, {
+      updateProviderState(stateKey, {
         loading: false,
         data: null,
         error: enhancementError
@@ -253,7 +256,7 @@ export const useQuoteEnhancement = (): UseQuoteEnhancementReturn => {
       return null
     } finally {
       // Clean up abort controller
-      delete abortControllersRef.current[provider]
+      delete abortControllersRef.current[stateKey]
     }
   }, [updateProviderState])
 
@@ -339,17 +342,17 @@ export const useQuoteEnhancement = (): UseQuoteEnhancementReturn => {
   }, [updateProviderState])
 
   // Clear enhancement for specific provider
-  const clearEnhancement = useCallback((provider: string) => {
+  const clearEnhancement = useCallback((key: string) => {
     // Cancel any ongoing request
-    if (abortControllersRef.current[provider]) {
-      abortControllersRef.current[provider].abort()
-      delete abortControllersRef.current[provider]
+    if (abortControllersRef.current[key]) {
+      abortControllersRef.current[key].abort()
+      delete abortControllersRef.current[key]
     }
 
     // Clear state
     setState(prev => {
       const newState = { ...prev }
-      delete newState[provider]
+      delete newState[key]
       persistState(newState as EnhancementState)
       return newState
     })
@@ -369,8 +372,8 @@ export const useQuoteEnhancement = (): UseQuoteEnhancementReturn => {
   }, [])
 
   // Get enhancement status for provider
-  const getEnhancementStatus = useCallback((provider: string): 'idle' | 'loading' | 'success' | 'error' => {
-    const providerState = state[provider]
+  const getEnhancementStatus = useCallback((key: string): 'idle' | 'loading' | 'success' | 'error' => {
+    const providerState = state[key]
     
     if (!providerState) return 'idle'
     if (providerState.loading) return 'loading'
@@ -381,13 +384,13 @@ export const useQuoteEnhancement = (): UseQuoteEnhancementReturn => {
   }, [state])
 
   // Retry enhancement for specific provider
-  const retryEnhancement = useCallback(async (provider: string) => {
-    const providerState = state[provider]
+  const retryEnhancement = useCallback(async (key: string) => {
+    const providerState = state[key]
     if (!providerState || !providerState.error) return
 
     // We need to store the original request parameters to retry
     // This is a limitation - in a real implementation, you might want to store these
-    console.warn(`Retry not implemented for provider ${provider}. Original request parameters not stored.`)
+    console.warn(`Retry not implemented for key ${key}. Original request parameters not stored.`)
   }, [state])
 
   // Memoized computed values from state for better performance
