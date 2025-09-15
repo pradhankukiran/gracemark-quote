@@ -24,7 +24,7 @@ import { ProviderType, EnhancedQuote } from "@/lib/types/enhancement"
 import { downloadQuotePDF, DownloadProgress, handleDownloadError, validatePDFData } from "@/lib/pdf/downloadHandler"
 
 const LoadingSpinner = () => (
-  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  <div className="animate-spin h-8 w-8 border-b-2 border-primary"></div>
 )
 
 const QuotePageContent = memo(() => {
@@ -311,57 +311,26 @@ const QuotePageContent = memo(() => {
 
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-  // Optimized progress update function (400ms instead of 800ms)
+  // Simple progress update function
   const smoothProgressUpdate = (targetProgress: number) => {
     return new Promise<void>((resolve) => {
-      const startProgress = progressPercent
-      const progressDiff = targetProgress - startProgress
-      const duration = 400 // Reduced from 800ms to 400ms
-      const startTime = Date.now()
-      
-      const updateProgress = () => {
-        const elapsed = Date.now() - startTime
-        const progress = Math.min(elapsed / duration, 1)
-        
-        // Easing function for smooth animation
-        const easeOutCubic = 1 - Math.pow(1 - progress, 3) // Slightly snappier easing
-        const currentProgress = startProgress + (progressDiff * easeOutCubic)
-        
-        setProgressPercent(Math.round(currentProgress))
-        
-        if (progress < 1) {
-          requestAnimationFrame(updateProgress)
-        } else {
-          resolve()
-        }
-      }
-      
-      requestAnimationFrame(updateProgress)
+      setProgressPercent(targetProgress)
+      setTimeout(resolve, 200)
     })
   }
 
-  // Fixed auto-scroll with performance optimization
+  // Simple auto-scroll
   const scrollToPhase = (phaseId: string) => {
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        const element = document.getElementById(`phase-${phaseId}`)
-        if (element) {
-          // Temporarily disable heavy animations during scroll
-          element.style.willChange = 'scroll-position'
-          
-          element.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start',
-            inline: 'nearest'
-          })
-          
-          // Re-enable animations after scroll
-          setTimeout(() => {
-            element.style.willChange = 'auto'
-          }, 600)
-        }
-      }, 400) // Reduced from 800ms to 400ms
-    })
+    setTimeout(() => {
+      const element = document.getElementById(`phase-${phaseId}`)
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        })
+      }
+    }, 400)
   }
 
   // Simplified phase completion (removed transition delays)
@@ -386,26 +355,26 @@ const QuotePageContent = memo(() => {
     return (
       <div className="space-y-8 p-6">
         {/* Phase 1: Gathering Data */}
-        <div 
-          id="phase-gathering" 
+        <div
+          id="phase-gathering"
           className={`
-            bg-white rounded-xl border-2 shadow-lg p-6 transition-all duration-700 ease-in-out transform
-            ${isPhaseActive('gathering') ? 'border-blue-500 shadow-blue-200 shadow-2xl scale-[1.02]' : 
-              isPhaseCompleted('gathering') ? 'border-green-500 shadow-green-200 shadow-xl' : 
-              'border-slate-200 opacity-60 shadow-md'}
+            bg-white border shadow-sm p-6 transition-all duration-300 ease-in-out
+            ${isPhaseActive('gathering') ? 'border-slate-900 shadow-lg' :
+              isPhaseCompleted('gathering') ? 'border-green-500 shadow-md' :
+              'border-slate-200 opacity-60'}
           `}
         >
           <div className="flex items-center gap-4 mb-6">
             <div className={`
-              p-3 rounded-full 
-              ${isPhaseActive('gathering') ? 'bg-blue-100' : 
-                isPhaseCompleted('gathering') ? 'bg-green-100' : 
-                'bg-slate-100'}
+              p-3
+              ${isPhaseActive('gathering') ? 'bg-slate-100' :
+                isPhaseCompleted('gathering') ? 'bg-green-100' :
+                'bg-slate-50'}
             `}>
               {isPhaseCompleted('gathering') ? (
                 <CheckCircle className="h-6 w-6 text-green-600" />
               ) : isPhaseActive('gathering') ? (
-                <Activity className="h-6 w-6 text-blue-600 animate-pulse" />
+                <Activity className="h-6 w-6 text-slate-900 animate-pulse" />
               ) : (
                 <Clock className="h-6 w-6 text-slate-400" />
               )}
@@ -425,23 +394,21 @@ const QuotePageContent = memo(() => {
               isPhaseStarted('gathering') ? 'opacity-100' : 'opacity-0'
             }`}>
               {providerData.map((provider, idx) => (
-                <div 
+                <div
                   key={provider.provider}
-                  className="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 p-3 text-center transform transition-all duration-500 hover:scale-105 hover:shadow-lg hover:border-blue-300"
+                  className="bg-white border border-slate-200 p-3 text-center transition-all duration-300 hover:shadow-md"
                   style={{
-                    animationDelay: `${idx * 80}ms`, // Reduced from 150ms to 80ms
-                    animation: isPhaseActive('gathering') ? 'slideInUp 0.8s ease-out forwards' : 'none',
-                    transform: 'translate3d(0, 0, 0)', // GPU acceleration
-                    willChange: 'transform, opacity'
+                    animationDelay: `${idx * 80}ms`,
+                    animation: isPhaseActive('gathering') ? 'slideInUp 0.8s ease-out forwards' : 'none'
                   }}
                 >
-                  <div className="w-10 h-10 mx-auto mb-2 rounded-lg border border-slate-200 flex items-center justify-center bg-white shadow-sm">
+                  <div className="w-10 h-10 mx-auto mb-2 border border-slate-200 flex items-center justify-center bg-white">
                     <ProviderLogo provider={provider.provider as ProviderType} />
                   </div>
                   <div className="text-xs font-semibold text-slate-700 capitalize mb-1">
                     {provider.provider}
                   </div>
-                  <div className="text-sm font-bold text-blue-600">
+                  <div className="text-sm font-bold text-slate-900">
                     {formatMoney(provider.price, currency)}
                   </div>
                 </div>
@@ -451,9 +418,9 @@ const QuotePageContent = memo(() => {
               {isPhaseActive('gathering') && Array.from({ length: Math.max(0, 7 - providerData.length) }).map((_, idx) => (
                 <div 
                   key={`placeholder-${idx}`}
-                  className="bg-slate-100 rounded-xl border border-slate-200 p-3 text-center animate-pulse"
+                  className="bg-slate-100 border border-slate-200 p-3 text-center animate-pulse"
                 >
-                  <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-slate-200" />
+                  <div className="w-10 h-10 mx-auto mb-2 bg-slate-200" />
                   <div className="h-3 bg-slate-200 rounded mb-1" />
                   <div className="h-4 bg-slate-200 rounded" />
                 </div>
@@ -463,26 +430,26 @@ const QuotePageContent = memo(() => {
         </div>
 
         {/* Phase 2: Analyzing Variance */}
-        <div 
-          id="phase-analyzing" 
+        <div
+          id="phase-analyzing"
           className={`
-            bg-white rounded-xl border-2 shadow-lg p-6 transition-all duration-700 ease-in-out transform
-            ${isPhaseActive('analyzing') ? 'border-purple-500 shadow-purple-200 shadow-2xl scale-[1.02]' : 
-              isPhaseCompleted('analyzing') ? 'border-green-500 shadow-green-200 shadow-xl' : 
-              'border-slate-200 opacity-60 shadow-md'}
+            bg-white border shadow-sm p-6 transition-all duration-300 ease-in-out
+            ${isPhaseActive('analyzing') ? 'border-slate-900 shadow-lg' :
+              isPhaseCompleted('analyzing') ? 'border-green-500 shadow-md' :
+              'border-slate-200 opacity-60'}
           `}
         >
           <div className="flex items-center gap-4 mb-6">
             <div className={`
-              p-3 rounded-full 
-              ${isPhaseActive('analyzing') ? 'bg-purple-100' : 
-                isPhaseCompleted('analyzing') ? 'bg-green-100' : 
-                'bg-slate-100'}
+              p-3
+              ${isPhaseActive('analyzing') ? 'bg-slate-100' :
+                isPhaseCompleted('analyzing') ? 'bg-green-100' :
+                'bg-slate-50'}
             `}>
               {isPhaseCompleted('analyzing') ? (
                 <CheckCircle className="h-6 w-6 text-green-600" />
               ) : isPhaseActive('analyzing') ? (
-                <BarChart3 className="h-6 w-6 text-purple-600 animate-pulse" />
+                <BarChart3 className="h-6 w-6 text-slate-900 animate-pulse" />
               ) : (
                 <Clock className="h-6 w-6 text-slate-400" />
               )}
@@ -498,7 +465,7 @@ const QuotePageContent = memo(() => {
           </div>
 
           {isPhaseStarted('analyzing') && providerData.length > 0 && (
-            <div className="bg-slate-50 rounded-lg p-4">
+            <div className="bg-slate-50 p-4">
               <div className="space-y-3">
                 {providerData.map((provider) => {
                   const deelProvider = providerData.find(p => p.provider === 'deel')
@@ -512,17 +479,15 @@ const QuotePageContent = memo(() => {
                         {provider.provider}
                       </div>
                       <div className="flex-1 relative">
-                        <div className="h-6 bg-slate-200 rounded-lg overflow-hidden shadow-inner">
-                          <div 
-                            className={`h-full transition-all duration-700 ease-out transform-gpu ${
-                              provider.inRange ? 'bg-gradient-to-r from-green-400 via-green-500 to-green-600' : 
-                              'bg-gradient-to-r from-red-400 via-red-500 to-red-600'
+                        <div className="h-6 bg-slate-200 overflow-hidden">
+                          <div
+                            className={`h-full transition-all duration-500 ease-out ${
+                              provider.inRange ? 'bg-green-500' :
+                              'bg-red-500'
                             }`}
-                            style={{ 
+                            style={{
                               width: `${barWidth}%`,
-                              transitionDelay: `${providerData.indexOf(provider) * 100}ms`,
-                              transform: 'translate3d(0, 0, 0)', // GPU acceleration
-                              willChange: 'width'
+                              transitionDelay: `${providerData.indexOf(provider) * 100}ms`
                             }}
                           />
                         </div>
@@ -553,26 +518,26 @@ const QuotePageContent = memo(() => {
         </div>
 
         {/* Phase 3: Selecting Optimal */}
-        <div 
-          id="phase-selecting" 
+        <div
+          id="phase-selecting"
           className={`
-            bg-white rounded-xl border-2 shadow-lg p-6 transition-all duration-700 ease-in-out transform
-            ${isPhaseActive('selecting') ? 'border-yellow-500 shadow-yellow-200 shadow-2xl scale-[1.02]' : 
-              isPhaseCompleted('selecting') ? 'border-green-500 shadow-green-200 shadow-xl' : 
-              'border-slate-200 opacity-60 shadow-md'}
+            bg-white border shadow-sm p-6 transition-all duration-300 ease-in-out
+            ${isPhaseActive('selecting') ? 'border-slate-900 shadow-lg' :
+              isPhaseCompleted('selecting') ? 'border-green-500 shadow-md' :
+              'border-slate-200 opacity-60'}
           `}
         >
           <div className="flex items-center gap-4 mb-6">
             <div className={`
-              p-3 rounded-full 
-              ${isPhaseActive('selecting') ? 'bg-yellow-100' : 
-                isPhaseCompleted('selecting') ? 'bg-green-100' : 
-                'bg-slate-100'}
+              p-3
+              ${isPhaseActive('selecting') ? 'bg-slate-100' :
+                isPhaseCompleted('selecting') ? 'bg-green-100' :
+                'bg-slate-50'}
             `}>
               {isPhaseCompleted('selecting') ? (
                 <CheckCircle className="h-6 w-6 text-green-600" />
               ) : isPhaseActive('selecting') ? (
-                <Target className="h-6 w-6 text-yellow-600 animate-pulse" />
+                <Target className="h-6 w-6 text-slate-900 animate-pulse" />
               ) : (
                 <Clock className="h-6 w-6 text-slate-400" />
               )}
@@ -590,33 +555,33 @@ const QuotePageContent = memo(() => {
           {isPhaseStarted('selecting') && (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
               {providerData.map((provider) => (
-                <div 
+                <div
                   key={provider.provider}
                   className={`
-                    bg-slate-50 rounded-lg border-2 p-3 text-center transition-all duration-700 transform
-                    ${provider.isWinner ? 'border-yellow-400 shadow-lg scale-105 bg-gradient-to-br from-yellow-50 to-orange-50' :
-                      provider.inRange ? 'border-green-200' : 
+                    bg-white border p-3 text-center transition-all duration-300
+                    ${provider.isWinner ? 'border-slate-900 shadow-md' :
+                      provider.inRange ? 'border-green-500' :
                       'border-slate-200 opacity-50'}
                   `}
                 >
                   {provider.isWinner && (
-                    <Crown className="h-4 w-4 text-yellow-500 mx-auto mb-1" />
+                    <Crown className="h-4 w-4 text-slate-900 mx-auto mb-1" />
                   )}
-                  <div className="w-10 h-10 mx-auto mb-2 rounded-lg border flex items-center justify-center bg-white">
+                  <div className="w-10 h-10 mx-auto mb-2 border flex items-center justify-center bg-white">
                     <ProviderLogo provider={provider.provider as ProviderType} />
                   </div>
                   <div className="text-xs font-medium text-slate-800 capitalize mb-1">
                     {provider.provider}
                   </div>
                   <div className={`text-sm font-bold ${
-                    provider.isWinner ? 'text-yellow-600' : 
+                    provider.isWinner ? 'text-slate-900' :
                     provider.inRange ? 'text-green-600' : 'text-slate-600'
                   }`}>
                     {formatMoney(provider.price, currency)}
                   </div>
                   {provider.isWinner && (
-                    <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 text-xs mt-1">
-                      Winner
+                    <Badge className="bg-slate-100 text-slate-800 border-slate-200 text-xs mt-1">
+                      Selected
                     </Badge>
                   )}
                 </div>
@@ -626,18 +591,18 @@ const QuotePageContent = memo(() => {
         </div>
 
         {/* Phase 4: Analysis Complete */}
-        <div 
-          id="phase-complete" 
+        <div
+          id="phase-complete"
           className={`
-            bg-white rounded-xl border-2 shadow-lg p-6 transition-all duration-700 ease-in-out transform
-            ${isPhaseActive('complete') || isPhaseCompleted('complete') ? 'border-green-500 shadow-green-200 shadow-2xl scale-[1.02]' : 
-              'border-slate-200 opacity-60 shadow-md'}
+            bg-white border shadow-sm p-6 transition-all duration-300 ease-in-out
+            ${isPhaseActive('complete') || isPhaseCompleted('complete') ? 'border-green-500 shadow-md' :
+              'border-slate-200 opacity-60'}
           `}
         >
           <div className="flex items-center gap-4 mb-6">
             <div className={`
-              p-3 rounded-full 
-              ${isPhaseStarted('complete') ? 'bg-green-100' : 'bg-slate-100'}
+              p-3
+              ${isPhaseStarted('complete') ? 'bg-green-100' : 'bg-slate-50'}
             `}>
               {isPhaseStarted('complete') ? (
                 <Crown className="h-6 w-6 text-green-600" />
@@ -654,9 +619,9 @@ const QuotePageContent = memo(() => {
           </div>
 
           {isPhaseStarted('complete') && finalChoice && (
-            <div className="bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 rounded-xl p-8 border-2 border-green-200 shadow-xl transition-all duration-500 smooth-appear">
+            <div className="bg-green-50 p-8 border border-green-200 shadow-sm transition-all duration-300">
               <div className="text-center mb-8">
-                <div className="w-24 h-24 mx-auto mb-6 rounded-2xl border-3 border-green-300 flex items-center justify-center bg-white shadow-2xl transition-transform duration-300 hover:scale-110">
+                <div className="w-24 h-24 mx-auto mb-6 border border-green-300 flex items-center justify-center bg-white shadow-sm transition-transform duration-300 hover:scale-105">
                   <ProviderLogo provider={finalChoice.provider as ProviderType} />
                 </div>
                 <div className="text-3xl font-bold text-slate-900 capitalize mb-3 tracking-tight">
@@ -666,16 +631,16 @@ const QuotePageContent = memo(() => {
                   {formatMoney(finalChoice.price, finalChoice.currency)}
                 </div>
                 <Badge className="bg-green-100 text-green-800 border-green-200 px-4 py-2 text-sm font-semibold">
-                  ✨ Recommended Provider
+                  Recommended Provider
                 </Badge>
               </div>
               
               <div className="flex justify-center">
-                <Button 
+                <Button
                   onClick={handleDownloadPDF}
                   disabled={isDownloadingPDF || !finalChoice || !providerData.length}
                   size="lg"
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 px-8 py-3 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg transition-all duration-200 px-8 py-3 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isDownloadingPDF ? (
                     <>
@@ -693,7 +658,7 @@ const QuotePageContent = memo(() => {
 
               {/* Download Error Display */}
               {downloadError && (
-                <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="mt-4 bg-red-50 border border-red-200 p-4">
                   <div className="flex items-start gap-2">
                     <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
                     <div>
@@ -821,19 +786,23 @@ const QuotePageContent = memo(() => {
       await sleep(1500) // Reduced from 2500ms to 1500ms
 
       // Phase 4: Complete (90-100%)
-      startPhase('complete')
+      setActivePhase('complete') // Set phase active but don't scroll yet
       await smoothProgressUpdate(100)
       await sleep(200) // Reduced fade-in delay from 400ms to 200ms
-      
+
       // Get the enhanced quote data for the selected provider
       const selectedEnhancement = enhancements[choice.provider as ProviderType];
-      setFinalChoice({ 
-        ...choice, 
+      setFinalChoice({
+        ...choice,
         currency,
         enhancedQuote: selectedEnhancement || undefined
       });
       setReconSteps(prev => [...prev, { type: 'trophy', title: `Analysis Complete: ${choice.provider} Recommended` }]);
       completePhase('complete')
+
+      // Now scroll to the complete content after everything is rendered
+      await sleep(100) // Brief delay to ensure content is rendered
+      scrollToPhase('complete')
 
     } catch (error) {
       console.error("Reconciliation failed", error);
@@ -904,7 +873,7 @@ const QuotePageContent = memo(() => {
       return (
         <div className="flex justify-center items-center h-40">
           <div className="text-center space-y-3">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <div className="animate-spin h-8 w-8 border-b-2 border-primary mx-auto"></div>
             {/* <p className="text-slate-600">Loading {currentProvider === 'deel' ? 'Deel' : currentProvider === 'remote' ? 'Remote' : currentProvider === 'rivermate' ? 'Rivermate' : currentProvider === 'oyster' ? 'Oyster' : currentProvider === 'rippling' ? 'Rippling' : currentProvider === 'skuad' ? 'Skuad' : 'Velocity Global'} quote...</p> */}
           </div>
         </div>
@@ -1454,19 +1423,19 @@ const QuotePageContent = memo(() => {
 
       {/* --- DASHBOARD-STYLE RECONCILIATION MODAL --- */}
       {isReconModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-gradient-to-br from-black/60 to-slate-900/60 backdrop-blur-md">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
           <div className="absolute inset-0" onClick={() => setIsReconModalOpen(false)} />
-          <Card className="relative w-[90vw] max-w-7xl max-h-[90vh] border-0 shadow-2xl bg-white/98 backdrop-blur-lg overflow-hidden">
+          <Card className="relative w-[90vw] h-[90vh] border-0 shadow-xl bg-white/90 backdrop-blur-sm overflow-hidden rounded-none">
             
             {/* Top Banner: Progress Bar + Phase */}
-            <div className="px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50">
+            <div className="px-6 py-4 border-b border-slate-200 bg-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="p-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg shadow-lg">
+                  <div className="p-2.5 bg-slate-900 shadow-sm">
                     <Activity className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                    <h2 className="text-xl font-bold text-slate-900">
                       Provider Reconciliation Dashboard
                     </h2>
                     <p className="text-sm text-slate-600 mt-0.5">
@@ -1482,7 +1451,7 @@ const QuotePageContent = memo(() => {
                     <div className="text-lg font-bold text-slate-700">{progressPercent}%</div>
                     <div className="text-xs text-slate-500">Complete</div>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => setIsReconModalOpen(false)} className="ml-4">
+                  <Button variant="outline" size="sm" onClick={() => setIsReconModalOpen(false)} className="ml-4 rounded-none">
                     <XCircle className="h-4 w-4 mr-1.5" />
                     Close
                   </Button>
@@ -1490,113 +1459,37 @@ const QuotePageContent = memo(() => {
               </div>
               
               {/* Progress Bar */}
-              <div className="mt-4 bg-slate-200 rounded-full h-2.5 overflow-hidden shadow-inner">
-                <div 
-                  className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full transition-all duration-500 ease-out"
+              <div className="mt-4 bg-slate-200 h-2.5 overflow-hidden">
+                <div
+                  className="h-full bg-slate-900 transition-all duration-500 ease-out"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
             </div>
 
             {/* Main Timeline Area */}
-            <div className="flex-1 overflow-y-auto" style={{ scrollBehavior: 'smooth', transform: 'translate3d(0, 0, 0)' }}>
+            <div className="flex-1 overflow-y-auto scroll-smooth">
               {renderTimelinePhases()}
             </div>
           </Card>
         </div>
       )}
 
-      {/* Enhanced CSS for premium dashboard animations with GPU acceleration */}
+      {/* Simple CSS animations */}
       <style jsx>{`
         @keyframes slideInUp {
           from {
             opacity: 0;
-            transform: translate3d(0, 40px, 0) scale(0.95);
+            transform: translateY(20px);
           }
           to {
             opacity: 1;
-            transform: translate3d(0, 0, 0) scale(1);
+            transform: translateY(0);
           }
         }
-        
-        @keyframes fadeInScale {
-          from {
-            opacity: 0;
-            transform: scale3d(0.85, 0.85, 1);
-          }
-          to {
-            opacity: 1;
-            transform: scale3d(1, 1, 1);
-          }
-        }
-        
-        @keyframes pulse-glow {
-          0%, 100% {
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-          }
-          50% {
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
-          }
-        }
-        
-        @keyframes shimmer {
-          0% {
-            background-position: -200px 0;
-          }
-          100% {
-            background-position: calc(200px + 100%) 0;
-          }
-        }
-        
-        @keyframes slideInLeft {
-          from {
-            opacity: 0;
-            transform: translate3d(-20px, 0, 0);
-          }
-          to {
-            opacity: 1;
-            transform: translate3d(0, 0, 0);
-          }
-        }
-        
-        @keyframes bounceIn {
-          0% {
-            opacity: 0;
-            transform: scale3d(0.3, 0.3, 1);
-          }
-          50% {
-            opacity: 1;
-            transform: scale3d(1.05, 1.05, 1);
-          }
-          70% {
-            transform: scale3d(0.98, 0.98, 1);
-          }
-          100% {
-            opacity: 1;
-            transform: scale3d(1, 1, 1);
-          }
-        }
-        
-        /* GPU-accelerated utility classes */
-        .transform-gpu {
-          transform: translate3d(0, 0, 0);
-          backface-visibility: hidden;
-        }
-        
-        .smooth-appear {
-          animation: fadeInScale 0.6s ease-out forwards;
-          will-change: transform, opacity;
-        }
-        
-        .stagger-appear {
-          animation: slideInUp 0.8s ease-out forwards;
-          will-change: transform, opacity;
-        }
-        
-        /* Optimized scroll container */
+
         .scroll-smooth {
           scroll-behavior: smooth;
-          -webkit-overflow-scrolling: touch;
         }
       `}</style>
     </div>

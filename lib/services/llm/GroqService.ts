@@ -603,7 +603,10 @@ export class GroqService {
             already_included: false
           }
           totalEnhancement += monthlyAmount
-        } else if (category === 'contributions' || name.includes('contribution')) {
+        } else if (category === 'contributions' || name.includes('contribution') ||
+                   name.toLowerCase().includes('authority') || name.toLowerCase().includes('ato') ||
+                   name.toLowerCase().includes('workers') || name.toLowerCase().includes('superannuation') ||
+                   name.toLowerCase().includes('payroll_tax') || name.toLowerCase().includes('state_revenue')) {
           // Use consolidated employer contributions processing
           const currentAmount = enhancements.employer_contributions_total?.monthly_amount || 0
           const contributionData = this.processEmployerContributions({
@@ -826,6 +829,10 @@ export class GroqService {
         if (key.includes('remote')) return 'remote_work_allowance'
         if (key.includes('meal')) return 'meal_vouchers'
         if (item.category === 'termination') return 'termination_costs'
+        // Authority payments (ATO, Workers comp, Superannuation, state taxes, etc.)
+        if (key.includes('authority') || key.includes('ATO') || key.includes('ato') ||
+            key.includes('workers') || key.includes('compensation') || key.includes('superannuation') ||
+            key.includes('payroll_tax') || key.includes('state_revenue') || item.name?.toLowerCase().includes('authority')) return 'employer_contributions_total'
         if (item.category === 'contributions') return 'employer_contributions_total'
         return ''
       })()
@@ -990,6 +997,16 @@ export class GroqService {
         const parsed = JSON.parse(jsonText)
         // Minimal shape safeguard
         if (parsed && parsed.enhancements && parsed.totals) {
+          // Inject default confidence scores if LLM omitted them
+          try {
+            const cs = (parsed as any).confidence_scores || {}
+            ;(parsed as any).confidence_scores = {
+              overall: typeof cs.overall === 'number' ? cs.overall : 0.7,
+              termination_costs: typeof cs.termination_costs === 'number' ? cs.termination_costs : 0.7,
+              salary_enhancements: typeof cs.salary_enhancements === 'number' ? cs.salary_enhancements : 0.7,
+              allowances: typeof cs.allowances === 'number' ? cs.allowances : 0.6
+            }
+          } catch { /* noop */ }
           // Ensure employer contributions delta is present deterministically if LLM omitted it
           try {
             const baselineContrib = Math.max(0, Number(baselineProviderCurrency['employer_contributions_total'] || 0))
@@ -1323,10 +1340,11 @@ export class GroqService {
     const summary = []
     
     // Type guard to check if papayaData has expected structure
-    const data = papayaData as { data?: { 
+    const data = papayaData as { data?: {
       termination?: { notice_period?: string; severance_pay?: string };
       payroll?: { payroll_cycle?: string };
       contribution?: { employer_contributions?: Array<{ description?: string; rate?: string }> };
+      authority_payments?: Array<{ authority_payment?: string; dates?: string; methods?: string }>;
     }}
     
     if (data?.data?.termination) {
@@ -1344,7 +1362,16 @@ export class GroqService {
         .join(', ')
       summary.push(`CONTRIBUTIONS: ${contribs}`)
     }
-    
+
+    if (data?.data?.authority_payments) {
+      const authorities = data.data.authority_payments
+        .slice(0, 5)
+        .map((ap: { authority_payment?: string; dates?: string; methods?: string }) =>
+          `${ap.authority_payment || 'Unknown Authority'}: ${ap.dates || 'Schedule not specified'}`)
+        .join(', ')
+      summary.push(`AUTHORITY_PAYMENTS: ${authorities}`)
+    }
+
     return summary.join('\n') || 'No detailed legal data available'
   }
 
@@ -1368,11 +1395,11 @@ export class GroqService {
           total_yearly_enhancement: 0,
           final_monthly_total: 0
         },
-        confidence_scores: parsed.confidence_scores || {
-          overall: 0,
-          termination_costs: 0,
-          salary_enhancements: 0,
-          allowances: 0
+        confidence_scores: {
+          overall: 0.7,
+          termination_costs: 0.7,
+          salary_enhancements: 0.7,
+          allowances: 0.6
         },
         recommendations: parsed.recommendations || [],
         warnings: parsed.warnings || []
@@ -1392,11 +1419,11 @@ export class GroqService {
           final_monthly_total: z.number().nonnegative().default(0)
         }),
         confidence_scores: z.object({
-          overall: z.number().min(0).max(1).default(0),
-          termination_costs: z.number().min(0).max(1).default(0),
-          salary_enhancements: z.number().min(0).max(1).default(0),
-          allowances: z.number().min(0).max(1).default(0)
-        }).default({ overall: 0, termination_costs: 0, salary_enhancements: 0, allowances: 0 }),
+          overall: z.number().min(0).max(1).default(0.7),
+          termination_costs: z.number().min(0).max(1).default(0.7),
+          salary_enhancements: z.number().min(0).max(1).default(0.7),
+          allowances: z.number().min(0).max(1).default(0.6)
+        }).optional(),
         recommendations: z.array(z.string()).default([]),
         warnings: z.array(z.string()).default([])
       })
@@ -1479,12 +1506,7 @@ export class GroqService {
       throw new Error('Invalid response structure from Groq')
     }
 
-    // Validate confidence scores
-    Object.values(response.confidence_scores || {}).forEach(score => {
-      if (typeof score !== 'number' || score < 0 || score > 1) {
-        console.warn(`Invalid confidence score: ${score}`)
-      }
-    })
+    // Confidence scores are now set to defaults (no longer parsed from LLM)
 
     // Validate monetary amounts
     const { totals } = response

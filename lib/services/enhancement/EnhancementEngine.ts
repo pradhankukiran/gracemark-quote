@@ -877,7 +877,7 @@ export class EnhancementEngine {
         enhancements: safeEnhancementMonthly,
         total: safeTotalsMonthly
       },
-      overallConfidence: confidence_scores.overall || 0.0,
+      overallConfidence: (confidence_scores?.overall ?? 0.7),
       explanations: this.extractExplanations(enhancementData),
       warnings: groqResponse.warnings || [],
       overlapAnalysis,

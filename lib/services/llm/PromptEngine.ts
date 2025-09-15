@@ -118,47 +118,40 @@ FOCUS: Your primary job is gap analysis - finding what's legally required but mi
       '      "notice_period_cost": 0,',
       '      "severance_cost": 0,',
       '      "total": 0,',
-      '      "explanation": "",',
-      '      "confidence": 0.0',
+      '      "explanation": ""',
       '    },',
       '    "thirteenth_salary": {',
       '      "monthly_amount": 0,',
       '      "yearly_amount": 0,',
       '      "explanation": "",',
-      '      "confidence": 0.0,',
       '      "already_included": false',
       '    },',
       '    "fourteenth_salary": {',
       '      "monthly_amount": 0,',
       '      "yearly_amount": 0,',
       '      "explanation": "",',
-      '      "confidence": 0.0,',
       '      "already_included": false',
       '    },',
       '    "vacation_bonus": {',
       '      "amount": 0,',
       '      "explanation": "",',
-      '      "confidence": 0.0,',
       '      "already_included": false',
       '    },',
       '    "transportation_allowance": {',
       '      "monthly_amount": 0,',
       '      "explanation": "",',
-      '      "confidence": 0.0,',
       '      "already_included": false,',
       '      "mandatory": false',
       '    },',
       '    "remote_work_allowance": {',
       '      "monthly_amount": 0,',
       '      "explanation": "",',
-      '      "confidence": 0.0,',
       '      "already_included": false,',
       '      "mandatory": false',
       '    },',
       '    "meal_vouchers": {',
       '      "monthly_amount": 0,',
       '      "explanation": "",',
-      '      "confidence": 0.0,',
       '      "already_included": false',
       '    }',
       '  },',
@@ -166,7 +159,7 @@ FOCUS: Your primary job is gap analysis - finding what's legally required but mi
       '    "total_monthly_enhancement": 0,',
       '    "final_monthly_total": 0',
       '  },',
-      '  "confidence_scores": { "overall": 0.0 },',
+      '',
       '  "warnings": [],',
       '  "recommendations": []',
       '}',
@@ -221,6 +214,10 @@ RULES: amounts monthly in quote currency; include benefits found with amount > 0
       const first = papayaData.data.contribution.employer_contributions.slice(0, 3).map((c: { description: string; rate: string }) => `${c.description}: ${c.rate}`)
       if (first.length) parts.push(`CONTRIBUTIONS: ${first.join(', ')}`)
     }
+    if (papayaData.data.authority_payments?.length) {
+      const first = papayaData.data.authority_payments.slice(0, 3).map((ap: { authority_payment?: string; dates?: string }) => `${ap.authority_payment || 'Authority'}: ${ap.dates || 'Payment required'}`)
+      if (first.length) parts.push(`AUTHORITY_PAYMENTS: ${first.join(', ')}`)
+    }
     if (papayaData.data.common_benefits?.length) {
       parts.push(`COMMON BENEFITS: ${papayaData.data.common_benefits.slice(0, 3).join(', ')}`)
     }
@@ -236,7 +233,6 @@ RULES: amounts monthly in quote currency; include benefits found with amount > 0
       `- DO NOT perform currency conversion.\n` +
       `- Apply the <= threshold rule: within_band if (total - minTotal) / minTotal <= threshold.\n` +
       `- If an item has missing mandatory coverage, add a warning note; do not assume inclusions.\n` +
-      `- If riskMode=true, also produce reasoning that prioritizes higher confidence, but totals remain as given.\n` +
       `- Output strictly valid JSON with the exact keys requested. No extra text.`
     )
   }
@@ -247,7 +243,6 @@ RULES: amounts monthly in quote currency; include benefits found with amount > 0
     providers: Array<{
       provider: string
       total: number
-      confidence: number
       coverage: { includes: string[]; missing: string[]; doubleCountingRisk: string[] }
       quoteType: 'all-inclusive' | 'statutory-only'
     }>
@@ -264,7 +259,7 @@ RULES: amounts monthly in quote currency; include benefits found with amount > 0
       `RESPONSE JSON SCHEMA (EXACT KEYS):`,
       '{',
       '  "items": [',
-      '    { "provider": "deel", "total": 0, "delta": 0, "pct": 0, "within4": true, "confidence": 0.0, "notes": [] }',
+      '    { "provider": "deel", "total": 0, "delta": 0, "pct": 0, "within4": true, "notes": [] }',
       '  ],',
       '  "summary": {',
       '    "currency": "USD",',
@@ -301,7 +296,7 @@ FORM DATA LOGIC (CRITICAL):
 - quoteType = "all-inclusive" + addBenefits = false → Include ONLY mandatory items
 
 BENEFIT CATEGORIES:
-1. MANDATORY BENEFITS: Always include if missing (13th salary, termination costs, required contributions)
+1. MANDATORY BENEFITS: Always include if missing (13th salary, termination costs, required contributions, authority payments)
 2. COMMON BENEFITS: Include only if quoteType="all-inclusive" AND addBenefits=true
 
 PROVIDER-SPECIFIC GAP ANALYSIS:
@@ -394,7 +389,7 @@ ${quoteType === 'statutory-only'
       'MANDATORY BENEFITS (always include if missing):',
       '• 13th Salary: Check payroll section for "Aguinaldo" or "13th month"',
       '• Termination Costs: Check termination section (notice + severance)',
-      '• Required Contributions: Check employer contribution requirements',
+      '• Required Contributions: Check employer contribution requirements and authority payments',
       '',
       includeCommonBenefits ? [
         'COMMON BENEFITS (include if missing):',
@@ -490,22 +485,22 @@ ${quoteType === 'statutory-only'
       'Create dynamic objects based on benefit type discovered. Adapt field names and structure to the specific benefit:',
       '',
       'TYPE 1 - SALARY COMPONENTS (13th, 14th, vacation bonus):',
-      '{"monthly_amount": X, "yearly_amount": Y, "explanation": "Papaya text quote", "confidence": 0.9, "already_included": boolean}',
+      '{"monthly_amount": X, "yearly_amount": Y, "explanation": "Papaya text quote", "already_included": boolean}',
       '',
       'TYPE 2 - FIXED ALLOWANCES (meal, transport, internet, mobile, gym):',
-      '{"monthly_amount": X, "explanation": "Papaya text quote", "confidence": 0.8, "already_included": boolean, "mandatory": boolean}',
+      '{"monthly_amount": X, "explanation": "Papaya text quote", "already_included": boolean, "mandatory": boolean}',
       '',
       'TYPE 3 - PERCENTAGE-BASED CONTRIBUTIONS (pension, health, social security):',
-      '{"monthly_amount": X, "percentage": "Y%", "calculation_base": BASE_SALARY, "explanation": "Papaya text quote", "confidence": 0.9, "already_included": boolean}',
+      '{"monthly_amount": X, "percentage": "Y%", "calculation_base": BASE_SALARY, "explanation": "Papaya text quote", "already_included": boolean}',
       '',
       'TYPE 4 - TERMINATION COSTS (always calculate - no gap analysis):',
-      '{"monthly_amount": X, "total_estimated": Y, "explanation": "Papaya termination requirements spread over contract", "confidence": 0.8}',
+      '{"monthly_amount": X, "total_estimated": Y, "explanation": "Papaya termination requirements spread over contract"}',
       '',
       'TYPE 5 - RANGE-BASED BENEFITS (amounts like "5,000 to 7,000"):',
-      '{"monthly_amount": midpoint, "min_amount": X, "max_amount": Y, "explanation": "Papaya text quote", "confidence": 0.7, "already_included": boolean}',
+      '{"monthly_amount": midpoint, "min_amount": X, "max_amount": Y, "explanation": "Papaya text quote", "already_included": boolean}',
       '',
       'TYPE 6 - DAILY-TO-MONTHLY CONVERSION:',
-      '{"monthly_amount": daily_amount * 22, "daily_amount": X, "explanation": "Papaya text quote", "confidence": 0.8, "already_included": boolean}',
+      '{"monthly_amount": daily_amount * 22, "daily_amount": X, "explanation": "Papaya text quote", "already_included": boolean}',
       '',
       'NAMING CONVENTIONS:',
       '• Use descriptive snake_case: "private_health_insurance", "employer_pension_contribution"',
@@ -543,7 +538,6 @@ ${quoteType === 'statutory-only'
           "total_monthly_enhancement": 0,
           "final_monthly_total": ${baseQuote.monthlyTotal}
         },
-        "confidence_scores": { "overall": 0.8 }
       }`,
       '',
       'EXHAUSTIVE DISCOVERY MANDATE:',
@@ -556,7 +550,7 @@ ${quoteType === 'statutory-only'
       '',
       'COMPREHENSIVE COVERAGE REQUIREMENTS:',
       '• TERMINATION COSTS: ALWAYS calculate if termination section exists - NO exceptions, NO gap analysis',
-      '• MANDATORY BENEFITS: Always include regardless of form settings (13th salary, contributions)',
+      '• MANDATORY BENEFITS: Always include regardless of form settings (13th salary, contributions, authority payments)',
       '• COMMON BENEFITS: Include ALL when addBenefits=true (be exhaustive)',
       '• EMPLOYER CONTRIBUTIONS: Calculate and include every percentage/amount',
       '• RANGES: Use midpoint calculations for "X to Y" amounts',
@@ -602,7 +596,7 @@ STRICT RULES:
 - Monthly amounts only. If yearly → divide by 12. If daily → multiply by 22 working days. If ranges → midpoint. Round to 2 decimals (half-up).
 - Markers: For any item that requires recomputation (e.g., annual → monthly, banded %, provisions), append the token ##RECALC## to the item.key (and you may also append to the item.name). Do NOT perform the math; just mark it.
  - Monthly amounts only. If yearly → divide by 12. If daily → multiply by 22 working days. If ranges → midpoint. Round to 2 decimals (half-up).
-  - Use the exact JSON schema provided. Do not add analysis/confidence fields.
+  - Use the exact JSON schema provided.
   - Do not subtract or compare to provider coverage.
 
 RESPONSE JSON SHAPE (exact keys):
@@ -658,20 +652,20 @@ RESPONSE JSON SHAPE (exact keys):
       '{',
       '  "analysis": { "provider_coverage": [], "missing_requirements": [], "double_counting_risks": [] },',
       '  "enhancements": {',
-      '    "termination_costs": { "total": 0, "explanation": "", "confidence": 0.7 },',
-      '    "thirteenth_salary": { "monthly_amount": 0, "yearly_amount": 0, "explanation": "", "confidence": 0.7, "already_included": false },',
-      '    "fourteenth_salary": { "monthly_amount": 0, "yearly_amount": 0, "explanation": "", "confidence": 0.7, "already_included": false },',
-      '    "vacation_bonus": { "amount": 0, "explanation": "", "confidence": 0.6, "already_included": false },',
-      '    "transportation_allowance": { "monthly_amount": 0, "explanation": "", "confidence": 0.6, "already_included": false, "mandatory": false },',
-      '    "remote_work_allowance": { "monthly_amount": 0, "explanation": "", "confidence": 0.6, "already_included": false, "mandatory": false },',
-      '    "meal_vouchers": { "monthly_amount": 0, "explanation": "", "confidence": 0.6, "already_included": false }',
+      '    "termination_costs": { "total": 0, "explanation": "" },',
+      '    "thirteenth_salary": { "monthly_amount": 0, "yearly_amount": 0, "explanation": "", "already_included": false },',
+      '    "fourteenth_salary": { "monthly_amount": 0, "yearly_amount": 0, "explanation": "", "already_included": false },',
+      '    "vacation_bonus": { "amount": 0, "explanation": "", "already_included": false },',
+      '    "transportation_allowance": { "monthly_amount": 0, "explanation": "", "already_included": false, "mandatory": false },',
+      '    "remote_work_allowance": { "monthly_amount": 0, "explanation": "", "already_included": false, "mandatory": false },',
+      '    "meal_vouchers": { "monthly_amount": 0, "explanation": "", "already_included": false }',
       '  },',
       '  "totals": {',
       '    "total_monthly_enhancement": 0,',
       '    "total_yearly_enhancement": 0,',
       '    "final_monthly_total": 0',
       '  },',
-      '  "confidence_scores": { "overall": 0.7 },',
+      '',
       '  "warnings": []',
       '}'
     ].join('\n')
@@ -731,12 +725,12 @@ RESPONSE JSON SHAPE (exact keys):
       'RESPONSE INSTRUCTIONS:',
       '- Always use LOCAL currency (Papaya) as the quote.currency.',
       '- Use the provided base salary as MONTHLY base_salary_monthly.',
-      '- For statutory-only: include only legally mandated employer items (employer contributions from Papaya contributions section, mandatory 13th/14th if explicitly required, termination provisions monthlyized when applicable). Exclude enhanced pension uplifts, private healthcare, meal/food, WFH/remote allowances, car, wellness/gym, and leave entitlements as recurring monthly items.',
+      '- For statutory-only: include only legally mandated employer items (employer contributions from Papaya contributions section, authority payments from authority_payments section, mandatory 13th/14th if explicitly required, termination provisions monthlyized when applicable). Exclude enhanced pension uplifts, private healthcare, meal/food, WFH/remote allowances, car, wellness/gym, and leave entitlements as recurring monthly items.',
       '- For all-inclusive: include statutory baseline plus common benefits with amounts from Papaya.',
       '- De-duplication: REMOVE any item that matches BASE ITEMS (by meaning or close name). Normalize names (lowercase, remove punctuation/stop-words like contribution/fund/fee). Choose the base item over your generated one.',
       '- Markers: For any item that needs recompute (e.g., annual → monthly), append ##RECALC## to item.key (and optionally to item.name). Do not compute the amount; just mark it.',
       '- Compute subtotals per category and total_monthly = base_salary_monthly + sum(items).',
-      '- No analysis/confidence fields; strictly follow the schema.',
+      '- Strictly follow the schema.',
     ].join('\n')
   }
 }

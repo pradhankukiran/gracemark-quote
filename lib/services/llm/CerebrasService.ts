@@ -174,6 +174,16 @@ export class CerebrasService {
       d.common_benefits.forEach((b: string) => snippets.push(`- ${b}`))
       snippets.push('')
     }
+    if (availability.authority_payments && Array.isArray(d?.authority_payments)) {
+      snippets.push('AUTHORITY_PAYMENTS:')
+      d.authority_payments.forEach((ap: any) => {
+        const authority = ap.authority_payment || 'Unknown Authority'
+        const dates = ap.dates || 'Schedule not specified'
+        const methods = ap.methods || 'Methods not specified'
+        snippets.push(`- ${authority}: ${dates} (${methods})`)
+      })
+      snippets.push('')
+    }
 
     const systemPrompt = this.buildSystemPrompt()
     const userPrompt = this.buildUserPrompt({ meta, availability, numericHints, text: snippets.join('\n').trim() })
@@ -380,6 +390,7 @@ export class CerebrasService {
       '- For allowances in all-inclusive quotes: use NUMERIC_HINTS as primary source if Papaya lacks specific amounts, or estimate typical amounts if hints are empty.',
       '- Use AVAILABILITY flags to include sections only when present for the country.',
       '- For employer contributions with multiple rate options (e.g., different company sizes), choose the higher/conservative rate and include only ONE entry per contribution type.',
+      '- For authority payments: include monthly provisions for mandatory government payments (payroll tax, social security, workers compensation, etc.) based on payment schedules provided. Categorize as "contributions".',
       '',
       'Return JSON only.'
     ].join('\n')
