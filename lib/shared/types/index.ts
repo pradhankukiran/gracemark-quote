@@ -483,10 +483,62 @@ export interface ContributionOption {
   amount: number
 }
 
+// IC (Independent Contractor) Form Data Interface
+export interface ICFormData {
+  contractorName: string
+  serviceType: string
+  country: string
+  state: string
+  currency: string
+  rateType: "pay-rate" | "bill-rate"
+  rateAmount: string
+  paymentFrequency: string
+  contractDuration: string
+  complianceLevel: string
+  backgroundCheckRequired: boolean
+}
+
+// IC Quote Result Interface
+export interface ICQuoteResult {
+  payRate: number
+  billRate: number
+  platformFee: number
+  paymentProcessing: number
+  complianceFee: number
+  backgroundCheck: number
+  systemProviderCost: number
+  netMargin: number
+  totalMonthlyCost: number
+  contractorReceives: number
+  workedHours: number
+}
+
+// IC Validation Errors
+export interface ICValidationErrors {
+  contractorName: string | null
+  serviceType: string | null
+  country: string | null
+  rateAmount: string | null
+  contractDuration: string | null
+  complianceLevel: string | null
+}
+
+// IC API Request/Response
+export interface ICQuoteRequest {
+  formData: ICFormData
+  currency: string
+}
+
+export interface ICQuoteResponse {
+  success: boolean
+  data?: ICQuoteResult
+  error?: string
+}
+
 // Quote Result Data Structure
 export interface QuoteData {
   calculatorType: 'eor' | 'ic'
-  formData: EORFormData | Record<string, unknown>
+  formData: EORFormData | ICFormData | Record<string, unknown>
   quotes: {
     deel?: Quote
     remote?: RemoteAPIResponse | RemoteQuote
@@ -503,6 +555,7 @@ export interface QuoteData {
     comparisonSkuad?: Quote
     velocity?: Quote
     comparisonVelocity?: Quote
+    ic?: ICQuoteResult
   }
   metadata: {
     timestamp: number

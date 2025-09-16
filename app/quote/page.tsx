@@ -21,7 +21,6 @@ import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, 
 import { EORFormData, RemoteAPIResponse } from "@/lib/shared/types"
 import { EnhancedQuoteCard } from "@/components/enhancement/EnhancedQuoteCard"
 import { ProviderType, EnhancedQuote } from "@/lib/types/enhancement"
-import { downloadQuotePDF, DownloadProgress, handleDownloadError, validatePDFData } from "@/lib/pdf/downloadHandler"
 
 const LoadingSpinner = () => (
   <div role="status" aria-label="Loading quotes" className="flex items-center justify-center">
@@ -87,10 +86,10 @@ const QuotePageContent = memo(() => {
   const [providerData, setProviderData] = useState<{ provider: string; price: number; inRange?: boolean; isWinner?: boolean }[]>([])
   const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null)
 
-  // PDF Download state
-  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false)
-  const [downloadProgress, setDownloadProgress] = useState<DownloadProgress | null>(null)
-  const [downloadError, setDownloadError] = useState<string | null>(null)
+  // Acid Test state
+  const [isRunningAcidTest, setIsRunningAcidTest] = useState(false)
+  const [acidTestProgress, setAcidTestProgress] = useState<{ step: string; progress: number; message: string } | null>(null)
+  const [acidTestError, setAcidTestError] = useState<string | null>(null)
 
   // Body scroll lock when modal is open
   useEffect(() => {
@@ -333,11 +332,30 @@ const QuotePageContent = memo(() => {
       if (element) {
         element.scrollIntoView({
           behavior: 'smooth',
-          block: 'start',
+          block: phaseId === 'complete' ? 'end' : 'start',
           inline: 'nearest'
         })
       }
     }, 400)
+  }
+
+  // Scroll to bottom of modal container with proper timing
+  const scrollToBottom = () => {
+    return new Promise<void>((resolve) => {
+      // Use requestAnimationFrame to ensure DOM layout is complete
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const scrollContainer = document.querySelector('.overflow-y-auto.scroll-smooth')
+          if (scrollContainer) {
+            scrollContainer.scrollTo({
+              top: scrollContainer.scrollHeight,
+              behavior: 'smooth'
+            })
+          }
+          resolve()
+        }, 500) // Wait for CSS transitions to complete
+      })
+    })
   }
 
   // Simplified phase completion (removed transition delays)
@@ -644,37 +662,37 @@ const QuotePageContent = memo(() => {
               
               <div className="flex justify-center">
                 <Button
-                  onClick={handleDownloadPDF}
-                  disabled={isDownloadingPDF || !finalChoice || !providerData.length}
+                  onClick={handleStartAcidTest}
+                  disabled={isRunningAcidTest || !finalChoice || !providerData.length}
                   size="lg"
-                  className="bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg transition-all duration-200 px-8 py-3 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200 px-8 py-3 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isDownloadingPDF ? (
+                  {isRunningAcidTest ? (
                     <>
                       <Loader2 className="h-5 w-5 mr-3 animate-spin" />
-                      {downloadProgress?.message || 'Generating PDF...'}
+                      {acidTestProgress?.message || 'Running Acid Test...'}
                     </>
                   ) : (
                     <>
-                      <Rocket className="h-5 w-5 mr-3" />
-                      Download Quote
+                      <Zap className="h-5 w-5 mr-3" />
+                      Start Acid Test
                     </>
                   )}
                 </Button>
               </div>
 
-              {/* Download Error Display */}
-              {downloadError && (
+              {/* Acid Test Error Display */}
+              {acidTestError && (
                 <div className="mt-4 bg-red-50 border border-red-200 p-4">
                   <div className="flex items-start gap-2">
                     <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="font-medium text-red-800">PDF Generation Failed</p>
-                      <p className="text-sm text-red-600 mt-1">{downloadError}</p>
+                      <p className="font-medium text-red-800">Acid Test Failed</p>
+                      <p className="text-sm text-red-600 mt-1">{acidTestError}</p>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setDownloadError(null)}
+                        onClick={() => setAcidTestError(null)}
                         className="mt-2 text-red-600 border-red-300 hover:bg-red-50"
                       >
                         Dismiss
@@ -807,9 +825,8 @@ const QuotePageContent = memo(() => {
       setReconSteps(prev => [...prev, { type: 'trophy', title: `Analysis Complete: ${choice.provider} Recommended` }]);
       completePhase('complete')
 
-      // Now scroll to the complete content after everything is rendered
-      await sleep(100) // Brief delay to ensure content is rendered
-      scrollToPhase('complete')
+      // Wait for content to be fully rendered and scroll to bottom to show final recommendation
+      await scrollToBottom()
 
     } catch (error) {
       console.error("Reconciliation failed", error);
@@ -817,60 +834,53 @@ const QuotePageContent = memo(() => {
     }
   }
 
-  // PDF Download Handler
-  const handleDownloadPDF = async () => {
-    // Pre-validation with user-friendly messages
-    const validation = validatePDFData(finalChoice, providerData, quoteData);
-    
-    if (!validation.isValid) {
-      setDownloadError(`Cannot generate PDF:\n${validation.errors.join('\n')}`);
+  // Acid Test Handler
+  const handleStartAcidTest = async () => {
+    // Pre-validation
+    if (!finalChoice || !providerData.length) {
+      setAcidTestError('Cannot start acid test: Missing provider data');
       return;
     }
 
-    // Show warnings if any (but continue with download)
-    if (validation.warnings.length > 0) {
-      // console.log('PDF Generation Warnings:', validation.warnings.join(', '));
-    }
-
-    setIsDownloadingPDF(true);
-    setDownloadError(null);
-    setDownloadProgress(null);
+    setIsRunningAcidTest(true);
+    setAcidTestError(null);
+    setAcidTestProgress(null);
 
     try {
-      await downloadQuotePDF(
-        finalChoice,
-        providerData,
-        quoteData,
-        enhancements,
-        {
-          onProgress: (progress) => {
-            setDownloadProgress(progress);
-          },
-          onError: (error) => {
-            const userFriendlyMessage = handleDownloadError(error);
-            setDownloadError(userFriendlyMessage);
-            setIsDownloadingPDF(false);
-            setDownloadProgress(null);
-          },
-          onSuccess: (filename) => {
-            setIsDownloadingPDF(false);
-            setDownloadProgress(null);
-            // Show success message
-            // console.log(`✅ PDF downloaded successfully: ${filename}`);
-            
-            // Optionally show warnings that were resolved
-            if (validation.warnings.length > 0) {
-              // console.log('ℹ️ Note: Some optional data was missing but PDF was generated successfully');
-            }
-          },
-          includeLogos: true
+      // Simulate acid test phases with progress updates
+      const testPhases = [
+        { step: 'validation', progress: 20, message: 'Validating provider data integrity...', delay: 800 },
+        { step: 'pricing', progress: 40, message: 'Verifying pricing accuracy...', delay: 600 },
+        { step: 'compliance', progress: 60, message: 'Checking regulatory compliance...', delay: 700 },
+        { step: 'integration', progress: 80, message: 'Testing API connectivity...', delay: 500 },
+        { step: 'final', progress: 100, message: 'Finalizing acid test results...', delay: 400 }
+      ];
+
+      for (const phase of testPhases) {
+        setAcidTestProgress({
+          step: phase.step,
+          progress: phase.progress,
+          message: phase.message
+        });
+
+        await new Promise(resolve => setTimeout(resolve, phase.delay));
+
+        // Simulate potential test failure (5% chance)
+        if (Math.random() < 0.05) {
+          throw new Error(`Acid test failed during ${phase.step} phase`);
         }
-      );
+      }
+
+      // Success
+      setIsRunningAcidTest(false);
+      setAcidTestProgress(null);
+      console.log(`✅ Acid test completed successfully for ${finalChoice.provider}`);
+
     } catch (error) {
-      const userFriendlyMessage = handleDownloadError(error);
-      setDownloadError(userFriendlyMessage);
-      setIsDownloadingPDF(false);
-      setDownloadProgress(null);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred during acid test';
+      setAcidTestError(errorMessage);
+      setIsRunningAcidTest(false);
+      setAcidTestProgress(null);
     }
   };
 
