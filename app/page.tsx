@@ -11,13 +11,16 @@ export default function HomePage() {
         {/* Hero Section */}
         <div className="text-center mb-15">
           <div className="flex items-center justify-center mb-8">
-            <Image
-              src="/GraceMarklogo.png"
-              alt="GraceMark Logo"
-              width={150}
-              height={100}
-              priority
-            />
+            <div className="flex-shrink-0">
+              <Image
+                src="/GraceMarklogo.png"
+                alt="GraceMark Logo"
+                width={150}
+                height={62}
+                priority
+                className="block"
+              />
+            </div>
             <h1 className="font-serif font-bold text-slate-900 leading-tight text-3xl ml-4">
               Quote Tool
             </h1>
