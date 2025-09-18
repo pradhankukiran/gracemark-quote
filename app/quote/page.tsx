@@ -2,12 +2,11 @@
 
 import { useEffect, Suspense, memo, useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Loader2, Brain, Filter, Target, Trophy, ListChecks, Zap, BarChart3, TrendingUp, Sparkles, Star, Crown, Rocket, ChevronRight, Play, Pause, RotateCcw, Activity, TrendingDown, FileText } from "lucide-react"
+import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Brain, Target, Zap, BarChart3, TrendingUp, Crown, Activity, TrendingDown, FileText } from "lucide-react"
 import Link from "next/link"
 import { useQuoteResults } from "./hooks/useQuoteResults"
 import { useUSDConversion } from "../eor-calculator/hooks/useUSDConversion"
@@ -19,7 +18,6 @@ import { ProviderLogo } from "./components/ProviderLogo"
 import { EnhancementProvider, useEnhancementContext } from "@/hooks/enhancement/EnhancementContext"
 import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, transformToRemoteQuote, transformOysterQuoteToDisplayQuote } from "@/lib/shared/utils/apiUtils"
 import { EORFormData, RemoteAPIResponse } from "@/lib/shared/types"
-import { EnhancedQuoteCard } from "@/components/enhancement/EnhancedQuoteCard"
 import { ProviderType, EnhancedQuote } from "@/lib/types/enhancement"
 
 const LoadingSpinner = () => (
@@ -42,9 +40,7 @@ const QuotePageContent = memo(() => {
     providerStates,
     enhancementBatchInfo,
     isComparisonReady,
-    isDualCurrencyComparisonReady,
-    hasComparisonData,
-    hasDualCurrencyData
+    isDualCurrencyComparisonReady
   } = useQuoteResults(quoteId)
   
   const {
@@ -71,25 +67,35 @@ const QuotePageContent = memo(() => {
   // --- RECONCILIATION STATE ---
   const { enhancements } = useEnhancementContext()
   const [isReconModalOpen, setIsReconModalOpen] = useState(false)
-  const [reconSteps, setReconSteps] = useState<{type: string, title: string, description?: string}[]>([])
-  const [finalChoice, setFinalChoice] = useState<{ 
-    provider: string; 
-    price: number; 
+  const [finalChoice, setFinalChoice] = useState<{
+    provider: string;
+    price: number;
     currency: string;
     enhancedQuote?: EnhancedQuote;
   } | null>(null)
-  
+
   // Timeline-style reconciliation state
   const [completedPhases, setCompletedPhases] = useState<Set<string>>(new Set())
   const [activePhase, setActivePhase] = useState<'gathering' | 'analyzing' | 'selecting' | 'complete' | null>('gathering')
   const [progressPercent, setProgressPercent] = useState(0)
   const [providerData, setProviderData] = useState<{ provider: string; price: number; inRange?: boolean; isWinner?: boolean }[]>([])
-  const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null)
 
   // Acid Test state
-  const [isRunningAcidTest, setIsRunningAcidTest] = useState(false)
-  const [acidTestProgress, setAcidTestProgress] = useState<{ step: string; progress: number; message: string } | null>(null)
   const [acidTestError, setAcidTestError] = useState<string | null>(null)
+
+  // Acid Test Form state
+  const [showAcidTestForm, setShowAcidTestForm] = useState(false)
+  const [monthlyBillRate, setMonthlyBillRate] = useState<number>(0)
+  const [projectDuration, setProjectDuration] = useState<number>(6)
+  const [acidTestResults, setAcidTestResults] = useState<{
+    totalProjectRevenue: number;
+    totalProjectCost: number;
+    totalProjectProfit: number;
+  } | null>(null)
+  const [acidTestValidation, setAcidTestValidation] = useState<{
+    billRateError?: string;
+    durationError?: string;
+  }>({})
 
   // Body scroll lock when modal is open
   useEffect(() => {
@@ -375,7 +381,6 @@ const QuotePageContent = memo(() => {
     const isPhaseActive = (phase: string) => activePhase === phase
     const isPhaseCompleted = (phase: string) => completedPhases.has(phase)
     const isPhaseStarted = (phase: string) => isPhaseActive(phase) || isPhaseCompleted(phase)
-    const isPhaseUpcoming = (phase: string) => !isPhaseStarted(phase)
 
     return (
       <div className="space-y-8 p-6">
@@ -644,64 +649,228 @@ const QuotePageContent = memo(() => {
           </div>
 
           {isPhaseStarted('complete') && finalChoice && (
-            <div className="bg-green-50 p-8 border border-green-200 shadow-sm transition-all duration-300">
-              <div className="text-center mb-8">
-                <div className="w-24 h-24 mx-auto mb-6 border border-green-300 flex items-center justify-center bg-white shadow-sm transition-transform duration-300 hover:scale-105">
-                  <ProviderLogo provider={finalChoice.provider as ProviderType} />
-                </div>
-                <div className="text-3xl font-bold text-slate-900 capitalize mb-3 tracking-tight">
-                  {finalChoice.provider}
-                </div>
-                <div className="text-5xl font-bold text-green-600 mb-6 tracking-tight">
-                  {formatMoney(finalChoice.price, finalChoice.currency)}
-                </div>
-                <Badge className="bg-green-100 text-green-800 border-green-200 px-4 py-2 text-sm font-semibold">
-                  Recommended Provider
-                </Badge>
-              </div>
-              
-              <div className="flex justify-center">
-                <Button
-                  onClick={handleStartAcidTest}
-                  disabled={isRunningAcidTest || !finalChoice || !providerData.length}
-                  size="lg"
-                  className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200 px-8 py-3 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isRunningAcidTest ? (
-                    <>
-                      <Loader2 className="h-5 w-5 mr-3 animate-spin" />
-                      {acidTestProgress?.message || 'Running Acid Test...'}
-                    </>
-                  ) : (
-                    <>
+            <>
+              {!showAcidTestForm ? (
+                <div className="bg-green-50 p-8 border border-green-200 shadow-sm transition-all duration-300">
+                  <div className="text-center mb-8">
+                    <div className="w-24 h-24 mx-auto mb-6 border border-green-300 flex items-center justify-center bg-white shadow-sm transition-transform duration-300 hover:scale-105">
+                      <ProviderLogo provider={finalChoice.provider as ProviderType} />
+                    </div>
+                    <div className="text-3xl font-bold text-slate-900 capitalize mb-3 tracking-tight">
+                      {finalChoice.provider}
+                    </div>
+                    <div className="text-5xl font-bold text-green-600 mb-6 tracking-tight">
+                      {formatMoney(finalChoice.price, finalChoice.currency)}
+                    </div>
+                    <Badge className="bg-green-100 text-green-800 border-green-200 px-4 py-2 text-sm font-semibold">
+                      Recommended Provider
+                    </Badge>
+                  </div>
+
+                  <div className="flex justify-center">
+                    <Button
+                      onClick={handleStartAcidTest}
+                      disabled={!finalChoice || !providerData.length}
+                      size="lg"
+                      className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200 px-8 py-3 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
                       <Zap className="h-5 w-5 mr-3" />
                       Start Acid Test
-                    </>
-                  )}
-                </Button>
-              </div>
+                    </Button>
+                  </div>
 
-              {/* Acid Test Error Display */}
-              {acidTestError && (
-                <div className="mt-4 bg-red-50 border border-red-200 p-4">
-                  <div className="flex items-start gap-2">
-                    <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-red-800">Acid Test Failed</p>
-                      <p className="text-sm text-red-600 mt-1">{acidTestError}</p>
+                  {/* Acid Test Error Display */}
+                  {acidTestError && (
+                    <div className="mt-4 bg-red-50 border border-red-200 p-4">
+                      <div className="flex items-start gap-2">
+                        <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-medium text-red-800">Acid Test Failed</p>
+                          <p className="text-sm text-red-600 mt-1">{acidTestError}</p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setAcidTestError(null)}
+                            className="mt-2 text-red-600 border-red-300 hover:bg-red-50"
+                          >
+                            Dismiss
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-purple-50 p-8 border border-purple-200 shadow-sm transition-all duration-300">
+                  <div className="max-w-2xl mx-auto">
+                    <div className="text-center mb-8">
+                      <div className="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-full flex items-center justify-center">
+                        <Zap className="h-8 w-8 text-purple-600" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-slate-900 mb-2">🧪 Acid Test Calculator</h3>
+                      <p className="text-slate-600">Calculate your project profitability with {finalChoice.provider}</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                      {/* Total Monthly Cost (Locked) */}
+                      <div className="bg-white p-6 border border-slate-200 shadow-sm">
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          Total Monthly Cost
+                        </label>
+                        <div className="relative">
+                          <Input
+                            type="text"
+                            value={formatMoney(finalChoice.price, finalChoice.currency)}
+                            disabled
+                            className="bg-slate-50 text-slate-600 font-bold text-lg"
+                          />
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <Badge className="bg-slate-100 text-slate-600 text-xs">Locked</Badge>
+                          </div>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">From selected provider</p>
+                      </div>
+
+                      {/* Monthly Bill Rate (Input) */}
+                      <div className="bg-white p-6 border border-slate-200 shadow-sm">
+                        <label htmlFor="billRate" className="block text-sm font-medium text-slate-700 mb-2">
+                          Monthly Bill Rate
+                        </label>
+                        <Input
+                          id="billRate"
+                          type="number"
+                          placeholder="11000"
+                          value={monthlyBillRate || ''}
+                          onChange={(e) => handleBillRateChange(e.target.value)}
+                          className={`font-bold text-lg ${
+                            acidTestValidation.billRateError
+                              ? 'border-red-300 focus:border-red-400 bg-red-50'
+                              : 'border-purple-200 focus:border-purple-400'
+                          }`}
+                        />
+                        {acidTestValidation.billRateError ? (
+                          <p className="text-xs text-red-600 mt-1">{acidTestValidation.billRateError}</p>
+                        ) : (
+                          <p className="text-xs text-slate-500 mt-1">What you charge the client</p>
+                        )}
+                      </div>
+
+                      {/* Project Duration (Input) */}
+                      <div className="bg-white p-6 border border-slate-200 shadow-sm">
+                        <label htmlFor="duration" className="block text-sm font-medium text-slate-700 mb-2">
+                          Project Duration
+                        </label>
+                        <Input
+                          id="duration"
+                          type="number"
+                          placeholder="6"
+                          value={projectDuration || ''}
+                          onChange={(e) => handleDurationChange(e.target.value)}
+                          className={`font-bold text-lg ${
+                            acidTestValidation.durationError
+                              ? 'border-red-300 focus:border-red-400 bg-red-50'
+                              : 'border-purple-200 focus:border-purple-400'
+                          }`}
+                        />
+                        {acidTestValidation.durationError ? (
+                          <p className="text-xs text-red-600 mt-1">{acidTestValidation.durationError}</p>
+                        ) : (
+                          <p className="text-xs text-slate-500 mt-1">Number of months</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Calculations Display */}
+                    {acidTestResults && (
+                      <div className="space-y-4 mb-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Total Project Revenue */}
+                          <div className="bg-white p-6 border border-slate-200 shadow-sm">
+                            <div className="flex items-center gap-2 mb-2">
+                              <TrendingUp className="h-5 w-5 text-blue-600" />
+                              <h4 className="font-semibold text-slate-700">Total Project Revenue</h4>
+                            </div>
+                            <div className="text-2xl font-bold text-blue-600">
+                              {formatMoney(acidTestResults.totalProjectRevenue, finalChoice.currency)}
+                            </div>
+                            <p className="text-sm text-slate-500 mt-1">
+                              {formatMoney(monthlyBillRate, finalChoice.currency)} × {projectDuration} months
+                            </p>
+                          </div>
+
+                          {/* Total Project Cost */}
+                          <div className="bg-white p-6 border border-slate-200 shadow-sm">
+                            <div className="flex items-center gap-2 mb-2">
+                              <TrendingDown className="h-5 w-5 text-red-600" />
+                              <h4 className="font-semibold text-slate-700">Total Project Cost</h4>
+                            </div>
+                            <div className="text-2xl font-bold text-red-600">
+                              {formatMoney(acidTestResults.totalProjectCost, finalChoice.currency)}
+                            </div>
+                            <p className="text-sm text-slate-500 mt-1">
+                              {formatMoney(finalChoice.price, finalChoice.currency)} × {projectDuration} months
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Total Project Profit */}
+                        <div className={`p-8 border-2 shadow-md text-center ${
+                          acidTestResults.totalProjectProfit >= 0
+                            ? 'bg-green-50 border-green-300'
+                            : 'bg-red-50 border-red-300'
+                        }`}>
+                          <h3 className="text-xl font-bold text-slate-800 mb-4">
+                            🎯 Acid Test Result: Total Project Profit
+                          </h3>
+                          <div className={`text-5xl font-bold mb-4 ${
+                            acidTestResults.totalProjectProfit >= 0 ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {formatMoney(acidTestResults.totalProjectProfit, finalChoice.currency)}
+                          </div>
+                          <div className="text-sm text-slate-600">
+                            (Revenue: {formatMoney(acidTestResults.totalProjectRevenue, finalChoice.currency)} -
+                            Cost: {formatMoney(acidTestResults.totalProjectCost, finalChoice.currency)})
+                          </div>
+                          {acidTestResults.totalProjectProfit >= 0 ? (
+                            <Badge className="bg-green-100 text-green-800 border-green-200 mt-4">
+                              ✅ Profitable Project
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-red-100 text-red-800 border-red-200 mt-4">
+                              ⚠️ Loss-Making Project
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Form Actions */}
+                    <div className="flex gap-4 justify-center">
                       <Button
                         variant="outline"
-                        size="sm"
-                        onClick={() => setAcidTestError(null)}
-                        className="mt-2 text-red-600 border-red-300 hover:bg-red-50"
+                        onClick={handleCloseAcidTest}
+                        className="px-6"
                       >
-                        Dismiss
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Recommendation
                       </Button>
+                      {acidTestResults && (
+                        <Button
+                          onClick={() => {
+                            // Optional: Add export/save functionality here
+                            console.log('Acid test results:', acidTestResults);
+                          }}
+                          className="bg-purple-600 hover:bg-purple-700 text-white px-6"
+                        >
+                          <FileText className="h-4 w-4 mr-2" />
+                          Save Results
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
               )}
-            </div>
+            </>
           )}
         </div>
       </div>
@@ -710,7 +879,6 @@ const QuotePageContent = memo(() => {
 
   const startReconciliation = async () => {
     setIsReconModalOpen(true)
-    setReconSteps([])
     setFinalChoice(null)
     setCompletedPhases(new Set())
     setActivePhase('gathering')
@@ -723,14 +891,12 @@ const QuotePageContent = memo(() => {
       // Phase 1: Gathering Data (0-25%)
       startPhase('gathering')
       await smoothProgressUpdate(5)
-      setReconSteps([{ type: 'start', title: 'Starting Reconciliation Analysis' }])
 
       const prices: { provider: string; price: number }[] = allProviders
         .map(p => ({ provider: p, price: enhancements[p]?.finalTotal || 0 }))
         .filter(p => p.price !== undefined && p.price !== null && p.price > 0);
 
       if (prices.length === 0) {
-        setReconSteps(prev => [...prev, { type: 'error', title: 'Error: No provider prices available.'}]);
         return;
       }
 
@@ -739,7 +905,6 @@ const QuotePageContent = memo(() => {
         setProviderData(prev => [...prev, prices[i]])
         const targetProgress = 5 + ((i + 1) / prices.length) * 20
         await smoothProgressUpdate(targetProgress)
-        setReconSteps(prev => [...prev, { type: 'data', title: `Collected ${prices[i].provider} quote`, description: `${formatMoney(prices[i].price, currency)}` }])
         await sleep(80) // Reduced from 150ms to 80ms
       }
 
@@ -754,17 +919,13 @@ const QuotePageContent = memo(() => {
 
       const deel = prices.find(p => p.provider === 'deel');
       if (!deel) {
-        setReconSteps(prev => [...prev, { type: 'error', title: 'Deel Price Not Available', description: 'Cannot proceed without Deel price as a reference.' }]);
         return;
       }
-
-      setReconSteps(prev => [...prev, { type: 'target', title: 'Set Deel as Baseline', description: `Reference price: ${formatMoney(deel.price, currency)}` }]);
 
       await sleep(500) // Reduced from 800ms
       const lowerBound = deel.price * 0.96;
       const upperBound = deel.price * 1.04;
-      await smoothProgressUpdate(45)
-      setReconSteps(prev => [...prev, { type: 'calculate', title: 'Calculated 4% Variance Range', description: `Range: ${formatMoney(lowerBound, currency)} - ${formatMoney(upperBound, currency)}` }]);
+      await smoothProgressUpdate(45);
 
       await sleep(500) // Reduced from 800ms
       // Update provider data with range analysis
@@ -784,17 +945,15 @@ const QuotePageContent = memo(() => {
       await smoothProgressUpdate(65)
 
       const candidates = analyzedProviders.filter(p => p.inRange);
-      setReconSteps(prev => [...prev, { type: 'filter', title: 'Filtered Candidates', description: `${candidates.length} providers within range: ${candidates.map(c => c.provider).join(', ')}` }]);
 
       if (candidates.length === 0) {
-        setReconSteps(prev => [...prev, { type: 'error', title: 'No providers found within the 4% range.'}]);
         return;
       }
 
       await sleep(600) // Reduced from 1000ms
       await smoothProgressUpdate(80)
       const choice = candidates.reduce((max, current) => (current.price > max.price ? current : max), candidates[0]);
-      
+
       await sleep(400) // Reduced from 700ms - quicker winner selection
       // Mark winner in provider data
       const finalProviders = analyzedProviders.map(p => ({
@@ -802,9 +961,7 @@ const QuotePageContent = memo(() => {
         isWinner: p.provider === choice.provider
       }))
       setProviderData(finalProviders)
-      await smoothProgressUpdate(90)
-      
-      setReconSteps(prev => [...prev, { type: 'select', title: 'Selected Optimal Provider', description: `${choice.provider} offers highest price within acceptable range` }]);
+      await smoothProgressUpdate(90);
       completePhase('selecting')
 
       // Reduced delay before final phase
@@ -822,7 +979,6 @@ const QuotePageContent = memo(() => {
         currency,
         enhancedQuote: selectedEnhancement || undefined
       });
-      setReconSteps(prev => [...prev, { type: 'trophy', title: `Analysis Complete: ${choice.provider} Recommended` }]);
       completePhase('complete')
 
       // Wait for content to be fully rendered and scroll to bottom to show final recommendation
@@ -830,58 +986,99 @@ const QuotePageContent = memo(() => {
 
     } catch (error) {
       console.error("Reconciliation failed", error);
-      setReconSteps(prev => [...prev, { type: 'error', title: 'An unexpected error occurred during reconciliation.'}]);
     }
   }
 
   // Acid Test Handler
-  const handleStartAcidTest = async () => {
+  const handleStartAcidTest = () => {
     // Pre-validation
     if (!finalChoice || !providerData.length) {
       setAcidTestError('Cannot start acid test: Missing provider data');
       return;
     }
 
-    setIsRunningAcidTest(true);
+    // Reset any previous state and show the form
     setAcidTestError(null);
-    setAcidTestProgress(null);
+    setAcidTestResults(null);
+    setAcidTestValidation({});
+    setShowAcidTestForm(true);
+    setMonthlyBillRate(0);
+    setProjectDuration(6);
+  };
 
-    try {
-      // Simulate acid test phases with progress updates
-      const testPhases = [
-        { step: 'validation', progress: 20, message: 'Validating provider data integrity...', delay: 800 },
-        { step: 'pricing', progress: 40, message: 'Verifying pricing accuracy...', delay: 600 },
-        { step: 'compliance', progress: 60, message: 'Checking regulatory compliance...', delay: 700 },
-        { step: 'integration', progress: 80, message: 'Testing API connectivity...', delay: 500 },
-        { step: 'final', progress: 100, message: 'Finalizing acid test results...', delay: 400 }
-      ];
-
-      for (const phase of testPhases) {
-        setAcidTestProgress({
-          step: phase.step,
-          progress: phase.progress,
-          message: phase.message
-        });
-
-        await new Promise(resolve => setTimeout(resolve, phase.delay));
-
-        // Simulate potential test failure (5% chance)
-        if (Math.random() < 0.05) {
-          throw new Error(`Acid test failed during ${phase.step} phase`);
-        }
-      }
-
-      // Success
-      setIsRunningAcidTest(false);
-      setAcidTestProgress(null);
-      console.log(`✅ Acid test completed successfully for ${finalChoice.provider}`);
-
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred during acid test';
-      setAcidTestError(errorMessage);
-      setIsRunningAcidTest(false);
-      setAcidTestProgress(null);
+  // Acid Test Calculation Functions
+  const calculateAcidTestResults = (billRate: number, duration: number, monthlyCost: number) => {
+    if (billRate <= 0 || duration <= 0 || monthlyCost <= 0) {
+      return null;
     }
+
+    const totalProjectRevenue = billRate * duration;
+    const totalProjectCost = monthlyCost * duration;
+    const totalProjectProfit = totalProjectRevenue - totalProjectCost;
+
+    return {
+      totalProjectRevenue,
+      totalProjectCost,
+      totalProjectProfit
+    };
+  };
+
+  // Handle form input changes and update calculations
+  const handleBillRateChange = (value: string) => {
+    const rate = parseFloat(value) || 0;
+    setMonthlyBillRate(rate);
+
+    // Validation
+    const validation = { ...acidTestValidation };
+    if (value === '' || rate <= 0) {
+      validation.billRateError = 'Monthly bill rate must be greater than 0';
+    } else if (rate > 1000000) {
+      validation.billRateError = 'Monthly bill rate seems unusually high';
+    } else {
+      delete validation.billRateError;
+    }
+    setAcidTestValidation(validation);
+
+    // Calculate results only if both inputs are valid
+    if (finalChoice && rate > 0 && projectDuration > 0) {
+      const results = calculateAcidTestResults(rate, projectDuration, finalChoice.price);
+      setAcidTestResults(results);
+    } else {
+      setAcidTestResults(null);
+    }
+  };
+
+  const handleDurationChange = (value: string) => {
+    const duration = parseInt(value) || 0;
+    setProjectDuration(duration);
+
+    // Validation
+    const validation = { ...acidTestValidation };
+    if (value === '' || duration <= 0) {
+      validation.durationError = 'Project duration must be at least 1 month';
+    } else if (duration > 120) {
+      validation.durationError = 'Project duration seems unusually long (max 120 months)';
+    } else {
+      delete validation.durationError;
+    }
+    setAcidTestValidation(validation);
+
+    // Calculate results only if both inputs are valid
+    if (finalChoice && monthlyBillRate > 0 && duration > 0) {
+      const results = calculateAcidTestResults(monthlyBillRate, duration, finalChoice.price);
+      setAcidTestResults(results);
+    } else {
+      setAcidTestResults(null);
+    }
+  };
+
+  const handleCloseAcidTest = () => {
+    setShowAcidTestForm(false);
+    setAcidTestResults(null);
+    setMonthlyBillRate(0);
+    setProjectDuration(6);
+    setAcidTestError(null);
+    setAcidTestValidation({});
   };
 
   // --- RENDER LOGIC (UNCHANGED) ---
@@ -982,7 +1179,6 @@ const QuotePageContent = memo(() => {
       if (quote && fq && typeof fq.total_monthly === 'number' && Array.isArray(fq.items)) {
         const cloned = { ...(quote as any) }
         const existingCosts = Array.isArray(cloned.costs) ? [...cloned.costs] : []
-        const originalCostsLength = existingCosts.length
         const toAmountStr = (n: number) => {
           const v = Number(n)
           return Number.isFinite(v) ? v.toFixed(2) : '0'
@@ -1172,7 +1368,6 @@ const QuotePageContent = memo(() => {
     // Do not inject extras here to avoid double-counting.
     // Extras are passed to GenericQuoteCard via mergedExtras for inline injection.
 
-    const isDualMode = !!dualCurrencyQuotes?.isDualCurrencyMode
     return (
       <div className="space-y-6">
         <GenericQuoteCard
@@ -1535,73 +1730,6 @@ const QuotePageContent = memo(() => {
   )
 });
 
-// Enhanced Step Icon System
-const getEnhancedStepIcon = (type: string) => {
-  switch (type) {
-    case 'start': return Rocket;
-    case 'data': return FileText;
-    case 'target': return Target;
-    case 'calculate': return Calculator;
-    case 'filter': return Filter;
-    case 'check': return CheckCircle;
-    case 'list': return ListChecks;
-    case 'select': return Star;
-    case 'trophy': return Crown;
-    case 'error': return XCircle;
-    default: return CheckCircle;
-  }
-}
-
-const getEnhancedStepBg = (type: string) => {
-  switch (type) {
-    case 'start': return 'bg-gradient-to-br from-indigo-100 to-indigo-200 border-2 border-indigo-300';
-    case 'data': return 'bg-gradient-to-br from-blue-100 to-blue-200 border-2 border-blue-300';
-    case 'target': return 'bg-gradient-to-br from-purple-100 to-purple-200 border-2 border-purple-300';
-    case 'calculate': return 'bg-gradient-to-br from-teal-100 to-teal-200 border-2 border-teal-300';
-    case 'filter': return 'bg-gradient-to-br from-cyan-100 to-cyan-200 border-2 border-cyan-300';
-    case 'check': return 'bg-gradient-to-br from-emerald-100 to-emerald-200 border-2 border-emerald-300';
-    case 'list': return 'bg-gradient-to-br from-violet-100 to-violet-200 border-2 border-violet-300';
-    case 'select': return 'bg-gradient-to-br from-amber-100 to-amber-200 border-2 border-amber-300';
-    case 'trophy': return 'bg-gradient-to-br from-yellow-100 to-orange-200 border-2 border-yellow-400 shadow-lg';
-    case 'error': return 'bg-gradient-to-br from-red-100 to-red-200 border-2 border-red-300';
-    default: return 'bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-slate-300';
-  }
-}
-
-const getEnhancedStepBorder = (type: string) => {
-  switch (type) {
-    case 'trophy': return 'border-yellow-400 shadow-yellow-200/50';
-    case 'error': return 'border-red-300 shadow-red-200/50';
-    default: return '';
-  }
-}
-
-const getEnhancedStepColor = (type: string) => {
-  switch (type) {
-    case 'start': return 'text-indigo-600';
-    case 'data': return 'text-blue-600';
-    case 'target': return 'text-purple-600';
-    case 'calculate': return 'text-teal-600';
-    case 'filter': return 'text-cyan-600';
-    case 'check': return 'text-emerald-600';
-    case 'list': return 'text-violet-600';
-    case 'select': return 'text-amber-600';
-    case 'trophy': return 'text-yellow-600';
-    case 'error': return 'text-red-600';
-    default: return 'text-slate-600';
-  }
-}
-
-// Legacy functions for compatibility
-const getStepIcon = getEnhancedStepIcon;
-const getStepIconBg = (type: string) => {
-  switch (type) {
-    case 'error': return 'bg-red-100';
-    case 'trophy': return 'bg-yellow-100';
-    default: return 'bg-slate-100';
-  }
-}
-const getStepIconColor = getEnhancedStepColor;
 QuotePageContent.displayName = 'QuotePageContent';
 
 export default function QuotePage() {
@@ -1609,7 +1737,7 @@ export default function QuotePage() {
     <ErrorBoundary
       fallbackTitle="Quote Loading Error"
       fallbackMessage="There was a problem loading your quote. This might be due to corrupted data or a temporary issue."
-      onError={(error, errorInfo) => {
+      onError={() => {
         // console.error('Quote page error:', error, errorInfo)
       }}
     >
