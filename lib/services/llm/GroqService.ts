@@ -142,34 +142,9 @@ export class GroqService {
    * Main method: Enhance quote using Groq LLM
    */
   async enhanceQuote(input: EnhancementInput): Promise<GroqEnhancementResponse> {
-    // Unified path: delegate to direct raw-Papaya flow
-    try {
-      this.validateInput(input)
-
-      // Ensure we have extracted provider inclusions; if not provided, run extraction
-      let extracted = input.extractedBenefits
-      if (!extracted) {
-        extracted = await this.extractBenefits(input.providerQuote.originalResponse, input.provider)
-      }
-
-      // Flatten raw Papaya Global data for LLM consumption
-      const flattened = PapayaDataFlattener.flatten(input.papayaData)
-
-      // Route through the direct enhancement method (single prompt style)
-      return await this.computeDirectEnhancements({
-        provider: input.provider,
-        baseQuote: input.providerQuote,
-        formData: input.formData as EORFormData,
-        papayaData: flattened.data,
-        papayaCurrency: flattened.currency,
-        quoteType: input.quoteType,
-        contractDurationMonths: input.contractDurationMonths,
-        extractedBenefits: extracted
-      })
-    } catch (error) {
-      const enhancementError = this.handleError(error, input.provider)
-      throw enhancementError
-    }
+    // DEPRECATED: This method should use the proper Cerebras → Groq flow
+    // Delegate to the correct flow via EnhancementEngine
+    throw new Error('enhanceQuote() is deprecated. Use EnhancementEngine.enhanceQuote() for proper Cerebras → Groq flow.')
   }
 
   /**
@@ -184,22 +159,7 @@ export class GroqService {
       const systemPrompt = PromptEngine.buildExtractionSystemPrompt()
       const userPrompt = PromptEngine.buildExtractionUserPrompt(originalResponse, provider)
 
-      // Debug logging for development
-       if (typeof window === 'undefined') {
-        try {
-          console.log('[Groq] Extract Benefits - Request Details:', {
-            method: 'extractBenefits',
-            provider: provider,
-            model: this.config.model,
-            temperature: this.config.temperature,
-            max_tokens: this.config.maxTokens,
-            prompts: {
-              system: systemPrompt,
-              user: userPrompt
-            }
-          })
-        } catch {/* noop */}
-      }
+      
 
       // Make API call using Groq SDK (Pass 1)
       const client = this.getClient('pass1')
@@ -221,24 +181,7 @@ export class GroqService {
       // Update rate limiter
       this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
 
-      // Debug logging for development
-       if (typeof window === 'undefined') {
-        try {
-          const usage = (response as ChatCompletion).usage
-          const content = (response as ChatCompletion).choices?.[0]?.message?.content || ''
-          console.log('[Groq] Extract Benefits - Response Details:', {
-            method: 'extractBenefits',
-            provider: provider,
-            usage: {
-              prompt_tokens: usage?.prompt_tokens,
-              completion_tokens: usage?.completion_tokens,
-              total_tokens: usage?.total_tokens
-            },
-            response_length: content.length,
-            raw_content: content
-          })
-        } catch {/* noop */}
-      }
+     
 
       // Parse and validate response
       const content = (response as ChatCompletion).choices?.[0]?.message?.content
@@ -276,8 +219,9 @@ export class GroqService {
       }
       const flattened = PapayaDataFlattener.flatten(papaya)
 
-      // Build a minimal formData for prompt logic compatibility
-      const formData: EORFormData = {
+      // Use the original formData passed from EnhancementEngine (includes addBenefits checkbox!)
+      const formData = input.formData || {
+        // Fallback minimal formData if not provided (shouldn't happen in normal flow)
         employeeName: '',
         jobTitle: '',
         workVisaRequired: false,
@@ -338,61 +282,34 @@ export class GroqService {
   }
 
   /**
-   * Direct enhancement using flattened Papaya data (New Simplified Approach)
+   * Enhancement computation using Cerebras-processed legal profile data
+   * This method only handles the Cerebras → Groq flow (Flow A)
    */
   async computeDirectEnhancements(input: DirectEnhancementInput): Promise<GroqEnhancementResponse> {
     try {
       // Rate limiting
       await this.checkRateLimit()
 
-      // Full-quote prompting (Papaya-only; assemble complete monthly quote in LOCAL currency)
+      // Use baseline prompting for Cerebras-processed flattened Papaya data
       let systemPrompt = PromptEngine.buildBaselineSystemPrompt()
-      // Build BASE ITEMS (names only) from the base quote originalResponse for LLM-side de-dup
+
+      // Build BASE ITEMS from provider response for deduplication
       const baseItems: string[] = []
       try {
         const or: any = input.baseQuote.originalResponse || {}
-        // Generic costs[]
         if (Array.isArray(or?.costs)) {
           for (const c of or.costs) {
             const n = String(c?.name || '').trim()
             if (n) baseItems.push(n)
           }
         }
-        // Remote breakdown lists
-        const costs = or?.employment?.employer_currency_costs
-        if (costs) {
-          const lists = [
-            Array.isArray(costs?.monthly_contributions_breakdown) ? costs.monthly_contributions_breakdown : [],
-            Array.isArray(costs?.monthly_benefits_breakdown) ? costs.monthly_benefits_breakdown : []
-          ]
-          for (const arr of lists) {
-            for (const it of arr as any[]) {
-              const n = String(it?.name || '').trim()
-              if (n) baseItems.push(n)
-            }
-          }
-        }
-        // Rivermate taxItems
-        if (Array.isArray((or as any)?.taxItems)) {
-          for (const it of (or as any).taxItems) {
-            const n = String(it?.name || '').trim()
-            if (n) baseItems.push(n)
-          }
-        }
-        // Oyster contributions
-        if (Array.isArray((or as any)?.contributions)) {
-          for (const it of (or as any).contributions) {
-            const n = String(it?.name || '').trim()
-            if (n) baseItems.push(n)
-          }
-        }
-        // Always include base salary as a named item for clarity
+        // Always include base salary
         baseItems.unshift('Base Salary')
       } catch { /* noop */ }
 
       let userPrompt = PromptEngine.buildBaselineUserPrompt({
-        baseQuote: input.baseQuote as any, // includes baseCost (monthly)
-        formData: { baseSalary: input.formData.baseSalary },
+        baseQuote: input.baseQuote as any,
+        formData: input.formData, // KEEP: Pass full formData for addBenefits
         papayaData: input.papayaData,
         papayaCurrency: input.papayaCurrency,
         quoteType: input.quoteType,
@@ -407,31 +324,7 @@ export class GroqService {
         userPrompt = compact(userPrompt)
       } catch { /* noop */ }
 
-      // Debug logging for development
-       if (typeof window === 'undefined') {
-        try {
-          console.log('[Groq] Direct Enhancement - Request Details:', {
-            method: 'computeDirectEnhancements',
-            provider: input.provider,
-            baseTotal: input.baseQuote.monthlyTotal,
-            baseSalary: input.baseQuote.baseCost,
-            currency: input.baseQuote.currency,
-            country: input.baseQuote.country,
-            quoteType: input.quoteType,
-            contractMonths: input.contractDurationMonths,
-            papayaCurrency: input.papayaCurrency,
-            extractedBenefitKeys: Object.keys(input.extractedBenefits.includedBenefits || {}),
-            papayaDataLength: (input.papayaData || '').length,
-            model: this.config.model,
-            temperature: this.config.temperature,
-            max_tokens: this.config.maxTokens,
-            prompts: {
-              system: systemPrompt,
-              user: userPrompt
-            }
-          })
-        } catch {/* noop */}
-      }
+      
 
       // Make request to Groq using provider-routed client and retry wrapper
       const client = this.getProviderClient(input.provider)
@@ -453,24 +346,7 @@ export class GroqService {
       // Update rate limiter usage
       this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
 
-      // Debug logging for development
-       if (typeof window === 'undefined') {
-        try {
-          const usage = (response as ChatCompletion).usage
-          const responseContent = (response as ChatCompletion).choices?.[0]?.message?.content || ''
-          console.log('[Groq] Direct Enhancement - Response Details:', {
-            method: 'computeDirectEnhancements',
-            provider: input.provider,
-            usage: {
-              prompt_tokens: usage?.prompt_tokens,
-              completion_tokens: usage?.completion_tokens,
-              total_tokens: usage?.total_tokens
-            },
-            response_length: responseContent.length,
-            raw_content: responseContent
-          })
-        } catch {/* noop */}
-      }
+      
 
       const content = (response as ChatCompletion).choices?.[0]?.message?.content
       if (!content) {
@@ -697,9 +573,24 @@ export class GroqService {
               totalEnhancement += monthlyAmount
             }
           }
+          else if (
+            PapayaAvailability.shouldIncludeAllowanceType(countryCode, 'health_insurance') &&
+            (name.includes('insurance') || name.includes('healthcare') || name.includes('medical'))
+          ) {
+            if (!isStatutory || mandatory) {
+              enhancements.health_insurance_allowance = {
+                monthly_amount: monthlyAmount,
+                explanation: item.notes || 'Private health insurance allowance',
+                confidence: 0.55,
+                already_included: false,
+                mandatory: mandatory
+              }
+              totalEnhancement += monthlyAmount
+            }
+          }
           // Check for other common benefits dynamically
           else if (PapayaAvailability.getFlags(countryCode).common_benefits &&
-                   (name.includes('allowance') || name.includes('benefit') || name.includes('voucher'))) {
+                   (name.includes('allowance') || name.includes('benefit') || name.includes('voucher') || name.includes('insurance'))) {
             if (!isStatutory || mandatory) {
               enhancements.other_allowances = enhancements.other_allowances || []
               enhancements.other_allowances.push({
@@ -805,15 +696,41 @@ export class GroqService {
     const baselineProviderCurrency: Record<string, number> = {}
     const baselineMandatoryFlags: Record<string, boolean> = {}
     const localCurrency = input.prepass.meta.currency || providerCurrency
-    const convertAmount = async (amount: number): Promise<number> => {
+    let cachedConversionRate: number | null | undefined
+
+    const getConversionRate = async (): Promise<number | null> => {
+      if (localCurrency === providerCurrency) return 1
+      if (cachedConversionRate !== undefined) return cachedConversionRate
+
       try {
-        if (!amount || localCurrency === providerCurrency) return amount || 0
         const { PapayaCurrencyProvider } = await import('@/lib/providers/papaya-currency-provider')
         const conv = new PapayaCurrencyProvider()
-        const res = await conv.convertCurrency(amount, localCurrency, providerCurrency)
-        if (res.success && res.data?.conversion_data?.target_amount) return res.data.conversion_data.target_amount
-        return amount
-      } catch { return amount }
+        const res = await conv.convertCurrency(1, localCurrency, providerCurrency)
+
+        if (res.success && res.data?.conversion_data) {
+          const rateString = res.data.conversion_data.exchange_rate
+          const rateFromTarget = res.data.conversion_data.target_amount
+          const parsedRate = Number.parseFloat(typeof rateString === 'string' ? rateString : '')
+          const candidate = Number.isFinite(parsedRate) && parsedRate > 0 ? parsedRate : Number(rateFromTarget)
+          if (Number.isFinite(candidate) && candidate > 0) {
+            cachedConversionRate = candidate
+            return cachedConversionRate
+          }
+        }
+      } catch {
+        // fall through to mark failure below
+      }
+
+      cachedConversionRate = null
+      return cachedConversionRate
+    }
+
+    const convertAmount = async (amount: number): Promise<number> => {
+      if (!amount) return 0
+      const rate = await getConversionRate()
+      if (rate === null) return amount
+      if (rate === 1) return amount
+      return Number((amount * rate).toFixed(2))
     }
     const items = Array.isArray(input.prepass.items) ? input.prepass.items : []
     for (const item of items) {
@@ -932,26 +849,7 @@ export class GroqService {
       userPrompt = compact(userPrompt)
     } catch { /* noop */ }
 
-    // Debug logging for development
-     if (typeof window === 'undefined') {
-      try {
-        console.log('[Groq] Enhancements With Prepass - Request Details:', {
-          method: 'computeEnhancementsWithPrepass',
-          provider: input.provider,
-          baseMonthly: input.baseQuote.monthlyTotal,
-          currency: providerCurrency,
-          quoteType: input.quoteType,
-          contractMonths: input.contractDurationMonths,
-          model: this.config.model,
-          temperature: this.config.temperature,
-          max_tokens: this.config.maxTokens,
-          prompts: {
-            system: systemPrompt,
-            user: userPrompt
-          }
-        })
-      } catch {/* noop */}
-    }
+    
 
     const client = this.getProviderClient(input.provider)
     try {
@@ -972,24 +870,7 @@ export class GroqService {
 
       this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
 
-      // Debug logging for development
-       if (typeof window === 'undefined') {
-        try {
-          const usage = (response as ChatCompletion).usage
-          const responseContent = (response as ChatCompletion).choices?.[0]?.message?.content || ''
-          console.log('[Groq] Enhancements With Prepass - Response Details:', {
-            method: 'computeEnhancementsWithPrepass',
-            provider: input.provider,
-            usage: {
-              prompt_tokens: usage?.prompt_tokens,
-              completion_tokens: usage?.completion_tokens,
-              total_tokens: usage?.total_tokens
-            },
-            response_length: responseContent.length,
-            raw_content: responseContent
-          })
-        } catch {/* noop */}
-      }
+     
 
       const content = (response as ChatCompletion).choices?.[0]?.message?.content
       if (content) {
@@ -1653,15 +1534,11 @@ export class GroqService {
 
     // Return null if no contribution needed
     if (finalAmount <= 0) {
-      if (typeof window === 'undefined') {
-        console.log(`[GroqService] processEmployerContributions: No contribution needed for ${source}, amount: ${finalAmount}`)
-      }
+      
       return null
     }
 
-    if (typeof window === 'undefined') {
-      console.log(`[GroqService] processEmployerContributions: Created contribution via ${source}: ${finalAmount.toFixed(2)}`)
-    }
+    
 
     return {
       monthlyAmount: Number(finalAmount.toFixed(2)),
@@ -1694,6 +1571,63 @@ export class GroqService {
       delete response.enhancements.additionalContributions.employer_contributions_total
 
       // If additionalContributions is now empty, remove it entirely
+      if (Object.keys(response.enhancements.additionalContributions).length === 0) {
+        delete response.enhancements.additionalContributions
+      }
+    }
+
+    const primaryKeys = [
+      'thirteenth_salary',
+      'fourteenth_salary',
+      'vacation_bonus',
+      'transportation_allowance',
+      'remote_work_allowance',
+      'meal_vouchers',
+      'phone_allowance',
+      'wellness_allowance',
+      'health_insurance_allowance'
+    ]
+
+    if (response.enhancements?.additionalContributions) {
+      for (const key of primaryKeys) {
+        if (response.enhancements[key] && response.enhancements.additionalContributions[key]) {
+          if (typeof window === 'undefined') {
+            console.warn(`[GroqService] deduplicateEnhancementResponse: Removing duplicate additional contribution for ${key}`)
+          }
+          delete response.enhancements.additionalContributions[key]
+        }
+      }
+
+      const canonicalPatterns: Record<string, string[]> = {
+        thirteenth_salary: ['13th', 'thirteenth', 'aguinaldo'],
+        fourteenth_salary: ['14th', 'fourteenth'],
+        vacation_bonus: ['vacation bonus', 'vacation_pay', 'holiday bonus'],
+        transportation_allowance: ['transport', 'commute', 'commuting allowance', 'bus', 'metro'],
+        remote_work_allowance: ['remote work', 'home office', 'wfh'],
+        meal_vouchers: ['meal', 'food', 'lunch voucher', 'ticket'],
+        phone_allowance: ['phone', 'internet', 'mobile', 'communication'],
+        wellness_allowance: ['wellness', 'gym', 'fitness', 'health'],
+        health_insurance_allowance: ['insurance', 'healthcare', 'medical']
+      }
+      const normalizeKey = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+
+      for (const key of Object.keys(response.enhancements.additionalContributions)) {
+        const keyNorm = normalizeKey(key)
+        if (keyNorm.includes('local') || keyNorm.includes('office')) continue
+
+        for (const [primaryKey, patterns] of Object.entries(canonicalPatterns)) {
+          if (!response.enhancements[primaryKey]) continue
+          if (patterns.some(pattern => keyNorm.includes(pattern))) {
+            if (typeof window === 'undefined') {
+              console.warn(`[GroqService] deduplicateEnhancementResponse: Removing fuzzy duplicate '${key}' for ${primaryKey}`)
+            }
+            delete response.enhancements.additionalContributions[key]
+            break
+          }
+        }
+      }
+
+      // Clean up empty bag after removals
       if (Object.keys(response.enhancements.additionalContributions).length === 0) {
         delete response.enhancements.additionalContributions
       }
@@ -1752,53 +1686,7 @@ export class GroqService {
       key.toLowerCase().includes('employer') && key.toLowerCase().includes('contrib')
     )
 
-    if (typeof window === 'undefined') {
-      // Main validation logging
-      console.log(`[GroqService] Enhancement validation for ${provider}:`)
-
-      if (mainEmployerContrib) {
-        console.log(`  ✓ Main employer_contributions_total: ${mainEmployerContrib.monthly_amount} (confidence: ${mainEmployerContrib.confidence})`)
-      }
-
-      if (additionalEmployerContrib) {
-        console.warn(`  ⚠️ Additional employer_contributions_total: ${additionalEmployerContrib} - This should have been deduplicated!`)
-      }
-
-      if (individualEmployerContribs.length > 0) {
-        console.log(`  📋 Individual employer contribution items: ${individualEmployerContribs.length}`)
-        individualEmployerContribs.forEach(key => {
-          const amount = typeof additionalContribs[key] === 'number'
-            ? additionalContribs[key]
-            : additionalContribs[key]?.monthly_amount || 0
-          console.log(`    - ${key}: ${amount}`)
-        })
-
-        // Check for potential double-counting
-        if (mainEmployerContrib && individualEmployerContribs.length > 0) {
-          const individualTotal = individualEmployerContribs.reduce((sum, key) => {
-            const amount = typeof additionalContribs[key] === 'number'
-              ? additionalContribs[key]
-              : additionalContribs[key]?.monthly_amount || 0
-            return sum + amount
-          }, 0)
-
-          const mainAmount = mainEmployerContrib.monthly_amount || 0
-          const similarity = Math.abs(mainAmount - individualTotal) / Math.max(mainAmount, individualTotal, 1)
-
-          if (similarity < 0.2) { // Within 20% - likely duplicates
-            console.warn(`  🚨 Potential duplicate employer contributions detected!`)
-            console.warn(`     Main total: ${mainAmount}, Individual total: ${individualTotal}, Similarity: ${(similarity * 100).toFixed(1)}%`)
-          }
-        }
-      }
-
-      // Check totals consistency
-      if (response.totals) {
-        const enhancement = response.totals.total_monthly_enhancement || 0
-        const finalTotal = response.totals.final_monthly_total || 0
-        console.log(`  💰 Enhancement total: ${enhancement}, Final total: ${finalTotal}`)
-      }
-    }
+    
   }
 
   /**
@@ -1911,21 +1799,7 @@ export class GroqService {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      // Debug logging for development
-       if (typeof window === 'undefined') {
-        try {
-          console.log('[Groq] Health Check - Request Details:', {
-            method: 'healthCheck',
-            model: this.config.model,
-            max_tokens: 16,
-            temperature: 0,
-            messages: [
-              { role: "system", content: "You are a health check. Reply with JSON only." },
-              { role: "user", content: "ping" }
-            ]
-          })
-        } catch {/* noop */}
-      }
+      
 
       const client = this.getClient('pass2')
       const response = await client.chat.completions.create({
@@ -1943,21 +1817,7 @@ export class GroqService {
 
       const content = response.choices[0]?.message?.content || ''
 
-      // Debug logging for development
-       if (typeof window === 'undefined') {
-        try {
-          console.log('[Groq] Health Check - Response Details:', {
-            method: 'healthCheck',
-            usage: {
-              prompt_tokens: response.usage?.prompt_tokens,
-              completion_tokens: response.usage?.completion_tokens,
-              total_tokens: response.usage?.total_tokens
-            },
-            response_length: content.length,
-            raw_content: content
-          })
-        } catch {/* noop */}
-      }
+      
 
       const json = this.extractJson(content)
       const parsed = JSON.parse(json)
@@ -2005,26 +1865,7 @@ export class GroqService {
         userPrompt = compact(userPrompt)
       } catch { /* noop */ }
 
-      // Debug logging for development
-       if (typeof window === 'undefined') {
-        try {
-          console.log('[Groq] Reconcile - Request Details:', {
-            method: 'reconcile',
-            currency: input.settings.currency,
-            threshold: input.settings.threshold,
-            riskMode: input.settings.riskMode,
-            providers_count: input.providers.length,
-            providers: input.providers.map(p => ({ provider: p.provider, total: p.total, confidence: p.confidence })),
-            model: this.config.model,
-            temperature: this.config.temperature,
-            max_tokens: this.config.maxTokens,
-            prompts: {
-              system: systemPrompt,
-              user: userPrompt
-            }
-          })
-        } catch {/* noop */}
-      }
+      
 
       // Use only the default single-key client (GROQ_API_KEY) for reconciliation
       const client = this.getDefaultClientForReconciliation()
@@ -2045,23 +1886,7 @@ export class GroqService {
 
       this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
 
-      // Debug logging for development
-       if (typeof window === 'undefined') {
-        try {
-          const usage = (response as ChatCompletion).usage
-          const responseContent = (response as ChatCompletion).choices?.[0]?.message?.content || ''
-          console.log('[Groq] Reconcile - Response Details:', {
-            method: 'reconcile',
-            usage: {
-              prompt_tokens: usage?.prompt_tokens,
-              completion_tokens: usage?.completion_tokens,
-              total_tokens: usage?.total_tokens
-            },
-            response_length: responseContent.length,
-            raw_content: responseContent
-          })
-        } catch {/* noop */}
-      }
+     
 
       const content = (response as ChatCompletion).choices?.[0]?.message?.content
       if (!content) throw new Error('No content received from Groq reconciliation')

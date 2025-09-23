@@ -70,6 +70,7 @@ export interface QuoteCost {
   frequency: string
   country: string
   country_code: string
+  tag?: 'yearly_bonus' | 'one_time_fee' | 'monthly'
 }
 
 // Main Quote Interface (previously DeelAPIResponse)

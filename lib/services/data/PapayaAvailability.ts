@@ -87,6 +87,7 @@ export class PapayaAvailability {
       'remote_work_allowance', 'home_office_allowance', 'wfh_allowance',
       'wellness_allowance', 'health_allowance', 'fitness_allowance',
       'communication_allowance', 'phone_allowance', 'internet_allowance',
+      'health_insurance', 'medical_insurance', 'insurance_allowance', 'healthcare_allowance',
       'car_allowance', 'vehicle_allowance',
       'travel_insurance', 'insurance_allowance',
       'cleaning_allowance', 'house_allowance'
@@ -143,4 +144,3 @@ export class PapayaAvailability {
     return json
   }
 }
-

@@ -102,6 +102,112 @@ export class CerebrasService {
   }
 
   /**
+   * Categorize cost items for assignment reconciliation
+   */
+  async categorizeCostItems(input: {
+    provider: string
+    country: string
+    currency: string
+    costItems: Array<{key: string, name: string, monthly_amount: number}>
+  }): Promise<{
+    baseSalary: Record<string, number>
+    statutoryMandatory: Record<string, number>
+    allowancesBenefits: Record<string, number>
+    terminationCosts: Record<string, number>
+    oneTimeFees: Record<string, number>
+  }> {
+    const { provider, country, currency, costItems } = input
+
+    const systemPrompt = this.buildCategorizationSystemPrompt()
+    const userPrompt = this.buildCategorizationUserPrompt({ provider, country, currency, costItems })
+
+    console.log('[CerebrasService] Sending categorizeCostItems request', {
+      provider,
+      country,
+      currency,
+      costItemCount: costItems.length,
+      costItems
+    })
+
+    const client = await this.getClient()
+    let response: any
+    try {
+      response = await client.chat.completions.create({
+        model: "qwen-3-32b",
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        stream: false,
+        max_completion_tokens: 8192,
+        temperature: 0.1,
+        top_p: 1,
+        response_format: { type: 'json_object' }
+      })
+    } catch (e: any) {
+      const msg = (e?.message || '').toString().toLowerCase()
+      const code = (e?.status || e?.code || '').toString()
+      const retryable = msg.includes('failed to generate json') || code === '400' || msg.includes('response_format')
+      if (!retryable) throw e
+
+      // Retry without response_format
+      response = await client.chat.completions.create({
+        model: "qwen-3-32b",
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        stream: false,
+        max_completion_tokens: 8192,
+        temperature: 0.1,
+        top_p: 1
+      })
+    }
+
+    const content: string = response?.choices?.[0]?.message?.content || ''
+
+    // Clean content first - remove thinking tags and other non-JSON content
+    const cleanedContent = this.cleanLLMResponse(content)
+
+    // Extract and parse JSON
+    const candidates = this.extractAllJson(cleanedContent)
+    let lastError: unknown = null
+
+    for (const cand of candidates) {
+      try {
+        const parsed = JSON.parse(cand)
+        // Simple validation - ensure we have the expected structure
+        if (parsed && typeof parsed === 'object' &&
+            (parsed.baseSalary !== undefined || parsed.statutoryMandatory !== undefined ||
+             parsed.allowancesBenefits !== undefined || parsed.terminationCosts !== undefined ||
+             parsed.oneTimeFees !== undefined)) {
+          const result = {
+            baseSalary: parsed.baseSalary || {},
+            statutoryMandatory: parsed.statutoryMandatory || {},
+            allowancesBenefits: parsed.allowancesBenefits || {},
+            terminationCosts: parsed.terminationCosts || {},
+            oneTimeFees: parsed.oneTimeFees || {}
+          }
+
+          console.log('[CerebrasService] Received categorizeCostItems response', {
+            provider,
+            country,
+            currency,
+            result
+          })
+
+          return result
+        }
+        lastError = 'Invalid response structure'
+      } catch (e) {
+        lastError = e
+        continue
+      }
+    }
+    throw new Error(`Cerebras cost categorization failed: ${lastError instanceof Error ? lastError.message : JSON.stringify(lastError)}`)
+  }
+
+  /**
    * Run pre-pass to assemble a legal profile JSON from Papaya + presence flags
    */
   async buildLegalProfile(params: {
@@ -188,24 +294,7 @@ export class CerebrasService {
     const systemPrompt = this.buildSystemPrompt()
     const userPrompt = this.buildUserPrompt({ meta, availability, numericHints, text: snippets.join('\n').trim() })
 
-    // Debug logging for development
-     if (typeof window === 'undefined') {
-      try {
-        console.log('[Cerebras] Build Legal Profile - Request Details:', {
-          method: 'buildLegalProfile',
-          countryCode: countryCode,
-          model: "qwen-3-32b",
-          temperature: 0.1,
-          max_completion_tokens: 8192,
-          meta: meta,
-          availability: availability,
-          prompts: {
-            system: systemPrompt,
-            user: userPrompt
-          }
-        })
-      } catch {/* noop */}
-    }
+    
 
     const client = await this.getClient()
     let response: any
@@ -229,17 +318,7 @@ export class CerebrasService {
       const retryable = msg.includes('failed to generate json') || code === '400' || msg.includes('response_format')
       if (!retryable) throw e
 
-      // Debug logging for retry attempt
-       if (typeof window === 'undefined') {
-        try {
-          console.log('[Cerebras] Build Legal Profile - Retrying without response_format:', {
-            method: 'buildLegalProfile',
-            countryCode: countryCode,
-            error_message: msg,
-            error_code: code
-          })
-        } catch {/* noop */}
-      }
+      
 
       // Retry without response_format (some models may not support it)
       response = await client.chat.completions.create({
@@ -257,72 +336,24 @@ export class CerebrasService {
 
     const content: string = response?.choices?.[0]?.message?.content || ''
 
-    // Debug logging for development
-     if (typeof window === 'undefined') {
-      try {
-        console.log('[Cerebras] Build Legal Profile - Response Details:', {
-          method: 'buildLegalProfile',
-          countryCode: countryCode,
-          usage: {
-            prompt_tokens: response?.usage?.prompt_tokens,
-            completion_tokens: response?.usage?.completion_tokens,
-            total_tokens: response?.usage?.total_tokens
-          },
-          response_length: content.length,
-          raw_content: content
-        })
-      } catch {/* noop */}
-    }
+    const cerebrasDebugEnabled = (process.env.CEREBRAS_DEBUG || '').toLowerCase() === 'true'
+
+    
 
     // Try to find a candidate JSON object that matches the schema
-    const candidates = this.extractAllJson(content)
+    const candidates = this.extractAllJson(this.cleanLLMResponse(content))
     let lastError: unknown = null
 
-    // Debug logging for development
-    if (typeof window === 'undefined') {
-      try {
-        console.log('[Cerebras] Schema Validation Debug:', {
-          method: 'buildLegalProfile',
-          countryCode: countryCode,
-          candidatesFound: candidates.length,
-          candidateTypes: candidates.map((c, i) => {
-            try {
-              const p = JSON.parse(c)
-              return `${i}: ${Array.isArray(p) ? 'Array' : typeof p}`
-            } catch {
-              return `${i}: Invalid JSON`
-            }
-          })
-        })
-      } catch {/* noop */}
-    }
+    
 
     for (const cand of candidates) {
       try {
         const parsed = JSON.parse(cand)
-        const safe = PrepassSchema.safeParse(parsed)
+        const candidate = this.normalizePrepassCandidate(parsed)
+        const safe = PrepassSchema.safeParse(candidate)
         if (safe.success) return this.toPrepassProfile(safe.data)
 
-        // Debug logging for schema errors
-        if (typeof window === 'undefined') {
-          try {
-            console.log('[Cerebras] Schema Validation Failed:', {
-              method: 'buildLegalProfile',
-              countryCode: countryCode,
-              candidateType: Array.isArray(parsed) ? 'Array' : typeof parsed,
-              hasRequiredKeys: parsed && typeof parsed === 'object' ? {
-                meta: 'meta' in parsed,
-                availability: 'availability' in parsed,
-                items: 'items' in parsed,
-                subtotals: 'subtotals' in parsed,
-                total_monthly_local: 'total_monthly_local' in parsed,
-                warnings: 'warnings' in parsed
-              } : false,
-              errorPath: safe.error?.issues?.[0]?.path?.join('.'),
-              errorMessage: safe.error?.issues?.[0]?.message
-            })
-          } catch {/* noop */}
-        }
+        
 
         lastError = safe.error
       } catch (e) {
@@ -334,7 +365,8 @@ export class CerebrasService {
     try {
       const coarse = this.extractJson(content)
       const parsed = JSON.parse(coarse)
-      const safe = PrepassSchema.safeParse(parsed)
+      const candidate = this.normalizePrepassCandidate(parsed)
+      const safe = PrepassSchema.safeParse(candidate)
       if (safe.success) return this.toPrepassProfile(safe.data)
       lastError = safe.error
     } catch (e) { lastError = e }
@@ -361,6 +393,76 @@ export class CerebrasService {
     } catch { return 'USD' }
   }
 
+  private buildCategorizationSystemPrompt(): string {
+    return [
+      'You are an expert EOR cost categorization specialist.',
+      '',
+      'TASK: Categorize cost items into 5 specific business categories for assignment reconciliation.',
+      '',
+      'CATEGORIES:',
+      '1. baseSalary: Base salary, gross salary components (NOT bonuses or statutory extras)',
+      '2. statutoryMandatory: Legally required employer contributions, taxes, social security, pension contributions, mandatory insurance',
+      '3. allowancesBenefits: Optional allowances like meal vouchers, transportation, remote work stipends, health benefits',
+      '4. terminationCosts: Notice period costs, severance payments, termination-related provisions',
+      '5. oneTimeFees: One-time setup costs, background checks, medical exams, onboarding fees',
+      '',
+      'CRITICAL RULES:',
+      '- 13th salary, 14th salary = statutoryMandatory (legally required in many countries)',
+      '- Vacation bonus = statutoryMandatory if legally required, allowancesBenefits if optional',
+      '- Use country context to determine if items are legally mandatory vs optional',
+      '- Each cost item goes into exactly ONE category',
+      '- Return JSON with exact structure: {baseSalary: {}, statutoryMandatory: {}, allowancesBenefits: {}, terminationCosts: {}, oneTimeFees: {}}',
+      '- Use original item keys as keys in each category object',
+      '- Values are the monthly amounts',
+      '',
+      'STRICT OUTPUT FORMAT:',
+      '- DO NOT include thinking tags like <think> or reasoning',
+      '- DO NOT include explanations or commentary',
+      '- OUTPUT ONLY VALID JSON - nothing else',
+      '- Start response with { and end with }'
+    ].join('\n')
+  }
+
+  private buildCategorizationUserPrompt(input: {
+    provider: string
+    country: string
+    currency: string
+    costItems: Array<{key: string, name: string, monthly_amount: number}>
+  }): string {
+    return [
+      'COST CATEGORIZATION REQUEST',
+      '',
+      `Provider: ${input.provider}`,
+      `Country: ${input.country}`,
+      `Currency: ${input.currency}`,
+      '',
+      'COST ITEMS TO CATEGORIZE:',
+      JSON.stringify(input.costItems, null, 2),
+      '',
+      'CATEGORIZE into these exact structure:',
+      '{',
+      '  "baseSalary": {',
+      '    "item_key": amount',
+      '  },',
+      '  "statutoryMandatory": {',
+      '    "item_key": amount',
+      '  },',
+      '  "allowancesBenefits": {',
+      '    "item_key": amount',
+      '  },',
+      '  "terminationCosts": {',
+      '    "item_key": amount',
+      '  },',
+      '  "oneTimeFees": {',
+      '    "item_key": amount',
+      '  }',
+      '}',
+      '',
+      'Remember: Use country context to determine if 13th salary, vacation bonus etc. are legally mandatory (statutoryMandatory) or optional (allowancesBenefits).',
+      'Return valid JSON only.'
+    ].join('\n')
+  }
+
   private buildSystemPrompt(): string {
     return [
       'You assemble a strictly valid JSON legal profile for EMPLOYER monthly costs using ONLY the provided Papaya text, availability flags, and NUMERIC_HINTS.',
@@ -384,6 +486,14 @@ export class CerebrasService {
       '- Exclude employee contributions and income tax; exclude aggregate roll-ups (e.g., "Total Employment Cost").',
       '- Statutory-only: include ONLY mandatory items.',
       '- All-inclusive: include statutory + common benefits. Use AVAILABILITY flags to determine which allowances are applicable for this country. For allowances without exact amounts, provide reasonable estimates based on typical ranges: meal vouchers (25-100), transportation (50-200), remote work allowance (25-100), wellness allowance (30-80), phone/internet allowance (20-60) monthly in local currency. Only include allowances that are common for the specific country.',
+      '',
+      'CATEGORY MAPPING (CRITICAL):',
+      '- Use ONLY these exact category values: "contributions", "bonuses", "allowances", "termination"',
+      '- COMMON_BENEFITS items → category: "allowances" (meal vouchers, transport, wellness, etc.)',
+      '- EMPLOYER_CONTRIBUTIONS items → category: "contributions" (social security, payroll taxes, etc.)',
+      '- 13th/14th salary, aguinaldo → category: "bonuses"',
+      '- Severance, notice periods → category: "termination"',
+      '- NEVER use "common_benefits" as a category value.',
       '',
       'DATA USE:',
       '- Prefer numeric values extracted from Papaya text when present.',
@@ -548,6 +658,169 @@ export class CerebrasService {
     return Array.from(new Set(out))
   }
 
+  private normalizePrepassCandidate(input: unknown): unknown {
+    const parseIfJsonString = (value: unknown): unknown => {
+      if (typeof value !== 'string') return value
+      const trimmed = value.trim()
+      if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) return value
+      try { return JSON.parse(trimmed) } catch { return value }
+    }
+
+    let candidate = parseIfJsonString(input)
+    const unwrapKeys = ['legal_profile', 'profile', 'result', 'data', 'output', 'response']
+    let depth = 0
+
+    while (
+      candidate &&
+      typeof candidate === 'object' &&
+      !Array.isArray(candidate) &&
+      depth < 5 &&
+      !(('meta' in candidate) && ('availability' in candidate) && ('items' in candidate))
+    ) {
+      let next: unknown = null
+      for (const key of unwrapKeys) {
+        if (Object.prototype.hasOwnProperty.call(candidate, key)) {
+          next = parseIfJsonString((candidate as Record<string, unknown>)[key])
+          break
+        }
+      }
+      if (!next) break
+      candidate = next
+      depth++
+    }
+
+    if (candidate && typeof candidate === 'object' && !Array.isArray(candidate)) {
+      const obj = candidate as Record<string, unknown>
+      obj.meta = parseIfJsonString(obj.meta)
+      const rawAvailability = parseIfJsonString(obj.availability) as Record<string, boolean> | undefined
+      if (rawAvailability) {
+        obj.availability = this.normalizeAvailability(rawAvailability)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[CerebrasService] Normalized availability from Cerebras response:', {
+            raw: rawAvailability,
+            normalized: obj.availability
+          })
+        }
+      } else {
+        // If Cerebras didn't return availability, use country code to generate defaults
+        const meta = obj.meta as any
+        const countryCode = meta?.country_code || 'US'
+        obj.availability = PapayaAvailability.getFlags(countryCode)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[CerebrasService] Using fallback availability for country:', countryCode, obj.availability)
+        }
+      }
+
+      const parsedItems = Array.isArray(obj.items) ? obj.items : parseIfJsonString(obj.items)
+      if (Array.isArray(parsedItems)) {
+        obj.items = this.normalizeCategoryFields(parsedItems)
+      } else if (parsedItems && typeof parsedItems === 'object') {
+        obj.items = this.normalizeCategoryFields(Object.values(parsedItems))
+      }
+
+      obj.subtotals = parseIfJsonString(obj.subtotals)
+
+      const parsedWarnings = Array.isArray(obj.warnings) ? obj.warnings : parseIfJsonString(obj.warnings)
+      if (Array.isArray(parsedWarnings)) {
+        obj.warnings = parsedWarnings
+      } else if (parsedWarnings) {
+        obj.warnings = [parsedWarnings]
+      }
+    }
+
+    return candidate
+  }
+
+  private normalizeCategoryFields(items: any[]): any[] {
+    const validCategories = ['contributions', 'bonuses', 'allowances', 'termination'] as const
+    const categoryMapping: Record<string, typeof validCategories[number]> = {
+      'common_benefits': 'allowances',
+      'benefit': 'allowances',
+      'benefits': 'allowances',
+      'salary': 'bonuses',
+      'salaries': 'bonuses',
+      'contribution': 'contributions',
+      'terminations': 'termination',
+      'bonus': 'bonuses',
+      'allowance': 'allowances'
+    }
+
+    const normalizeVariableValue = (value: unknown): number | string | boolean | undefined => {
+      if (value == null) return undefined
+      if (typeof value === 'number' || typeof value === 'boolean') return value
+      if (typeof value === 'string') return value
+      if (Array.isArray(value)) {
+        const filtered = value.filter(entry => entry != null)
+        if (filtered.length === 0) return undefined
+        if (filtered.every(entry => typeof entry === 'number')) {
+          return Number((filtered as number[]).reduce((sum, n) => sum + n, 0) / filtered.length)
+        }
+        return filtered.map(entry => {
+          if (entry == null) return ''
+          if (typeof entry === 'object') {
+            try { return JSON.stringify(entry) } catch { return String(entry) }
+          }
+          return String(entry)
+        }).join(' | ')
+      }
+      if (typeof value === 'object') {
+        try { return JSON.stringify(value) } catch { return String(value) }
+      }
+      return undefined
+    }
+
+    return items.map(item => {
+      if (item && typeof item === 'object' && item.category) {
+        const normalizedVariables: Record<string, number | string | boolean> = {}
+        if (item.variables && typeof item.variables === 'object') {
+          Object.entries(item.variables).forEach(([key, value]) => {
+            const normalized = normalizeVariableValue(value)
+            if (normalized !== undefined) {
+              normalizedVariables[key] = normalized
+            }
+          })
+          item.variables = normalizedVariables
+        }
+
+        const category = String(item.category).toLowerCase()
+
+        // If category is already valid, keep it
+        if (validCategories.includes(category as any)) {
+          return item
+        }
+
+        // Try to map invalid category to valid one
+        const mappedCategory = categoryMapping[category]
+        if (mappedCategory) {
+          return {
+            ...item,
+            category: mappedCategory
+          }
+        }
+
+        // If no mapping found, try to guess based on item name/key
+        const itemName = String(item.name || item.key || '').toLowerCase()
+        let guessedCategory: typeof validCategories[number] = 'allowances' // default fallback
+
+        if (itemName.includes('contribution') || itemName.includes('social') || itemName.includes('tax')) {
+          guessedCategory = 'contributions'
+        } else if (itemName.includes('13th') || itemName.includes('14th') || itemName.includes('salary') || itemName.includes('bonus')) {
+          guessedCategory = 'bonuses'
+        } else if (itemName.includes('termination') || itemName.includes('severance') || itemName.includes('notice')) {
+          guessedCategory = 'termination'
+        } else {
+          guessedCategory = 'allowances' // meal vouchers, transport, etc.
+        }
+
+        return {
+          ...item,
+          category: guessedCategory
+        }
+      }
+      return item
+    })
+  }
+
   private extractBalancedObject(s: string): string | null {
     let depth = 0
     let inStr = false
@@ -574,6 +847,25 @@ export class CerebrasService {
       }
     }
     return null
+  }
+
+  // Clean LLM response to remove thinking tags and non-JSON content
+  private cleanLLMResponse(content: string): string {
+    if (!content || typeof content !== 'string') return content
+
+    // Remove thinking tags and their content
+    let cleaned = content.replace(/<think>[\s\S]*?<\/think>/gi, '')
+
+    // Remove thinking blocks that might not have closing tags
+    cleaned = cleaned.replace(/<think>[\s\S]*$/gi, '')
+
+    // Remove other common LLM artifacts
+    cleaned = cleaned.replace(/^[^{]*({[\s\S]*})[^}]*$/g, '$1') // Extract JSON part
+
+    // Remove leading/trailing text before/after JSON
+    cleaned = cleaned.replace(/^[^{]*/, '').replace(/[^}]*$/, '')
+
+    return cleaned.trim()
   }
 
   // Convert a validated parsed object into a strongly-typed PrepassLegalProfile

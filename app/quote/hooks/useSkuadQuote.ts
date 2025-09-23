@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { EORFormData, Quote, QuoteData } from "@/lib/shared/types";
 import { ensureFormDefaults, createQuoteRequestData, fetchSkuadCost, transformSkuadResponseToQuote, QuoteRequestData } from "@/lib/shared/utils/apiUtils";
 import { convertCurrency } from "@/lib/currency-converter";
+import { setRawQuote } from "@/lib/shared/utils/rawQuoteStore";
 
 export const useSkuadQuote = () => {
   const [loading, setLoading] = useState(false);
@@ -14,6 +15,7 @@ export const useSkuadQuote = () => {
       const withDefaults = ensureFormDefaults(formData)
       const request = createQuoteRequestData(withDefaults)
       const response = await fetchSkuadCost(request)
+      setRawQuote('skuad', response)
       const display: Quote = transformSkuadResponseToQuote(response)
       // Fill context
       display.currency = withDefaults.currency
@@ -25,6 +27,7 @@ export const useSkuadQuote = () => {
         try {
           const compareReq = createQuoteRequestData(withDefaults, true)
           const compResp = await fetchSkuadCost(compareReq)
+          setRawQuote('skuad', compResp, 'comparison')
           const compDisplay = transformSkuadResponseToQuote(compResp)
           compDisplay.currency = withDefaults.compareCurrency
           compDisplay.country = withDefaults.compareCountry
@@ -111,4 +114,3 @@ export const useSkuadQuote = () => {
 
   return { loading, error, calculateSkuadQuote }
 }
-

@@ -3,6 +3,7 @@ import { ensureFormDefaults, createQuoteRequestData, transformToRivermateQuote }
 import { EORFormData, QuoteData, Quote, RivermateQuote } from "@/lib/shared/types";
 import { convertCurrency } from "@/lib/currency-converter";
 import { transformRivermateResponseToQuote } from "@/lib/shared/utils/apiUtils";
+import { setRawQuote } from "@/lib/shared/utils/rawQuoteStore";
 
 export const useRivermateQuote = () => {
   const [loading, setLoading] = useState(false);
@@ -29,6 +30,7 @@ export const useRivermateQuote = () => {
       const requestData = createQuoteRequestData(formDataWithDefaults);
 
       const primaryResponse = await fetchRivermateCost(requestData);
+      setRawQuote('rivermate', primaryResponse);
       const rivermateQuote = transformToRivermateQuote(primaryResponse); // For USD conversion
       const primaryQuote: Quote = transformRivermateResponseToQuote(primaryResponse); // For display
 
@@ -39,6 +41,7 @@ export const useRivermateQuote = () => {
         try {
           const compareRequest = createQuoteRequestData(formDataWithDefaults, true);
           const compResp = await fetchRivermateCost(compareRequest);
+          setRawQuote('rivermate', compResp, 'comparison');
           const comparisonRivermateQuoteOptimized = transformToRivermateQuote(compResp); // For USD conversion
           comparisonRivermateQuote = comparisonRivermateQuoteOptimized;
           comparisonQuote = transformRivermateResponseToQuote(compResp); // For display

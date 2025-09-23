@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { fetchEORCost, createQuoteRequestData, ensureFormDefaults, transformToDeelQuote } from "@/lib/shared/utils/apiUtils";
 import { EORFormData, QuoteData, DeelQuote } from "@/lib/shared/types";
 import { convertCurrency } from "@/lib/currency-converter";
+import { setRawQuote } from "@/lib/shared/utils/rawQuoteStore";
 
 export const useDeelQuote = () => {
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,7 @@ export const useDeelQuote = () => {
       let deelQuote: DeelQuote | undefined;
       if (fetchPrimary) {
         const rawDeelResponse = await fetchEORCost(requestData);
+        setRawQuote('deel', rawDeelResponse);
         deelQuote = transformToDeelQuote(rawDeelResponse);
       }
 
@@ -47,6 +49,7 @@ export const useDeelQuote = () => {
         try {
           const compareRequestData = createQuoteRequestData(formDataWithDefaults, true);
           const rawComparisonResponse = await fetchEORCost(compareRequestData);
+          setRawQuote('deel', rawComparisonResponse, 'comparison');
           comparisonQuote = transformToDeelQuote(rawComparisonResponse);
 
           // Build comparison quote in the selected (changed) currency as well

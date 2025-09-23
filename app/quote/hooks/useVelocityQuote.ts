@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { EORFormData, Quote, QuoteData } from "@/lib/shared/types";
 import { ensureFormDefaults, createQuoteRequestData, fetchVelocityGlobalCost, transformVelocityResponseToQuote, QuoteRequestData } from "@/lib/shared/utils/apiUtils";
 import { convertCurrency } from "@/lib/currency-converter";
+import { setRawQuote } from "@/lib/shared/utils/rawQuoteStore";
 
 export const useVelocityQuote = () => {
   const [loading, setLoading] = useState(false);
@@ -15,6 +16,7 @@ export const useVelocityQuote = () => {
       const request = createQuoteRequestData(withDefaults)
 
       const response = await fetchVelocityGlobalCost(request)
+      setRawQuote('velocity', response)
       const display: Quote = transformVelocityResponseToQuote(response)
 
       // Set context for UI consistency
@@ -27,6 +29,7 @@ export const useVelocityQuote = () => {
         try {
           const compareReq = createQuoteRequestData(withDefaults, true)
           const compResp = await fetchVelocityGlobalCost(compareReq)
+          setRawQuote('velocity', compResp, 'comparison')
           const compDisplay = transformVelocityResponseToQuote(compResp)
           compDisplay.currency = withDefaults.compareCurrency
           compDisplay.country = withDefaults.compareCountry || compDisplay.country
@@ -113,4 +116,3 @@ export const useVelocityQuote = () => {
 
   return { loading, error, calculateVelocityQuote }
 }
-

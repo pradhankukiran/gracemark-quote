@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, Suspense, memo, useState } from "react"
+import { useEffect, Suspense, memo, useState, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -19,6 +19,66 @@ import { EnhancementProvider, useEnhancementContext } from "@/hooks/enhancement/
 import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, transformToRemoteQuote, transformOysterQuoteToDisplayQuote } from "@/lib/shared/utils/apiUtils"
 import { EORFormData, RemoteAPIResponse } from "@/lib/shared/types"
 import { ProviderType, EnhancedQuote } from "@/lib/types/enhancement"
+import { convertCurrency } from "@/lib/currency-converter"
+import { getRawQuote } from "@/lib/shared/utils/rawQuoteStore"
+
+type AcidTestCategoryBuckets = {
+  baseSalary: Record<string, number>
+  statutoryMandatory: Record<string, number>
+  allowancesBenefits: Record<string, number>
+  terminationCosts: Record<string, number>
+  oneTimeFees: Record<string, number>
+}
+
+type AcidTestAggregates = {
+  baseSalaryMonthly: number
+  statutoryMonthly: number
+  allowancesMonthly: number
+  terminationMonthly: number
+  oneTimeTotal: number
+}
+
+type AcidTestCostData = {
+  provider: string
+  currency: string
+  categories: AcidTestCategoryBuckets
+} & AcidTestAggregates
+
+type AcidTestBreakdown = {
+  salaryTotal: number
+  statutoryTotal: number
+  allowancesTotal: number
+  terminationTotal: number
+  oneTimeTotal: number
+  recurringMonthly: number
+  recurringTotal: number
+}
+
+type AcidTestSummary = {
+  currency: string
+  billRateMonthly: number
+  durationMonths: number
+  revenueTotal: number
+  totalCost: number
+  profitLocal: number
+  revenueUSD?: number
+  totalCostUSD?: number
+  profitUSD?: number
+  marginMonthly: number
+  marginTotal: number
+  meetsPositive: boolean
+  meetsMinimum: boolean
+  minimumShortfallUSD?: number
+}
+
+type AcidTestCalculationResult = {
+  summary: AcidTestSummary
+  breakdown: AcidTestBreakdown
+  thresholds: {
+    minimumUSD: number
+  }
+  conversionError?: string | null
+}
 
 const LoadingSpinner = () => (
   <div role="status" aria-label="Loading quotes" className="flex items-center justify-center">
@@ -87,15 +147,158 @@ const QuotePageContent = memo(() => {
   const [showAcidTestForm, setShowAcidTestForm] = useState(false)
   const [monthlyBillRate, setMonthlyBillRate] = useState<number>(0)
   const [projectDuration, setProjectDuration] = useState<number>(6)
-  const [acidTestResults, setAcidTestResults] = useState<{
-    totalProjectRevenue: number;
-    totalProjectCost: number;
-    totalProjectProfit: number;
-  } | null>(null)
+  const [acidTestResults, setAcidTestResults] = useState<AcidTestCalculationResult | null>(null)
   const [acidTestValidation, setAcidTestValidation] = useState<{
     billRateError?: string;
     durationError?: string;
   }>({})
+  const [acidTestCostData, setAcidTestCostData] = useState<AcidTestCostData | null>(null)
+  const [isCategorizingCosts, setIsCategorizingCosts] = useState(false)
+  const [isComputingAcidTest, setIsComputingAcidTest] = useState(false)
+
+  const MIN_PROFIT_THRESHOLD_USD = 1000
+
+  const buildAcidTestCalculation = useCallback(async (
+    costData: AcidTestCostData,
+    billRate: number,
+    duration: number
+  ): Promise<AcidTestCalculationResult> => {
+    const salaryTotal = costData.baseSalaryMonthly * duration
+    const statutoryTotal = costData.statutoryMonthly * duration
+    const allowancesTotal = costData.allowancesMonthly * duration
+    const terminationTotal = costData.terminationMonthly * duration
+    const oneTimeTotal = costData.oneTimeTotal
+
+    const recurringMonthly = costData.baseSalaryMonthly + costData.statutoryMonthly + costData.allowancesMonthly + costData.terminationMonthly
+    const recurringTotal = recurringMonthly * duration
+
+    const totalCost = recurringTotal + oneTimeTotal
+    const revenueTotal = billRate * duration
+    const profitLocal = revenueTotal - totalCost
+
+    const marginMonthly = billRate - recurringMonthly
+    const marginTotal = marginMonthly * duration - oneTimeTotal
+
+    let revenueUSD: number | undefined
+    let totalCostUSD: number | undefined
+    let profitUSD: number | undefined
+    let conversionError: string | null = null
+
+    if (costData.currency === 'USD') {
+      revenueUSD = revenueTotal
+      totalCostUSD = totalCost
+      profitUSD = profitLocal
+    } else {
+      try {
+        const [revenueConversion, costConversion] = await Promise.all([
+          convertCurrency(revenueTotal, costData.currency, 'USD'),
+          convertCurrency(totalCost, costData.currency, 'USD')
+        ])
+
+        if (revenueConversion.success && revenueConversion.data) {
+          revenueUSD = revenueConversion.data.target_amount
+        } else {
+          conversionError = revenueConversion.error || 'Unable to convert revenue to USD'
+        }
+
+        if (costConversion.success && costConversion.data) {
+          totalCostUSD = costConversion.data.target_amount
+        } else {
+          const costError = costConversion.error || 'Unable to convert costs to USD'
+          conversionError = conversionError ? `${conversionError}; ${costError}` : costError
+        }
+
+        if (!conversionError && revenueUSD !== undefined && totalCostUSD !== undefined) {
+          profitUSD = revenueUSD - totalCostUSD
+        }
+      } catch (err) {
+        conversionError = err instanceof Error ? err.message : 'Unable to convert currency to USD'
+      }
+    }
+
+    const meetsPositive = profitLocal > 0
+    const profitForMinimum = typeof profitUSD === 'number'
+      ? profitUSD
+      : (costData.currency === 'USD' ? profitLocal : undefined)
+    const meetsMinimum = typeof profitForMinimum === 'number'
+      ? profitForMinimum >= MIN_PROFIT_THRESHOLD_USD
+      : false
+    const minimumShortfallUSD = typeof profitForMinimum === 'number'
+      ? Math.max(0, MIN_PROFIT_THRESHOLD_USD - profitForMinimum)
+      : undefined
+
+    return {
+      summary: {
+        currency: costData.currency,
+        billRateMonthly: billRate,
+        durationMonths: duration,
+        revenueTotal,
+        totalCost,
+        profitLocal,
+        revenueUSD,
+        totalCostUSD,
+        profitUSD,
+        marginMonthly,
+        marginTotal,
+        meetsPositive,
+        meetsMinimum,
+        minimumShortfallUSD,
+      },
+      breakdown: {
+        salaryTotal,
+        statutoryTotal,
+        allowancesTotal,
+        terminationTotal,
+        oneTimeTotal,
+        recurringMonthly,
+        recurringTotal,
+      },
+      thresholds: {
+        minimumUSD: MIN_PROFIT_THRESHOLD_USD,
+      },
+      conversionError,
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!showAcidTestForm) {
+      setIsComputingAcidTest(false)
+      return
+    }
+
+    if (!acidTestCostData || monthlyBillRate <= 0 || projectDuration <= 0) {
+      setIsComputingAcidTest(false)
+      if (monthlyBillRate <= 0 || projectDuration <= 0) {
+        setAcidTestResults(null)
+      }
+      return
+    }
+
+    let cancelled = false
+    setIsComputingAcidTest(true)
+
+    buildAcidTestCalculation(acidTestCostData, monthlyBillRate, projectDuration)
+      .then(result => {
+        if (!cancelled) {
+          setAcidTestError(null)
+          setAcidTestResults(result)
+        }
+      })
+      .catch(err => {
+        if (!cancelled) {
+          console.error('Failed to compute acid test results', err)
+          setAcidTestError('Failed to compute acid test results. Please try again.')
+          setAcidTestResults(null)
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsComputingAcidTest(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [showAcidTestForm, acidTestCostData, monthlyBillRate, projectDuration, buildAcidTestCalculation])
 
   // Body scroll lock when modal is open
   useEffect(() => {
@@ -780,67 +983,114 @@ const QuotePageContent = memo(() => {
                       </div>
                     </div>
 
+                    {/* Cost Categorization Status */}
+                    {isCategorizingCosts ? (
+                      <div className="mt-6 flex items-center justify-center text-slate-600">
+                        <LoadingSpinner />
+                        <span className="ml-3 text-sm font-medium">Categorizing costs with Cerebras…</span>
+                      </div>
+                    ) : (!acidTestCostData && (
+                      <p className="mt-6 text-sm text-red-600 text-center">
+                        Unable to load the cost breakdown for this provider. Please adjust the inputs or try again.
+                      </p>
+                    ))}
+
                     {/* Calculations Display */}
-                    {acidTestResults && (
-                      <div className="space-y-4 mb-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Total Project Revenue */}
-                          <div className="bg-white p-6 border border-slate-200 shadow-sm">
-                            <div className="flex items-center gap-2 mb-2">
-                              <TrendingUp className="h-5 w-5 text-blue-600" />
-                              <h4 className="font-semibold text-slate-700">Total Project Revenue</h4>
-                            </div>
-                            <div className="text-2xl font-bold text-blue-600">
-                              {formatMoney(acidTestResults.totalProjectRevenue, finalChoice.currency)}
-                            </div>
-                            <p className="text-sm text-slate-500 mt-1">
-                              {formatMoney(monthlyBillRate, finalChoice.currency)} × {projectDuration} months
-                            </p>
+                    {acidTestCostData && (
+                      <div className="space-y-6 mb-8">
+                        {isComputingAcidTest ? (
+                          <div className="flex flex-col items-center justify-center py-10 text-slate-600">
+                            <LoadingSpinner />
+                            <span className="mt-3 text-sm font-medium">Computing acid test…</span>
                           </div>
+                        ) : acidTestResults ? (
+                          (() => {
+                            const { summary, breakdown, conversionError } = acidTestResults
+                            const profitClass = summary.profitLocal >= 0 ? 'bg-green-50 border-green-300' : 'bg-red-50 border-red-300'
+                            const profitTextClass = summary.profitLocal >= 0 ? 'text-green-600' : 'text-red-600'
+                            const statusBadgeClass = summary.meetsPositive && summary.meetsMinimum
+                              ? 'bg-green-100 text-green-800 border-green-200'
+                              : 'bg-red-100 text-red-800 border-red-200'
+                            const statusLabel = summary.meetsPositive
+                              ? (summary.meetsMinimum
+                                  ? '✅ Pass: Profit exceeds the USD 1,000 requirement'
+                                  : '⚠️ Fails: Profit below the USD 1,000 requirement')
+                              : '⚠️ Fails: Project is not profitable'
 
-                          {/* Total Project Cost */}
-                          <div className="bg-white p-6 border border-slate-200 shadow-sm">
-                            <div className="flex items-center gap-2 mb-2">
-                              <TrendingDown className="h-5 w-5 text-red-600" />
-                              <h4 className="font-semibold text-slate-700">Total Project Cost</h4>
-                            </div>
-                            <div className="text-2xl font-bold text-red-600">
-                              {formatMoney(acidTestResults.totalProjectCost, finalChoice.currency)}
-                            </div>
-                            <p className="text-sm text-slate-500 mt-1">
-                              {formatMoney(finalChoice.price, finalChoice.currency)} × {projectDuration} months
-                            </p>
-                          </div>
-                        </div>
+                            return (
+                              <div className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="bg-white p-6 border border-slate-200 shadow-sm">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <TrendingUp className="h-5 w-5 text-blue-600" />
+                                      <h4 className="font-semibold text-slate-700">Total Project Revenue</h4>
+                                    </div>
+                                    <div className="text-2xl font-bold text-blue-600">
+                                      {formatMoney(summary.revenueTotal, summary.currency)}
+                                    </div>
+                                    <p className="text-sm text-slate-500 mt-1">
+                                      {formatMoney(summary.billRateMonthly, summary.currency)} × {summary.durationMonths} months
+                                    </p>
+                                    {summary.currency !== 'USD' && summary.revenueUSD !== undefined && (
+                                      <p className="text-xs text-slate-500 mt-1">≈ {formatMoney(summary.revenueUSD, 'USD')}</p>
+                                    )}
+                                  </div>
 
-                        {/* Total Project Profit */}
-                        <div className={`p-8 border-2 shadow-md text-center ${
-                          acidTestResults.totalProjectProfit >= 0
-                            ? 'bg-green-50 border-green-300'
-                            : 'bg-red-50 border-red-300'
-                        }`}>
-                          <h3 className="text-xl font-bold text-slate-800 mb-4">
-                            🎯 Acid Test Result: Total Project Profit
-                          </h3>
-                          <div className={`text-5xl font-bold mb-4 ${
-                            acidTestResults.totalProjectProfit >= 0 ? 'text-green-600' : 'text-red-600'
-                          }`}>
-                            {formatMoney(acidTestResults.totalProjectProfit, finalChoice.currency)}
-                          </div>
-                          <div className="text-sm text-slate-600">
-                            (Revenue: {formatMoney(acidTestResults.totalProjectRevenue, finalChoice.currency)} -
-                            Cost: {formatMoney(acidTestResults.totalProjectCost, finalChoice.currency)})
-                          </div>
-                          {acidTestResults.totalProjectProfit >= 0 ? (
-                            <Badge className="bg-green-100 text-green-800 border-green-200 mt-4">
-                              ✅ Profitable Project
-                            </Badge>
-                          ) : (
-                            <Badge className="bg-red-100 text-red-800 border-red-200 mt-4">
-                              ⚠️ Loss-Making Project
-                            </Badge>
-                          )}
-                        </div>
+                                  <div className="bg-white p-6 border border-slate-200 shadow-sm">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <TrendingDown className="h-5 w-5 text-red-600" />
+                                      <h4 className="font-semibold text-slate-700">Total Project Cost</h4>
+                                    </div>
+                                    <div className="text-2xl font-bold text-red-600">
+                                      {formatMoney(summary.totalCost, summary.currency)}
+                                    </div>
+                                    {summary.currency !== 'USD' && summary.totalCostUSD !== undefined && (
+                                      <p className="text-xs text-slate-500 mt-1">≈ {formatMoney(summary.totalCostUSD, 'USD')}</p>
+                                    )}
+                                    <ul className="text-xs text-slate-600 mt-4 space-y-1 text-left">
+                                      <li>Salary: {formatMoney(breakdown.salaryTotal, summary.currency)}</li>
+                                      <li>Statutory: {formatMoney(breakdown.statutoryTotal, summary.currency)}</li>
+                                      <li>Allowances &amp; benefits: {formatMoney(breakdown.allowancesTotal, summary.currency)}</li>
+                                      <li>Termination provision: {formatMoney(breakdown.terminationTotal, summary.currency)}</li>
+                                      <li>One-time costs: {formatMoney(breakdown.oneTimeTotal, summary.currency)}</li>
+                                      <li className="font-semibold pt-1">Recurring monthly cost: {formatMoney(breakdown.recurringMonthly, summary.currency)}</li>
+                                      <li className="font-semibold">Recurring project total: {formatMoney(breakdown.recurringTotal, summary.currency)}</li>
+                                    </ul>
+                                  </div>
+                                </div>
+
+                                <div className={`p-8 border-2 shadow-md text-center ${profitClass}`}>
+                                  <h3 className="text-xl font-bold text-slate-800 mb-4">🎯 Acid Test Result: Total Project Profit</h3>
+                                  <div className={`text-5xl font-bold mb-2 ${profitTextClass}`}>
+                                    {formatMoney(summary.profitLocal, summary.currency)}
+                                  </div>
+                                  {summary.currency !== 'USD' && summary.profitUSD !== undefined && (
+                                    <div className="text-sm text-slate-600">≈ {formatMoney(summary.profitUSD, 'USD')} profit in USD</div>
+                                  )}
+                                  <div className="text-sm text-slate-600 mt-4 space-y-1">
+                                    <div>Margin per month: {formatMoney(summary.marginMonthly, summary.currency)}</div>
+                                    <div>Total margin (after one-time costs): {formatMoney(summary.marginTotal, summary.currency)}</div>
+                                  </div>
+                                  <Badge className={`${statusBadgeClass} mt-4`}>
+                                    {statusLabel}
+                                  </Badge>
+                                  {!summary.meetsMinimum && summary.minimumShortfallUSD !== undefined && (
+                                    <p className="text-xs text-slate-600 mt-3">
+                                      Needs at least {formatMoney(summary.minimumShortfallUSD, 'USD')} more profit to satisfy the USD {acidTestResults.thresholds.minimumUSD.toLocaleString()} minimum.
+                                    </p>
+                                  )}
+                                  {conversionError && (
+                                    <p className="text-xs text-red-600 mt-3">{conversionError}</p>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          })()
+                        ) : (
+                          <p className="text-sm text-slate-600">
+                            Enter a monthly bill rate and project duration to see the acid test results.
+                          </p>
+                        )}
                       </div>
                     )}
 
@@ -875,6 +1125,421 @@ const QuotePageContent = memo(() => {
         </div>
       </div>
     )
+  }
+
+  // Extract selected quote data after reconciliation
+  const extractSelectedQuoteData = async (finalChoice: {
+    provider: string
+    price: number
+    currency: string
+    enhancedQuote?: EnhancedQuote
+  }) => {
+    if (!finalChoice?.enhancedQuote) {
+      return null
+    }
+
+    const { enhancedQuote } = finalChoice
+
+    const resolveMonthlyAmount = (value: unknown): number => {
+      if (typeof value === 'number' && Number.isFinite(value)) return value
+      if (typeof value === 'string') {
+        const sanitized = value
+          .trim()
+          .replace(/[\s\u00A0]/g, '')
+          .replace(/[^0-9,.-]/g, '')
+
+        if (!sanitized) return 0
+
+        const lastComma = sanitized.lastIndexOf(',')
+        const lastDot = sanitized.lastIndexOf('.')
+
+        let normalised = sanitized
+        if (lastComma > -1 && lastDot > -1) {
+          if (lastComma > lastDot) {
+            normalised = sanitized.replace(/\./g, '').replace(',', '.')
+          } else {
+            normalised = sanitized.replace(/,/g, '')
+          }
+        } else if (lastComma > -1) {
+          if (sanitized.indexOf(',') === lastComma && sanitized.length - lastComma <= 3) {
+            normalised = sanitized.replace(',', '.')
+          } else {
+            normalised = sanitized.replace(/,/g, '')
+          }
+        } else if (lastDot > -1) {
+          if (sanitized.indexOf('.') === lastDot && sanitized.length - lastDot <= 3) {
+            normalised = sanitized
+          } else {
+            normalised = sanitized.replace(/\./g, '')
+          }
+        }
+
+        const parsed = Number(normalised)
+        return Number.isFinite(parsed) ? parsed : 0
+      }
+      if (typeof value === 'bigint') {
+        const asNumber = Number(value)
+        return Number.isFinite(asNumber) ? asNumber : 0
+      }
+      return 0
+    }
+
+    const normaliseItems = (source: any[]): Array<{ key: string; name: string; monthly_amount: number }> => {
+      if (!Array.isArray(source)) return []
+      return source
+        .map((item, index) => {
+          if (!item || typeof item !== 'object') return null
+
+          const rawKey = typeof (item as any).key === 'string' ? (item as any).key.trim() : ''
+          const keyBase = rawKey.length
+            ? rawKey
+            : (typeof (item as any).name === 'string' && (item as any).name.trim().length
+              ? (item as any).name.trim().toLowerCase().replace(/\s+/g, '_')
+              : `item_${index}`)
+
+          const friendlyName = typeof (item as any).name === 'string' && (item as any).name.trim().length
+            ? (item as any).name.trim()
+            : keyBase.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+
+          const amountCandidates = [
+            (item as any).monthly_amount,
+            (item as any).monthly_amount_local,
+            (item as any).amount,
+            (item as any).monthlyAmount,
+            (item as any).value
+          ]
+
+          let resolvedAmount: number | null = null
+          for (const candidate of amountCandidates) {
+            const num = resolveMonthlyAmount(candidate)
+            const candidateStr = String(candidate ?? '').trim()
+            if (num !== 0 || candidateStr === '0') {
+              resolvedAmount = num
+              break
+            }
+          }
+
+          const monthlyAmount = resolvedAmount ?? 0
+
+          return {
+            ...(item as Record<string, unknown>),
+            key: keyBase,
+            name: friendlyName,
+            monthly_amount: monthlyAmount
+          } as { key: string; name: string; monthly_amount: number }
+        })
+        .filter(Boolean) as Array<{ key: string; name: string; monthly_amount: number }>
+    }
+
+    let items: any[] = Array.isArray(enhancedQuote.fullQuote?.items)
+      ? [...(enhancedQuote.fullQuote?.items as any[])]
+      : []
+
+    const convertFrequencyToMonthly = (amount: number, frequency?: string) => {
+      if (!frequency || !Number.isFinite(amount)) return amount
+      const freq = frequency.toLowerCase()
+      if (freq.includes('one_time') || freq.includes('one-time')) return amount
+      if (freq.includes('year')) return amount / 12
+      if (freq.includes('annual')) return amount / 12
+      if (freq.includes('quarter')) return amount / 3
+      if (freq.includes('semiannual') || freq.includes('semi-annual') || freq.includes('biannual')) return amount / 6
+      if (freq.includes('biweek')) return amount * (26 / 12)
+      if (freq.includes('week')) return amount * (52 / 12)
+      if (freq.includes('day')) return amount * 21.75
+      return amount
+    }
+
+    const formatKeyName = (raw: string) => raw
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/_/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/\b\w/g, letter => letter.toUpperCase())
+
+    const addCostEntry = (keyCandidate: string | undefined, nameCandidate: string | undefined, amountInput: unknown, frequency?: string) => {
+      const amount = resolveMonthlyAmount(amountInput)
+      const monthly = convertFrequencyToMonthly(amount, frequency)
+      if (!Number.isFinite(monthly) || monthly === 0) return
+      const safeNameBase = nameCandidate && nameCandidate.trim().length > 0 ? nameCandidate.trim() : (keyCandidate && keyCandidate.trim().length > 0 ? keyCandidate.trim() : `Item ${items.length + 1}`)
+      const safeName = formatKeyName(safeNameBase)
+      const normalizedKeyBase = keyCandidate && keyCandidate.trim().length > 0 ? keyCandidate.trim() : safeName
+      const normalizedKey = normalizedKeyBase.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || `item_${items.length + 1}`
+      items.push({
+        key: normalizedKey,
+        name: safeName,
+        monthly_amount: Number(monthly.toFixed(2))
+      })
+    }
+
+    const pushCostArray = (costs: any[], contextLabel: string) => {
+      costs.forEach((entry, idx) => {
+        if (!entry) return
+        const entryName = typeof entry?.name === 'string' && entry.name.trim().length > 0
+          ? entry.name.trim()
+          : `${contextLabel} ${idx + 1}`
+        const entryKey = typeof entry?.key === 'string' && entry.key.trim().length > 0 ? entry.key.trim() : entryName
+        const frequency = typeof entry?.frequency === 'string' ? entry.frequency : undefined
+        const amountCandidate = entry?.monthly_amount ?? entry?.monthlyAmount ?? entry?.monthly_amount_local ?? entry?.amount ?? entry?.value ?? entry?.usd_amount ?? entry?.local_amount
+        addCostEntry(entryKey, entryName, amountCandidate, frequency)
+      })
+    }
+
+    const visitedRaw = new WeakSet<object>()
+
+    function scanRawValue(value: unknown, contextLabel: string): void {
+      if (!value) return
+      if (Array.isArray(value)) {
+        pushCostArray(value, contextLabel)
+        value.forEach((entry) => {
+          if (entry && typeof entry === 'object') scanRawValue(entry, contextLabel)
+        })
+        return
+      }
+      if (typeof value !== 'object') return
+      const obj = value as Record<string, unknown>
+      if (visitedRaw.has(obj)) return
+      visitedRaw.add(obj as object)
+
+      if (Array.isArray(obj.costs)) pushCostArray(obj.costs as any[], `${contextLabel} Costs`)
+      if (Array.isArray((obj as any).items)) pushCostArray((obj as any).items as any[], `${contextLabel} Items`)
+      if (Array.isArray((obj as any).line_items)) pushCostArray((obj as any).line_items as any[], `${contextLabel} Line`)
+      if (Array.isArray((obj as any).components)) pushCostArray((obj as any).components as any[], `${contextLabel} Component`)
+      if (Array.isArray((obj as any).monthly_contributions_breakdown)) pushCostArray((obj as any).monthly_contributions_breakdown as any[], `${contextLabel} Contribution`)
+      if (Array.isArray((obj as any).monthly_benefits_breakdown)) pushCostArray((obj as any).monthly_benefits_breakdown as any[], `${contextLabel} Benefit`)
+      if (Array.isArray((obj as any).allowances)) pushCostArray((obj as any).allowances as any[], `${contextLabel} Allowance`)
+      if (Array.isArray((obj as any).fees)) pushCostArray((obj as any).fees as any[], `${contextLabel} Fee`)
+
+      const breakdownKeys = [
+        'breakdown',
+        'monthly_costs_breakdown',
+        'monthlyBreakdown',
+        'employer_contributions_breakdown',
+        'statutoryContributions',
+        'statutory_contributions',
+        'additionalFees',
+        'additional_fees',
+        'totals'
+      ]
+      breakdownKeys.forEach(key => {
+        const entry = obj[key]
+        if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+          pushBreakdownObject(entry as Record<string, unknown>, formatKeyName(key))
+        }
+      })
+
+      Object.entries(obj).forEach(([key, child]) => {
+        if (!child) return
+        if (Array.isArray(child) || typeof child === 'object') {
+          scanRawValue(child, formatKeyName(key))
+        }
+      })
+    }
+
+    function pushBreakdownObject(record: Record<string, unknown>, contextLabel: string): void {
+      Object.entries(record).forEach(([key, value]) => {
+        if (key === 'baseCost') return
+        if (value == null) return
+        const combinedLabel = formatKeyName(`${contextLabel} ${key}`)
+        if (typeof value === 'number' || typeof value === 'string' || typeof value === 'bigint') {
+          addCostEntry(key, combinedLabel, value)
+          return
+        }
+        if (typeof value === 'object') {
+          const frequency = typeof (value as any)?.frequency === 'string' ? (value as any).frequency : undefined
+          const amountCandidate = (value as any)?.monthly_amount ?? (value as any)?.monthlyAmount ?? (value as any)?.amount ?? (value as any)?.value
+          if (amountCandidate !== undefined) {
+            addCostEntry(key, combinedLabel, amountCandidate, frequency)
+          } else {
+            scanRawValue(value, combinedLabel)
+          }
+        }
+      })
+    }
+
+    const providerKey = finalChoice.provider as ProviderType
+    const quotesAny = quoteData?.quotes as Record<string, any> | undefined
+    const displayQuote = quotesAny?.[providerKey]
+    if (displayQuote) {
+      if (Array.isArray(displayQuote.costs)) pushCostArray(displayQuote.costs, `${finalChoice.provider} Cost`)
+      if (displayQuote.breakdown && typeof displayQuote.breakdown === 'object') {
+        pushBreakdownObject(displayQuote.breakdown, `${finalChoice.provider} Breakdown`)
+      }
+    }
+
+    const rawEntry = getRawQuote(providerKey)
+    if (rawEntry?.primary) {
+      scanRawValue(rawEntry.primary, `${finalChoice.provider} Raw`)
+    }
+
+    const hasBaseSalaryFromItems = items.some(
+      entry => typeof entry?.name === 'string' && entry.name.toLowerCase() === 'base salary'
+    )
+
+    if (!hasBaseSalaryFromItems) {
+      const baseSalaryCandidates = [
+        enhancedQuote.fullQuote?.base_salary_monthly,
+        enhancedQuote.baseQuote?.baseCost,
+        enhancedQuote.monthlyCostBreakdown?.baseCost
+      ]
+      const baseSalary = baseSalaryCandidates
+        .map(resolveMonthlyAmount)
+        .find(amount => amount > 0) || 0
+
+      if (baseSalary > 0) {
+        addCostEntry('base_salary', 'Base Salary', baseSalary)
+      }
+    }
+
+    if (enhancedQuote.enhancements) {
+      const terminationMonthly = resolveMonthlyAmount(enhancedQuote.enhancements.terminationCosts?.totalTerminationCost)
+      if (terminationMonthly > 0) {
+        addCostEntry('termination_costs', 'Termination Costs', terminationMonthly)
+      }
+
+      if (enhancedQuote.enhancements.additionalContributions) {
+        Object.entries(enhancedQuote.enhancements.additionalContributions).forEach(([key, value]) => {
+          const sourceValue = (value && typeof value === 'object' && 'monthly_amount' in (value as Record<string, unknown>))
+            ? (value as any).monthly_amount
+            : value
+          addCostEntry(key, key.replace(/_/g, ' '), sourceValue)
+        })
+      }
+
+      Object.entries(enhancedQuote.enhancements).forEach(([key, value]) => {
+        if (key === 'terminationCosts' || key === 'additionalContributions') return
+        if (!value || typeof value !== 'object') return
+
+        const monthlyValue = resolveMonthlyAmount(
+          (value as any).monthly_amount ??
+          (value as any).monthlyAmount ??
+          (value as any).amount ??
+          (value as any).monthly_amount_local ??
+          0
+        )
+
+        if (monthlyValue > 0) {
+          addCostEntry(key, key.replace(/_/g, ' '), monthlyValue)
+        }
+      })
+    }
+
+    if (enhancedQuote.baseQuote?.breakdown) {
+      pushBreakdownObject(enhancedQuote.baseQuote.breakdown, 'Base Quote')
+    }
+
+    const normalisedItems = normaliseItems(items)
+
+    const mergedItemsMap = new Map<string, { key: string; name: string; monthly_amount: number }>()
+    normalisedItems.forEach(item => {
+      const normalizedKey = item.key.toLowerCase()
+      const amount = Number(resolveMonthlyAmount(item.monthly_amount))
+      if (!Number.isFinite(amount) || amount === 0) return
+      const rounded = Number(amount.toFixed(2))
+      const existing = mergedItemsMap.get(normalizedKey)
+      if (existing) {
+        existing.monthly_amount = Math.max(existing.monthly_amount, rounded)
+        const formattedName = formatKeyName(item.name)
+        if (existing.name.length < formattedName.length) {
+          existing.name = formattedName
+        }
+      } else {
+        mergedItemsMap.set(normalizedKey, {
+          key: normalizedKey,
+          name: formatKeyName(item.name),
+          monthly_amount: rounded
+        })
+      }
+    })
+
+    const mergedItems = Array.from(mergedItemsMap.values())
+
+    if (mergedItems.length === 0) {
+      return null
+    }
+
+    const buildAggregates = (categories: AcidTestCategoryBuckets) => {
+      const sumBucket = (bucket: Record<string, number>) =>
+        Object.values(bucket || {}).reduce((sum, value) => sum + resolveMonthlyAmount(value), 0)
+
+      return {
+        baseSalaryMonthly: sumBucket(categories.baseSalary),
+        statutoryMonthly: sumBucket(categories.statutoryMandatory),
+        allowancesMonthly: sumBucket(categories.allowancesBenefits),
+        terminationMonthly: sumBucket(categories.terminationCosts),
+        oneTimeTotal: sumBucket(categories.oneTimeFees),
+      }
+    }
+
+    const requestPayload = {
+      provider: finalChoice.provider,
+      country: (quoteData?.formData as EORFormData)?.country || 'Unknown',
+      currency: finalChoice.currency,
+      costItems: mergedItems.map(item => ({
+        key: item.key,
+        name: item.name,
+        monthly_amount: item.monthly_amount
+      }))
+    }
+
+    try {
+      console.log('[Cerebras] Request payload:', requestPayload)
+
+      const response = await fetch('/api/categorize-costs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestPayload)
+      })
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
+      }
+
+      const categorizedData: AcidTestCategoryBuckets = await response.json()
+      console.log('[Cerebras] Response payload:', categorizedData)
+      const aggregates = buildAggregates(categorizedData)
+      return { categories: categorizedData, aggregates }
+    } catch (error) {
+      console.error('LLM categorization failed, falling back to simple categorization:', error)
+
+      const baseSalary: Record<string, number> = {}
+      const statutoryMandatory: Record<string, number> = {}
+      const allowancesBenefits: Record<string, number> = {}
+      const terminationCosts: Record<string, number> = {}
+      const oneTimeFees: Record<string, number> = {}
+
+      mergedItems.forEach(item => {
+        const key = item.key.toLowerCase()
+        const name = item.name.toLowerCase()
+        const amount = item.monthly_amount || 0
+
+        if (key.includes('base_salary') || name.includes('base salary')) {
+          baseSalary[item.key] = amount
+        } else if (key.includes('termination') || key.includes('severance') || name.includes('termination')) {
+          terminationCosts[item.key] = amount
+        } else if (key.includes('setup') || key.includes('onboarding') || name.includes('background check')) {
+          oneTimeFees[item.key] = amount
+        } else if (key.includes('allowance') || key.includes('meal') || key.includes('transport')) {
+          allowancesBenefits[item.key] = amount
+        } else {
+          statutoryMandatory[item.key] = amount
+        }
+      })
+
+      const fallbackCategories: AcidTestCategoryBuckets = {
+        baseSalary,
+        statutoryMandatory,
+        allowancesBenefits,
+        terminationCosts,
+        oneTimeFees,
+      }
+
+      return {
+        categories: fallbackCategories,
+        aggregates: buildAggregates(fallbackCategories),
+      }
+    }
   }
 
   const startReconciliation = async () => {
@@ -973,12 +1638,14 @@ const QuotePageContent = memo(() => {
       await sleep(200) // Reduced fade-in delay from 400ms to 200ms
 
       // Get the enhanced quote data for the selected provider
-      const selectedEnhancement = enhancements[choice.provider as ProviderType];
-      setFinalChoice({
+      const selectedEnhancement = enhancements[choice.provider as ProviderType]
+      const finalChoiceData = {
         ...choice,
         currency,
         enhancedQuote: selectedEnhancement || undefined
-      });
+      }
+      setFinalChoice(finalChoiceData)
+
       completePhase('complete')
 
       // Wait for content to be fully rendered and scroll to bottom to show final recommendation
@@ -1000,27 +1667,39 @@ const QuotePageContent = memo(() => {
     // Reset any previous state and show the form
     setAcidTestError(null);
     setAcidTestResults(null);
+    setAcidTestCostData(null);
+    setIsCategorizingCosts(true);
+    setIsComputingAcidTest(false);
     setAcidTestValidation({});
+    const defaultDuration = Number((quoteData?.formData as EORFormData)?.contractDuration) || 6;
+    setProjectDuration(defaultDuration);
+    setMonthlyBillRate(Number.isFinite(finalChoice.price) ? finalChoice.price : 0);
     setShowAcidTestForm(true);
-    setMonthlyBillRate(0);
-    setProjectDuration(6);
-  };
 
-  // Acid Test Calculation Functions
-  const calculateAcidTestResults = (billRate: number, duration: number, monthlyCost: number) => {
-    if (billRate <= 0 || duration <= 0 || monthlyCost <= 0) {
-      return null;
-    }
+    void extractSelectedQuoteData(finalChoice)
+      .then(result => {
+        if (!result) {
+          setAcidTestError('Unable to categorize cost items for the acid test.');
+          setAcidTestCostData(null);
+          return;
+        }
 
-    const totalProjectRevenue = billRate * duration;
-    const totalProjectCost = monthlyCost * duration;
-    const totalProjectProfit = totalProjectRevenue - totalProjectCost;
-
-    return {
-      totalProjectRevenue,
-      totalProjectCost,
-      totalProjectProfit
-    };
+        const { aggregates, categories } = result;
+        setAcidTestCostData({
+          provider: finalChoice.provider,
+          currency: finalChoice.currency,
+          categories,
+          ...aggregates,
+        });
+      })
+      .catch(err => {
+        console.error('Failed to categorize cost items with Cerebras:', err);
+        setAcidTestError('Unable to categorize cost items. Please try again later.');
+        setAcidTestCostData(null);
+      })
+      .finally(() => {
+        setIsCategorizingCosts(false);
+      })
   };
 
   // Handle form input changes and update calculations
@@ -1038,12 +1717,7 @@ const QuotePageContent = memo(() => {
       delete validation.billRateError;
     }
     setAcidTestValidation(validation);
-
-    // Calculate results only if both inputs are valid
-    if (finalChoice && rate > 0 && projectDuration > 0) {
-      const results = calculateAcidTestResults(rate, projectDuration, finalChoice.price);
-      setAcidTestResults(results);
-    } else {
+    if (rate <= 0) {
       setAcidTestResults(null);
     }
   };
@@ -1062,12 +1736,7 @@ const QuotePageContent = memo(() => {
       delete validation.durationError;
     }
     setAcidTestValidation(validation);
-
-    // Calculate results only if both inputs are valid
-    if (finalChoice && monthlyBillRate > 0 && duration > 0) {
-      const results = calculateAcidTestResults(monthlyBillRate, duration, finalChoice.price);
-      setAcidTestResults(results);
-    } else {
+    if (duration <= 0) {
       setAcidTestResults(null);
     }
   };
@@ -1075,10 +1744,13 @@ const QuotePageContent = memo(() => {
   const handleCloseAcidTest = () => {
     setShowAcidTestForm(false);
     setAcidTestResults(null);
+    setAcidTestCostData(null);
     setMonthlyBillRate(0);
     setProjectDuration(6);
     setAcidTestError(null);
     setAcidTestValidation({});
+    setIsCategorizingCosts(false);
+    setIsComputingAcidTest(false);
   };
 
   // --- RENDER LOGIC (UNCHANGED) ---

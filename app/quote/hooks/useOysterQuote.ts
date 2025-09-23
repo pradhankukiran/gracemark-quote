@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { EORFormData, Quote, QuoteData, OysterQuote } from "@/lib/shared/types";
 import { ensureFormDefaults, createQuoteRequestData, fetchOysterCost, transformOysterResponseToQuote, transformToOysterQuote } from "@/lib/shared/utils/apiUtils";
 import { convertCurrency } from "@/lib/currency-converter";
+import { setRawQuote } from "@/lib/shared/utils/rawQuoteStore";
 
 export const useOysterQuote = () => {
   const [loading, setLoading] = useState(false);
@@ -14,6 +15,7 @@ export const useOysterQuote = () => {
       const withDefaults = ensureFormDefaults(formData)
       const request = createQuoteRequestData(withDefaults)
       const response = await fetchOysterCost(request)
+      setRawQuote('oyster', response)
 
       const optimized: OysterQuote = transformToOysterQuote(response)
       const display: Quote = transformOysterResponseToQuote(response)
@@ -28,6 +30,7 @@ export const useOysterQuote = () => {
         try {
           const compareReq = createQuoteRequestData(withDefaults, true)
           const compResp = await fetchOysterCost(compareReq)
+          setRawQuote('oyster', compResp, 'comparison')
           comparisonOptimized = transformToOysterQuote(compResp)
           comparisonQuote = transformOysterResponseToQuote(compResp)
 

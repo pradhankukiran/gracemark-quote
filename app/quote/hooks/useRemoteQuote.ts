@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { fetchRemoteCost, createQuoteRequestData, ensureFormDefaults, transformRemoteResponseToQuote, transformToRemoteQuote } from "@/lib/shared/utils/apiUtils";
 import { RemoteAPIResponse, EORFormData, QuoteData } from "@/lib/shared/types";
 import { convertCurrency } from "@/lib/currency-converter";
+import { setRawQuote } from "@/lib/shared/utils/rawQuoteStore";
 
 export const useRemoteQuote = () => {
   const [loading, setLoading] = useState(false);
@@ -22,6 +23,7 @@ export const useRemoteQuote = () => {
       let remoteDisplayQuote: any | undefined;
       if (fetchPrimary) {
         remoteQuoteResponse = await fetchRemoteCost(requestData);
+        setRawQuote('remote', remoteQuoteResponse);
         remoteQuote = transformToRemoteQuote(remoteQuoteResponse);
         remoteDisplayQuote = transformRemoteResponseToQuote(remoteQuoteResponse);
       }
@@ -49,6 +51,7 @@ export const useRemoteQuote = () => {
         try {
           const compareRequestData = createQuoteRequestData(formDataWithDefaults, true);
           comparisonQuoteResponse = await fetchRemoteCost(compareRequestData);
+          setRawQuote('remote', comparisonQuoteResponse, 'comparison');
 
           // Build comparison quote in the selected (changed) currency as well
           if (

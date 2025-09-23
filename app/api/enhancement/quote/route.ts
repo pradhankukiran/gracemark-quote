@@ -84,21 +84,7 @@ export async function POST(request: NextRequest) {
       quoteType: effectiveQuoteType
     })
 
-    // Debug logging for API response
-    if (typeof window === 'undefined') {
-      try {
-        console.log(`[API] Enhanced Quote Response for ${validatedInput.provider}:`, {
-          success: true,
-          provider: validatedInput.provider,
-          baseTotal: enhancedQuote.baseQuote?.monthlyTotal || 0,
-          finalTotal: enhancedQuote.finalTotal,
-          totalEnhancement: enhancedQuote.totalEnhancement,
-          currency: enhancedQuote.baseCurrency,
-          processingTime: Date.now() - startTime,
-          overallConfidence: enhancedQuote.overallConfidence
-        })
-      } catch {/* noop */}
-    }
+    
 
     // Return successful response
     return NextResponse.json({

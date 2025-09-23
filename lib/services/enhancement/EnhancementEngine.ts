@@ -119,7 +119,7 @@ export class EnhancementEngine {
       }
       
       // Step 4: PASS 3 - Arithmetic compute using legal profile + inclusions (with retry)
-      console.log(`[Enhancement] Computing enhancements for ${params.provider}...`)
+      
       let groqResponse
       let lastError: unknown
       
@@ -131,6 +131,7 @@ export class EnhancementEngine {
             quoteType,
             contractDurationMonths: legalProfile.contractMonths,
             extractedBenefits,
+            formData: params.formData, // CRITICAL: Pass original formData for addBenefits checkbox
             legalProfile: {
               id: legalProfile.id,
               countryCode: legalProfile.countryCode,
@@ -177,24 +178,7 @@ export class EnhancementEngine {
           const baseTotal = normalizedQuote.monthlyTotal
           const enhancement = enhancedQuote.totalEnhancement
           const finalTotal = enhancedQuote.finalTotal
-          console.log(`[Enhancement] Enhanced Quote Result for ${params.provider}: Base: ${baseTotal.toLocaleString()} ${enhancedQuote.baseCurrency} → Enhanced: ${finalTotal.toLocaleString()} ${enhancedQuote.baseCurrency} (+${enhancement.toLocaleString()} ${enhancedQuote.baseCurrency})`, {
-            baseTotal,
-            totalEnhancement: enhancement,
-            finalTotal,
-            currency: enhancedQuote.baseCurrency,
-            overallConfidence: enhancedQuote.overallConfidence,
-            keyEnhancements: {
-              terminationCosts: (() => {
-                const tc = enhancedQuote.enhancements.terminationCosts
-                if (!tc) return 0
-                const months = Math.max(1, Number(tc.basedOnContractMonths || 12))
-                const total = Number(tc.totalTerminationCost || 0)
-                return months > 0 ? Number((total / months).toFixed(2)) : 0
-              })(),
-              thirteenthSalary: enhancedQuote.enhancements.thirteenthSalary?.monthlyAmount || 0,
-              employerContributions: enhancedQuote.enhancements.additionalContributions ? Object.values(enhancedQuote.enhancements.additionalContributions).reduce((sum, val) => sum + (val || 0), 0) : 0
-            }
-          })
+          
         } catch {/* noop */}
       }
 
@@ -345,7 +329,7 @@ export class EnhancementEngine {
       // Step 4: Contract duration calculation
       // (already computed above as contractDurationMonths)
       // Step 5: Wait for pre-pass (Cerebras) and compute deterministic deltas using the legal profile
-      console.log(`[Enhancement] Building legal baseline via Cerebras pre-pass for ${params.provider}...`)
+
       let groqLikeResponse
       try {
         const legalBaseline = await cerebrasPrepassPromise
@@ -424,24 +408,7 @@ export class EnhancementEngine {
           const baseTotal = normalizedQuote.monthlyTotal
           const enhancement = enhancedQuote.totalEnhancement
           const finalTotal = enhancedQuote.finalTotal
-          console.log(`[Enhancement] Enhanced Quote Result for ${params.provider}: Base: ${baseTotal.toLocaleString()} ${enhancedQuote.baseCurrency} → Enhanced: ${finalTotal.toLocaleString()} ${enhancedQuote.baseCurrency} (+${enhancement.toLocaleString()} ${enhancedQuote.baseCurrency})`, {
-            baseTotal,
-            totalEnhancement: enhancement,
-            finalTotal,
-            currency: enhancedQuote.baseCurrency,
-            overallConfidence: enhancedQuote.overallConfidence,
-            keyEnhancements: {
-              terminationCosts: (() => {
-                const tc = enhancedQuote.enhancements.terminationCosts
-                if (!tc) return 0
-                const months = Math.max(1, Number(tc.basedOnContractMonths || 12))
-                const total = Number(tc.totalTerminationCost || 0)
-                return months > 0 ? Number((total / months).toFixed(2)) : 0
-              })(),
-              thirteenthSalary: enhancedQuote.enhancements.thirteenthSalary?.monthlyAmount || 0,
-              employerContributions: enhancedQuote.enhancements.additionalContributions ? Object.values(enhancedQuote.enhancements.additionalContributions).reduce((sum, val) => sum + (val || 0), 0) : 0
-            }
-          })
+          
         } catch {/* noop */}
       }
 

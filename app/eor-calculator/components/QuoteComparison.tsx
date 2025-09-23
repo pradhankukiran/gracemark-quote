@@ -179,7 +179,7 @@ export const QuoteComparison = memo(({
       extendedConversions: conversions as any,
       isPending: false,
       recalcItems: [] as string[],
-      extras: [] as Array<{ name: string; amount: number }>,
+      extras: [] as Array<{ name: string; amount: number; tag?: 'yearly_bonus' | 'one_time_fee' }>,
       currency: (quote as any)?.currency as string | undefined
     }
 
@@ -193,36 +193,44 @@ export const QuoteComparison = memo(({
     if (quote && Array.isArray((quote as any).costs)) {
       const merged: any = { ...(quote as any) }
       const costs: any[] = Array.isArray(merged.costs) ? [...merged.costs] : []
-      const collected: Array<{ name: string; amount: number; guards?: string[] }> = []
+      const collected: Array<{ name: string; amount: number; guards?: string[]; tag?: 'yearly_bonus' | 'one_time_fee' }> = []
 
       const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
       const hasItemLike = (needle: string) => costs.some((c: any) => norm(c?.name).includes(norm(needle)))
-      const addExtraRow = (name: string, amount: number) => {
+      const addExtraRow = (name: string, amount: number, tag?: 'yearly_bonus' | 'one_time_fee') => {
         const amt = Number(amount)
         if (!isFinite(amt) || amt <= 0) return
-        costs.push({ name, amount: amt.toFixed(2), frequency: 'monthly', country: (quote as any)?.country, country_code: (quote as any)?.country_code })
+        const frequency = tag === 'one_time_fee' ? 'one_time' : tag === 'yearly_bonus' ? 'annual' : 'monthly'
+        const displayAmount = tag === 'yearly_bonus' ? amt / 12 : amt
+        costs.push({
+          name,
+          amount: displayAmount.toFixed(2),
+          frequency,
+          country: (quote as any)?.country,
+          country_code: (quote as any)?.country_code,
+          tag
+        })
       }
-      const addExtra = (name: string, amount: number, guards: string[] = []) => {
+      const addExtra = (name: string, amount: number, guards: string[] = [], tag?: 'yearly_bonus' | 'one_time_fee') => {
         const amt = Number(amount)
         if (!isFinite(amt) || amt <= 0) return
         const dup = guards.some(g => hasItemLike(g))
-        if (!dup) collected.push({ name, amount: amt, guards })
+        if (!dup) collected.push({ name, amount: amt, guards, tag })
       }
 
       const tc = enh?.enhancements?.terminationCosts
       if (tc && typeof tc.totalTerminationCost === 'number' && tc.totalTerminationCost > 0) {
-        const months = Math.max(1, Number(tc.basedOnContractMonths || 12))
-        addExtra('Termination Provision', tc.totalTerminationCost / months, ['termination', 'severance', 'notice', 'provision'])
+        addExtra('Termination Provision', tc.totalTerminationCost, ['termination', 'severance', 'notice', 'provision'], 'one_time_fee')
       }
       const th13 = enh?.enhancements?.thirteenthSalary
       if (th13 && th13.isAlreadyIncluded !== true) {
-        const m = Number(th13.monthlyAmount || 0) || (Number(th13.yearlyAmount || 0) / 12)
-        addExtra('13th Salary', m, ['13th', 'thirteenth'])
+        const yearly = Number(th13.yearlyAmount || 0) || (Number(th13.monthlyAmount || 0) * 12)
+        addExtra('13th Salary', yearly, ['13th', 'thirteenth'], 'yearly_bonus')
       }
       const th14 = enh?.enhancements?.fourteenthSalary
       if (th14 && th14.isAlreadyIncluded !== true) {
-        const m = Number(th14.monthlyAmount || 0) || (Number(th14.yearlyAmount || 0) / 12)
-        addExtra('14th Salary', m, ['14th', 'fourteenth'])
+        const yearly = Number(th14.yearlyAmount || 0) || (Number(th14.monthlyAmount || 0) * 12)
+        addExtra('14th Salary', yearly, ['14th', 'fourteenth'], 'yearly_bonus')
       }
       const ta = enh?.enhancements?.transportationAllowance
       if (ta && ta.isAlreadyIncluded !== true) addExtra('Transportation Allowance', Number(ta.monthlyAmount || 0), ['transportation'])
@@ -248,7 +256,7 @@ export const QuoteComparison = memo(({
       })
 
       if (collected.length > 0 && dualMode) {
-        result.extras = collected.map(e => ({ name: e.name, amount: e.amount }))
+        result.extras = collected.map(e => ({ name: e.name, amount: e.amount, tag: e.tag }))
       }
       if (collected.length > 0 && !dualMode) {
         let exchangeRate: number | null = null
@@ -263,14 +271,25 @@ export const QuoteComparison = memo(({
           }
         } catch { /* noop */ }
         const newUsdConversions: number[] = []
-        collected.forEach(ex => { addExtraRow(ex.name, ex.amount); if (exchangeRate !== null) newUsdConversions.push(ex.amount * exchangeRate) })
+        collected.forEach(ex => {
+          addExtraRow(ex.name, ex.amount, ex.tag)
+          if (exchangeRate !== null) {
+            const converted = ex.tag === 'yearly_bonus' ? (ex.amount / 12) : ex.amount
+            newUsdConversions.push(converted * exchangeRate)
+          }
+        })
         if ((conversions as any)?.costs && newUsdConversions.length > 0) {
           result.extendedConversions = { ...(conversions as any), costs: [ ...(conversions as any).costs, ...newUsdConversions ] }
         }
         merged.costs = costs
         const parseNum = (v?: string | number) => typeof v === 'number' ? v : Number.parseFloat((v || '0') as string)
         const baseTotal = parseNum((quote as any)?.total_costs)
-        const extraSum = collected.reduce((s, it) => s + (it.amount || 0), 0)
+        const extraSum = collected.reduce((s, it) => {
+          if (!it || !isFinite(it.amount)) return s
+          if (it.tag === 'one_time_fee') return s
+          if (it.tag === 'yearly_bonus') return s + (it.amount / 12)
+          return s + it.amount
+        }, 0)
         const newTotal = baseTotal + extraSum
         merged.total_costs = isFinite(newTotal) ? newTotal.toFixed(2) : (quote as any)?.total_costs
         merged.employer_costs = merged.total_costs
@@ -312,6 +331,7 @@ export const QuoteComparison = memo(({
           recalcBaseItems={primaryMerged.recalcItems}
           {...(isDualMode ? { mergedExtras: primaryMerged.extras, mergedCurrency: primaryMerged.currency } : {})}
           enhancementPending={primaryMerged.isPending}
+          totalPending={primaryMerged.isPending}
           shimmerExtrasCount={3}
         />
 
@@ -329,6 +349,7 @@ export const QuoteComparison = memo(({
           recalcBaseItems={comparisonMerged.recalcItems}
           {...(isDualMode ? { mergedExtras: comparisonMerged.extras, mergedCurrency: comparisonMerged.currency } : {})}
           enhancementPending={comparisonMerged.isPending}
+          totalPending={comparisonMerged.isPending}
           shimmerExtrasCount={3}
         />
       </div>
@@ -337,4 +358,3 @@ export const QuoteComparison = memo(({
 })
 
 QuoteComparison.displayName = 'QuoteComparison'
-

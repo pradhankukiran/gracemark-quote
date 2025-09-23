@@ -11,6 +11,7 @@ import { useSkuadQuote } from "./useSkuadQuote";
 import { useVelocityQuote } from "./useVelocityQuote";
 import { useEnhancementContext } from "@/hooks/enhancement/EnhancementContext";
 import { transformRemoteResponseToQuote } from "@/lib/shared/utils/apiUtils";
+import { clearRawQuotes } from "@/lib/shared/utils/rawQuoteStore";
 import { isRemoteAPIResponse, validateQuoteWithDebugging, isValidQuote, normalizeQuoteForEnhancement, isValidNormalizedQuote } from "@/lib/shared/utils/quoteNormalizer";
 
 export type Provider = 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity';
@@ -248,16 +249,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
 
     // Debug logging for comparison readiness
     const isReady = hasBase && hasComparison && !isBaseInFlight && !isCompareInFlight;
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`🔍 Comparison readiness check for ${provider}:`, {
-        hasBase,
-        hasComparison,
-        isBaseInFlight,
-        isCompareInFlight,
-        isReady,
-        enableComparison: form?.enableComparison
-      });
-    }
+    
 
     return isReady;
   }, [hasProviderData, hasComparisonData]);
@@ -294,18 +286,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
 
     // Debug logging for dual currency comparison readiness
     const isReady = isDualMode && hasComparison && hasSelectedAndLocal && hasComparisonData;
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`🔍 Dual currency comparison readiness check for ${provider}:`, {
-        needsDual,
-        hasSelectedAndLocal,
-        hasComparisonData,
-        isDualMode,
-        hasComparison,
-        isReady,
-        enableComparison: !!form?.enableComparison,
-        isCurrencyManuallySet: !!form?.isCurrencyManuallySet
-      });
-    }
+    
 
     return isReady;
   }, [hasDualCurrencyData]);
@@ -1189,15 +1170,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           const dualCurrencyReady = isDualCurrencyComparisonReady(provider, data);
 
           // Debug logging for provider state transitions
-          if (process.env.NODE_ENV === 'development') {
-            console.log(`🏗️ Provider state update for ${provider}:`, {
-              hasBase: true,
-              comparisonReady,
-              dualCurrencyReady,
-              currentStatus: providerStates[provider]?.status,
-              willProceed: comparisonReady && dualCurrencyReady
-            });
-          }
+          
 
           // Provider has base data, now check if all required modes are ready
           if (!comparisonReady || !dualCurrencyReady) {
@@ -1433,6 +1406,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   useEffect(() => {
     // Reset flags when new quote starts
     // console.log('🔄 Resetting sequential flags for new quote:', quoteId);
+    clearRawQuotes()
     hasStartedSequentialRef.current = false;
     isSequentialLoadingRef.current = false;
     enhancementFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
@@ -1459,6 +1433,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       compareInFlightRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
       comparisonCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
       dualCurrencyCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+      clearRawQuotes()
     };
   }, [quoteId]);
 

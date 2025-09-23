@@ -3,6 +3,7 @@ import { EORFormData, Quote, QuoteData } from "@/lib/shared/types";
 import { ensureFormDefaults, createQuoteRequestData, fetchRipplingCost, transformRipplingResponseToQuote, QuoteRequestData } from "@/lib/shared/utils/apiUtils";
 import { convertCurrency } from "@/lib/currency-converter";
 import { getCountryByName } from "@/lib/country-data";
+import { setRawQuote } from "@/lib/shared/utils/rawQuoteStore";
 
 export const useRipplingQuote = () => {
   const [loading, setLoading] = useState(false);
@@ -16,6 +17,7 @@ export const useRipplingQuote = () => {
       const request = createQuoteRequestData(withDefaults);
 
       const response = await fetchRipplingCost(request);
+      setRawQuote('rippling', response);
       const display: Quote = transformRipplingResponseToQuote(response);
       // Patch missing context fields (country, currency) from form
       display.country = withDefaults.country;
@@ -29,6 +31,7 @@ export const useRipplingQuote = () => {
         try {
           const compareReq = createQuoteRequestData(withDefaults, true);
           const compResp = await fetchRipplingCost(compareReq);
+          setRawQuote('rippling', compResp, 'comparison');
           const compDisplay: Quote = transformRipplingResponseToQuote(compResp);
           compDisplay.country = withDefaults.compareCountry;
           compDisplay.country_code = getCountryByName(withDefaults.compareCountry)?.code || '';
@@ -123,4 +126,3 @@ export const useRipplingQuote = () => {
 
   return { loading, error, calculateRipplingQuote }
 }
-

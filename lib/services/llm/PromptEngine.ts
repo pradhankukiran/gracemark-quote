@@ -197,6 +197,85 @@ RULES: amounts monthly in quote currency; include benefits found with amount > 0
       `Respond with standardized JSON including: baseSalary, currency, country, monthlyTotal, includedBenefits{...}, totalMonthlyBenefits, extractionConfidence, extractedAt.`
   }
 
+  // Smart truncation that preserves critical sections
+  private static smartTruncatePapayaData(papayaData: string, maxLength: number): string {
+    if (typeof papayaData !== 'string' || papayaData.length <= maxLength) {
+      return papayaData
+    }
+
+    // For very large data (>200k), use simple truncation to avoid timeout
+    if (papayaData.length > 200000) {
+      return papayaData.slice(0, maxLength) + '\n[truncated - data too large for smart parsing]'
+    }
+
+    // Define critical sections in order of importance
+    const criticalSections = [
+      'COMMON_BENEFITS:',
+      'PAYROLL:',
+      'TERMINATION:',
+      'EMPLOYER_CONTRIBUTIONS:',
+      'AUTHORITY_PAYMENTS:',
+      'MINIMUM_WAGE:',
+      'REMOTE_WORK:'
+    ]
+
+    // Split data by sections
+    const lines = papayaData.split('\n')
+    const sectionGroups: Array<{ section: string; lines: string[]; priority: number }> = []
+    let currentSection = ''
+    let currentLines: string[] = []
+
+    for (const line of lines) {
+      const trimmed = line.trim()
+
+      // Check if this line starts a new section
+      const sectionMatch = criticalSections.find(sec => trimmed.startsWith(sec))
+      if (sectionMatch) {
+        // Save previous section if it exists
+        if (currentSection && currentLines.length > 0) {
+          const priority = criticalSections.indexOf(currentSection)
+          sectionGroups.push({ section: currentSection, lines: [...currentLines], priority })
+        }
+        // Start new section
+        currentSection = sectionMatch
+        currentLines = [line]
+      } else {
+        currentLines.push(line)
+      }
+    }
+
+    // Save final section
+    if (currentSection && currentLines.length > 0) {
+      const priority = criticalSections.indexOf(currentSection)
+      sectionGroups.push({ section: currentSection, lines: [...currentLines], priority })
+    }
+
+    // Sort by priority (lower number = higher priority)
+    sectionGroups.sort((a, b) => a.priority - b.priority)
+
+    // Build truncated result by adding sections in order until we hit the limit
+    let result = ''
+    let addedSections = 0
+
+    for (const group of sectionGroups) {
+      const sectionText = group.lines.join('\n')
+      if ((result + sectionText).length <= maxLength - 50) { // Leave buffer for truncation message
+        if (result) result += '\n'
+        result += sectionText
+        addedSections++
+      } else {
+        break
+      }
+    }
+
+    // Add truncation notice if we couldn't include all sections
+    if (addedSections < sectionGroups.length) {
+      result += `\n\n[truncated: ${sectionGroups.length - addedSections} additional sections omitted]`
+    }
+
+    return result || papayaData.slice(0, maxLength - 20) + '\n[fallback truncated]'
+  }
+
   // Utility: summarize Papaya snippets
   private static summarizeLegalRequirements(papayaData: PapayaCountryData): string {
     if (!papayaData?.data) return 'No detailed legal data available'
@@ -347,26 +426,25 @@ SUCCESS CRITERIA: Providers with different inclusions get different enhancement 
     }
 
     // Form data logic for benefit inclusion
-    const addBenefits = formData.addBenefits || false
-    const includeCommonBenefits = quoteType === 'all-inclusive' && addBenefits
+    const addBenefitsFlag = formData.addBenefits
+    const includeCommonBenefits = quoteType === 'all-inclusive' && addBenefitsFlag !== false
     
     const formLogic = `
 FORM DATA ANALYSIS:
 - Quote Type: ${quoteType}
-- Add Benefits Checkbox: ${addBenefits}
+- Add Benefits Checkbox: ${addBenefitsFlag !== false}
 - Contract Duration: ${contractMonths} months
 
 INCLUSION LOGIC FOR THIS REQUEST:
-${quoteType === 'statutory-only' 
+${quoteType === 'statutory-only'
   ? '→ MANDATORY ONLY: Include only legally required items'
-  : includeCommonBenefits 
-    ? '→ FULL INCLUSIVE: Include mandatory + common benefits' 
+  : includeCommonBenefits
+    ? '→ FULL INCLUSIVE: Include mandatory + common benefits'
     : '→ MANDATORY ONLY: Include only legally required items'
 }`
 
-    const limitedPapayaData = typeof papayaData === 'string' && papayaData.length > 50000
-      ? papayaData.slice(0, 50000) + '\n[truncated]'
-      : papayaData
+    // Smart truncation that preserves critical sections
+    const limitedPapayaData = this.smartTruncatePapayaData(papayaData, 50000)
 
     return [
       `PROVIDER GAP ANALYSIS: ${provider.toUpperCase()} - ${baseQuote.country}`,
@@ -396,6 +474,7 @@ ${quoteType === 'statutory-only'
         '• Meal Vouchers: Check common_benefits section',
         '• Transportation: Check common_benefits section', 
         '• Internet/Mobile: Check common_benefits section',
+        '• Health Insurance: Check common_benefits section',
         '• Other allowances with explicit amounts'
       ].join('\n') : 'COMMON BENEFITS: SKIP (not requested for this quote type)',
       '',
@@ -419,7 +498,7 @@ ${quoteType === 'statutory-only'
       '• Reasoning: "Provider missing 14th salary. Papaya requires..."',
       '',
       includeCommonBenefits ? [
-        'EXAMPLE 3 - Common benefit (only if addBenefits=true):',
+        'EXAMPLE 3 - Common benefit (addBenefits=true path):',
         '• Provider coverage: meal_vouchers = 0 (missing)',
         '• Papaya shows: "Meal Vouchers – 6,000 ARS monthly"',
         '• Result: already_included=false, monthly_amount=6000',
@@ -555,12 +634,35 @@ ${quoteType === 'statutory-only'
       '• EMPLOYER CONTRIBUTIONS: Calculate and include every percentage/amount',
       '• RANGES: Use midpoint calculations for "X to Y" amounts',
       '',
-      'CALCULATION APPROACH:',
-      '• If Papaya gives exact amounts → use them',
-      '• If Papaya gives percentages → calculate against BASE_SALARY',
-      '• If Papaya gives ranges → use midpoint: (min + max) ÷ 2',
-      '• If daily amounts → convert to monthly: daily × 22 working days',
-      '• Round all amounts to 2 decimal places',
+      'ROBUST COST CALCULATION RULES:',
+      '',
+      '1. EXACT AMOUNTS: "5,000 ARS monthly" → use 5000',
+      '2. COMPLETE RANGES: "5,000 to 7,000 ARS" → use midpoint: (5000+7000)÷2 = 6000',
+      '3. INCOMPLETE RANGES:',
+      '   • "Up to 5,000 ARS" → use 65% of max: 5000 × 0.65 = 3250',
+      '   • "Starting from 3,000 ARS" → use 130% of min: 3000 × 1.3 = 3900',
+      '   • "Around 4,000 ARS" → use stated amount: 4000',
+      '4. PERCENTAGE CALCULATIONS:',
+      '   • "3% of salary" → BASE_SALARY × 0.03',
+      '   • "2% to 5% of salary" → BASE_SALARY × midpoint (3.5%)',
+      '   • "Up to 4% of salary" → BASE_SALARY × 2.6% (65% of max)',
+      '5. TIME CONVERSIONS:',
+      '   • Daily → Monthly: daily_amount × 22 working days',
+      '   • Weekly → Monthly: weekly_amount × 4.33',
+      '   • Yearly → Monthly: yearly_amount ÷ 12',
+      '6. NO COST SPECIFIED:',
+      '   • "Meal vouchers available" (no amount) → Use industry standard: BASE_SALARY × 0.02',
+      '   • "Internet stipend provided" → Use standard: BASE_SALARY × 0.015',
+      '   • "Transportation allowance" → Use standard: BASE_SALARY × 0.03',
+      '   • "Mobile phone allowance" → Use standard: BASE_SALARY × 0.01',
+      '7. VAGUE COSTS:',
+      '   • "Market rate" → Use conservative: BASE_SALARY × 0.025',
+      '   • "Competitive rate" → Use standard: BASE_SALARY × 0.02',
+      '   • "Varies by location" → Use average: BASE_SALARY × 0.02',
+      '   • "Subject to negotiation" → Use baseline: BASE_SALARY × 0.015',
+      '8. CONDITIONAL COVERAGE:',
+      '   • "Company covers 80%" (no base cost) → Estimate total as BASE_SALARY × 0.05, use 80%',
+      '   • "Partial reimbursement" → Use 50% of estimated standard cost',
       '',
       'SUCCESS CRITERIA:',
       '• All Papaya sections have been thoroughly parsed',
@@ -569,12 +671,27 @@ ${quoteType === 'statutory-only'
       '• When addBenefits=true, all common_benefits are included',
       '• Different providers get different totals based on their coverage gaps',
       '',
-      'AVOID THESE MISTAKES:',
-      '• NEVER skip termination costs - if termination section exists, ALWAYS calculate using simple formula',
-      '• DON\'T apply gap analysis to termination costs - providers never include them',
-      '• Don\'t default to 0 for unclear calculations - make reasonable estimates',
-      '• Don\'t limit to only "obvious" benefits - include everything found',
-      '• Don\'t ignore ranges or variable amounts - calculate midpoints'
+      'CONFIDENCE SCORING FOR ESTIMATES:',
+      '• Exact amounts from Papaya → confidence: 0.9',
+      '• Complete ranges with midpoint → confidence: 0.8',
+      '• Incomplete ranges (up to/starting from) → confidence: 0.7',
+      '• Percentage calculations → confidence: 0.8',
+      '• Industry standard estimates (no cost given) → confidence: 0.5',
+      '• Vague cost estimates (market rate, etc.) → confidence: 0.4',
+      '• Conditional/partial coverage estimates → confidence: 0.6',
+      '',
+      'EXPLANATION REQUIREMENTS:',
+      '• Always include source: "Papaya: 5,000 to 7,000 ARS (midpoint used)"',
+      '• For estimates: "Estimated: No cost specified, used 2% of salary standard"',
+      '• For vague costs: "Estimated: Market rate converted to 2.5% of salary"',
+      '• For ranges: "Papaya: Up to 5,000 ARS (65% estimate used)"',
+      '',
+      'CRITICAL REQUIREMENTS:',
+      '• NEVER skip benefits just because cost is unclear - always estimate',
+      '• NEVER default to 0 - use the calculation rules above',
+      '• NEVER make up exact numbers - follow the percentage formulas',
+      '• ALWAYS include explanation of how amount was derived',
+      '• Termination costs: ALWAYS calculate even if formula unclear'
     ].filter(line => line !== '').join('\n')
   }
 
@@ -692,10 +809,10 @@ RESPONSE JSON SHAPE (exact keys):
     ].join('\n')
   }
 
-  // Baseline-First User Prompt
+  // Baseline-First User Prompt (Enhanced with addBenefits logic)
   static buildBaselineUserPrompt(params: {
     baseQuote: { country: string; currency: string; monthlyTotal: number; baseCost: number }
-    formData: { baseSalary: string }
+    formData: any // Accept full formData for addBenefits checkbox
     papayaData: string
     papayaCurrency: string
     quoteType: 'all-inclusive' | 'statutory-only'
@@ -704,9 +821,27 @@ RESPONSE JSON SHAPE (exact keys):
   }): string {
     const { baseQuote, formData, papayaData, papayaCurrency, quoteType, contractMonths, baseItems } = params
 
-    const limitedPapayaData = typeof papayaData === 'string' && papayaData.length > 50000
-      ? papayaData.slice(0, 50000) + '\n[truncated]'
-      : papayaData
+    // Consider addBenefits opt-in; treat undefined as true for backward compatibility
+    const addBenefitsFlag = formData.addBenefits
+    const includeCommonBenefits = quoteType === 'all-inclusive' && addBenefitsFlag !== false
+
+    // Smart truncation that preserves critical sections
+    const limitedPapayaData = this.smartTruncatePapayaData(papayaData, 50000)
+
+    // Form analysis section (simplified to avoid template literal issues)
+    const formLogic = [
+      'FORM DATA ANALYSIS:',
+      `- Quote Type: ${quoteType || 'unknown'}`,
+      `- Add Benefits Checkbox: ${addBenefitsFlag !== false}`,
+      `- Contract Duration: ${contractMonths || 12} months`,
+      '',
+      'INCLUSION LOGIC FOR THIS REQUEST:',
+      (quoteType === 'statutory-only')
+        ? '→ MANDATORY ONLY: Include only legally required items'
+        : includeCommonBenefits
+          ? '→ FULL INCLUSIVE: Include mandatory + common benefits'
+          : '→ MANDATORY ONLY: Include only legally required items'
+    ].join('\n')
 
     return [
       `FULL QUOTE REQUEST (no reconciliation)`,
@@ -716,19 +851,57 @@ RESPONSE JSON SHAPE (exact keys):
       `CONTRACT MONTHS: ${contractMonths}`,
       `QUOTE TYPE: ${quoteType}`,
       '',
+      formLogic,
+      '',
       'BASE ITEMS (already present in base quote):',
       Array.isArray(baseItems) && baseItems.length > 0 ? JSON.stringify(baseItems, null, 2) : '[]',
       '',
+      includeCommonBenefits ? [
+        'BENEFIT INCLUSION RULES:',
+        '• MANDATORY BENEFITS: Always include if missing (13th salary, termination costs, required contributions)',
+        '• COMMON BENEFITS: Include ALL when addBenefits=true (meal vouchers, transportation, allowances)',
+        '• Use Papaya amounts and convert to monthly as needed',
+        ''
+      ].join('\n') : [
+        'BENEFIT INCLUSION RULES:',
+        '• MANDATORY ONLY: Include only legally required items (13th salary, termination costs, required contributions)',
+        '• SKIP COMMON BENEFITS: Do not include meal vouchers, transportation allowances, or other optional benefits',
+        ''
+      ].join('\n'),
       'PAPAYA GLOBAL DATA (flattened):',
       limitedPapayaData,
       '',
       'RESPONSE INSTRUCTIONS:',
       '- Always use LOCAL currency (Papaya) as the quote.currency.',
       '- Use the provided base salary as MONTHLY base_salary_monthly.',
-      '- For statutory-only: include only legally mandated employer items (employer contributions from Papaya contributions section, authority payments from authority_payments section, mandatory 13th/14th if explicitly required, termination provisions monthlyized when applicable). Exclude enhanced pension uplifts, private healthcare, meal/food, WFH/remote allowances, car, wellness/gym, and leave entitlements as recurring monthly items.',
-      '- For all-inclusive: include statutory baseline plus common benefits with amounts from Papaya.',
-      '- De-duplication: REMOVE any item that matches BASE ITEMS (by meaning or close name). Normalize names (lowercase, remove punctuation/stop-words like contribution/fund/fee). Choose the base item over your generated one.',
-      '- Markers: For any item that needs recompute (e.g., annual → monthly), append ##RECALC## to item.key (and optionally to item.name). Do not compute the amount; just mark it.',
+      '- CRITICAL BENEFIT LOGIC:',
+      (quoteType === 'statutory-only'
+        ? '  * Statutory-only (THIS REQUEST): Include only legally mandated items'
+        : '  * Statutory-only (not this request): Include only legally mandated items'),
+      (includeCommonBenefits
+        ? '  * All-inclusive + addBenefits=true (THIS REQUEST): Include mandatory + common benefits'
+        : '  * All-inclusive + addBenefits=true (not this request): Include mandatory + common benefits'),
+      (quoteType === 'all-inclusive' && addBenefitsFlag === false
+        ? '  * All-inclusive + addBenefits=false (THIS REQUEST): Include only mandatory items'
+        : '  * All-inclusive + addBenefits=false (not this request): Include only mandatory items'),
+      '- MANDATORY ALWAYS: employer contributions, authority payments, 13th/14th salary (if required), termination costs',
+      includeCommonBenefits
+        ? '- COMMON BENEFITS (INCLUDE): meal vouchers, transportation, internet/mobile allowances, WFH stipends from Papaya common_benefits section'
+        : '- COMMON BENEFITS (EXCLUDE): meal vouchers, transportation, internet/mobile allowances, WFH stipends',
+      '',
+      '- COST HANDLING FOR UNCLEAR DATA:',
+      '  * Exact amounts: Use as-is',
+      '  * Ranges "X to Y": Use midpoint (X+Y)÷2',
+      '  * "Up to X": Use 65% of X',
+      '  * "Starting from X": Use 130% of X',
+      '  * No cost given: Use salary percentage (meal=2%, transport=3%, internet=1.5%)',
+      '  * "Market rate": Use 2.5% of base salary',
+      '  * Percentages: Calculate against BASE_SALARY',
+      '  * Always include confidence score and explanation',
+      '',
+      '- De-duplication: REMOVE any item that matches BASE ITEMS (by meaning or close name).',
+      '- Markers: For items needing recompute (annual → monthly), append ##RECALC## to item.key.',
+      '- NEVER skip benefits due to unclear costs - always estimate using rules above.',
       '- Compute subtotals per category and total_monthly = base_salary_monthly + sum(items).',
       '- Strictly follow the schema.',
     ].join('\n')
