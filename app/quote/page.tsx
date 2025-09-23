@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, Suspense, memo, useState, useCallback } from "react"
+import { useEffect, Suspense, memo, useState, useCallback, useMemo } from "react"
 import { useSearchParams } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Brain, Target, Zap, BarChart3, TrendingUp, Crown, Activity, TrendingDown, FileText } from "lucide-react"
+import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Brain, Target, Zap, BarChart3, TrendingUp, Crown, Activity, FileText } from "lucide-react"
 import Link from "next/link"
 import { useQuoteResults } from "./hooks/useQuoteResults"
 import { useUSDConversion } from "../eor-calculator/hooks/useUSDConversion"
@@ -52,6 +52,37 @@ type AcidTestBreakdown = {
   oneTimeTotal: number
   recurringMonthly: number
   recurringTotal: number
+  // USD versions
+  salaryTotalUSD?: number
+  statutoryTotalUSD?: number
+  allowancesTotalUSD?: number
+  terminationTotalUSD?: number
+  oneTimeTotalUSD?: number
+  recurringMonthlyUSD?: number
+  recurringTotalUSD?: number
+}
+
+type BillRateComposition = {
+  salaryMonthly: number
+  statutoryMonthly: number
+  terminationMonthly: number
+  allowancesMonthly: number
+  gracemarkFeeMonthly: number
+  providerFeeMonthly: number
+  expectedBillRate: number
+  actualBillRate: number
+  rateDiscrepancy: number
+  gracemarkFeePercentage: number
+  // USD versions
+  salaryMonthlyUSD?: number
+  statutoryMonthlyUSD?: number
+  terminationMonthlyUSD?: number
+  allowancesMonthlyUSD?: number
+  gracemarkFeeMonthlyUSD?: number
+  providerFeeMonthlyUSD?: number
+  expectedBillRateUSD?: number
+  actualBillRateUSD?: number
+  rateDiscrepancyUSD?: number
 }
 
 type AcidTestSummary = {
@@ -66,6 +97,8 @@ type AcidTestSummary = {
   profitUSD?: number
   marginMonthly: number
   marginTotal: number
+  marginMonthlyUSD?: number
+  marginTotalUSD?: number
   meetsPositive: boolean
   meetsMinimum: boolean
   minimumShortfallUSD?: number
@@ -74,6 +107,7 @@ type AcidTestSummary = {
 type AcidTestCalculationResult = {
   summary: AcidTestSummary
   breakdown: AcidTestBreakdown
+  billRateComposition: BillRateComposition
   thresholds: {
     minimumUSD: number
   }
@@ -147,7 +181,44 @@ const QuotePageContent = memo(() => {
   const [showAcidTestForm, setShowAcidTestForm] = useState(false)
   const [monthlyBillRate, setMonthlyBillRate] = useState<number>(0)
   const [projectDuration, setProjectDuration] = useState<number>(6)
+  const [isAllInclusiveQuote, setIsAllInclusiveQuote] = useState<boolean>(true)
+  const [acidTestDisplayCurrency, setAcidTestDisplayCurrency] = useState<"local" | "usd">("local")
   const [acidTestResults, setAcidTestResults] = useState<AcidTestCalculationResult | null>(null)
+  const acidTestHasUSDData = useMemo(() => {
+    if (!acidTestResults) return false
+    if (acidTestResults.summary.currency === 'USD') return false
+
+    const { summary, breakdown, billRateComposition } = acidTestResults
+    const summaryUSD = [
+      summary.revenueUSD,
+      summary.totalCostUSD,
+      summary.profitUSD,
+      summary.marginMonthlyUSD,
+      summary.marginTotalUSD,
+    ]
+    const breakdownUSD = [
+      breakdown.salaryTotalUSD,
+      breakdown.statutoryTotalUSD,
+      breakdown.allowancesTotalUSD,
+      breakdown.terminationTotalUSD,
+      breakdown.oneTimeTotalUSD,
+      breakdown.recurringMonthlyUSD,
+      breakdown.recurringTotalUSD,
+    ]
+    const compositionUSD = [
+      billRateComposition.salaryMonthlyUSD,
+      billRateComposition.statutoryMonthlyUSD,
+      billRateComposition.allowancesMonthlyUSD,
+      billRateComposition.terminationMonthlyUSD,
+      billRateComposition.gracemarkFeeMonthlyUSD,
+      billRateComposition.providerFeeMonthlyUSD,
+      billRateComposition.expectedBillRateUSD,
+      billRateComposition.actualBillRateUSD,
+      billRateComposition.rateDiscrepancyUSD,
+    ]
+
+    return [...summaryUSD, ...breakdownUSD, ...compositionUSD].some(value => typeof value === 'number')
+  }, [acidTestResults])
   const [acidTestValidation, setAcidTestValidation] = useState<{
     billRateError?: string;
     durationError?: string;
@@ -158,58 +229,191 @@ const QuotePageContent = memo(() => {
 
   const MIN_PROFIT_THRESHOLD_USD = 1000
 
+  useEffect(() => {
+    if (!acidTestResults) {
+      if (acidTestDisplayCurrency !== 'local') {
+        setAcidTestDisplayCurrency('local')
+      }
+      return
+    }
+
+    if (acidTestResults.summary.currency === 'USD') {
+      if (acidTestDisplayCurrency !== 'local') {
+        setAcidTestDisplayCurrency('local')
+      }
+      return
+    }
+
+    if (!acidTestHasUSDData && acidTestDisplayCurrency === 'usd') {
+      setAcidTestDisplayCurrency('local')
+    }
+  }, [acidTestResults, acidTestHasUSDData, acidTestDisplayCurrency])
+
   const buildAcidTestCalculation = useCallback(async (
     costData: AcidTestCostData,
     billRate: number,
-    duration: number
+    duration: number,
+    isAllInclusive: boolean
   ): Promise<AcidTestCalculationResult> => {
+    // Calculate component totals for full assignment
     const salaryTotal = costData.baseSalaryMonthly * duration
     const statutoryTotal = costData.statutoryMonthly * duration
     const allowancesTotal = costData.allowancesMonthly * duration
-    const terminationTotal = costData.terminationMonthly * duration
+    // Only include termination costs if it's an all-inclusive quote
+    const terminationTotal = isAllInclusive ? (costData.terminationMonthly * duration) : 0
     const oneTimeTotal = costData.oneTimeTotal
 
-    const recurringMonthly = costData.baseSalaryMonthly + costData.statutoryMonthly + costData.allowancesMonthly + costData.terminationMonthly
-    const recurringTotal = recurringMonthly * duration
+    // Calculate monthly recurring costs (what goes into bill rate)
+    const recurringMonthly = costData.baseSalaryMonthly + costData.statutoryMonthly + costData.allowancesMonthly + (isAllInclusive ? costData.terminationMonthly : 0)
 
-    const totalCost = recurringTotal + oneTimeTotal
-    const revenueTotal = billRate * duration
-    const profitLocal = revenueTotal - totalCost
+    // Calculate expected Gracemark fee (45% of monthly recurring costs)
+    const GRACEMARK_FEE_PERCENTAGE = 0.45
+    const expectedGracemarkFeeMonthly = recurringMonthly * GRACEMARK_FEE_PERCENTAGE
+
+    // Provider fee is included within Gracemark fee (typically 30% of Gracemark fee)
+    const PROVIDER_FEE_RATIO = 0.30
+    const providerFeeMonthly = expectedGracemarkFeeMonthly * PROVIDER_FEE_RATIO
+
+    // Expected bill rate composition (what we should charge monthly)
+    const expectedBillRateMonthly = recurringMonthly + expectedGracemarkFeeMonthly
+
+    // Total costs for full assignment (for cash flow check)
+    const recurringTotal = recurringMonthly * duration
+    const totalCostsGracemark = recurringTotal + oneTimeTotal // Everything Gracemark pays out
+
+    // Actual values from input
+    const actualRevenueTotal = billRate * duration
+    const rateDiscrepancy = billRate - expectedBillRateMonthly
+
+    // Cash flow calculation: Revenue vs what we pay out
+    const profitLocal = actualRevenueTotal - totalCostsGracemark
 
     const marginMonthly = billRate - recurringMonthly
     const marginTotal = marginMonthly * duration - oneTimeTotal
 
+    // Comprehensive USD conversion
     let revenueUSD: number | undefined
     let totalCostUSD: number | undefined
     let profitUSD: number | undefined
     let conversionError: string | null = null
 
+    // USD versions for breakdown
+    let salaryTotalUSD: number | undefined
+    let statutoryTotalUSD: number | undefined
+    let allowancesTotalUSD: number | undefined
+    let terminationTotalUSD: number | undefined
+    let oneTimeTotalUSD: number | undefined
+    let recurringMonthlyUSD: number | undefined
+    let recurringTotalUSD: number | undefined
+
+    // USD versions for bill rate composition
+    let salaryMonthlyUSD: number | undefined
+    let statutoryMonthlyUSD: number | undefined
+    let allowancesMonthlyUSD: number | undefined
+    let terminationMonthlyUSD: number | undefined
+    let gracemarkFeeMonthlyUSD: number | undefined
+    let providerFeeMonthlyUSD: number | undefined
+    let expectedBillRateUSD: number | undefined
+    let actualBillRateUSD: number | undefined
+    let rateDiscrepancyUSD: number | undefined
+    let marginMonthlyUSD: number | undefined
+    let marginTotalUSD: number | undefined
+
     if (costData.currency === 'USD') {
-      revenueUSD = revenueTotal
-      totalCostUSD = totalCost
+      // Direct assignment for USD currency
+      revenueUSD = actualRevenueTotal
+      totalCostUSD = totalCostsGracemark
       profitUSD = profitLocal
+
+      // Breakdown USD values
+      salaryTotalUSD = salaryTotal
+      statutoryTotalUSD = statutoryTotal
+      allowancesTotalUSD = allowancesTotal
+      terminationTotalUSD = terminationTotal
+      oneTimeTotalUSD = oneTimeTotal
+      recurringMonthlyUSD = recurringMonthly
+      recurringTotalUSD = recurringTotal
+
+      // Bill rate composition USD values
+      salaryMonthlyUSD = costData.baseSalaryMonthly
+      statutoryMonthlyUSD = costData.statutoryMonthly
+      allowancesMonthlyUSD = costData.allowancesMonthly
+      terminationMonthlyUSD = isAllInclusive ? costData.terminationMonthly : 0
+      gracemarkFeeMonthlyUSD = expectedGracemarkFeeMonthly
+      providerFeeMonthlyUSD = providerFeeMonthly
+      expectedBillRateUSD = expectedBillRateMonthly
+      actualBillRateUSD = billRate
+      rateDiscrepancyUSD = rateDiscrepancy
+      marginMonthlyUSD = marginMonthly
+      marginTotalUSD = marginTotal
     } else {
       try {
-        const [revenueConversion, costConversion] = await Promise.all([
-          convertCurrency(revenueTotal, costData.currency, 'USD'),
-          convertCurrency(totalCost, costData.currency, 'USD')
+        // Convert all values to USD in parallel
+        const conversions = await Promise.all([
+          convertCurrency(actualRevenueTotal, costData.currency, 'USD'),
+          convertCurrency(totalCostsGracemark, costData.currency, 'USD'),
+          convertCurrency(salaryTotal, costData.currency, 'USD'),
+          convertCurrency(statutoryTotal, costData.currency, 'USD'),
+          convertCurrency(allowancesTotal, costData.currency, 'USD'),
+          convertCurrency(terminationTotal, costData.currency, 'USD'),
+          convertCurrency(oneTimeTotal, costData.currency, 'USD'),
+          convertCurrency(recurringMonthly, costData.currency, 'USD'),
+          convertCurrency(recurringTotal, costData.currency, 'USD'),
+          convertCurrency(costData.baseSalaryMonthly, costData.currency, 'USD'),
+          convertCurrency(costData.statutoryMonthly, costData.currency, 'USD'),
+          convertCurrency(costData.allowancesMonthly, costData.currency, 'USD'),
+          convertCurrency(isAllInclusive ? costData.terminationMonthly : 0, costData.currency, 'USD'),
+          convertCurrency(expectedGracemarkFeeMonthly, costData.currency, 'USD'),
+          convertCurrency(providerFeeMonthly, costData.currency, 'USD'),
+          convertCurrency(expectedBillRateMonthly, costData.currency, 'USD'),
+          convertCurrency(billRate, costData.currency, 'USD'),
+          convertCurrency(rateDiscrepancy, costData.currency, 'USD')
         ])
 
-        if (revenueConversion.success && revenueConversion.data) {
-          revenueUSD = revenueConversion.data.target_amount
-        } else {
-          conversionError = revenueConversion.error || 'Unable to convert revenue to USD'
+        const [
+          revenueConv, totalCostConv, salaryTotalConv, statutoryTotalConv, allowancesTotalConv,
+          terminationTotalConv, oneTimeTotalConv, recurringMonthlyConv, recurringTotalConv,
+          salaryMonthlyConv, statutoryMonthlyConv, allowancesMonthlyConv, terminationMonthlyConv,
+          gracemarkFeeMonthlyConv, providerFeeMonthlyConv, expectedBillRateConv, actualBillRateConv,
+          rateDiscrepancyConv
+        ] = conversions
+
+        // Extract successful conversions
+        if (revenueConv.success && revenueConv.data) revenueUSD = revenueConv.data.target_amount
+        if (totalCostConv.success && totalCostConv.data) totalCostUSD = totalCostConv.data.target_amount
+        if (salaryTotalConv.success && salaryTotalConv.data) salaryTotalUSD = salaryTotalConv.data.target_amount
+        if (statutoryTotalConv.success && statutoryTotalConv.data) statutoryTotalUSD = statutoryTotalConv.data.target_amount
+        if (allowancesTotalConv.success && allowancesTotalConv.data) allowancesTotalUSD = allowancesTotalConv.data.target_amount
+        if (terminationTotalConv.success && terminationTotalConv.data) terminationTotalUSD = terminationTotalConv.data.target_amount
+        if (oneTimeTotalConv.success && oneTimeTotalConv.data) oneTimeTotalUSD = oneTimeTotalConv.data.target_amount
+        if (recurringMonthlyConv.success && recurringMonthlyConv.data) recurringMonthlyUSD = recurringMonthlyConv.data.target_amount
+        if (recurringTotalConv.success && recurringTotalConv.data) recurringTotalUSD = recurringTotalConv.data.target_amount
+        if (salaryMonthlyConv.success && salaryMonthlyConv.data) salaryMonthlyUSD = salaryMonthlyConv.data.target_amount
+        if (statutoryMonthlyConv.success && statutoryMonthlyConv.data) statutoryMonthlyUSD = statutoryMonthlyConv.data.target_amount
+        if (allowancesMonthlyConv.success && allowancesMonthlyConv.data) allowancesMonthlyUSD = allowancesMonthlyConv.data.target_amount
+        if (terminationMonthlyConv.success && terminationMonthlyConv.data) terminationMonthlyUSD = terminationMonthlyConv.data.target_amount
+        if (gracemarkFeeMonthlyConv.success && gracemarkFeeMonthlyConv.data) gracemarkFeeMonthlyUSD = gracemarkFeeMonthlyConv.data.target_amount
+        if (providerFeeMonthlyConv.success && providerFeeMonthlyConv.data) providerFeeMonthlyUSD = providerFeeMonthlyConv.data.target_amount
+        if (expectedBillRateConv.success && expectedBillRateConv.data) expectedBillRateUSD = expectedBillRateConv.data.target_amount
+        if (actualBillRateConv.success && actualBillRateConv.data) actualBillRateUSD = actualBillRateConv.data.target_amount
+        if (rateDiscrepancyConv.success && rateDiscrepancyConv.data) rateDiscrepancyUSD = rateDiscrepancyConv.data.target_amount
+
+        if (typeof actualBillRateUSD === 'number' && typeof recurringMonthlyUSD === 'number') {
+          marginMonthlyUSD = actualBillRateUSD - recurringMonthlyUSD
+        }
+        if (typeof marginMonthlyUSD === 'number' && typeof oneTimeTotalUSD === 'number') {
+          marginTotalUSD = marginMonthlyUSD * duration - oneTimeTotalUSD
         }
 
-        if (costConversion.success && costConversion.data) {
-          totalCostUSD = costConversion.data.target_amount
-        } else {
-          const costError = costConversion.error || 'Unable to convert costs to USD'
-          conversionError = conversionError ? `${conversionError}; ${costError}` : costError
-        }
-
-        if (!conversionError && revenueUSD !== undefined && totalCostUSD !== undefined) {
+        // Calculate USD profit if we have both values
+        if (revenueUSD !== undefined && totalCostUSD !== undefined) {
           profitUSD = revenueUSD - totalCostUSD
+        }
+
+        // Collect any conversion errors
+        const errors = conversions.filter(c => !c.success).map(c => c.error).filter(Boolean)
+        if (errors.length > 0) {
+          conversionError = `Currency conversion errors: ${errors.join('; ')}`
         }
       } catch (err) {
         conversionError = err instanceof Error ? err.message : 'Unable to convert currency to USD'
@@ -232,14 +436,16 @@ const QuotePageContent = memo(() => {
         currency: costData.currency,
         billRateMonthly: billRate,
         durationMonths: duration,
-        revenueTotal,
-        totalCost,
+        revenueTotal: actualRevenueTotal,
+        totalCost: totalCostsGracemark,
         profitLocal,
         revenueUSD,
         totalCostUSD,
         profitUSD,
         marginMonthly,
         marginTotal,
+        marginMonthlyUSD,
+        marginTotalUSD,
         meetsPositive,
         meetsMinimum,
         minimumShortfallUSD,
@@ -252,6 +458,36 @@ const QuotePageContent = memo(() => {
         oneTimeTotal,
         recurringMonthly,
         recurringTotal,
+        // USD versions
+        salaryTotalUSD,
+        statutoryTotalUSD,
+        allowancesTotalUSD,
+        terminationTotalUSD,
+        oneTimeTotalUSD,
+        recurringMonthlyUSD,
+        recurringTotalUSD,
+      },
+      billRateComposition: {
+        salaryMonthly: costData.baseSalaryMonthly,
+        statutoryMonthly: costData.statutoryMonthly,
+        terminationMonthly: isAllInclusive ? costData.terminationMonthly : 0,
+        allowancesMonthly: costData.allowancesMonthly,
+        gracemarkFeeMonthly: expectedGracemarkFeeMonthly,
+        providerFeeMonthly: providerFeeMonthly,
+        expectedBillRate: expectedBillRateMonthly,
+        actualBillRate: billRate,
+        rateDiscrepancy: rateDiscrepancy,
+        gracemarkFeePercentage: GRACEMARK_FEE_PERCENTAGE,
+        // USD versions
+        salaryMonthlyUSD,
+        statutoryMonthlyUSD,
+        terminationMonthlyUSD,
+        allowancesMonthlyUSD,
+        gracemarkFeeMonthlyUSD,
+        providerFeeMonthlyUSD,
+        expectedBillRateUSD,
+        actualBillRateUSD,
+        rateDiscrepancyUSD,
       },
       thresholds: {
         minimumUSD: MIN_PROFIT_THRESHOLD_USD,
@@ -277,7 +513,7 @@ const QuotePageContent = memo(() => {
     let cancelled = false
     setIsComputingAcidTest(true)
 
-    buildAcidTestCalculation(acidTestCostData, monthlyBillRate, projectDuration)
+    buildAcidTestCalculation(acidTestCostData, monthlyBillRate, projectDuration, isAllInclusiveQuote)
       .then(result => {
         if (!cancelled) {
           setAcidTestError(null)
@@ -298,7 +534,7 @@ const QuotePageContent = memo(() => {
     return () => {
       cancelled = true
     }
-  }, [showAcidTestForm, acidTestCostData, monthlyBillRate, projectDuration, buildAcidTestCalculation])
+  }, [showAcidTestForm, acidTestCostData, monthlyBillRate, projectDuration, isAllInclusiveQuote, buildAcidTestCalculation])
 
   // Body scroll lock when modal is open
   useEffect(() => {
@@ -914,10 +1150,38 @@ const QuotePageContent = memo(() => {
                         <h3 className="text-2xl font-semibold text-slate-900">Acid Test Calculator</h3>
                         <p className="text-sm text-slate-600">Check full-assignment profitability for {finalChoice.provider}.</p>
                       </div>
+
+                      {/* Currency Toggle */}
+                      {acidTestResults && acidTestHasUSDData && (
+                        <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+                          <button
+                            type="button"
+                            onClick={() => setAcidTestDisplayCurrency("local")}
+                            className={`px-3 py-2 text-sm font-medium rounded-md transition-all ${
+                              acidTestDisplayCurrency === "local"
+                                ? 'bg-white text-slate-900 shadow-sm'
+                                : 'text-slate-600 hover:text-slate-900'
+                            }`}
+                          >
+                            Local ({acidTestResults.summary.currency})
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setAcidTestDisplayCurrency("usd")}
+                            className={`px-3 py-2 text-sm font-medium rounded-md transition-all ${
+                              acidTestDisplayCurrency === "usd"
+                                ? 'bg-white text-slate-900 shadow-sm'
+                                : 'text-slate-600 hover:text-slate-900'
+                            }`}
+                          >
+                            USD
+                          </button>
+                        </div>
+                      )}
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-3">
-                      <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                      <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                         <span className="text-sm font-medium text-slate-600">Total Monthly Cost</span>
                         <div className="text-2xl font-semibold text-slate-900">{formatMoney(finalChoice.price, finalChoice.currency)}</div>
                         <div className="flex items-center gap-2 text-xs text-slate-500">
@@ -926,7 +1190,7 @@ const QuotePageContent = memo(() => {
                         </div>
                       </div>
 
-                      <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4">
+                      <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                         <label htmlFor="billRate" className="text-sm font-medium text-slate-600">
                           Monthly Bill Rate
                         </label>
@@ -945,7 +1209,7 @@ const QuotePageContent = memo(() => {
                         )}
                       </div>
 
-                      <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4">
+                      <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                         <label htmlFor="duration" className="text-sm font-medium text-slate-600">
                           Project Duration (months)
                         </label>
@@ -962,6 +1226,27 @@ const QuotePageContent = memo(() => {
                         ) : (
                           <p className="mt-1 text-xs text-slate-500">Length of the assignment</p>
                         )}
+                      </div>
+
+                      <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <label className="text-sm font-medium text-slate-600">
+                          Quote Type
+                        </label>
+                        <div className="flex items-center space-x-3 pt-2">
+                          <input
+                            type="checkbox"
+                            id="allInclusiveQuote"
+                            checked={isAllInclusiveQuote}
+                            onChange={(e) => setIsAllInclusiveQuote(e.target.checked)}
+                            className="h-4 w-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500"
+                          />
+                          <label htmlFor="allInclusiveQuote" className="text-sm text-slate-700">
+                            All-inclusive quote (includes termination costs)
+                          </label>
+                        </div>
+                        <p className="mt-1 text-xs text-slate-500">
+                          Check this if termination costs should be included in the bill rate
+                        </p>
                       </div>
                     </div>
 
@@ -987,7 +1272,7 @@ const QuotePageContent = memo(() => {
                           </div>
                         ) : acidTestResults ? (
                           (() => {
-                            const { summary, breakdown, conversionError } = acidTestResults
+                            const { summary, breakdown, billRateComposition, conversionError } = acidTestResults
                             const profitClass = summary.profitLocal >= 0 ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
                             const profitTextClass = summary.profitLocal >= 0 ? 'text-green-700' : 'text-red-700'
                             const statusBadgeClass = summary.meetsPositive && summary.meetsMinimum
@@ -1001,61 +1286,109 @@ const QuotePageContent = memo(() => {
                                   : 'Warning - Profit below the USD 1,000 minimum')
                               : 'Fail - Project is not profitable'
 
+                            const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
+                            let usedLocalFallback = false
+
+                            const formatAmount = (localValue: number, usdValue?: number) => {
+                              if (showUSD) {
+                                if (typeof usdValue === 'number') {
+                                  return formatMoney(usdValue, 'USD')
+                                }
+                                usedLocalFallback = true
+                              }
+                              return formatMoney(localValue, summary.currency)
+                            }
+
+                            const renderApproxLine = (localValue: number, usdValue?: number) => {
+                              if (showUSD) {
+                                if (typeof usdValue === 'number') {
+                                  return (
+                                    <p className="text-xs text-slate-500">
+                                      ≈ {formatMoney(localValue, summary.currency)} {summary.currency}
+                                    </p>
+                                  )
+                                }
+                                return null
+                              }
+
+                              if (summary.currency !== 'USD' && typeof usdValue === 'number') {
+                                return (
+                                  <p className="text-xs text-slate-500">
+                                    Approx. {formatMoney(usdValue, 'USD')} in USD
+                                  </p>
+                                )
+                              }
+                              return null
+                            }
+
+                            const renderDifferenceValue = (localValue: number, usdValue?: number) => {
+                              const isPositive = localValue >= 0
+                              const absLocal = Math.abs(localValue)
+                              const absUsd = typeof usdValue === 'number' ? Math.abs(usdValue) : undefined
+                              return (
+                                <>
+                                  {isPositive ? '+' : '-'}
+                                  {formatAmount(absLocal, absUsd)}
+                                </>
+                              )
+                            }
+
                             return (
                               <div className="space-y-6">
-                                <div className="grid gap-4 md:grid-cols-2">
-                                  <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-5">
+                                {showUSD && usedLocalFallback && (
+                                  <p className="text-xs text-amber-600 text-center">
+                                    Some USD conversions are unavailable; showing local currency where needed.
+                                  </p>
+                                )}
+                                <div className="grid gap-4 lg:grid-cols-3">
+                                  <div className="flex h-full flex-col gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
                                     <div className="flex items-center gap-2 text-slate-700">
                                       <TrendingUp className="h-5 w-5 text-blue-600" />
                                       <h4 className="font-semibold">Total Project Revenue</h4>
                                     </div>
                                     <div className="text-3xl font-semibold text-blue-600">
-                                      {formatMoney(summary.revenueTotal, summary.currency)}
+                                      {formatAmount(summary.revenueTotal, summary.revenueUSD)}
                                     </div>
                                     <p className="text-sm text-slate-500">
-                                      {formatMoney(summary.billRateMonthly, summary.currency)} × {summary.durationMonths} months
+                                      {formatAmount(summary.billRateMonthly, billRateComposition.actualBillRateUSD)} × {summary.durationMonths} months
                                     </p>
-                                    {summary.currency !== 'USD' && summary.revenueUSD !== undefined && (
-                                      <p className="text-xs text-slate-500">Approx. {formatMoney(summary.revenueUSD, 'USD')} in USD</p>
-                                    )}
+                                    {renderApproxLine(summary.revenueTotal, summary.revenueUSD)}
                                   </div>
 
-                                  <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-5">
+                                  <div className="flex h-full flex-col gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
                                     <div className="flex items-center gap-2 text-slate-700">
                                       <BarChart3 className="h-5 w-5 text-rose-600" />
                                       <h4 className="font-semibold">Total Project Cost</h4>
                                     </div>
                                     <div className="text-3xl font-semibold text-rose-600">
-                                      {formatMoney(summary.totalCost, summary.currency)}
+                                      {formatAmount(summary.totalCost, summary.totalCostUSD)}
                                     </div>
                                     <p className="text-sm text-slate-500">Includes all costs across the full assignment.</p>
                                     <ul className="space-y-1 text-sm text-slate-600">
-                                      <li>Salary: {formatMoney(breakdown.salaryTotal, summary.currency)}</li>
-                                      <li>Statutory: {formatMoney(breakdown.statutoryTotal, summary.currency)}</li>
-                                      <li>Allowances & benefits: {formatMoney(breakdown.allowancesTotal, summary.currency)}</li>
-                                      <li>Termination provision: {formatMoney(breakdown.terminationTotal, summary.currency)}</li>
-                                      <li>One-time costs: {formatMoney(breakdown.oneTimeTotal, summary.currency)}</li>
-                                      <li className="font-semibold">Recurring monthly cost: {formatMoney(breakdown.recurringMonthly, summary.currency)}</li>
-                                      <li className="font-semibold">Recurring project total: {formatMoney(breakdown.recurringTotal, summary.currency)}</li>
+                                      <li>Salary: {formatAmount(breakdown.salaryTotal, breakdown.salaryTotalUSD)}</li>
+                                      <li>Statutory: {formatAmount(breakdown.statutoryTotal, breakdown.statutoryTotalUSD)}</li>
+                                      <li>Allowances & benefits: {formatAmount(breakdown.allowancesTotal, breakdown.allowancesTotalUSD)}</li>
+                                      <li>Termination provision: {formatAmount(breakdown.terminationTotal, breakdown.terminationTotalUSD)}</li>
+                                      <li>One-time costs: {formatAmount(breakdown.oneTimeTotal, breakdown.oneTimeTotalUSD)}</li>
+                                      <li className="font-semibold">Recurring monthly cost: {formatAmount(breakdown.recurringMonthly, breakdown.recurringMonthlyUSD)}</li>
+                                      <li className="font-semibold">Recurring project total: {formatAmount(breakdown.recurringTotal, breakdown.recurringTotalUSD)}</li>
                                     </ul>
                                   </div>
-                                </div>
 
-                                <div className={`rounded-xl border-2 p-6 text-center ${profitClass}`}>
-                                  <div className="flex flex-col items-center gap-3">
+                                  <div className={`flex h-full flex-col items-center gap-4 rounded-xl border-2 p-6 text-center shadow-sm ${profitClass}`}>
                                     <Target className={`h-6 w-6 ${profitTextClass}`} />
-                                    <h3 className="text-xl font-semibold text-slate-900">Acid Test Result</h3>
-                                    <div className={`text-4xl font-semibold ${profitTextClass}`}>
-                                      {formatMoney(summary.profitLocal, summary.currency)}
+                                    <div>
+                                      <h3 className="text-xl font-semibold text-slate-900">Acid Test Result</h3>
+                                      <div className={`text-4xl font-semibold ${profitTextClass}`}>
+                                        {formatAmount(summary.profitLocal, summary.profitUSD)}
+                                      </div>
+                                      {renderApproxLine(summary.profitLocal, summary.profitUSD)}
                                     </div>
-                                    {summary.currency !== 'USD' && summary.profitUSD !== undefined && (
-                                      <p className="text-xs text-slate-600">Approx. {formatMoney(summary.profitUSD, 'USD')} profit in USD</p>
-                                    )}
-                                    <div className="text-sm text-slate-600">
-                                      <div>Margin per month: {formatMoney(summary.marginMonthly, summary.currency)}</div>
-                                      <div>Total margin (after one-time costs): {formatMoney(summary.marginTotal, summary.currency)}</div>
+                                    <div className="space-y-1 text-sm text-slate-600">
+                                      <div>Margin per month: {formatAmount(summary.marginMonthly, summary.marginMonthlyUSD)}</div>
+                                      <div>Total margin (after one-time costs): {formatAmount(summary.marginTotal, summary.marginTotalUSD)}</div>
                                     </div>
-                                    <Badge className={`${statusBadgeClass} mt-2`}>{statusLabel}</Badge>
+                                    <Badge className={`${statusBadgeClass} mt-1`}>{statusLabel}</Badge>
                                     {!summary.meetsMinimum && summary.minimumShortfallUSD !== undefined && (
                                       <p className="text-xs text-slate-600">
                                         Needs {formatMoney(summary.minimumShortfallUSD, 'USD')} more profit to reach the USD {acidTestResults.thresholds.minimumUSD.toLocaleString()} minimum.
@@ -1064,6 +1397,106 @@ const QuotePageContent = memo(() => {
                                     {conversionError && (
                                       <p className="text-xs text-red-600">{conversionError}</p>
                                     )}
+                                  </div>
+                                </div>
+
+                                {/* Bill Rate Composition Breakdown */}
+                                <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                                  <div className="flex items-center gap-2 text-slate-700 mb-4">
+                                    <Calculator className="h-5 w-5 text-purple-600" />
+                                    <h4 className="font-semibold">Bill Rate Composition Analysis</h4>
+                                  </div>
+
+                                  <div className="grid gap-4 md:grid-cols-2">
+                                    <div className="space-y-3">
+                                      <h5 className="text-sm font-medium text-slate-700">Expected Bill Rate Breakdown</h5>
+                                      <div className="space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                          <span>Salary:</span>
+                                          <span>{formatAmount(billRateComposition.salaryMonthly, billRateComposition.salaryMonthlyUSD)}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span>Statutory costs:</span>
+                                          <span>{formatAmount(billRateComposition.statutoryMonthly, billRateComposition.statutoryMonthlyUSD)}</span>
+                                        </div>
+                                        {billRateComposition.allowancesMonthly > 0 && (
+                                          <div className="flex justify-between">
+                                            <span>Allowances:</span>
+                                            <span>{formatAmount(billRateComposition.allowancesMonthly, billRateComposition.allowancesMonthlyUSD)}</span>
+                                          </div>
+                                        )}
+                                        {billRateComposition.terminationMonthly > 0 && (
+                                          <div className="flex justify-between">
+                                            <span>Termination provision:</span>
+                                            <span>{formatAmount(billRateComposition.terminationMonthly, billRateComposition.terminationMonthlyUSD)}</span>
+                                          </div>
+                                        )}
+                                        <div className="flex justify-between font-medium text-purple-600">
+                                          <span>Gracemark fee ({Math.round(billRateComposition.gracemarkFeePercentage * 100)}%):</span>
+                                          <span>{formatAmount(billRateComposition.gracemarkFeeMonthly, billRateComposition.gracemarkFeeMonthlyUSD)}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs text-slate-500">
+                                          <span>Provider fee (included):</span>
+                                          <span>{formatAmount(billRateComposition.providerFeeMonthly, billRateComposition.providerFeeMonthlyUSD)}</span>
+                                        </div>
+                                        <hr className="border-slate-200" />
+                                        <div className="flex justify-between font-semibold">
+                                          <span>Expected bill rate:</span>
+                                          <span>{formatAmount(billRateComposition.expectedBillRate, billRateComposition.expectedBillRateUSD)}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                      <h5 className="text-sm font-medium text-slate-700">Rate Comparison</h5>
+                                      <div className="space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                          <span>Your bill rate:</span>
+                                          <span>{formatAmount(billRateComposition.actualBillRate, billRateComposition.actualBillRateUSD)}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span>Expected rate:</span>
+                                          <span>{formatAmount(billRateComposition.expectedBillRate, billRateComposition.expectedBillRateUSD)}</span>
+                                        </div>
+                                        <hr className="border-slate-200" />
+                                        <div className={`flex justify-between font-semibold ${
+                                          billRateComposition.rateDiscrepancy >= 0
+                                            ? 'text-green-600'
+                                            : 'text-red-600'
+                                        }`}>
+                                          <span>Difference:</span>
+                                          <span>{renderDifferenceValue(billRateComposition.rateDiscrepancy, billRateComposition.rateDiscrepancyUSD)}</span>
+                                        </div>
+                                      </div>
+
+                                      {billRateComposition.rateDiscrepancy !== 0 && (
+                                        <div className={`mt-3 p-3 rounded-lg text-xs ${
+                                          billRateComposition.rateDiscrepancy >= 0
+                                            ? 'bg-green-50 text-green-700 border border-green-200'
+                                            : 'bg-red-50 text-red-700 border border-red-200'
+                                        }`}>
+                                          {billRateComposition.rateDiscrepancy >= 0 ? (
+                                            <>
+                                              Your rate is {formatAmount(
+                                                Math.abs(billRateComposition.rateDiscrepancy),
+                                                typeof billRateComposition.rateDiscrepancyUSD === 'number'
+                                                  ? Math.abs(billRateComposition.rateDiscrepancyUSD)
+                                                  : undefined
+                                              )} above the expected rate based on a {Math.round(billRateComposition.gracemarkFeePercentage * 100)}% Gracemark fee.
+                                            </>
+                                          ) : (
+                                            <>
+                                              Your rate is {formatAmount(
+                                                Math.abs(billRateComposition.rateDiscrepancy),
+                                                typeof billRateComposition.rateDiscrepancyUSD === 'number'
+                                                  ? Math.abs(billRateComposition.rateDiscrepancyUSD)
+                                                  : undefined
+                                              )} below the expected rate. Consider increasing to meet the {Math.round(billRateComposition.gracemarkFeePercentage * 100)}% Gracemark fee standard.
+                                            </>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
