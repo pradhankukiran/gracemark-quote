@@ -904,39 +904,30 @@ const QuotePageContent = memo(() => {
                   )}
                 </div>
               ) : (
-                <div className="bg-purple-50 p-8 border border-purple-200 shadow-sm transition-all duration-300">
-                  <div className="max-w-2xl mx-auto">
-                    <div className="text-center mb-8">
-                      <div className="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-full flex items-center justify-center">
-                        <Zap className="h-8 w-8 text-purple-600" />
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+                  <div className="mx-auto flex max-w-5xl flex-col gap-8">
+                    <div className="flex flex-col items-center gap-3 text-center">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 text-purple-600">
+                        <Zap className="h-6 w-6" />
                       </div>
-                      <h3 className="text-2xl font-bold text-slate-900 mb-2">🧪 Acid Test Calculator</h3>
-                      <p className="text-slate-600">Calculate your project profitability with {finalChoice.provider}</p>
+                      <div>
+                        <h3 className="text-2xl font-semibold text-slate-900">Acid Test Calculator</h3>
+                        <p className="text-sm text-slate-600">Check full-assignment profitability for {finalChoice.provider}.</p>
+                      </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                      {/* Total Monthly Cost (Locked) */}
-                      <div className="bg-white p-6 border border-slate-200 shadow-sm">
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
-                          Total Monthly Cost
-                        </label>
-                        <div className="relative">
-                          <Input
-                            type="text"
-                            value={formatMoney(finalChoice.price, finalChoice.currency)}
-                            disabled
-                            className="bg-slate-50 text-slate-600 font-bold text-lg"
-                          />
-                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                            <Badge className="bg-slate-100 text-slate-600 text-xs">Locked</Badge>
-                          </div>
+                    <div className="grid gap-4 md:grid-cols-3">
+                      <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <span className="text-sm font-medium text-slate-600">Total Monthly Cost</span>
+                        <div className="text-2xl font-semibold text-slate-900">{formatMoney(finalChoice.price, finalChoice.currency)}</div>
+                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                          <Badge className="bg-slate-100 text-slate-600">Locked</Badge>
+                          <span>From selected provider</span>
                         </div>
-                        <p className="text-xs text-slate-500 mt-1">From selected provider</p>
                       </div>
 
-                      {/* Monthly Bill Rate (Input) */}
-                      <div className="bg-white p-6 border border-slate-200 shadow-sm">
-                        <label htmlFor="billRate" className="block text-sm font-medium text-slate-700 mb-2">
+                      <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4">
+                        <label htmlFor="billRate" className="text-sm font-medium text-slate-600">
                           Monthly Bill Rate
                         </label>
                         <Input
@@ -945,23 +936,18 @@ const QuotePageContent = memo(() => {
                           placeholder="11000"
                           value={monthlyBillRate || ''}
                           onChange={(e) => handleBillRateChange(e.target.value)}
-                          className={`font-bold text-lg ${
-                            acidTestValidation.billRateError
-                              ? 'border-red-300 focus:border-red-400 bg-red-50'
-                              : 'border-purple-200 focus:border-purple-400'
-                          }`}
+                          className={`h-12 text-base font-semibold ${acidTestValidation.billRateError ? 'border-red-300 bg-red-50 focus-visible:ring-red-400' : 'border-slate-300 focus-visible:ring-purple-500'}`}
                         />
                         {acidTestValidation.billRateError ? (
-                          <p className="text-xs text-red-600 mt-1">{acidTestValidation.billRateError}</p>
+                          <p className="mt-1 text-xs text-red-600">{acidTestValidation.billRateError}</p>
                         ) : (
-                          <p className="text-xs text-slate-500 mt-1">What you charge the client</p>
+                          <p className="mt-1 text-xs text-slate-500">What you charge the client per month</p>
                         )}
                       </div>
 
-                      {/* Project Duration (Input) */}
-                      <div className="bg-white p-6 border border-slate-200 shadow-sm">
-                        <label htmlFor="duration" className="block text-sm font-medium text-slate-700 mb-2">
-                          Project Duration
+                      <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4">
+                        <label htmlFor="duration" className="text-sm font-medium text-slate-600">
+                          Project Duration (months)
                         </label>
                         <Input
                           id="duration"
@@ -969,119 +955,116 @@ const QuotePageContent = memo(() => {
                           placeholder="6"
                           value={projectDuration || ''}
                           onChange={(e) => handleDurationChange(e.target.value)}
-                          className={`font-bold text-lg ${
-                            acidTestValidation.durationError
-                              ? 'border-red-300 focus:border-red-400 bg-red-50'
-                              : 'border-purple-200 focus:border-purple-400'
-                          }`}
+                          className={`h-12 text-base font-semibold ${acidTestValidation.durationError ? 'border-red-300 bg-red-50 focus-visible:ring-red-400' : 'border-slate-300 focus-visible:ring-purple-500'}`}
                         />
                         {acidTestValidation.durationError ? (
-                          <p className="text-xs text-red-600 mt-1">{acidTestValidation.durationError}</p>
+                          <p className="mt-1 text-xs text-red-600">{acidTestValidation.durationError}</p>
                         ) : (
-                          <p className="text-xs text-slate-500 mt-1">Number of months</p>
+                          <p className="mt-1 text-xs text-slate-500">Length of the assignment</p>
                         )}
                       </div>
                     </div>
 
-                    {/* Cost Categorization Status */}
                     {isCategorizingCosts ? (
-                      <div className="mt-6 flex items-center justify-center text-slate-600">
+                      <div className="flex items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 py-6 text-sm font-medium text-slate-600">
                         <LoadingSpinner />
-                        <span className="ml-3 text-sm font-medium">Categorizing costs with Cerebras…</span>
+                        <span>Categorizing costs...</span>
                       </div>
-                    ) : (!acidTestCostData && (
-                      <p className="mt-6 text-sm text-red-600 text-center">
-                        Unable to load the cost breakdown for this provider. Please adjust the inputs or try again.
-                      </p>
-                    ))}
+                    ) : (
+                      !acidTestCostData && (
+                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+                          Unable to load the cost breakdown for this provider. Adjust the inputs or try again.
+                        </div>
+                      )
+                    )}
 
-                    {/* Calculations Display */}
                     {acidTestCostData && (
-                      <div className="space-y-6 mb-8">
+                      <div className="space-y-6">
                         {isComputingAcidTest ? (
-                          <div className="flex flex-col items-center justify-center py-10 text-slate-600">
+                          <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 py-10 text-sm font-medium text-slate-600">
                             <LoadingSpinner />
-                            <span className="mt-3 text-sm font-medium">Computing acid test…</span>
+                            <span>Computing acid test...</span>
                           </div>
                         ) : acidTestResults ? (
                           (() => {
                             const { summary, breakdown, conversionError } = acidTestResults
-                            const profitClass = summary.profitLocal >= 0 ? 'bg-green-50 border-green-300' : 'bg-red-50 border-red-300'
-                            const profitTextClass = summary.profitLocal >= 0 ? 'text-green-600' : 'text-red-600'
+                            const profitClass = summary.profitLocal >= 0 ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
+                            const profitTextClass = summary.profitLocal >= 0 ? 'text-green-700' : 'text-red-700'
                             const statusBadgeClass = summary.meetsPositive && summary.meetsMinimum
                               ? 'bg-green-100 text-green-800 border-green-200'
-                              : 'bg-red-100 text-red-800 border-red-200'
+                              : summary.meetsPositive
+                                ? 'bg-amber-100 text-amber-800 border-amber-200'
+                                : 'bg-red-100 text-red-800 border-red-200'
                             const statusLabel = summary.meetsPositive
                               ? (summary.meetsMinimum
-                                  ? '✅ Pass: Profit exceeds the USD 1,000 requirement'
-                                  : '⚠️ Fails: Profit below the USD 1,000 requirement')
-                              : '⚠️ Fails: Project is not profitable'
+                                  ? 'Pass - Profit clears the USD 1,000 minimum'
+                                  : 'Warning - Profit below the USD 1,000 minimum')
+                              : 'Fail - Project is not profitable'
 
                             return (
                               <div className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div className="bg-white p-6 border border-slate-200 shadow-sm">
-                                    <div className="flex items-center gap-2 mb-2">
+                                <div className="grid gap-4 md:grid-cols-2">
+                                  <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-5">
+                                    <div className="flex items-center gap-2 text-slate-700">
                                       <TrendingUp className="h-5 w-5 text-blue-600" />
-                                      <h4 className="font-semibold text-slate-700">Total Project Revenue</h4>
+                                      <h4 className="font-semibold">Total Project Revenue</h4>
                                     </div>
-                                    <div className="text-2xl font-bold text-blue-600">
+                                    <div className="text-3xl font-semibold text-blue-600">
                                       {formatMoney(summary.revenueTotal, summary.currency)}
                                     </div>
-                                    <p className="text-sm text-slate-500 mt-1">
+                                    <p className="text-sm text-slate-500">
                                       {formatMoney(summary.billRateMonthly, summary.currency)} × {summary.durationMonths} months
                                     </p>
                                     {summary.currency !== 'USD' && summary.revenueUSD !== undefined && (
-                                      <p className="text-xs text-slate-500 mt-1">≈ {formatMoney(summary.revenueUSD, 'USD')}</p>
+                                      <p className="text-xs text-slate-500">Approx. {formatMoney(summary.revenueUSD, 'USD')} in USD</p>
                                     )}
                                   </div>
 
-                                  <div className="bg-white p-6 border border-slate-200 shadow-sm">
-                                    <div className="flex items-center gap-2 mb-2">
-                                      <TrendingDown className="h-5 w-5 text-red-600" />
-                                      <h4 className="font-semibold text-slate-700">Total Project Cost</h4>
+                                  <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-5">
+                                    <div className="flex items-center gap-2 text-slate-700">
+                                      <BarChart3 className="h-5 w-5 text-rose-600" />
+                                      <h4 className="font-semibold">Total Project Cost</h4>
                                     </div>
-                                    <div className="text-2xl font-bold text-red-600">
+                                    <div className="text-3xl font-semibold text-rose-600">
                                       {formatMoney(summary.totalCost, summary.currency)}
                                     </div>
-                                    {summary.currency !== 'USD' && summary.totalCostUSD !== undefined && (
-                                      <p className="text-xs text-slate-500 mt-1">≈ {formatMoney(summary.totalCostUSD, 'USD')}</p>
-                                    )}
-                                    <ul className="text-xs text-slate-600 mt-4 space-y-1 text-left">
+                                    <p className="text-sm text-slate-500">Includes all costs across the full assignment.</p>
+                                    <ul className="space-y-1 text-sm text-slate-600">
                                       <li>Salary: {formatMoney(breakdown.salaryTotal, summary.currency)}</li>
                                       <li>Statutory: {formatMoney(breakdown.statutoryTotal, summary.currency)}</li>
-                                      <li>Allowances &amp; benefits: {formatMoney(breakdown.allowancesTotal, summary.currency)}</li>
+                                      <li>Allowances & benefits: {formatMoney(breakdown.allowancesTotal, summary.currency)}</li>
                                       <li>Termination provision: {formatMoney(breakdown.terminationTotal, summary.currency)}</li>
                                       <li>One-time costs: {formatMoney(breakdown.oneTimeTotal, summary.currency)}</li>
-                                      <li className="font-semibold pt-1">Recurring monthly cost: {formatMoney(breakdown.recurringMonthly, summary.currency)}</li>
+                                      <li className="font-semibold">Recurring monthly cost: {formatMoney(breakdown.recurringMonthly, summary.currency)}</li>
                                       <li className="font-semibold">Recurring project total: {formatMoney(breakdown.recurringTotal, summary.currency)}</li>
                                     </ul>
                                   </div>
                                 </div>
 
-                                <div className={`p-8 border-2 shadow-md text-center ${profitClass}`}>
-                                  <h3 className="text-xl font-bold text-slate-800 mb-4">🎯 Acid Test Result: Total Project Profit</h3>
-                                  <div className={`text-5xl font-bold mb-2 ${profitTextClass}`}>
-                                    {formatMoney(summary.profitLocal, summary.currency)}
+                                <div className={`rounded-xl border-2 p-6 text-center ${profitClass}`}>
+                                  <div className="flex flex-col items-center gap-3">
+                                    <Target className={`h-6 w-6 ${profitTextClass}`} />
+                                    <h3 className="text-xl font-semibold text-slate-900">Acid Test Result</h3>
+                                    <div className={`text-4xl font-semibold ${profitTextClass}`}>
+                                      {formatMoney(summary.profitLocal, summary.currency)}
+                                    </div>
+                                    {summary.currency !== 'USD' && summary.profitUSD !== undefined && (
+                                      <p className="text-xs text-slate-600">Approx. {formatMoney(summary.profitUSD, 'USD')} profit in USD</p>
+                                    )}
+                                    <div className="text-sm text-slate-600">
+                                      <div>Margin per month: {formatMoney(summary.marginMonthly, summary.currency)}</div>
+                                      <div>Total margin (after one-time costs): {formatMoney(summary.marginTotal, summary.currency)}</div>
+                                    </div>
+                                    <Badge className={`${statusBadgeClass} mt-2`}>{statusLabel}</Badge>
+                                    {!summary.meetsMinimum && summary.minimumShortfallUSD !== undefined && (
+                                      <p className="text-xs text-slate-600">
+                                        Needs {formatMoney(summary.minimumShortfallUSD, 'USD')} more profit to reach the USD {acidTestResults.thresholds.minimumUSD.toLocaleString()} minimum.
+                                      </p>
+                                    )}
+                                    {conversionError && (
+                                      <p className="text-xs text-red-600">{conversionError}</p>
+                                    )}
                                   </div>
-                                  {summary.currency !== 'USD' && summary.profitUSD !== undefined && (
-                                    <div className="text-sm text-slate-600">≈ {formatMoney(summary.profitUSD, 'USD')} profit in USD</div>
-                                  )}
-                                  <div className="text-sm text-slate-600 mt-4 space-y-1">
-                                    <div>Margin per month: {formatMoney(summary.marginMonthly, summary.currency)}</div>
-                                    <div>Total margin (after one-time costs): {formatMoney(summary.marginTotal, summary.currency)}</div>
-                                  </div>
-                                  <Badge className={`${statusBadgeClass} mt-4`}>
-                                    {statusLabel}
-                                  </Badge>
-                                  {!summary.meetsMinimum && summary.minimumShortfallUSD !== undefined && (
-                                    <p className="text-xs text-slate-600 mt-3">
-                                      Needs at least {formatMoney(summary.minimumShortfallUSD, 'USD')} more profit to satisfy the USD {acidTestResults.thresholds.minimumUSD.toLocaleString()} minimum.
-                                    </p>
-                                  )}
-                                  {conversionError && (
-                                    <p className="text-xs text-red-600 mt-3">{conversionError}</p>
-                                  )}
                                 </div>
                               </div>
                             )
@@ -1094,23 +1077,17 @@ const QuotePageContent = memo(() => {
                       </div>
                     )}
 
-                    {/* Form Actions */}
-                    <div className="flex gap-4 justify-center">
-                      <Button
-                        variant="outline"
-                        onClick={handleCloseAcidTest}
-                        className="px-6"
-                      >
+                    <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                      <Button variant="outline" onClick={handleCloseAcidTest} className="px-6">
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Recommendation
                       </Button>
                       {acidTestResults && (
                         <Button
                           onClick={() => {
-                            // Optional: Add export/save functionality here
-                            console.log('Acid test results:', acidTestResults);
+                            console.log('Acid test results:', acidTestResults)
                           }}
-                          className="bg-purple-600 hover:bg-purple-700 text-white px-6"
+                          className="bg-purple-600 px-6 text-white hover:bg-purple-700"
                         >
                           <FileText className="h-4 w-4 mr-2" />
                           Save Results
