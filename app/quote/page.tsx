@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Brain, Target, Zap, BarChart3, TrendingUp, Crown, Activity, FileText } from "lucide-react"
+import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Brain, Target, Zap, BarChart3, TrendingUp, Crown, Activity, FileText, Info } from "lucide-react"
 import Link from "next/link"
 import { useQuoteResults } from "./hooks/useQuoteResults"
 import { useUSDConversion } from "../eor-calculator/hooks/useUSDConversion"
@@ -860,16 +860,12 @@ const QuotePageContent = memo(() => {
 
           {isPhaseStarted('gathering') && (
             <div className={`grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 transition-opacity duration-500 ${
-              isPhaseStarted('gathering') ? 'opacity-100' : 'opacity-0'
+              isPhaseStarted('gathering') ? 'opacity-100 stagger-children' : 'opacity-0'
             }`}>
               {providerData.map((provider, idx) => (
                 <div
                   key={provider.provider}
                   className="bg-white border border-slate-200 p-3 text-center transition-all duration-300 hover:shadow-md"
-                  style={{
-                    animationDelay: `${idx * 80}ms`,
-                    animation: isPhaseActive('gathering') ? 'slideInUp 0.8s ease-out forwards' : 'none'
-                  }}
                 >
                   <div className="w-24 h-6 mx-auto mb-2 border border-slate-200 flex items-center justify-center bg-white">
                     <ProviderLogo provider={provider.provider as ProviderType} maxWidth={120} maxHeight={24} />
@@ -934,53 +930,309 @@ const QuotePageContent = memo(() => {
           </div>
 
           {isPhaseStarted('analyzing') && providerData.length > 0 && (
-            <div className="bg-slate-50 p-4">
-              <div className="space-y-3">
-                {providerData.map((provider) => {
-                  const deelProvider = providerData.find(p => p.provider === 'deel')
-                  const deelPrice = deelProvider?.price || 0
-                  const percentage = deelPrice > 0 ? ((provider.price - deelPrice) / deelPrice * 100) : 0
-                  const barWidth = Math.min(100, Math.max(10, (provider.price / Math.max(...providerData.map(p => p.price))) * 100))
-                  
-                  return (
-                    <div key={provider.provider} className="flex items-center gap-3">
-                      <div className="w-16 text-xs font-medium text-slate-700 capitalize">
-                        {provider.provider}
-                      </div>
-                      <div className="flex-1 relative">
-                        <div className="h-6 bg-slate-200 overflow-hidden">
-                          <div
-                            className={`h-full transition-all duration-500 ease-out ${
-                              provider.inRange ? 'bg-green-500' :
-                              'bg-red-500'
-                            }`}
-                            style={{
-                              width: `${barWidth}%`,
-                              transitionDelay: `${providerData.indexOf(provider) * 100}ms`
-                            }}
-                          />
-                        </div>
-                        <div className="absolute inset-y-0 left-2 flex items-center">
-                          <span className="text-xs font-medium text-white">
-                            {formatMoney(provider.price, currency)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {provider.inRange ? (
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                        ) : (
-                          <XCircle className="h-4 w-4 text-red-600" />
-                        )}
-                        <span className={`text-xs font-medium ${
-                          provider.inRange ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                          {percentage >= 0 ? '+' : ''}{percentage.toFixed(1)}%
-                        </span>
-                      </div>
+            <div className="bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 border border-slate-200 shadow-lg p-8">
+              <div className="mb-8">
+                <div className="text-center bg-white shadow-sm border border-slate-200 p-6 mb-8">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="flex h-16 w-16 items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg">
+                      <BarChart3 className="h-8 w-8 text-white" />
                     </div>
-                  )
-                })}
+                    <div>
+                      <h4 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                        4% Variance Analysis
+                      </h4>
+                      <p className="text-slate-600 mt-2 text-base">
+                        Comprehensive price compliance validation against Deel baseline standards
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-slate-200 shadow-sm p-6">
+                  <h5 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-3">
+                    <div className="p-2 bg-blue-100">
+                      <Target className="h-5 w-5 text-blue-600" />
+                    </div>
+                    Provider Compliance Assessment
+                  </h5>
+                  <p className="text-slate-600 mb-2">
+                    Each provider quote is evaluated against our standard ±4% variance tolerance from the Deel baseline price.
+                    This ensures pricing consistency and helps identify potential outliers in the market.
+                  </p>
+                  <div className="flex items-center gap-6 text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-gradient-to-r from-green-500 to-green-600"></div>
+                      <span className="font-medium">Compliant (Within ±4%)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-gradient-to-r from-red-500 to-red-600"></div>
+                      <span className="font-medium">Non-Compliant (Outside ±4%)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Provider Variance Analysis Table */}
+              <div className="bg-white border border-slate-200 shadow-lg mb-8">
+                <div className="bg-slate-800 text-white p-4">
+                  <h5 className="text-xl font-bold">Provider Quote Analysis</h5>
+                  <p className="text-slate-300 text-sm mt-1">Detailed comparison against Deel baseline with 4% tolerance</p>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-slate-100 border-b border-slate-200">
+                      <tr>
+                        <th className="text-left py-4 px-6 font-semibold text-slate-800">Provider</th>
+                        <th className="text-right py-4 px-6 font-semibold text-slate-800">Quote Price</th>
+                        <th className="text-center py-4 px-6 font-semibold text-slate-800">Variance from Deel</th>
+                        <th className="text-center py-4 px-6 font-semibold text-slate-800">Compliance</th>
+                        <th className="text-center py-4 px-6 font-semibold text-slate-800">Price Range</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {(() => {
+                        const deelProvider = providerData.find(p => p.provider === 'deel')
+                        const deelPrice = deelProvider?.price || 0
+                        const maxPrice = Math.max(...providerData.map(p => p.price))
+
+                        return providerData.map((provider, index) => {
+                          const percentage = deelPrice > 0 ? ((provider.price - deelPrice) / deelPrice * 100) : 0
+                          const isDeelBaseline = provider.provider === 'deel'
+                          const barWidth = Math.min(100, Math.max(10, (provider.price / maxPrice) * 100))
+
+                          return (
+                            <tr key={provider.provider} className={`hover:bg-slate-50 transition-colors ${
+                              isDeelBaseline ? 'bg-blue-50' : ''
+                            }`}>
+                              <td className="py-4 px-6">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 flex items-center justify-center bg-slate-100 border border-slate-200 shadow-sm">
+                                    <ProviderLogo provider={provider.provider as ProviderType} maxWidth={40} maxHeight={40} />
+                                  </div>
+                                  <div>
+                                    <h6 className="font-semibold text-slate-800 capitalize">
+                                      {provider.provider}
+                                      {isDeelBaseline && (
+                                        <span className="ml-2 inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                                          Baseline
+                                        </span>
+                                      )}
+                                    </h6>
+                                    <p className="text-sm text-slate-500">EOR Provider</p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-4 px-6 text-right">
+                                <div className="text-lg font-bold text-slate-900">
+                                  {formatMoney(provider.price, currency)}
+                                </div>
+                              </td>
+                              <td className="py-4 px-6">
+                                <div className="flex flex-col items-center">
+                                  <div className={`text-lg font-bold ${
+                                    isDeelBaseline ? 'text-blue-600' :
+                                    provider.inRange ? 'text-green-600' : 'text-red-600'
+                                  }`}>
+                                    {isDeelBaseline ? '0.0%' : `${percentage >= 0 ? '+' : ''}${percentage.toFixed(1)}%`}
+                                  </div>
+                                  <div className="w-32 h-2 bg-slate-200 mt-2 overflow-hidden">
+                                    <div
+                                      className={`h-full transition-all duration-1000 ease-out ${
+                                        isDeelBaseline ? 'bg-blue-600' :
+                                        provider.inRange ? 'bg-gradient-to-r from-green-500 to-green-600' :
+                                        'bg-gradient-to-r from-red-500 to-red-600'
+                                      }`}
+                                      style={{
+                                        width: `${barWidth}%`,
+                                        transitionDelay: `${index * 200}ms`
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-4 px-6 text-center">
+                                <div className="flex flex-col items-center gap-2">
+                                  <div className="flex items-center gap-1">
+                                    {isDeelBaseline ? (
+                                      <div className="flex items-center gap-1 text-blue-600">
+                                        <Target className="h-4 w-4" />
+                                        <span className="text-sm font-medium">Reference</span>
+                                      </div>
+                                    ) : provider.inRange ? (
+                                      <div className="flex items-center gap-1 text-green-600">
+                                        <CheckCircle className="h-4 w-4" />
+                                        <span className="text-sm font-medium">Pass</span>
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center gap-1 text-red-600">
+                                        <XCircle className="h-4 w-4" />
+                                        <span className="text-sm font-medium">Fail</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <Badge className={
+                                    isDeelBaseline
+                                      ? 'bg-blue-100 text-blue-800 border-blue-200'
+                                      : provider.inRange
+                                        ? 'bg-green-100 text-green-800 border-green-200'
+                                        : 'bg-red-100 text-red-800 border-red-200'
+                                  }>
+                                    {isDeelBaseline ? 'Baseline' : provider.inRange ? 'Compliant' : 'Non-Compliant'}
+                                  </Badge>
+                                </div>
+                              </td>
+                              <td className="py-4 px-6 text-center">
+                                <div className="text-xs text-slate-600">
+                                  <div className="font-medium">
+                                    {formatMoney(deelPrice * 0.96, currency)} - {formatMoney(deelPrice * 1.04, currency)}
+                                  </div>
+                                  <div className="text-slate-500 mt-1">Acceptable Range</div>
+                                </div>
+                              </td>
+                            </tr>
+                          )
+                        })
+                      })()}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Enhanced Analysis Summary */}
+              <div className="grid gap-8 lg:grid-cols-2">
+                {/* Compliance Overview */}
+                <div className="bg-white border border-slate-200 shadow-sm p-6">
+                  <div className="mb-6">
+                    <h5 className="text-xl font-bold text-slate-800 mb-2 flex items-center gap-3">
+                      <div className="p-2 bg-green-100">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                      </div>
+                      Compliance Summary
+                    </h5>
+                    <p className="text-slate-600">Overall variance analysis results</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    {(() => {
+                      const compliantCount = providerData.filter(p => p.inRange).length
+                      const totalCount = providerData.length
+                      const complianceRate = (compliantCount / totalCount) * 100
+
+                      return (
+                        <>
+                          <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200">
+                            <span className="font-medium text-slate-700">Total Providers Analyzed</span>
+                            <span className="text-2xl font-bold text-slate-900">{totalCount}</span>
+                          </div>
+
+                          <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200">
+                            <span className="font-medium text-green-700">Compliant Providers</span>
+                            <span className="text-2xl font-bold text-green-800">{compliantCount}</span>
+                          </div>
+
+                          <div className="flex items-center justify-between p-4 bg-red-50 border border-red-200">
+                            <span className="font-medium text-red-700">Non-Compliant Providers</span>
+                            <span className="text-2xl font-bold text-red-800">{totalCount - compliantCount}</span>
+                          </div>
+
+                          <div className={`p-4 border-l-4 ${
+                            complianceRate >= 80 ? 'bg-green-50 border-green-400' :
+                            complianceRate >= 60 ? 'bg-yellow-50 border-yellow-400' :
+                            'bg-red-50 border-red-400'
+                          }`}>
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-slate-800">Compliance Rate</span>
+                              <span className={`text-3xl font-bold ${
+                                complianceRate >= 80 ? 'text-green-700' :
+                                complianceRate >= 60 ? 'text-yellow-700' :
+                                'text-red-700'
+                              }`}>
+                                {complianceRate.toFixed(0)}%
+                              </span>
+                            </div>
+                          </div>
+                        </>
+                      )
+                    })()}
+                  </div>
+                </div>
+
+                {/* Market Analysis */}
+                <div className="bg-white border border-slate-200 shadow-sm p-6">
+                  <div className="mb-6">
+                    <h5 className="text-xl font-bold text-slate-800 mb-2 flex items-center gap-3">
+                      <div className="p-2 bg-indigo-100">
+                        <TrendingUp className="h-5 w-5 text-indigo-600" />
+                      </div>
+                      Market Insights
+                    </h5>
+                    <p className="text-slate-600">Price distribution and variance patterns</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    {(() => {
+                      const deelProvider = providerData.find(p => p.provider === 'deel')
+                      const deelPrice = deelProvider?.price || 0
+                      const prices = providerData.map(p => p.price)
+                      const minPrice = Math.min(...prices)
+                      const maxPrice = Math.max(...prices)
+                      const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length
+
+                      const highestVariance = providerData
+                        .filter(p => p.provider !== 'deel')
+                        .reduce((max, provider) => {
+                          const percentage = Math.abs(deelPrice > 0 ? ((provider.price - deelPrice) / deelPrice * 100) : 0)
+                          return percentage > max.percentage ? { provider: provider.provider, percentage } : max
+                        }, { provider: '', percentage: 0 })
+
+                      return (
+                        <>
+                          <div className="bg-slate-50 border border-slate-200 p-4 space-y-3">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium text-slate-600">Market Range</span>
+                              <span className="font-semibold text-slate-800">
+                                {formatMoney(minPrice, currency)} - {formatMoney(maxPrice, currency)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium text-slate-600">Average Price</span>
+                              <span className="font-semibold text-slate-800">{formatMoney(avgPrice, currency)}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium text-slate-600">Deel Baseline</span>
+                              <span className="font-semibold text-blue-600">{formatMoney(deelPrice, currency)}</span>
+                            </div>
+                          </div>
+
+                          <div className="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 p-4">
+                            <div className="font-semibold text-orange-900 mb-2">Highest Variance</div>
+                            <div className="text-sm text-orange-700">
+                              <span className="font-medium capitalize">{highestVariance.provider}</span> deviates by{' '}
+                              <span className="font-bold">{highestVariance.percentage.toFixed(1)}%</span> from baseline
+                            </div>
+                          </div>
+
+                          <div className="bg-blue-50 border border-blue-200 p-4">
+                            <div className="font-medium text-blue-900 mb-1">Quality Assessment</div>
+                            <p className="text-sm text-blue-800">
+                              {(() => {
+                                const complianceRate = (providerData.filter(p => p.inRange).length / providerData.length) * 100
+                                if (complianceRate >= 80) {
+                                  return 'Market shows excellent price consistency with high compliance rates.'
+                                } else if (complianceRate >= 60) {
+                                  return 'Market shows moderate variance. Review outliers for potential issues.'
+                                } else {
+                                  return 'High market variance detected. Consider additional price validation.'
+                                }
+                              })()}
+                            </p>
+                          </div>
+                        </>
+                      )
+                    })()}
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -1140,125 +1392,232 @@ const QuotePageContent = memo(() => {
                   )}
                 </div>
               ) : (
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+                <div className="bg-gradient-to-br from-white via-purple-50/30 to-blue-50/30 border border-slate-200 shadow-lg p-6 md:p-8">
                   <div className="mx-auto flex max-w-5xl flex-col gap-8">
-                    <div className="flex flex-col items-center gap-3 text-center">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 text-purple-600">
-                        <Zap className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-semibold text-slate-900">Acid Test Calculator</h3>
-                        <p className="text-sm text-slate-600">Check full-assignment profitability for {finalChoice.provider}.</p>
+                    <div className="text-center bg-white shadow-sm border border-slate-200 p-6">
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="flex h-16 w-16 items-center justify-center bg-gradient-to-br from-purple-600 to-blue-600 shadow-lg">
+                          <Zap className="h-8 w-8 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                            Acid Test Calculator
+                          </h3>
+                          <p className="text-slate-600 mt-2 text-base">
+                            Comprehensive profitability analysis for <span className="font-semibold capitalize text-slate-800">{finalChoice.provider}</span> assignment
+                          </p>
+                        </div>
                       </div>
 
                       {/* Currency Toggle */}
                       {acidTestResults && acidTestHasUSDData && (
-                        <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
-                          <button
-                            type="button"
-                            onClick={() => setAcidTestDisplayCurrency("local")}
-                            className={`px-3 py-2 text-sm font-medium rounded-md transition-all ${
-                              acidTestDisplayCurrency === "local"
-                                ? 'bg-white text-slate-900 shadow-sm'
-                                : 'text-slate-600 hover:text-slate-900'
-                            }`}
-                          >
-                            Local ({acidTestResults.summary.currency})
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setAcidTestDisplayCurrency("usd")}
-                            className={`px-3 py-2 text-sm font-medium rounded-md transition-all ${
-                              acidTestDisplayCurrency === "usd"
-                                ? 'bg-white text-slate-900 shadow-sm'
-                                : 'text-slate-600 hover:text-slate-900'
-                            }`}
-                          >
-                            USD
-                          </button>
+                        <div className="flex justify-center mt-4">
+                          <div className="inline-flex items-center gap-1 bg-slate-100 rounded-lg p-1 shadow-sm">
+                            <button
+                              type="button"
+                              onClick={() => setAcidTestDisplayCurrency("local")}
+                              className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${
+                                acidTestDisplayCurrency === "local"
+                                  ? 'bg-white text-slate-900 shadow-sm'
+                                  : 'text-slate-600 hover:text-slate-900'
+                              }`}
+                            >
+                              Local ({acidTestResults.summary.currency})
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setAcidTestDisplayCurrency("usd")}
+                              className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${
+                                acidTestDisplayCurrency === "usd"
+                                  ? 'bg-white text-slate-900 shadow-sm'
+                                  : 'text-slate-600 hover:text-slate-900'
+                              }`}
+                            >
+                              USD
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                      <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                        <span className="text-sm font-medium text-slate-600">Total Monthly Cost</span>
-                        <div className="text-2xl font-semibold text-slate-900">{formatMoney(finalChoice.price, finalChoice.currency)}</div>
-                        <div className="flex items-center gap-2 text-xs text-slate-500">
-                          <Badge className="bg-slate-100 text-slate-600">Locked</Badge>
-                          <span>From selected provider</span>
+                    <div className="bg-white border border-slate-200 shadow-sm p-8">
+                      <div className="mb-8">
+                        <h4 className="text-2xl font-bold text-slate-800 mb-3 flex items-center gap-3">
+                          <div className="p-2 bg-purple-100">
+                            <Calculator className="h-6 w-6 text-purple-600" />
+                          </div>
+                          Project Parameters
+                        </h4>
+                        <p className="text-slate-600">Configure your project details for comprehensive profitability analysis</p>
+                      </div>
+
+                      <div className="space-y-6">
+                        {/* First Row - Fixed Cost */}
+                        <div className="grid gap-6">
+                          <div className="border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 shadow-md">
+                            <div className="p-6">
+                              <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-4 h-4 bg-slate-600"></div>
+                                  <h5 className="text-lg font-bold text-slate-800">Total Monthly Cost</h5>
+                                </div>
+                                <Badge className="bg-slate-200 text-slate-700 border border-slate-300 px-3 py-1">Locked</Badge>
+                              </div>
+                              <div className="text-4xl font-bold text-slate-900 mb-2">
+                                {(() => {
+                                  const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
+                                  const recurringMonthlyUSD = acidTestResults?.breakdown?.recurringMonthlyUSD
+
+                                  if (showUSD && typeof recurringMonthlyUSD === 'number') {
+                                    return formatMoney(recurringMonthlyUSD, 'USD')
+                                  }
+                                  return formatMoney(finalChoice.price, finalChoice.currency)
+                                })()}
+                              </div>
+                              {(() => {
+                                const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
+                                const recurringMonthlyUSD = acidTestResults?.breakdown?.recurringMonthlyUSD
+                                const localCurrency = acidTestResults?.summary?.currency || finalChoice.currency
+
+                                if (showUSD && typeof recurringMonthlyUSD === 'number') {
+                                  return (
+                                    <p className="text-xs text-slate-500 mb-2">
+                                      ≈ {formatMoney(finalChoice.price, finalChoice.currency)} {localCurrency}
+                                    </p>
+                                  )
+                                } else if (!showUSD && typeof recurringMonthlyUSD === 'number') {
+                                  return (
+                                    <p className="text-xs text-slate-500 mb-2">
+                                      Approx. {formatMoney(recurringMonthlyUSD, 'USD')} in USD
+                                    </p>
+                                  )
+                                }
+                                return null
+                              })()}
+                              <p className="text-sm text-slate-600">Fixed cost from selected provider ({finalChoice.provider})</p>
+                            </div>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                        <label htmlFor="billRate" className="text-sm font-medium text-slate-600">
-                          Monthly Bill Rate
-                        </label>
-                        <Input
-                          id="billRate"
-                          type="number"
-                          placeholder="11000"
-                          value={monthlyBillRate || ''}
-                          onChange={(e) => handleBillRateChange(e.target.value)}
-                          className={`h-12 text-base font-semibold ${acidTestValidation.billRateError ? 'border-red-300 bg-red-50 focus-visible:ring-red-400' : 'border-slate-300 focus-visible:ring-purple-500'}`}
-                        />
-                        {acidTestValidation.billRateError ? (
-                          <p className="mt-1 text-xs text-red-600">{acidTestValidation.billRateError}</p>
-                        ) : (
-                          <p className="mt-1 text-xs text-slate-500">What you charge the client per month</p>
-                        )}
-                      </div>
+                        {/* Second Row - Input Fields */}
+                        <div className="grid gap-6 lg:grid-cols-2">
+                          <div className="border border-slate-200 bg-white shadow-md">
+                            <div className="p-6">
+                              <div className="flex items-center gap-3 mb-4">
+                                <div className="w-4 h-4 bg-blue-600"></div>
+                                <label htmlFor="billRate" className="text-lg font-bold text-slate-800">
+                                  Monthly Bill Rate
+                                </label>
+                              </div>
+                              <Input
+                                id="billRate"
+                                type="number"
+                                placeholder="11000"
+                                value={monthlyBillRate || ''}
+                                onChange={(e) => handleBillRateChange(e.target.value)}
+                                className={`h-16 text-xl font-bold ${acidTestValidation.billRateError ? 'border-red-300 bg-red-50 focus-visible:ring-red-400' : 'border-slate-300 focus-visible:ring-blue-500'}`}
+                              />
+                              <div className="mt-3">
+                                {acidTestValidation.billRateError ? (
+                                  <p className="text-sm text-red-600 font-medium">{acidTestValidation.billRateError}</p>
+                                ) : (
+                                  <p className="text-sm text-slate-600">The monthly amount you charge your client for this assignment</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
 
-                      <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                        <label htmlFor="duration" className="text-sm font-medium text-slate-600">
-                          Project Duration (months)
-                        </label>
-                        <Input
-                          id="duration"
-                          type="number"
-                          placeholder="6"
-                          value={projectDuration || ''}
-                          onChange={(e) => handleDurationChange(e.target.value)}
-                          className={`h-12 text-base font-semibold ${acidTestValidation.durationError ? 'border-red-300 bg-red-50 focus-visible:ring-red-400' : 'border-slate-300 focus-visible:ring-purple-500'}`}
-                        />
-                        {acidTestValidation.durationError ? (
-                          <p className="mt-1 text-xs text-red-600">{acidTestValidation.durationError}</p>
-                        ) : (
-                          <p className="mt-1 text-xs text-slate-500">Length of the assignment</p>
-                        )}
-                      </div>
-
-                      <div className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                        <label className="text-sm font-medium text-slate-600">
-                          Quote Type
-                        </label>
-                        <div className="flex items-center space-x-3 pt-2">
-                          <input
-                            type="checkbox"
-                            id="allInclusiveQuote"
-                            checked={isAllInclusiveQuote}
-                            onChange={(e) => setIsAllInclusiveQuote(e.target.checked)}
-                            className="h-4 w-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500"
-                          />
-                          <label htmlFor="allInclusiveQuote" className="text-sm text-slate-700">
-                            All-inclusive quote (includes termination costs)
-                          </label>
+                          <div className="border border-slate-200 bg-white shadow-md">
+                            <div className="p-6">
+                              <div className="flex items-center gap-3 mb-4">
+                                <div className="w-4 h-4 bg-green-600"></div>
+                                <label htmlFor="duration" className="text-lg font-bold text-slate-800">
+                                  Project Duration
+                                </label>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  id="duration"
+                                  type="number"
+                                  placeholder="6"
+                                  value={projectDuration || ''}
+                                  onChange={(e) => handleDurationChange(e.target.value)}
+                                  className={`h-16 text-xl font-bold flex-1 ${acidTestValidation.durationError ? 'border-red-300 bg-red-50 focus-visible:ring-red-400' : 'border-slate-300 focus-visible:ring-green-500'}`}
+                                />
+                                <span className="text-lg font-semibold text-slate-700 px-2">months</span>
+                              </div>
+                              <div className="mt-3">
+                                {acidTestValidation.durationError ? (
+                                  <p className="text-sm text-red-600 font-medium">{acidTestValidation.durationError}</p>
+                                ) : (
+                                  <p className="text-sm text-slate-600">Expected length of the assignment contract</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <p className="mt-1 text-xs text-slate-500">
-                          Check this if termination costs should be included in the bill rate
-                        </p>
+
+                        {/* Third Row - Quote Type */}
+                        <div className="grid gap-6">
+                          <div className="border border-slate-200 bg-white shadow-md">
+                            <div className="p-6">
+                              <div className="flex items-center gap-3 mb-4">
+                                <div className="w-4 h-4 bg-purple-600"></div>
+                                <h5 className="text-lg font-bold text-slate-800">Quote Configuration</h5>
+                              </div>
+                              <div className="flex items-start space-x-4">
+                                <input
+                                  type="checkbox"
+                                  id="allInclusiveQuote"
+                                  checked={isAllInclusiveQuote}
+                                  onChange={(e) => setIsAllInclusiveQuote(e.target.checked)}
+                                  className="h-6 w-6 border-slate-300 text-purple-600 focus:ring-purple-500 mt-1"
+                                />
+                                <div className="flex-1">
+                                  <label htmlFor="allInclusiveQuote" className="text-base font-semibold text-slate-800 cursor-pointer">
+                                    All-inclusive quote pricing
+                                  </label>
+                                  <p className="text-sm text-slate-600 mt-1">
+                                    When enabled, termination costs are included in your monthly bill rate calculation.
+                                    This provides clients with predictable pricing and eliminates end-of-contract surprises.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
                     {isCategorizingCosts ? (
-                      <div className="flex items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 py-6 text-sm font-medium text-slate-600">
-                        <LoadingSpinner />
-                        <span>Categorizing costs...</span>
+                      <div className="bg-white border border-slate-200 shadow-sm p-8">
+                        <div className="flex flex-col items-center justify-center gap-4 text-center">
+                          <div className="flex items-center justify-center gap-3">
+                            <LoadingSpinner />
+                            <div className="text-lg font-semibold text-slate-700">Categorizing costs...</div>
+                          </div>
+                          <p className="text-sm text-slate-500 max-w-md">
+                            Analyzing cost structure from the selected provider to prepare your profitability assessment.
+                          </p>
+                        </div>
                       </div>
                     ) : (
                       !acidTestCostData && (
-                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
-                          Unable to load the cost breakdown for this provider. Adjust the inputs or try again.
+                        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 shadow-sm p-6">
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0 w-10 h-10 bg-amber-100 border border-amber-200 flex items-center justify-center">
+                              <XCircle className="h-5 w-5 text-amber-600" />
+                            </div>
+                            <div>
+                              <h5 className="text-lg font-semibold text-amber-800 mb-2">Cost Data Unavailable</h5>
+                              <p className="text-sm text-amber-700 mb-3">
+                                Unable to load the cost breakdown for this provider. This may be due to missing data or a temporary connectivity issue.
+                              </p>
+                              <p className="text-xs text-amber-600">
+                                Try adjusting the project parameters above or refresh the page to retry.
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       )
                     )}
@@ -1266,9 +1625,22 @@ const QuotePageContent = memo(() => {
                     {acidTestCostData && (
                       <div className="space-y-6">
                         {isComputingAcidTest ? (
-                          <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 py-10 text-sm font-medium text-slate-600">
-                            <LoadingSpinner />
-                            <span>Computing acid test...</span>
+                          <div className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 shadow-sm p-10">
+                            <div className="flex flex-col items-center justify-center gap-4 text-center">
+                              <div className="flex items-center justify-center gap-3">
+                                <LoadingSpinner />
+                                <div className="text-xl font-bold text-purple-700">Computing Acid Test...</div>
+                              </div>
+                              <div className="space-y-2">
+                                <p className="text-sm text-purple-600 max-w-lg">
+                                  Running comprehensive profitability analysis including revenue projections, cost breakdowns, and margin calculations.
+                                </p>
+                                <div className="flex items-center gap-2 text-xs text-purple-500">
+                                  <Target className="h-4 w-4" />
+                                  <span>This may take a few moments...</span>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         ) : acidTestResults ? (
                           (() => {
@@ -1401,99 +1773,231 @@ const QuotePageContent = memo(() => {
                                 </div>
 
                                 {/* Bill Rate Composition Breakdown */}
-                                <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                                  <div className="flex items-center gap-2 text-slate-700 mb-4">
-                                    <Calculator className="h-5 w-5 text-purple-600" />
-                                    <h4 className="font-semibold">Bill Rate Composition Analysis</h4>
+                                <div className="bg-white border border-slate-200 shadow-lg p-8">
+                                  <div className="mb-8">
+                                    <div className="flex items-center gap-3 mb-3">
+                                      <div className="p-2 bg-purple-100">
+                                        <Calculator className="h-6 w-6 text-purple-600" />
+                                      </div>
+                                      <h4 className="text-2xl font-bold text-slate-800">Bill Rate Composition Analysis</h4>
+                                    </div>
+                                    <p className="text-slate-600">Detailed breakdown of expected costs vs. your actual billing rate</p>
                                   </div>
 
-                                  <div className="grid gap-4 md:grid-cols-2">
-                                    <div className="space-y-3">
-                                      <h5 className="text-sm font-medium text-slate-700">Expected Bill Rate Breakdown</h5>
-                                      <div className="space-y-2 text-sm">
-                                        <div className="flex justify-between">
-                                          <span>Salary:</span>
-                                          <span>{formatAmount(billRateComposition.salaryMonthly, billRateComposition.salaryMonthlyUSD)}</span>
+                                  {/* Main Comparison Table */}
+                                  <div className="bg-slate-50 border border-slate-200 shadow-sm overflow-hidden mb-6">
+                                    <div className="bg-slate-800 text-white p-4">
+                                      <h5 className="text-lg font-bold">Cost Structure Breakdown</h5>
+                                    </div>
+
+                                    <div className="overflow-x-auto">
+                                      <table className="w-full">
+                                        <thead className="bg-slate-100 border-b border-slate-200">
+                                          <tr>
+                                            <th className="text-left py-4 px-6 font-semibold text-slate-800">Cost Component</th>
+                                            <th className="text-right py-4 px-6 font-semibold text-slate-800">Monthly Amount</th>
+                                            <th className="text-center py-4 px-6 font-semibold text-slate-800">Category</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-200">
+                                          <tr className="hover:bg-slate-50 transition-colors">
+                                            <td className="py-4 px-6">
+                                              <div className="flex items-center gap-3">
+                                                <div className="w-3 h-3 bg-blue-500"></div>
+                                                <span className="font-medium text-slate-800">Base Salary</span>
+                                              </div>
+                                            </td>
+                                            <td className="py-4 px-6 text-right font-semibold text-slate-900">
+                                              {formatAmount(billRateComposition.salaryMonthly, billRateComposition.salaryMonthlyUSD)}
+                                            </td>
+                                            <td className="py-4 px-6 text-center">
+                                              <Badge className="bg-blue-100 text-blue-800 border-blue-200">Core</Badge>
+                                            </td>
+                                          </tr>
+                                          <tr className="hover:bg-slate-50 transition-colors">
+                                            <td className="py-4 px-6">
+                                              <div className="flex items-center gap-3">
+                                                <div className="w-3 h-3 bg-orange-500"></div>
+                                                <span className="font-medium text-slate-800">Statutory Costs</span>
+                                              </div>
+                                            </td>
+                                            <td className="py-4 px-6 text-right font-semibold text-slate-900">
+                                              {formatAmount(billRateComposition.statutoryMonthly, billRateComposition.statutoryMonthlyUSD)}
+                                            </td>
+                                            <td className="py-4 px-6 text-center">
+                                              <Badge className="bg-orange-100 text-orange-800 border-orange-200">Legal</Badge>
+                                            </td>
+                                          </tr>
+                                          {billRateComposition.allowancesMonthly > 0 && (
+                                            <tr className="hover:bg-slate-50 transition-colors">
+                                              <td className="py-4 px-6">
+                                                <div className="flex items-center gap-3">
+                                                  <div className="w-3 h-3 bg-green-500"></div>
+                                                  <span className="font-medium text-slate-800">Allowances & Benefits</span>
+                                                </div>
+                                              </td>
+                                              <td className="py-4 px-6 text-right font-semibold text-slate-900">
+                                                {formatAmount(billRateComposition.allowancesMonthly, billRateComposition.allowancesMonthlyUSD)}
+                                              </td>
+                                              <td className="py-4 px-6 text-center">
+                                                <Badge className="bg-green-100 text-green-800 border-green-200">Benefits</Badge>
+                                              </td>
+                                            </tr>
+                                          )}
+                                          {billRateComposition.terminationMonthly > 0 && (
+                                            <tr className="hover:bg-slate-50 transition-colors">
+                                              <td className="py-4 px-6">
+                                                <div className="flex items-center gap-3">
+                                                  <div className="w-3 h-3 bg-yellow-500"></div>
+                                                  <span className="font-medium text-slate-800">Termination Provision</span>
+                                                </div>
+                                              </td>
+                                              <td className="py-4 px-6 text-right font-semibold text-slate-900">
+                                                {formatAmount(billRateComposition.terminationMonthly, billRateComposition.terminationMonthlyUSD)}
+                                              </td>
+                                              <td className="py-4 px-6 text-center">
+                                                <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Risk</Badge>
+                                              </td>
+                                            </tr>
+                                          )}
+                                          <tr className="hover:bg-slate-50 transition-colors bg-purple-50">
+                                            <td className="py-4 px-6">
+                                              <div className="flex items-center gap-3">
+                                                <div className="w-3 h-3 bg-purple-600"></div>
+                                                <span className="font-bold text-purple-800">
+                                                  Gracemark Fee ({Math.round(billRateComposition.gracemarkFeePercentage * 100)}%)
+                                                </span>
+                                              </div>
+                                            </td>
+                                            <td className="py-4 px-6 text-right font-bold text-purple-900">
+                                              {formatAmount(billRateComposition.gracemarkFeeMonthly, billRateComposition.gracemarkFeeMonthlyUSD)}
+                                            </td>
+                                            <td className="py-4 px-6 text-center">
+                                              <Badge className="bg-purple-100 text-purple-800 border-purple-200">Service</Badge>
+                                            </td>
+                                          </tr>
+                                          <tr className="hover:bg-slate-50 transition-colors text-xs text-slate-500">
+                                            <td className="py-3 px-6">
+                                              <div className="flex items-center gap-3">
+                                                <div className="w-2 h-2 bg-slate-400"></div>
+                                                <span className="italic">Provider fee (included in above)</span>
+                                              </div>
+                                            </td>
+                                            <td className="py-3 px-6 text-right font-medium">
+                                              {formatAmount(billRateComposition.providerFeeMonthly, billRateComposition.providerFeeMonthlyUSD)}
+                                            </td>
+                                            <td className="py-3 px-6 text-center">
+                                              <Badge className="bg-slate-100 text-slate-600 border-slate-200 text-xs">Included</Badge>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                        <tfoot className="bg-slate-800 text-white">
+                                          <tr>
+                                            <td className="py-4 px-6 font-bold text-lg">Expected Bill Rate</td>
+                                            <td className="py-4 px-6 text-right font-bold text-xl">
+                                              {formatAmount(billRateComposition.expectedBillRate, billRateComposition.expectedBillRateUSD)}
+                                            </td>
+                                            <td className="py-4 px-6 text-center">
+                                              <Badge className="bg-white text-slate-800 border-slate-200">Total</Badge>
+                                            </td>
+                                          </tr>
+                                        </tfoot>
+                                      </table>
+                                    </div>
+                                  </div>
+
+                                  {/* Rate Comparison Section */}
+                                  <div className="grid gap-6 lg:grid-cols-2">
+                                    {/* Your Rate vs Expected */}
+                                    <div className="bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 p-6 shadow-sm">
+                                      <h5 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                        <BarChart3 className="h-5 w-5 text-slate-600" />
+                                        Rate Comparison
+                                      </h5>
+
+                                      <div className="space-y-4">
+                                        <div className="flex justify-between items-center p-3 bg-white border border-slate-200 shadow-sm">
+                                          <span className="font-medium text-slate-700">Your Bill Rate</span>
+                                          <span className="text-lg font-bold text-slate-900">
+                                            {formatAmount(billRateComposition.actualBillRate, billRateComposition.actualBillRateUSD)}
+                                          </span>
                                         </div>
-                                        <div className="flex justify-between">
-                                          <span>Statutory costs:</span>
-                                          <span>{formatAmount(billRateComposition.statutoryMonthly, billRateComposition.statutoryMonthlyUSD)}</span>
+
+                                        <div className="flex justify-between items-center p-3 bg-white border border-slate-200 shadow-sm">
+                                          <span className="font-medium text-slate-700">Expected Rate</span>
+                                          <span className="text-lg font-bold text-slate-900">
+                                            {formatAmount(billRateComposition.expectedBillRate, billRateComposition.expectedBillRateUSD)}
+                                          </span>
                                         </div>
-                                        {billRateComposition.allowancesMonthly > 0 && (
-                                          <div className="flex justify-between">
-                                            <span>Allowances:</span>
-                                            <span>{formatAmount(billRateComposition.allowancesMonthly, billRateComposition.allowancesMonthlyUSD)}</span>
-                                          </div>
-                                        )}
-                                        {billRateComposition.terminationMonthly > 0 && (
-                                          <div className="flex justify-between">
-                                            <span>Termination provision:</span>
-                                            <span>{formatAmount(billRateComposition.terminationMonthly, billRateComposition.terminationMonthlyUSD)}</span>
-                                          </div>
-                                        )}
-                                        <div className="flex justify-between font-medium text-purple-600">
-                                          <span>Gracemark fee ({Math.round(billRateComposition.gracemarkFeePercentage * 100)}%):</span>
-                                          <span>{formatAmount(billRateComposition.gracemarkFeeMonthly, billRateComposition.gracemarkFeeMonthlyUSD)}</span>
-                                        </div>
-                                        <div className="flex justify-between text-xs text-slate-500">
-                                          <span>Provider fee (included):</span>
-                                          <span>{formatAmount(billRateComposition.providerFeeMonthly, billRateComposition.providerFeeMonthlyUSD)}</span>
-                                        </div>
-                                        <hr className="border-slate-200" />
-                                        <div className="flex justify-between font-semibold">
-                                          <span>Expected bill rate:</span>
-                                          <span>{formatAmount(billRateComposition.expectedBillRate, billRateComposition.expectedBillRateUSD)}</span>
+
+                                        <div className={`flex justify-between items-center p-4 border-2 shadow-md ${
+                                          billRateComposition.rateDiscrepancy >= 0
+                                            ? 'bg-green-50 border-green-200'
+                                            : 'bg-red-50 border-red-200'
+                                        }`}>
+                                          <span className="font-bold text-slate-800">Net Difference</span>
+                                          <span className={`text-xl font-bold ${
+                                            billRateComposition.rateDiscrepancy >= 0 ? 'text-green-700' : 'text-red-700'
+                                          }`}>
+                                            {renderDifferenceValue(billRateComposition.rateDiscrepancy, billRateComposition.rateDiscrepancyUSD)}
+                                          </span>
                                         </div>
                                       </div>
                                     </div>
 
-                                    <div className="space-y-3">
-                                      <h5 className="text-sm font-medium text-slate-700">Rate Comparison</h5>
-                                      <div className="space-y-2 text-sm">
-                                        <div className="flex justify-between">
-                                          <span>Your bill rate:</span>
-                                          <span>{formatAmount(billRateComposition.actualBillRate, billRateComposition.actualBillRateUSD)}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                          <span>Expected rate:</span>
-                                          <span>{formatAmount(billRateComposition.expectedBillRate, billRateComposition.expectedBillRateUSD)}</span>
-                                        </div>
-                                        <hr className="border-slate-200" />
-                                        <div className={`flex justify-between font-semibold ${
-                                          billRateComposition.rateDiscrepancy >= 0
-                                            ? 'text-green-600'
-                                            : 'text-red-600'
-                                        }`}>
-                                          <span>Difference:</span>
-                                          <span>{renderDifferenceValue(billRateComposition.rateDiscrepancy, billRateComposition.rateDiscrepancyUSD)}</span>
-                                        </div>
-                                      </div>
+                                    {/* Analysis & Recommendations */}
+                                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 p-6 shadow-sm">
+                                      <h5 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                        <Target className="h-5 w-5 text-blue-600" />
+                                        Analysis & Insights
+                                      </h5>
 
                                       {billRateComposition.rateDiscrepancy !== 0 && (
-                                        <div className={`mt-3 p-3 rounded-lg text-xs ${
-                                          billRateComposition.rateDiscrepancy >= 0
-                                            ? 'bg-green-50 text-green-700 border border-green-200'
-                                            : 'bg-red-50 text-red-700 border border-red-200'
-                                        }`}>
-                                          {billRateComposition.rateDiscrepancy >= 0 ? (
-                                            <>
-                                              Your rate is {formatAmount(
-                                                Math.abs(billRateComposition.rateDiscrepancy),
-                                                typeof billRateComposition.rateDiscrepancyUSD === 'number'
-                                                  ? Math.abs(billRateComposition.rateDiscrepancyUSD)
-                                                  : undefined
-                                              )} above the expected rate based on a {Math.round(billRateComposition.gracemarkFeePercentage * 100)}% Gracemark fee.
-                                            </>
-                                          ) : (
-                                            <>
-                                              Your rate is {formatAmount(
-                                                Math.abs(billRateComposition.rateDiscrepancy),
-                                                typeof billRateComposition.rateDiscrepancyUSD === 'number'
-                                                  ? Math.abs(billRateComposition.rateDiscrepancyUSD)
-                                                  : undefined
-                                              )} below the expected rate. Consider increasing to meet the {Math.round(billRateComposition.gracemarkFeePercentage * 100)}% Gracemark fee standard.
-                                            </>
-                                          )}
+                                        <div className="space-y-4">
+                                          <div className={`p-4 border-l-4 ${
+                                            billRateComposition.rateDiscrepancy >= 0
+                                              ? 'bg-green-50 border-green-400'
+                                              : 'bg-red-50 border-red-400'
+                                          }`}>
+                                            <div className={`font-semibold mb-2 ${
+                                              billRateComposition.rateDiscrepancy >= 0 ? 'text-green-800' : 'text-red-800'
+                                            }`}>
+                                              {billRateComposition.rateDiscrepancy >= 0 ? '✅ Above Expected Rate' : '⚠️ Below Expected Rate'}
+                                            </div>
+                                            <p className={`text-sm ${
+                                              billRateComposition.rateDiscrepancy >= 0 ? 'text-green-700' : 'text-red-700'
+                                            }`}>
+                                              {billRateComposition.rateDiscrepancy >= 0 ? (
+                                                <>
+                                                  Your rate is {formatAmount(
+                                                    Math.abs(billRateComposition.rateDiscrepancy),
+                                                    typeof billRateComposition.rateDiscrepancyUSD === 'number'
+                                                      ? Math.abs(billRateComposition.rateDiscrepancyUSD)
+                                                      : undefined
+                                                  )} above the expected rate. This provides additional margin for unexpected costs or higher profitability.
+                                                </>
+                                              ) : (
+                                                <>
+                                                  Your rate is {formatAmount(
+                                                    Math.abs(billRateComposition.rateDiscrepancy),
+                                                    typeof billRateComposition.rateDiscrepancyUSD === 'number'
+                                                      ? Math.abs(billRateComposition.rateDiscrepancyUSD)
+                                                      : undefined
+                                                  )} below the expected rate. Consider increasing to ensure proper {Math.round(billRateComposition.gracemarkFeePercentage * 100)}% Gracemark fee coverage.
+                                                </>
+                                              )}
+                                            </p>
+                                          </div>
+
+                                          <div className="bg-blue-100 border border-blue-200 p-3">
+                                            <div className="font-medium text-blue-900 mb-1">Recommended Action</div>
+                                            <p className="text-sm text-blue-800">
+                                              {billRateComposition.rateDiscrepancy >= 0
+                                                ? 'Your current rate structure provides healthy margins. Monitor for any significant cost changes in future periods.'
+                                                : 'Review your pricing strategy. Consider client negotiation or cost optimization to improve margins.'
+                                              }
+                                            </p>
+                                          </div>
                                         </div>
                                       )}
                                     </div>
@@ -2741,7 +3245,7 @@ const QuotePageContent = memo(() => {
       {isReconModalOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
           <div className="absolute inset-0" onClick={() => setIsReconModalOpen(false)} />
-          <Card className="relative w-[90vw] h-[90vh] border-0 shadow-xl bg-white/90 backdrop-blur-sm overflow-hidden rounded-none">
+          <Card className="relative w-screen h-screen border-0 shadow-none bg-white overflow-hidden rounded-none">
             
             {/* Top Banner: Progress Bar + Phase */}
             <div className="px-6 py-4 border-b border-slate-200 bg-white">
@@ -2784,19 +3288,19 @@ const QuotePageContent = memo(() => {
             </div>
 
             {/* Main Timeline Area */}
-            <div className="flex-1 overflow-y-auto scroll-smooth">
+            <div className="flex-1 overflow-y-auto">
               {renderTimelinePhases()}
             </div>
           </Card>
         </div>
       )}
 
-      {/* Simple CSS animations */}
+      {/* Enhanced CSS animations */}
       <style jsx>{`
-        @keyframes slideInUp {
+        @keyframes fadeInUp {
           from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(10px);
           }
           to {
             opacity: 1;
@@ -2804,9 +3308,23 @@ const QuotePageContent = memo(() => {
           }
         }
 
-        .scroll-smooth {
-          scroll-behavior: smooth;
+        .animate-fade-in-up {
+          animation: fadeInUp 0.4s ease-out forwards;
         }
+
+        .stagger-children > * {
+          opacity: 0;
+          animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+        .stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+        .stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+        .stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+        .stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+        .stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+        .stagger-children > *:nth-child(7) { animation-delay: 300ms; }
+        .stagger-children > *:nth-child(n+8) { animation-delay: 350ms; }
       `}</style>
     </div>
   )
