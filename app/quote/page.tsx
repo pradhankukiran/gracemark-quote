@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Brain, Target, Zap, BarChart3, TrendingUp, Crown, Activity, FileText, Info } from "lucide-react"
+import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Brain, Target, Zap, BarChart3, TrendingUp, Crown, Activity, FileText, Info, ChevronDown, ChevronUp } from "lucide-react"
 import Link from "next/link"
 import { useQuoteResults } from "./hooks/useQuoteResults"
 import { useUSDConversion } from "../eor-calculator/hooks/useUSDConversion"
@@ -184,6 +184,7 @@ const QuotePageContent = memo(() => {
   const [isAllInclusiveQuote, setIsAllInclusiveQuote] = useState<boolean>(true)
   const [acidTestDisplayCurrency, setAcidTestDisplayCurrency] = useState<"local" | "usd">("local")
   const [acidTestResults, setAcidTestResults] = useState<AcidTestCalculationResult | null>(null)
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
   const acidTestHasUSDData = useMemo(() => {
     if (!acidTestResults) return false
     if (acidTestResults.summary.currency === 'USD') return false
@@ -502,18 +503,27 @@ const QuotePageContent = memo(() => {
       return
     }
 
-    if (!acidTestCostData || monthlyBillRate <= 0 || projectDuration <= 0) {
+    if (!acidTestCostData || !finalChoice || !quoteData?.formData) {
       setIsComputingAcidTest(false)
-      if (monthlyBillRate <= 0 || projectDuration <= 0) {
-        setAcidTestResults(null)
-      }
+      setAcidTestResults(null)
+      return
+    }
+
+    // Use automatic values instead of user inputs
+    const automaticBillRate = finalChoice.price
+    const automaticDuration = Number((quoteData.formData as EORFormData)?.contractDuration) || 6
+    const automaticIsAllInclusive = true // Most quotes are all-inclusive
+
+    if (automaticBillRate <= 0 || automaticDuration <= 0) {
+      setIsComputingAcidTest(false)
+      setAcidTestResults(null)
       return
     }
 
     let cancelled = false
     setIsComputingAcidTest(true)
 
-    buildAcidTestCalculation(acidTestCostData, monthlyBillRate, projectDuration, isAllInclusiveQuote)
+    buildAcidTestCalculation(acidTestCostData, automaticBillRate, automaticDuration, automaticIsAllInclusive)
       .then(result => {
         if (!cancelled) {
           setAcidTestError(null)
@@ -534,7 +544,7 @@ const QuotePageContent = memo(() => {
     return () => {
       cancelled = true
     }
-  }, [showAcidTestForm, acidTestCostData, monthlyBillRate, projectDuration, isAllInclusiveQuote, buildAcidTestCalculation])
+  }, [showAcidTestForm, acidTestCostData, finalChoice, quoteData?.formData, buildAcidTestCalculation])
 
   // Body scroll lock when modal is open
   useEffect(() => {
@@ -743,9 +753,16 @@ const QuotePageContent = memo(() => {
       return s === 'active' || s === 'enhancement-failed' || s === 'failed' || s === 'inactive'
     }).length
     const isReady = completed >= allProviders.length && !enhancementBatchInfo.isProcessing
+    const hasCompletedBefore = completedPhases.has('analyzing') || completedPhases.has('complete')
+
+    let message = 'Enhancing quotes...'
+    if (isReady) {
+      message = hasCompletedBefore ? 'View Analysis Results' : 'Start Reconciliation'
+    }
+
     return {
       ready: isReady,
-      message: isReady ? 'Start Reconciliation' : 'Enhancing quotes...'
+      message
     }
   }
   
@@ -773,7 +790,15 @@ const QuotePageContent = memo(() => {
   // Simple auto-scroll
   const scrollToPhase = (phaseId: string) => {
     setTimeout(() => {
-      const element = document.getElementById(`phase-${phaseId}`)
+      // For analyzing phase, scroll to the results content instead of the phase container
+      const targetId = phaseId === 'analyzing' ? 'analyzing-results' : `phase-${phaseId}`
+      let element = document.getElementById(targetId)
+
+      // Fallback to phase container if results element doesn't exist
+      if (!element && phaseId === 'analyzing') {
+        element = document.getElementById('phase-analyzing')
+      }
+
       if (element) {
         element.scrollIntoView({
           behavior: 'smooth',
@@ -781,7 +806,7 @@ const QuotePageContent = memo(() => {
           inline: 'nearest'
         })
       }
-    }, 400)
+    }, phaseId === 'analyzing' ? 800 : 400) // Longer delay for analyzing phase to ensure content is rendered
   }
 
   // Scroll to bottom of modal container with proper timing
@@ -930,8 +955,8 @@ const QuotePageContent = memo(() => {
           </div>
 
           {isPhaseStarted('analyzing') && providerData.length > 0 && (
-            <div className="bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 border border-slate-200 shadow-lg p-8">
-              <div className="mb-8">
+            <div id="analyzing-results" className="bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 border border-slate-200 shadow-lg p-8">
+              {/* <div className="mb-8">
                 <div className="text-center bg-white shadow-sm border border-slate-200 p-6 mb-8">
                   <div className="flex flex-col items-center gap-4">
                     <div className="flex h-16 w-16 items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg">
@@ -970,7 +995,7 @@ const QuotePageContent = memo(() => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Provider Variance Analysis Table */}
               <div className="bg-white border border-slate-200 shadow-lg mb-8">
@@ -1100,8 +1125,7 @@ const QuotePageContent = memo(() => {
               </div>
 
               {/* Enhanced Analysis Summary */}
-              <div className="grid gap-8 lg:grid-cols-2">
-                {/* Compliance Overview */}
+              {/* <div className="grid gap-8 lg:grid-cols-2">
                 <div className="bg-white border border-slate-200 shadow-sm p-6">
                   <div className="mb-6">
                     <h5 className="text-xl font-bold text-slate-800 mb-2 flex items-center gap-3">
@@ -1158,7 +1182,6 @@ const QuotePageContent = memo(() => {
                   </div>
                 </div>
 
-                {/* Market Analysis */}
                 <div className="bg-white border border-slate-200 shadow-sm p-6">
                   <div className="mb-6">
                     <h5 className="text-xl font-bold text-slate-800 mb-2 flex items-center gap-3">
@@ -1233,7 +1256,7 @@ const QuotePageContent = memo(() => {
                     })()}
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           )}
         </div>
@@ -1394,200 +1417,101 @@ const QuotePageContent = memo(() => {
               ) : (
                 <div className="bg-gradient-to-br from-white via-purple-50/30 to-blue-50/30 border border-slate-200 shadow-lg p-6 md:p-8">
                   <div className="mx-auto flex max-w-5xl flex-col gap-8">
-                    <div className="text-center bg-white shadow-sm border border-slate-200 p-6">
-                      <div className="flex flex-col items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center bg-gradient-to-br from-purple-600 to-blue-600 shadow-lg">
-                          <Zap className="h-8 w-8 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                            Acid Test Calculator
-                          </h3>
-                          <p className="text-slate-600 mt-2 text-base">
-                            Comprehensive profitability analysis for <span className="font-semibold capitalize text-slate-800">{finalChoice.provider}</span> assignment
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Currency Toggle */}
-                      {acidTestResults && acidTestHasUSDData && (
-                        <div className="flex justify-center mt-4">
-                          <div className="inline-flex items-center gap-1 bg-slate-100 rounded-lg p-1 shadow-sm">
-                            <button
-                              type="button"
-                              onClick={() => setAcidTestDisplayCurrency("local")}
-                              className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${
-                                acidTestDisplayCurrency === "local"
-                                  ? 'bg-white text-slate-900 shadow-sm'
-                                  : 'text-slate-600 hover:text-slate-900'
-                              }`}
-                            >
-                              Local ({acidTestResults.summary.currency})
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setAcidTestDisplayCurrency("usd")}
-                              className={`px-4 py-2 text-sm font-semibold rounded-md transition-all ${
-                                acidTestDisplayCurrency === "usd"
-                                  ? 'bg-white text-slate-900 shadow-sm'
-                                  : 'text-slate-600 hover:text-slate-900'
-                              }`}
-                            >
-                              USD
-                            </button>
+                    {/* Consolidated Acid Test Header */}
+                    <div className="bg-white shadow-sm border border-slate-200 p-6">
+                      <div className="flex items-center justify-between">
+                        {/* Left: Acid Test Title & Icon */}
+                        <div className="flex items-center gap-4">
+                          <div className="flex h-12 w-12 items-center justify-center bg-gradient-to-br from-purple-600 to-blue-600 shadow-md rounded-lg">
+                            <Zap className="h-6 w-6 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                              Acid Test Calculator
+                            </h3>
+                            <p className="text-slate-600 text-sm">
+                              Profitability analysis for <span className="font-semibold capitalize text-slate-800">{finalChoice.provider}</span>
+                            </p>
                           </div>
                         </div>
-                      )}
-                    </div>
 
-                    <div className="bg-white border border-slate-200 shadow-sm p-8">
-                      <div className="mb-8">
-                        <h4 className="text-2xl font-bold text-slate-800 mb-3 flex items-center gap-3">
-                          <div className="p-2 bg-purple-100">
-                            <Calculator className="h-6 w-6 text-purple-600" />
+                        {/* Center: Total Monthly Cost */}
+                        <div className="flex flex-col items-center">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-3 h-3 bg-slate-600 rounded-full"></div>
+                            <h5 className="text-base font-bold text-slate-800">Total Monthly Cost</h5>
+                            <Badge className="bg-slate-200 text-slate-700 border border-slate-300 px-2 py-1 text-xs">Locked</Badge>
                           </div>
-                          Project Parameters
-                        </h4>
-                        <p className="text-slate-600">Configure your project details for comprehensive profitability analysis</p>
-                      </div>
+                          <div className="text-2xl font-bold text-slate-900 mb-1">
+                            {(() => {
+                              const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
+                              const recurringMonthlyUSD = acidTestResults?.breakdown?.recurringMonthlyUSD
 
-                      <div className="space-y-6">
-                        {/* First Row - Fixed Cost */}
-                        <div className="grid gap-6">
-                          <div className="border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 shadow-md">
-                            <div className="p-6">
-                              <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-4 h-4 bg-slate-600"></div>
-                                  <h5 className="text-lg font-bold text-slate-800">Total Monthly Cost</h5>
-                                </div>
-                                <Badge className="bg-slate-200 text-slate-700 border border-slate-300 px-3 py-1">Locked</Badge>
-                              </div>
-                              <div className="text-4xl font-bold text-slate-900 mb-2">
-                                {(() => {
-                                  const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
-                                  const recurringMonthlyUSD = acidTestResults?.breakdown?.recurringMonthlyUSD
+                              if (showUSD && typeof recurringMonthlyUSD === 'number') {
+                                return formatMoney(recurringMonthlyUSD, 'USD')
+                              }
+                              return formatMoney(finalChoice.price, finalChoice.currency)
+                            })()}
+                          </div>
+                          {(() => {
+                            const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
+                            const recurringMonthlyUSD = acidTestResults?.breakdown?.recurringMonthlyUSD
+                            const localCurrency = acidTestResults?.summary?.currency || finalChoice.currency
 
-                                  if (showUSD && typeof recurringMonthlyUSD === 'number') {
-                                    return formatMoney(recurringMonthlyUSD, 'USD')
-                                  }
-                                  return formatMoney(finalChoice.price, finalChoice.currency)
-                                })()}
-                              </div>
-                              {(() => {
-                                const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
-                                const recurringMonthlyUSD = acidTestResults?.breakdown?.recurringMonthlyUSD
-                                const localCurrency = acidTestResults?.summary?.currency || finalChoice.currency
+                            if (showUSD && typeof recurringMonthlyUSD === 'number') {
+                              return (
+                                <p className="text-xs text-slate-500">
+                                  ≈ {formatMoney(finalChoice.price, finalChoice.currency)} {localCurrency}
+                                </p>
+                              )
+                            } else if (!showUSD && typeof recurringMonthlyUSD === 'number') {
+                              return (
+                                <p className="text-xs text-slate-500">
+                                  Approx. {formatMoney(recurringMonthlyUSD, 'USD')} in USD
+                                </p>
+                              )
+                            }
+                            return null
+                          })()}
+                          <p className="text-xs text-slate-500">from {finalChoice.provider}</p>
+                        </div>
 
-                                if (showUSD && typeof recurringMonthlyUSD === 'number') {
-                                  return (
-                                    <p className="text-xs text-slate-500 mb-2">
-                                      ≈ {formatMoney(finalChoice.price, finalChoice.currency)} {localCurrency}
-                                    </p>
-                                  )
-                                } else if (!showUSD && typeof recurringMonthlyUSD === 'number') {
-                                  return (
-                                    <p className="text-xs text-slate-500 mb-2">
-                                      Approx. {formatMoney(recurringMonthlyUSD, 'USD')} in USD
-                                    </p>
-                                  )
-                                }
-                                return null
-                              })()}
-                              <p className="text-sm text-slate-600">Fixed cost from selected provider ({finalChoice.provider})</p>
+                        {/* Right: Currency Toggle */}
+                        <div className="flex flex-col items-end">
+                          {acidTestResults && acidTestHasUSDData ? (
+                            <div className="inline-flex items-center gap-1 bg-slate-100 rounded-lg p-1 shadow-sm">
+                              <button
+                                type="button"
+                                onClick={() => setAcidTestDisplayCurrency("local")}
+                                className={`px-3 py-2 text-sm font-semibold rounded-md transition-all ${
+                                  acidTestDisplayCurrency === "local"
+                                    ? 'bg-white text-slate-900 shadow-sm'
+                                    : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                              >
+                                Local ({acidTestResults.summary.currency})
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setAcidTestDisplayCurrency("usd")}
+                                className={`px-3 py-2 text-sm font-semibold rounded-md transition-all ${
+                                  acidTestDisplayCurrency === "usd"
+                                    ? 'bg-white text-slate-900 shadow-sm'
+                                    : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                              >
+                                USD
+                              </button>
                             </div>
-                          </div>
-                        </div>
-
-                        {/* Second Row - Input Fields */}
-                        <div className="grid gap-6 lg:grid-cols-2">
-                          <div className="border border-slate-200 bg-white shadow-md">
-                            <div className="p-6">
-                              <div className="flex items-center gap-3 mb-4">
-                                <div className="w-4 h-4 bg-blue-600"></div>
-                                <label htmlFor="billRate" className="text-lg font-bold text-slate-800">
-                                  Monthly Bill Rate
-                                </label>
-                              </div>
-                              <Input
-                                id="billRate"
-                                type="number"
-                                placeholder="11000"
-                                value={monthlyBillRate || ''}
-                                onChange={(e) => handleBillRateChange(e.target.value)}
-                                className={`h-16 text-xl font-bold ${acidTestValidation.billRateError ? 'border-red-300 bg-red-50 focus-visible:ring-red-400' : 'border-slate-300 focus-visible:ring-blue-500'}`}
-                              />
-                              <div className="mt-3">
-                                {acidTestValidation.billRateError ? (
-                                  <p className="text-sm text-red-600 font-medium">{acidTestValidation.billRateError}</p>
-                                ) : (
-                                  <p className="text-sm text-slate-600">The monthly amount you charge your client for this assignment</p>
-                                )}
-                              </div>
+                          ) : (
+                            <div className="text-sm text-slate-500">
+                              Currency: {finalChoice.currency}
                             </div>
-                          </div>
-
-                          <div className="border border-slate-200 bg-white shadow-md">
-                            <div className="p-6">
-                              <div className="flex items-center gap-3 mb-4">
-                                <div className="w-4 h-4 bg-green-600"></div>
-                                <label htmlFor="duration" className="text-lg font-bold text-slate-800">
-                                  Project Duration
-                                </label>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Input
-                                  id="duration"
-                                  type="number"
-                                  placeholder="6"
-                                  value={projectDuration || ''}
-                                  onChange={(e) => handleDurationChange(e.target.value)}
-                                  className={`h-16 text-xl font-bold flex-1 ${acidTestValidation.durationError ? 'border-red-300 bg-red-50 focus-visible:ring-red-400' : 'border-slate-300 focus-visible:ring-green-500'}`}
-                                />
-                                <span className="text-lg font-semibold text-slate-700 px-2">months</span>
-                              </div>
-                              <div className="mt-3">
-                                {acidTestValidation.durationError ? (
-                                  <p className="text-sm text-red-600 font-medium">{acidTestValidation.durationError}</p>
-                                ) : (
-                                  <p className="text-sm text-slate-600">Expected length of the assignment contract</p>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Third Row - Quote Type */}
-                        <div className="grid gap-6">
-                          <div className="border border-slate-200 bg-white shadow-md">
-                            <div className="p-6">
-                              <div className="flex items-center gap-3 mb-4">
-                                <div className="w-4 h-4 bg-purple-600"></div>
-                                <h5 className="text-lg font-bold text-slate-800">Quote Configuration</h5>
-                              </div>
-                              <div className="flex items-start space-x-4">
-                                <input
-                                  type="checkbox"
-                                  id="allInclusiveQuote"
-                                  checked={isAllInclusiveQuote}
-                                  onChange={(e) => setIsAllInclusiveQuote(e.target.checked)}
-                                  className="h-6 w-6 border-slate-300 text-purple-600 focus:ring-purple-500 mt-1"
-                                />
-                                <div className="flex-1">
-                                  <label htmlFor="allInclusiveQuote" className="text-base font-semibold text-slate-800 cursor-pointer">
-                                    All-inclusive quote pricing
-                                  </label>
-                                  <p className="text-sm text-slate-600 mt-1">
-                                    When enabled, termination costs are included in your monthly bill rate calculation.
-                                    This provides clients with predictable pricing and eliminates end-of-contract surprises.
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                          )}
                         </div>
                       </div>
                     </div>
+
 
                     {isCategorizingCosts ? (
                       <div className="bg-white border border-slate-200 shadow-sm p-8">
@@ -1712,7 +1636,7 @@ const QuotePageContent = memo(() => {
                                     Some USD conversions are unavailable; showing local currency where needed.
                                   </p>
                                 )}
-                                <div className="grid gap-4 lg:grid-cols-3">
+                                {/* <div className="grid gap-4 lg:grid-cols-3">
                                   <div className="flex h-full flex-col gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
                                     <div className="flex items-center gap-2 text-slate-700">
                                       <TrendingUp className="h-5 w-5 text-blue-600" />
@@ -1770,7 +1694,121 @@ const QuotePageContent = memo(() => {
                                       <p className="text-xs text-red-600">{conversionError}</p>
                                     )}
                                   </div>
-                                </div>
+                                </div> */}
+
+                                {/* Simplified Acid Test Summary */}
+                                {/* <div className="bg-white border border-slate-200 shadow-lg p-8 mb-6">
+                                  <div className="text-center">
+                                    <div className="flex items-center justify-center gap-3 mb-6">
+                                      <div className="p-3 bg-purple-100 rounded-lg">
+                                        <Zap className="h-8 w-8 text-purple-600" />
+                                      </div>
+                                      <h3 className="text-2xl font-bold text-slate-800">Acid Test Result</h3>
+                                    </div>
+
+                                    <div className="grid gap-4 lg:grid-cols-5 mb-6">
+                                      <div className="text-center">
+                                        <p className="text-sm text-slate-500 mb-1">Assignment Duration</p>
+                                        <p className="text-xl font-bold text-slate-800">{summary.durationMonths} months</p>
+                                      </div>
+                                      <div className="text-center">
+                                        <p className="text-sm text-slate-500 mb-1">Monthly Bill Rate</p>
+                                        <p className="text-xl font-bold text-blue-600">
+                                          {(() => {
+                                            const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
+                                            const monthlyUSD = billRateComposition.actualBillRateUSD
+                                            if (showUSD && typeof monthlyUSD === 'number') {
+                                              return formatMoney(monthlyUSD, 'USD')
+                                            }
+                                            return formatMoney(summary.billRateMonthly, summary.currency)
+                                          })()}
+                                        </p>
+                                      </div>
+                                      <div className="text-center">
+                                        <p className="text-sm text-slate-500 mb-1">Total Revenue</p>
+                                        <p className="text-xl font-bold text-green-600">
+                                          {(() => {
+                                            const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
+                                            if (showUSD && typeof summary.revenueUSD === 'number') {
+                                              return formatMoney(summary.revenueUSD, 'USD')
+                                            }
+                                            return formatMoney(summary.revenueTotal, summary.currency)
+                                          })()}
+                                        </p>
+                                      </div>
+                                      <div className="text-center">
+                                        <p className="text-sm text-slate-500 mb-1">Total Costs</p>
+                                        <p className="text-xl font-bold text-red-600">
+                                          {(() => {
+                                            const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
+                                            if (showUSD && typeof summary.totalCostUSD === 'number') {
+                                              return formatMoney(summary.totalCostUSD, 'USD')
+                                            }
+                                            return formatMoney(summary.totalCost, summary.currency)
+                                          })()}
+                                        </p>
+                                      </div>
+                                      <div className="text-center">
+                                        <p className="text-sm text-slate-500 mb-1">Profit</p>
+                                        <p className={`text-xl font-bold ${summary.profitLocal >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                                          {(() => {
+                                            const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
+                                            if (showUSD && typeof summary.profitUSD === 'number') {
+                                              return formatMoney(summary.profitUSD, 'USD')
+                                            }
+                                            return formatMoney(summary.profitLocal, summary.currency)
+                                          })()}
+                                        </p>
+                                      </div>
+                                    </div>
+
+                                    <div className={`inline-flex items-center gap-3 px-6 py-4 rounded-lg border-2 ${
+                                      summary.meetsPositive && summary.meetsMinimum
+                                        ? 'bg-green-50 border-green-200'
+                                        : summary.meetsPositive
+                                          ? 'bg-amber-50 border-amber-200'
+                                          : 'bg-red-50 border-red-200'
+                                    }`}>
+                                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-white ${
+                                        summary.meetsPositive && summary.meetsMinimum
+                                          ? 'bg-green-600'
+                                          : summary.meetsPositive
+                                            ? 'bg-amber-600'
+                                            : 'bg-red-600'
+                                      }`}>
+                                        {summary.meetsPositive && summary.meetsMinimum ? '✓' : summary.meetsPositive ? '!' : '✗'}
+                                      </div>
+                                      <div className="text-left">
+                                        <p className={`font-bold text-lg ${
+                                          summary.meetsPositive && summary.meetsMinimum
+                                            ? 'text-green-800'
+                                            : summary.meetsPositive
+                                              ? 'text-amber-800'
+                                              : 'text-red-800'
+                                        }`}>
+                                          {summary.meetsPositive && summary.meetsMinimum
+                                            ? 'PASS'
+                                            : summary.meetsPositive
+                                              ? 'WARNING'
+                                              : 'FAIL'
+                                          }
+                                        </p>
+                                        <p className="text-sm text-slate-600">
+                                          {summary.meetsPositive && summary.meetsMinimum
+                                            ? 'Assignment meets profitability requirements'
+                                            : summary.meetsPositive
+                                              ? `Profitable but below USD ${acidTestResults.thresholds.minimumUSD.toLocaleString()} minimum`
+                                              : 'Assignment is not profitable'
+                                          }
+                                        </p>
+                                      </div>
+                                    </div>
+
+                                    {conversionError && (
+                                      <p className="text-xs text-red-600 mt-4">{conversionError}</p>
+                                    )}
+                                  </div>
+                                </div> */}
 
                                 {/* Bill Rate Composition Breakdown */}
                                 <div className="bg-white border border-slate-200 shadow-lg p-8">
@@ -1800,11 +1838,19 @@ const QuotePageContent = memo(() => {
                                           </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-200">
-                                          <tr className="hover:bg-slate-50 transition-colors">
+                                          <tr
+                                            className="group hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-500 transition-all duration-200 cursor-pointer"
+                                            onClick={() => toggleCategoryExpansion('baseSalary')}
+                                          >
                                             <td className="py-4 px-6">
                                               <div className="flex items-center gap-3">
                                                 <div className="w-3 h-3 bg-blue-500"></div>
                                                 <span className="font-medium text-slate-800">Base Salary</span>
+                                                {expandedCategories.has('baseSalary') ? (
+                                                  <ChevronUp className="h-4 w-4 text-slate-500 group-hover:text-blue-600 transition-colors" />
+                                                ) : (
+                                                  <ChevronDown className="h-4 w-4 text-slate-500 group-hover:text-blue-600 transition-colors" />
+                                                )}
                                               </div>
                                             </td>
                                             <td className="py-4 px-6 text-right font-semibold text-slate-900">
@@ -1814,11 +1860,40 @@ const QuotePageContent = memo(() => {
                                               <Badge className="bg-blue-100 text-blue-800 border-blue-200">Core</Badge>
                                             </td>
                                           </tr>
-                                          <tr className="hover:bg-slate-50 transition-colors">
+                                          {/* Base Salary Detail Rows */}
+                                          {expandedCategories.has('baseSalary') && acidTestCostData && Object.entries(acidTestCostData.categories.baseSalary).map(([itemKey, amount]) => (
+                                            <tr key={`baseSalary-${itemKey}`} className="bg-slate-25 border-l-4 border-l-blue-500 hover:bg-blue-25 transition-colors">
+                                              <td className="py-3 px-6 pl-12">
+                                                <div className="flex items-center gap-2">
+                                                  <div className="w-2 h-2 bg-blue-300 rounded-full"></div>
+                                                  <span className="text-sm text-slate-600">{itemKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                                                </div>
+                                              </td>
+                                              <td className="py-3 px-6 text-right text-sm font-medium text-slate-700">
+                                                {(() => {
+                                                  const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
+                                                  // For detail items, we don't have individual USD conversions, so show local currency
+                                                  return formatMoney(amount, acidTestCostData.currency)
+                                                })()}
+                                              </td>
+                                              <td className="py-3 px-6 text-center">
+                                                <Badge className="bg-blue-50 text-blue-600 border-blue-100 text-xs">Detail</Badge>
+                                              </td>
+                                            </tr>
+                                          ))}
+                                          <tr
+                                            className="group hover:bg-orange-50 hover:border-l-4 hover:border-l-orange-500 transition-all duration-200 cursor-pointer"
+                                            onClick={() => toggleCategoryExpansion('statutoryMandatory')}
+                                          >
                                             <td className="py-4 px-6">
                                               <div className="flex items-center gap-3">
                                                 <div className="w-3 h-3 bg-orange-500"></div>
                                                 <span className="font-medium text-slate-800">Statutory Costs</span>
+                                                {expandedCategories.has('statutoryMandatory') ? (
+                                                  <ChevronUp className="h-4 w-4 text-slate-500 group-hover:text-orange-600 transition-colors" />
+                                                ) : (
+                                                  <ChevronDown className="h-4 w-4 text-slate-500 group-hover:text-orange-600 transition-colors" />
+                                                )}
                                               </div>
                                             </td>
                                             <td className="py-4 px-6 text-right font-semibold text-slate-900">
@@ -1828,37 +1903,108 @@ const QuotePageContent = memo(() => {
                                               <Badge className="bg-orange-100 text-orange-800 border-orange-200">Legal</Badge>
                                             </td>
                                           </tr>
-                                          {billRateComposition.allowancesMonthly > 0 && (
-                                            <tr className="hover:bg-slate-50 transition-colors">
-                                              <td className="py-4 px-6">
-                                                <div className="flex items-center gap-3">
-                                                  <div className="w-3 h-3 bg-green-500"></div>
-                                                  <span className="font-medium text-slate-800">Allowances & Benefits</span>
+                                          {/* Statutory Costs Detail Rows */}
+                                          {expandedCategories.has('statutoryMandatory') && acidTestCostData && Object.entries(acidTestCostData.categories.statutoryMandatory).map(([itemKey, amount]) => (
+                                            <tr key={`statutoryMandatory-${itemKey}`} className="bg-slate-25 border-l-4 border-l-orange-500 hover:bg-orange-25 transition-colors">
+                                              <td className="py-3 px-6 pl-12">
+                                                <div className="flex items-center gap-2">
+                                                  <div className="w-2 h-2 bg-orange-300 rounded-full"></div>
+                                                  <span className="text-sm text-slate-600">{itemKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
                                                 </div>
                                               </td>
-                                              <td className="py-4 px-6 text-right font-semibold text-slate-900">
-                                                {formatAmount(billRateComposition.allowancesMonthly, billRateComposition.allowancesMonthlyUSD)}
+                                              <td className="py-3 px-6 text-right text-sm font-medium text-slate-700">
+                                                {formatMoney(amount, acidTestCostData.currency)}
                                               </td>
-                                              <td className="py-4 px-6 text-center">
-                                                <Badge className="bg-green-100 text-green-800 border-green-200">Benefits</Badge>
+                                              <td className="py-3 px-6 text-center">
+                                                <Badge className="bg-orange-50 text-orange-600 border-orange-100 text-xs">Detail</Badge>
                                               </td>
                                             </tr>
+                                          ))}
+                                          {billRateComposition.allowancesMonthly > 0 && (
+                                            <>
+                                              <tr
+                                                className="group hover:bg-green-50 hover:border-l-4 hover:border-l-green-500 transition-all duration-200 cursor-pointer"
+                                                onClick={() => toggleCategoryExpansion('allowancesBenefits')}
+                                              >
+                                                <td className="py-4 px-6">
+                                                  <div className="flex items-center gap-3">
+                                                    <div className="w-3 h-3 bg-green-500"></div>
+                                                    <span className="font-medium text-slate-800">Allowances & Benefits</span>
+                                                    {expandedCategories.has('allowancesBenefits') ? (
+                                                      <ChevronUp className="h-4 w-4 text-slate-500 group-hover:text-green-600 transition-colors" />
+                                                    ) : (
+                                                      <ChevronDown className="h-4 w-4 text-slate-500 group-hover:text-green-600 transition-colors" />
+                                                    )}
+                                                  </div>
+                                                </td>
+                                                <td className="py-4 px-6 text-right font-semibold text-slate-900">
+                                                  {formatAmount(billRateComposition.allowancesMonthly, billRateComposition.allowancesMonthlyUSD)}
+                                                </td>
+                                                <td className="py-4 px-6 text-center">
+                                                  <Badge className="bg-green-100 text-green-800 border-green-200">Benefits</Badge>
+                                                </td>
+                                              </tr>
+                                              {/* Allowances & Benefits Detail Rows */}
+                                              {expandedCategories.has('allowancesBenefits') && acidTestCostData && Object.entries(acidTestCostData.categories.allowancesBenefits).map(([itemKey, amount]) => (
+                                                <tr key={`allowancesBenefits-${itemKey}`} className="bg-slate-25 border-l-4 border-l-green-500 hover:bg-green-25 transition-colors">
+                                                  <td className="py-3 px-6 pl-12">
+                                                    <div className="flex items-center gap-2">
+                                                      <div className="w-2 h-2 bg-green-300 rounded-full"></div>
+                                                      <span className="text-sm text-slate-600">{itemKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                                                    </div>
+                                                  </td>
+                                                  <td className="py-3 px-6 text-right text-sm font-medium text-slate-700">
+                                                    {formatMoney(amount, acidTestCostData.currency)}
+                                                  </td>
+                                                  <td className="py-3 px-6 text-center">
+                                                    <Badge className="bg-green-50 text-green-600 border-green-100 text-xs">Detail</Badge>
+                                                  </td>
+                                                </tr>
+                                              ))}
+                                            </>
                                           )}
                                           {billRateComposition.terminationMonthly > 0 && (
-                                            <tr className="hover:bg-slate-50 transition-colors">
-                                              <td className="py-4 px-6">
-                                                <div className="flex items-center gap-3">
-                                                  <div className="w-3 h-3 bg-yellow-500"></div>
-                                                  <span className="font-medium text-slate-800">Termination Provision</span>
-                                                </div>
-                                              </td>
-                                              <td className="py-4 px-6 text-right font-semibold text-slate-900">
-                                                {formatAmount(billRateComposition.terminationMonthly, billRateComposition.terminationMonthlyUSD)}
-                                              </td>
-                                              <td className="py-4 px-6 text-center">
-                                                <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Risk</Badge>
-                                              </td>
-                                            </tr>
+                                            <>
+                                              <tr
+                                                className="group hover:bg-yellow-50 hover:border-l-4 hover:border-l-yellow-500 transition-all duration-200 cursor-pointer"
+                                                onClick={() => toggleCategoryExpansion('terminationCosts')}
+                                              >
+                                                <td className="py-4 px-6">
+                                                  <div className="flex items-center gap-3">
+                                                    <div className="w-3 h-3 bg-yellow-500"></div>
+                                                    <span className="font-medium text-slate-800">Termination Provision</span>
+                                                    {expandedCategories.has('terminationCosts') ? (
+                                                      <ChevronUp className="h-4 w-4 text-slate-500 group-hover:text-yellow-600 transition-colors" />
+                                                    ) : (
+                                                      <ChevronDown className="h-4 w-4 text-slate-500 group-hover:text-yellow-600 transition-colors" />
+                                                    )}
+                                                  </div>
+                                                </td>
+                                                <td className="py-4 px-6 text-right font-semibold text-slate-900">
+                                                  {formatAmount(billRateComposition.terminationMonthly, billRateComposition.terminationMonthlyUSD)}
+                                                </td>
+                                                <td className="py-4 px-6 text-center">
+                                                  <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Risk</Badge>
+                                                </td>
+                                              </tr>
+                                              {/* Termination Provision Detail Rows */}
+                                              {expandedCategories.has('terminationCosts') && acidTestCostData && Object.entries(acidTestCostData.categories.terminationCosts).map(([itemKey, amount]) => (
+                                                <tr key={`terminationCosts-${itemKey}`} className="bg-slate-25 border-l-4 border-l-yellow-500 hover:bg-yellow-25 transition-colors">
+                                                  <td className="py-3 px-6 pl-12">
+                                                    <div className="flex items-center gap-2">
+                                                      <div className="w-2 h-2 bg-yellow-300 rounded-full"></div>
+                                                      <span className="text-sm text-slate-600">{itemKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                                                    </div>
+                                                  </td>
+                                                  <td className="py-3 px-6 text-right text-sm font-medium text-slate-700">
+                                                    {formatMoney(amount, acidTestCostData.currency)}
+                                                  </td>
+                                                  <td className="py-3 px-6 text-center">
+                                                    <Badge className="bg-yellow-50 text-yellow-600 border-yellow-100 text-xs">Detail</Badge>
+                                                  </td>
+                                                </tr>
+                                              ))}
+                                            </>
                                           )}
                                           <tr className="hover:bg-slate-50 transition-colors bg-purple-50">
                                             <td className="py-4 px-6">
@@ -1907,9 +2053,9 @@ const QuotePageContent = memo(() => {
                                   </div>
 
                                   {/* Rate Comparison Section */}
-                                  <div className="grid gap-6 lg:grid-cols-2">
+                                  {/* <div className="grid gap-6 lg:grid-cols-2">
                                     {/* Your Rate vs Expected */}
-                                    <div className="bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 p-6 shadow-sm">
+                                    {/* <div className="bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 p-6 shadow-sm">
                                       <h5 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                                         <BarChart3 className="h-5 w-5 text-slate-600" />
                                         Rate Comparison
@@ -1946,7 +2092,7 @@ const QuotePageContent = memo(() => {
                                     </div>
 
                                     {/* Analysis & Recommendations */}
-                                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 p-6 shadow-sm">
+                                    {/* <div className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 p-6 shadow-sm">
                                       <h5 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                                         <Target className="h-5 w-5 text-blue-600" />
                                         Analysis & Insights
@@ -2001,7 +2147,7 @@ const QuotePageContent = memo(() => {
                                         </div>
                                       )}
                                     </div>
-                                  </div>
+                                  </div> */}
                                 </div>
                               </div>
                             )
@@ -2113,7 +2259,7 @@ const QuotePageContent = memo(() => {
 
           const friendlyName = typeof (item as any).name === 'string' && (item as any).name.trim().length
             ? (item as any).name.trim()
-            : keyBase.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+            : keyBase.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())
 
           const amountCandidates = [
             (item as any).monthly_amount,
@@ -2458,11 +2604,21 @@ const QuotePageContent = memo(() => {
 
   const startReconciliation = async () => {
     setIsReconModalOpen(true)
-    setFinalChoice(null)
-    setCompletedPhases(new Set())
-    setActivePhase('gathering')
-    setProgressPercent(0)
-    setProviderData([])
+
+    // Check if reconciliation has been completed before
+    const hasCompletedBefore = completedPhases.has('analyzing') || completedPhases.has('complete')
+
+    // Only reset state if this is a fresh reconciliation (not reopening)
+    if (!hasCompletedBefore) {
+      setFinalChoice(null)
+      setCompletedPhases(new Set())
+      setActivePhase('gathering')
+      setProgressPercent(0)
+      setProviderData([])
+    } else {
+      // Reconciliation was completed before - just reopen modal with existing state
+      return
+    }
 
     const currency = (quoteData?.formData as EORFormData)?.currency || 'USD'
 
@@ -2547,7 +2703,6 @@ const QuotePageContent = memo(() => {
       await sleep(1500) // Reduced from 2500ms to 1500ms
 
       // Phase 4: Complete (90-100%)
-      setActivePhase('complete') // Set phase active but don't scroll yet
       await smoothProgressUpdate(100)
       await sleep(200) // Reduced fade-in delay from 400ms to 200ms
 
@@ -2562,8 +2717,130 @@ const QuotePageContent = memo(() => {
 
       completePhase('complete')
 
-      // Wait for content to be fully rendered and scroll to bottom to show final recommendation
-      await scrollToBottom()
+      // Start complete phase with auto-scroll
+      startPhase('complete')
+
+    } catch (error) {
+      console.error("Reconciliation failed", error);
+    }
+  }
+
+  const restartReconciliation = async () => {
+    // Force reset all state for fresh reconciliation
+    setFinalChoice(null)
+    setCompletedPhases(new Set())
+    setActivePhase('gathering')
+    setProgressPercent(0)
+    setProviderData([])
+
+    const currency = (quoteData?.formData as EORFormData)?.currency || 'USD'
+
+    try {
+      // Phase 1: Gathering Data (0-25%)
+      startPhase('gathering')
+      await smoothProgressUpdate(5)
+
+      const prices = allProviders
+        .map(provider => {
+          const quote = (quoteData?.results as EORQuoteResults)?.[provider]
+          if (!quote || typeof quote.total !== 'number') return null
+          return { provider, price: quote.total }
+        })
+        .filter((item): item is { provider: string; price: number } => item !== null)
+
+      if (prices.length === 0) {
+        return;
+      }
+
+      for (let i = 0; i < prices.length; i++) {
+        const targetProgress = 5 + (i + 1) * (20 / prices.length)
+        await smoothProgressUpdate(targetProgress)
+        await sleep(80) // Reduced from 150ms to 80ms
+      }
+
+      completePhase('gathering')
+
+      // Reduced delay before next phase
+      await sleep(1500) // Reduced from 2500ms to 1500ms
+
+      // Phase 2: Analyzing Variance (25-60%)
+      startPhase('analyzing')
+      await smoothProgressUpdate(30)
+
+      const deel = prices.find(p => p.provider === 'deel');
+      if (!deel) {
+        return;
+      }
+
+      await sleep(500) // Reduced from 800ms
+      const lowerBound = deel.price * 0.96;
+      const upperBound = deel.price * 1.04;
+
+      const analysis = prices.map(p => ({
+        provider: p.provider,
+        price: p.price,
+        inRange: p.price >= lowerBound && p.price <= upperBound,
+        isWinner: false
+      }));
+
+      for (let i = 0; i < analysis.length; i++) {
+        const targetProgress = 30 + (i + 1) * (30 / analysis.length)
+        await smoothProgressUpdate(targetProgress)
+        await sleep(120) // Reduced from 200ms
+      }
+
+      setProviderData(analysis);
+      completePhase('analyzing')
+      await sleep(1200) // Reduced from 2000ms
+
+      // Phase 3: Selecting Optimal (60-100%)
+      startPhase('selecting')
+      await smoothProgressUpdate(70)
+
+      const inRangeProviders = analysis.filter(p => p.inRange);
+      let winner;
+
+      if (inRangeProviders.length > 0) {
+        const cheapest = inRangeProviders.reduce((min, p) => p.price < min.price ? p : min);
+        winner = cheapest;
+      } else {
+        const closest = analysis.reduce((closest, p) => {
+          const currentDistance = Math.abs(p.price - deel.price);
+          const closestDistance = Math.abs(closest.price - deel.price);
+          return currentDistance < closestDistance ? p : closest;
+        });
+        winner = closest;
+      }
+
+      winner.isWinner = true;
+
+      const updatedAnalysis = analysis.map(p =>
+        p.provider === winner.provider ? { ...p, isWinner: true } : p
+      );
+      setProviderData(updatedAnalysis);
+
+      await smoothProgressUpdate(85);
+      await sleep(800); // Reduced from 1500ms
+
+      await smoothProgressUpdate(100);
+      await sleep(500); // Reduced from 1000ms
+
+      // Find enhanced quote if available
+      const selectedEnhancement = enhancements.find(
+        e => e.provider === winner.provider && e.status === 'active'
+      );
+
+      const finalChoiceData = {
+        ...winner,
+        currency,
+        enhancedQuote: selectedEnhancement || undefined
+      }
+      setFinalChoice(finalChoiceData)
+
+      completePhase('complete')
+
+      // Start complete phase with auto-scroll
+      startPhase('complete')
 
     } catch (error) {
       console.error("Reconciliation failed", error);
@@ -2585,9 +2862,6 @@ const QuotePageContent = memo(() => {
     setIsCategorizingCosts(true);
     setIsComputingAcidTest(false);
     setAcidTestValidation({});
-    const defaultDuration = Number((quoteData?.formData as EORFormData)?.contractDuration) || 6;
-    setProjectDuration(defaultDuration);
-    setMonthlyBillRate(Number.isFinite(finalChoice.price) ? finalChoice.price : 0);
     setShowAcidTestForm(true);
 
     void extractSelectedQuoteData(finalChoice)
@@ -2665,6 +2939,19 @@ const QuotePageContent = memo(() => {
     setAcidTestValidation({});
     setIsCategorizingCosts(false);
     setIsComputingAcidTest(false);
+    setExpandedCategories(new Set());
+  };
+
+  const toggleCategoryExpansion = (category: string) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
   };
 
   // --- RENDER LOGIC (UNCHANGED) ---
@@ -3215,7 +3502,6 @@ const QuotePageContent = memo(() => {
             <ProviderSelector
               currentProvider={currentProvider}
               onProviderChange={switchProvider}
-              loading={providerLoading}
               disabled={loading || quoteData?.status !== 'completed'}
               providerStates={providerStates}
             />
