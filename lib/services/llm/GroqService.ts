@@ -7,6 +7,7 @@ import { PromptEngine } from "./PromptEngine"
 import { PapayaService } from "@/lib/services/data/PapayaService"
 import { PapayaDataFlattener } from "@/lib/services/data/PapayaDataFlattener"
 import { PapayaAvailability } from "@/lib/services/data/PapayaAvailability"
+import { LegalProfileService } from "@/lib/services/data/LegalProfileService"
 import { getCountryByName } from "@/lib/country-data"
 import type { EORFormData } from "@/lib/shared/types"
 import { 
@@ -360,7 +361,7 @@ export class GroqService {
             total_yearly_enhancement: 0,
             final_monthly_total: input.baseQuote.monthlyTotal
           },
-          confidence_scores: { overall: 0.0, termination_costs: 0.0, salary_enhancements: 0.0, allowances: 0.0 },
+          confidence_scores: { overall: 0.0, salary_enhancements: 0.0, allowances: 0.0 },
           recommendations: [],
           warnings: ['LLM returned no content for full-quote request'],
           output_currency: input.papayaCurrency || input.baseQuote.currency
@@ -382,7 +383,7 @@ export class GroqService {
             total_yearly_enhancement: 0,
             final_monthly_total: input.baseQuote.monthlyTotal
           },
-          confidence_scores: { overall: 0.0, termination_costs: 0.0, salary_enhancements: 0.0, allowances: 0.0 },
+          confidence_scores: { overall: 0.0, salary_enhancements: 0.0, allowances: 0.0 },
           recommendations: [],
           warnings: ['Invalid full-quote response from LLM'],
           output_currency: input.papayaCurrency || input.baseQuote.currency
@@ -427,6 +428,13 @@ export class GroqService {
       // Build detailed enhancement objects from LLM response items
       const enhancements: any = {}
       const analysis = { provider_coverage: [], missing_requirements: [], double_counting_risks: [] }
+      const terminationLLM: Array<{ monthlyAmount: number; name: string; notes?: string }> = []
+      const pushUnique = (target: string[], message: string) => {
+        if (!message) return
+        if (!target.includes(message)) target.push(message)
+      }
+
+      const warnings: string[] = Array.isArray(parsed?.warnings) ? parsed.warnings : []
 
       let totalEnhancement = 0
 
@@ -435,24 +443,28 @@ export class GroqService {
 
         const category = String(item.category || '').toLowerCase()
         const name = String(item.name || '').toLowerCase()
+        const keyLower = String((item as any).key || '').toLowerCase()
         // Accept both monthly_amount (as per prompt schema) and monthly_amount_local (older)
         const monthlyLocal = Math.max(0, Number((item as any).monthly_amount ?? (item as any).monthly_amount_local ?? 0))
         const monthlyAmount = await convertLocalToProvider(monthlyLocal)
-        const mandatory = !!item.mandatory
-
         if (monthlyAmount <= 0) continue
 
         // Map items to enhancement objects based on category and name
-        if (category === 'termination' || name.includes('termination')) {
-          const totalTermination = monthlyAmount * contractMonths
-          enhancements.termination_costs = {
-            notice_period_cost: 0,
-            severance_cost: 0,
-            total: totalTermination,
-            explanation: item.notes || 'Termination provision based on legal requirements',
-            confidence: 0.7
-          }
-          totalEnhancement += monthlyAmount
+        const isSeverance = name.includes('severance') || keyLower.includes('severance')
+        const isProbation = name.includes('probation') || keyLower.includes('probation')
+
+        if (isSeverance || isProbation) {
+          terminationLLM.push({
+            monthlyAmount,
+            name: item.name || 'Termination Provision',
+            notes: item.notes
+          })
+          continue
+        }
+
+        if (category === 'termination' || name.includes('termination') || keyLower.includes('termination')) {
+          // Skip generic termination items (e.g., notice provisions) to avoid displaying them
+          continue
         } else if (name.includes('13th') || name.includes('thirteenth')) {
           enhancements.thirteenth_salary = {
             monthly_amount: monthlyAmount,
@@ -607,6 +619,64 @@ export class GroqService {
         }
       }
 
+      const countryRecord = getCountryByName(input.baseQuote.country)
+      const countryCode = (countryRecord?.code || input.baseQuote.country || 'US').toString().toUpperCase()
+      const countryName = countryRecord?.name || input.baseQuote.country
+      const terminationComponents = this.computeTerminationComponents({
+        countryCode,
+        countryName,
+        formData: input.formData,
+        baseSalaryMonthly: baseSalary,
+        contractMonths
+      })
+
+      const registerTerminationComponent = (
+        key: 'severance_provision' | 'probation_provision',
+        monthlyAmount: number,
+        totalAmount: number,
+        explanation: string,
+        confidence: number
+      ) => {
+        const monthlyRounded = Number(monthlyAmount.toFixed(2))
+        const totalRounded = Number(totalAmount.toFixed(2))
+        if (monthlyRounded <= 0 && totalRounded <= 0) return
+        enhancements[key] = {
+          monthly_amount: monthlyRounded,
+          total_amount: totalRounded,
+          explanation,
+          confidence,
+          already_included: false
+        }
+        if (monthlyRounded > 0) {
+          totalEnhancement += monthlyRounded
+        }
+        pushUnique(analysis.missing_requirements, key)
+      }
+
+      if (terminationComponents.totalMonthly > 0) {
+        const confidence = terminationComponents.warnings.length ? 0.5 : 0.7
+        const severanceExplanation = `Statutory severance provision required in ${countryName}`
+        const probationExplanation = `Probation termination provision required in ${countryName}`
+
+        const severanceMonthly = terminationComponents.severanceMonthly
+        const probationMonthly = terminationComponents.probationMonthly
+
+        const severanceTotal = Number((severanceMonthly * contractMonths).toFixed(2))
+        const probationTotal = Number((probationMonthly * contractMonths).toFixed(2))
+
+        registerTerminationComponent('severance_provision', severanceMonthly, severanceTotal, severanceExplanation, confidence)
+        registerTerminationComponent('probation_provision', probationMonthly, probationTotal, probationExplanation, confidence)
+
+        terminationComponents.warnings.forEach(warning => warnings.push(warning))
+      } else if (terminationLLM.length > 0) {
+        const combinedMonthly = terminationLLM.reduce((sum, entry) => sum + entry.monthlyAmount, 0)
+        if (combinedMonthly > 0) {
+          const combinedMonthlyRounded = Number(combinedMonthly.toFixed(2))
+          totalEnhancement += combinedMonthlyRounded
+          warnings.push('Termination breakdown unavailable from legal profile; using LLM termination provision output.')
+        }
+      }
+
       // If we couldn't parse detailed items, fall back to aggregate enhancement
       if (totalEnhancement === 0 && delta > 0) {
         const contributionData = this.processEmployerContributions({
@@ -637,12 +707,11 @@ export class GroqService {
         },
         confidence_scores: {
           overall: Object.keys(enhancements).length > 0 ? 0.7 : 0.0,
-          termination_costs: enhancements.termination_costs ? 0.7 : 0.0,
           salary_enhancements: (enhancements.thirteenth_salary || enhancements.fourteenth_salary) ? 0.75 : 0.0,
           allowances: (enhancements.transportation_allowance || enhancements.remote_work_allowance || enhancements.meal_vouchers) ? 0.6 : 0.0
         },
         recommendations: [],
-        warnings: Array.isArray(parsed?.warnings) ? parsed.warnings : [],
+        warnings,
         // Keep all reported totals in provider currency to avoid mixing
         output_currency: providerCurrency,
         full_quote: quote,
@@ -689,7 +758,9 @@ export class GroqService {
       transportation_allowance: monthlyOf((prov as any).transportAllowance),
       remote_work_allowance: monthlyOf((prov as any).remoteWorkAllowance),
       meal_vouchers: monthlyOf((prov as any).mealVouchers),
-      social_security: monthlyOf((prov as any).socialSecurity)
+      social_security: monthlyOf((prov as any).socialSecurity),
+      severance_provision: 0,
+      probation_provision: 0
     }
 
     // Convert baseline items → provider currency and map to known keys
@@ -738,24 +809,27 @@ export class GroqService {
       const providerMonthly = await convertAmount(localMonthly)
       // Map to known keys
       const key = item.key || ''
+      const lowerKey = key.toLowerCase()
+      const component = (typeof (item as any).component === 'string' ? (item as any).component : '').toLowerCase()
       const mapKey = (() => {
-        if (key.includes('13') || key === 'thirteenth_salary') return 'thirteenth_salary'
-        if (key.includes('14') || key === 'fourteenth_salary') return 'fourteenth_salary'
-        if (key.includes('vacation') && item.category === 'bonuses') return 'vacation_bonus'
-        if (key.includes('transport')) return 'transportation_allowance'
-        if (key.includes('remote')) return 'remote_work_allowance'
-        if (key.includes('meal')) return 'meal_vouchers'
-        if (item.category === 'termination') return 'termination_costs'
+        if (lowerKey.includes('13') || key === 'thirteenth_salary') return 'thirteenth_salary'
+        if (lowerKey.includes('14') || key === 'fourteenth_salary') return 'fourteenth_salary'
+        if (lowerKey.includes('vacation') && item.category === 'bonuses') return 'vacation_bonus'
+        if (lowerKey.includes('transport')) return 'transportation_allowance'
+        if (lowerKey.includes('remote')) return 'remote_work_allowance'
+        if (lowerKey.includes('meal')) return 'meal_vouchers'
+        if (component === 'severance') return 'severance_provision'
+        if (component === 'probation') return 'probation_provision'
         // Authority payments (ATO, Workers comp, Superannuation, state taxes, etc.)
-        if (key.includes('authority') || key.includes('ATO') || key.includes('ato') ||
-            key.includes('workers') || key.includes('compensation') || key.includes('superannuation') ||
-            key.includes('payroll_tax') || key.includes('state_revenue') || item.name?.toLowerCase().includes('authority')) return 'employer_contributions_total'
+        if (lowerKey.includes('authority') || key.includes('ATO') || key.includes('ato') ||
+            lowerKey.includes('workers') || lowerKey.includes('compensation') || lowerKey.includes('superannuation') ||
+            lowerKey.includes('payroll_tax') || lowerKey.includes('state_revenue') || item.name?.toLowerCase().includes('authority')) return 'employer_contributions_total'
         if (item.category === 'contributions') return 'employer_contributions_total'
         return ''
       })()
       if (!mapKey) continue
       // Aggregate where appropriate
-      if (mapKey === 'employer_contributions_total' || mapKey === 'termination_costs') {
+      if (mapKey === 'employer_contributions_total') {
         baselineProviderCurrency[mapKey] = (baselineProviderCurrency[mapKey] || 0) + (providerMonthly || 0)
       } else if (mapKey === 'vacation_bonus') {
         // store monthly equivalent for uniformity
@@ -766,11 +840,13 @@ export class GroqService {
       baselineMandatoryFlags[mapKey] = !!item.mandatory
     }
 
+    const prepassCountryCode = (input.prepass?.meta?.country_code || '').toString().trim().toUpperCase()
+    const fallbackCountryCode = this.countryToCode(input.baseQuote.country)
+    const resolvedCountryCode = (prepassCountryCode || fallbackCountryCode || 'US').toUpperCase()
+
     // Gate baseline with deterministic legal requirements to avoid LLM pre-pass false positives (e.g., "customary" 13th salary)
     try {
-      const prepassCode = (input.prepass?.meta?.country_code || '').toString().trim().toUpperCase()
-      const code = prepassCode || this.countryToCode(input.baseQuote.country)
-      const core = PapayaService.getCountryCoreData(code)
+      const core = PapayaService.getCountryCoreData(resolvedCountryCode)
       const legal = PapayaService.extractLegalRequirementsFromCore(core as any)
       if (legal && legal.mandatorySalaries) {
         const isAllInclusive = (input.quoteType === 'all-inclusive')
@@ -811,17 +887,42 @@ export class GroqService {
 
         // Termination fallback: if baseline lacks termination monthly, derive from legal hints
         try {
-          const noticeDays = Math.max(0, Number((legal as any)?.terminationCosts?.noticePeriodDays || 0))
-          const severanceMonths = Math.max(0, Number((legal as any)?.terminationCosts?.severanceMonths || 0))
-          const months = (noticeDays / 30) + severanceMonths
-          if (!baselineProviderCurrency['termination_costs'] && months > 0 && baseMonthly > 0) {
-            const monthlyProvision = (baseMonthly * months) / Math.max(1, Number(input.contractDurationMonths || 12))
-            baselineProviderCurrency['termination_costs'] = Number(monthlyProvision.toFixed(2))
-            baselineMandatoryFlags['termination_costs'] = true
+          const terminationHints = this.computeTerminationComponents({
+            countryCode: resolvedCountryCode,
+            countryName: input.baseQuote.country,
+            baseSalaryMonthly: baseMonthly,
+            contractMonths: input.contractDurationMonths || 12
+          })
+          if (!baselineProviderCurrency['severance_provision'] && terminationHints.severanceMonthly > 0) {
+            baselineProviderCurrency['severance_provision'] = terminationHints.severanceMonthly
+            baselineMandatoryFlags['severance_provision'] = true
+          }
+          if (!baselineProviderCurrency['probation_provision'] && terminationHints.probationMonthly > 0) {
+            baselineProviderCurrency['probation_provision'] = terminationHints.probationMonthly
+            baselineMandatoryFlags['probation_provision'] = false
           }
         } catch { /* noop */ }
       }
     } catch {/* noop */}
+
+    const baselineTermination = this.computeTerminationComponents({
+      countryCode: resolvedCountryCode,
+      countryName: input.baseQuote.country,
+      baseSalaryMonthly: Math.max(0, Number(input.baseQuote.baseCost || 0)),
+      contractMonths: input.contractDurationMonths || 12
+    })
+
+    if (!baselineProviderCurrency['severance_provision'] && baselineTermination.severanceMonthly > 0) {
+      baselineProviderCurrency['severance_provision'] = baselineTermination.severanceMonthly
+      baselineMandatoryFlags['severance_provision'] = true
+    }
+    if (!baselineProviderCurrency['probation_provision'] && baselineTermination.probationMonthly > 0) {
+      baselineProviderCurrency['probation_provision'] = baselineTermination.probationMonthly
+      baselineMandatoryFlags['probation_provision'] = false
+    }
+
+    const terminationKeys = ['severance_provision', 'probation_provision'] as const
+    const terminationSum = Number(terminationKeys.reduce((sum, key) => sum + (baselineProviderCurrency[key] || 0), 0).toFixed(2))
 
     // In statutory-only mode, zero-out non-mandatory allowances from baseline
     if (isStatutory) {
@@ -883,7 +984,6 @@ export class GroqService {
             const cs = (parsed as any).confidence_scores || {}
             ;(parsed as any).confidence_scores = {
               overall: typeof cs.overall === 'number' ? cs.overall : 0.7,
-              termination_costs: typeof cs.termination_costs === 'number' ? cs.termination_costs : 0.7,
               salary_enhancements: typeof cs.salary_enhancements === 'number' ? cs.salary_enhancements : 0.7,
               allowances: typeof cs.allowances === 'number' ? cs.allowances : 0.6
             }
@@ -964,12 +1064,33 @@ export class GroqService {
     const d_remote = delta('remote_work_allowance')
     const d_meal = delta('meal_vouchers')
     const d_contrib = delta('employer_contributions_total')
-    const d_term = get('termination_costs') // treat as monthly provision (no provider coverage mapping)
+    const d_term_severance = delta('severance_provision')
+    const d_term_probation = delta('probation_provision')
+    const d_term_total = d_term_severance + d_term_probation
 
-    const total = Number((d_th13 + d_th14 + (d_vac) + d_trans + d_remote + d_meal + d_contrib + d_term).toFixed(2))
+    const total = Number((d_th13 + d_th14 + d_vac + d_trans + d_remote + d_meal + d_contrib + d_term_total).toFixed(2))
 
     const enhancements: any = {}
-    if (get('termination_costs') > 0) enhancements.termination_costs = { total: Number((get('termination_costs') * 12).toFixed(2)), explanation: 'Monthly termination accrual × 12', confidence: 0.7 }
+    if (d_term_severance > 0 || d_term_probation > 0) {
+      if (d_term_severance > 0) {
+        enhancements.severance_provision = {
+          monthly_amount: Number(d_term_severance.toFixed(2)),
+          total_amount: Number((d_term_severance * 12).toFixed(2)),
+          explanation: 'Severance provision delta',
+          confidence: 0.7,
+          already_included: false
+        }
+      }
+      if (d_term_probation > 0) {
+        enhancements.probation_provision = {
+          monthly_amount: Number(d_term_probation.toFixed(2)),
+          total_amount: Number((d_term_probation * 12).toFixed(2)),
+          explanation: 'Probation termination provision delta',
+          confidence: 0.6,
+          already_included: false
+        }
+      }
+    }
     if (get('thirteenth_salary') > 0) enhancements.thirteenth_salary = { monthly_amount: d_th13, yearly_amount: Number((d_th13 * 12).toFixed(2)), explanation: '13th salary delta', confidence: 0.75, already_included: d_th13 === 0 }
     if (get('fourteenth_salary') > 0) enhancements.fourteenth_salary = { monthly_amount: d_th14, yearly_amount: Number((d_th14 * 12).toFixed(2)), explanation: '14th salary delta', confidence: 0.7, already_included: d_th14 === 0 }
     if (get('vacation_bonus') > 0) enhancements.vacation_bonus = { amount: Number((d_vac * 12).toFixed(2)), explanation: 'Vacation bonus delta', confidence: 0.6, already_included: d_vac === 0 }
@@ -1001,7 +1122,7 @@ export class GroqService {
         total_yearly_enhancement: Number((total * 12).toFixed(2)),
         final_monthly_total: Number((baseMonthly + total).toFixed(2))
       },
-      confidence_scores: { overall: 0.7, termination_costs: get('termination_costs') > 0 ? 0.7 : 0.0, salary_enhancements: (get('thirteenth_salary') + get('fourteenth_salary') + get('vacation_bonus')) > 0 ? 0.7 : 0.0, allowances: (get('transportation_allowance') + get('remote_work_allowance') + get('meal_vouchers')) > 0 ? 0.6 : 0.0 },
+      confidence_scores: { overall: 0.7, salary_enhancements: (get('thirteenth_salary') + get('fourteenth_salary') + get('vacation_bonus')) > 0 ? 0.7 : 0.0, allowances: (get('transportation_allowance') + get('remote_work_allowance') + get('meal_vouchers')) > 0 ? 0.6 : 0.0 },
       recommendations: [],
       warnings: []
     }
@@ -1042,11 +1163,23 @@ export class GroqService {
       transportation_allowance: monthlyOf((prov as any).transportAllowance),
       remote_work_allowance: monthlyOf((prov as any).remoteWorkAllowance),
       meal_vouchers: monthlyOf((prov as any).mealVouchers),
-      social_security: monthlyOf((prov as any).socialSecurity)
+      social_security: monthlyOf((prov as any).socialSecurity),
+      severance_provision: 0,
+      probation_provision: 0
     }
 
     // Contributions coverage: prefer normalized breakdown aggregate if available
     const providerContribAggregate = getNum(params.baseQuote.breakdown?.statutoryContributions) || providerCoverage.social_security || 0
+
+    const contractMonths = Math.max(1, params.contractMonths || 12)
+
+    const terminationBaseline = this.computeTerminationComponents({
+      countryCode: this.countryToCode(params.baseQuote.country),
+      countryName: params.baseQuote.country,
+      baseSalaryMonthly: Math.max(0, Number(params.baseQuote.baseCost || 0)),
+      contractMonths: params.contractMonths
+    })
+    terminationBaseline.warnings.forEach(w => warnings.push(w))
 
     // Baseline amounts
     const base_th13 = getNum(b?.thirteenth_salary?.monthly_amount)
@@ -1058,8 +1191,10 @@ export class GroqService {
     const base_remote_mand = !!b?.remote_work_allowance?.mandatory
     const base_meal = getNum(b?.meal_vouchers?.monthly_amount)
     const base_contrib_total = getNum(b?.contributions?.total_monthly)
-    const base_term_monthly = getNum(b?.termination?.monthly_amount)
-    const base_term_total = getNum(b?.termination?.total) || (base_term_monthly * Math.max(1, params.contractMonths))
+    const base_term_severance = getNum(b?.termination?.severance_cost ?? terminationBaseline.severanceMonthly)
+    const base_term_probation = getNum(b?.termination?.probation_cost ?? terminationBaseline.probationMonthly)
+    const base_term_monthly = base_term_severance + base_term_probation
+    const base_term_total = Number((base_term_monthly * contractMonths).toFixed(2))
 
     const isStatutory = params.quoteType === 'statutory-only'
 
@@ -1077,17 +1212,29 @@ export class GroqService {
     const delta_remote = topUp(includeIf(allow_remote, base_remote), providerCoverage.remote_work_allowance)
     const delta_meal = topUp(isStatutory ? 0 : base_meal, providerCoverage.meal_vouchers)
     const delta_contrib = topUp(base_contrib_total, providerContribAggregate)
-    const delta_term_monthly = base_term_monthly // provider termination accruals rarely exposed; assume 0 coverage
+    const delta_term_severance = topUp(base_term_severance, providerCoverage.severance_provision)
+    const delta_term_probation = topUp(base_term_probation, providerCoverage.probation_provision)
+    const delta_term_monthly = delta_term_severance + delta_term_probation
 
     // Build enhancements block (deltas as monthly amounts; termination as total for later monthlyization)
     const enhancements: GroqEnhancementResponse['enhancements'] = {}
-    if (base_term_total > 0) {
-      enhancements.termination_costs = {
-        notice_period_cost: 0,
-        severance_cost: 0,
-        total: delta_term_monthly * Math.max(1, params.contractMonths),
-        explanation: 'Termination liability monthly accrual based on Papaya baseline',
-        confidence: 0.7
+    const terminationConfidence = terminationBaseline.warnings.length > 0 ? 0.5 : 0.7
+    if (delta_term_severance > 0) {
+      enhancements.severance_provision = {
+        monthly_amount: Number(delta_term_severance.toFixed(2)),
+        total_amount: Number((delta_term_severance * contractMonths).toFixed(2)),
+        explanation: 'Severance provision based on legal baseline',
+        confidence: terminationConfidence,
+        already_included: false
+      }
+    }
+    if (delta_term_probation > 0) {
+      enhancements.probation_provision = {
+        monthly_amount: Number(delta_term_probation.toFixed(2)),
+        total_amount: Number((delta_term_probation * contractMonths).toFixed(2)),
+        explanation: 'Probation termination provision based on legal baseline',
+        confidence: terminationConfidence,
+        already_included: false
       }
     }
     if (base_th13 > 0) {
@@ -1172,6 +1319,8 @@ export class GroqService {
     if (delta_remote > 0) missingReq.push('remote_work_allowance')
     if (delta_meal > 0) missingReq.push('meal_vouchers')
     if (delta_contrib > 0) missingReq.push('employer_contributions')
+    if (delta_term_severance > 0) missingReq.push('severance_provision')
+    if (delta_term_probation > 0) missingReq.push('probation_provision')
 
     const doubleCountingRisks: string[] = []
     if (providerCoverage.social_security > 0 && (params.baseQuote.breakdown?.statutoryContributions || 0) > 0) {
@@ -1186,7 +1335,8 @@ export class GroqService {
       delta_remote,
       delta_meal,
       delta_contrib,
-      delta_term_monthly
+      delta_term_severance,
+      delta_term_probation
     ].reduce((s, n) => s + (isFinite(n) ? n : 0), 0)
 
     const response: GroqEnhancementResponse = {
@@ -1203,7 +1353,6 @@ export class GroqService {
       },
       confidence_scores: {
         overall: warnings.length > 0 ? 0.6 : 0.8,
-        termination_costs: base_term_total > 0 ? 0.7 : 0.0,
         salary_enhancements: (base_th13 + base_th14 + base_vac) > 0 ? 0.75 : 0.0,
         allowances: (base_trans + base_remote + base_meal) > 0 ? 0.6 : 0.0
       },
@@ -1229,7 +1378,7 @@ export class GroqService {
     }}
     
     if (data?.data?.termination) {
-      summary.push(`TERMINATION: ${data.data.termination.notice_period || 'N/A'} notice, ${data.data.termination.severance_pay || 'N/A'} severance`)
+      summary.push(`TERMINATION: ${data.data.termination.severance_pay || 'N/A'} severance requirement`)
     }
     
     if (data?.data?.payroll?.payroll_cycle) {
@@ -1278,7 +1427,6 @@ export class GroqService {
         },
         confidence_scores: {
           overall: 0.7,
-          termination_costs: 0.7,
           salary_enhancements: 0.7,
           allowances: 0.6
         },
@@ -1301,7 +1449,6 @@ export class GroqService {
         }),
         confidence_scores: z.object({
           overall: z.number().min(0).max(1).default(0.7),
-          termination_costs: z.number().min(0).max(1).default(0.7),
           salary_enhancements: z.number().min(0).max(1).default(0.7),
           allowances: z.number().min(0).max(1).default(0.6)
         }).optional(),
@@ -1549,6 +1696,77 @@ export class GroqService {
     }
   }
 
+  private computeTerminationComponents(params: {
+    countryCode: string
+    countryName: string
+    formData?: EORFormData
+    baseSalaryMonthly: number
+    contractMonths: number
+  }): {
+    severanceMonthly: number
+    probationMonthly: number
+    totalMonthly: number
+    warnings: string[]
+  } {
+    const { countryCode, countryName, formData, baseSalaryMonthly, contractMonths } = params
+
+    const salaryMonthly = Math.max(0, Number(baseSalaryMonthly) || 0)
+    const contractMonthsSafe = Math.max(1, Number(contractMonths) || 1)
+
+    const formDataRef = formData ?? ({} as EORFormData)
+
+    const profile = LegalProfileService.getProfile({
+      countryCode,
+      countryName,
+      formData: formDataRef
+    })
+
+    const requirements = profile?.requirements?.terminationCosts
+
+    const parseDays = (value: unknown): number => {
+      if (typeof value === 'number' && Number.isFinite(value)) return value
+      if (!value) return 0
+      const text = String(value).toLowerCase()
+      const dayMatch = text.match(/([\d.]+)\s*day/)
+      if (dayMatch) return Math.round(parseFloat(dayMatch[1]))
+      const monthMatch = text.match(/([\d.]+)\s*month/)
+      if (monthMatch) return Math.round(parseFloat(monthMatch[1]) * 30)
+      const weekMatch = text.match(/([\d.]+)\s*week/)
+      if (weekMatch) return Math.round(parseFloat(weekMatch[1]) * 7)
+      const numericMatch = text.match(/([\d.]+)/)
+      if (numericMatch) return Math.round(parseFloat(numericMatch[1]))
+      return 0
+    }
+
+    const severanceMonths = Math.max(0, requirements?.severanceMonths ?? 0)
+    let probationDays = Math.max(0, requirements?.probationPeriodDays ?? 0)
+
+    if (!probationDays && formDataRef?.probationPeriod) {
+      probationDays = Math.max(probationDays, parseDays(formDataRef.probationPeriod))
+    }
+
+    const round = (value: number) => Number.isFinite(value) ? Number(value.toFixed(2)) : 0
+
+    const severanceMonthly = round(severanceMonths * salaryMonthly / contractMonthsSafe)
+    const probationMonthly = round((probationDays / 30) * salaryMonthly / contractMonthsSafe)
+    const totalMonthly = round(severanceMonthly + probationMonthly)
+
+    const warnings: string[] = []
+    if (severanceMonthly === 0 && (requirements?.severanceMonths ?? 0) === 0 && salaryMonthly > 0) {
+      warnings.push('Severance months data missing; severance provision defaulted to 0.')
+    }
+    if (probationMonthly === 0 && (requirements?.probationPeriodDays ?? 0) === 0 && salaryMonthly > 0) {
+      warnings.push('Probation period data missing; probation provision defaulted to 0.')
+    }
+
+    return {
+      severanceMonthly,
+      probationMonthly,
+      totalMonthly,
+      warnings
+    }
+  }
+
   /**
    * Deduplicates LLM response to prevent double employer contributions
    * Ensures only one employer_contributions_total exists across all enhancement structures
@@ -1585,7 +1803,9 @@ export class GroqService {
       'meal_vouchers',
       'phone_allowance',
       'wellness_allowance',
-      'health_insurance_allowance'
+      'health_insurance_allowance',
+      'severance_provision',
+      'probation_provision'
     ]
 
     if (response.enhancements?.additionalContributions) {
@@ -1607,7 +1827,9 @@ export class GroqService {
         meal_vouchers: ['meal', 'food', 'lunch voucher', 'ticket'],
         phone_allowance: ['phone', 'internet', 'mobile', 'communication'],
         wellness_allowance: ['wellness', 'gym', 'fitness', 'health'],
-        health_insurance_allowance: ['insurance', 'healthcare', 'medical']
+        health_insurance_allowance: ['insurance', 'healthcare', 'medical'],
+        severance_provision: ['severance', 'redundancy', 'termination payout'],
+        probation_provision: ['probation']
       }
       const normalizeKey = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
 

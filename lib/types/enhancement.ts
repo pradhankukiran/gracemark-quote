@@ -194,13 +194,13 @@ export interface LegalRequirements {
 }
 
 // Individual Enhancement Calculations
-export interface TerminationCostBreakdown {
-  noticePeriodCost: number
-  severanceCost: number
-  totalTerminationCost: number
+
+export interface TerminationComponentEnhancement {
+  monthlyAmount: number
+  totalAmount: number
   explanation: string
   confidence: number
-  basedOnContractMonths: number
+  isAlreadyIncluded: boolean
 }
 
 export interface SalaryEnhancement {
@@ -252,7 +252,8 @@ export interface EnhancedQuote {
   
   // Enhancements
   enhancements: {
-    terminationCosts?: TerminationCostBreakdown
+    severanceProvision?: TerminationComponentEnhancement
+    probationProvision?: TerminationComponentEnhancement
     thirteenthSalary?: SalaryEnhancement
     fourteenthSalary?: SalaryEnhancement
     vacationBonus?: BonusEnhancement
@@ -355,12 +356,19 @@ export interface GroqEnhancementResponse {
     double_counting_risks: string[]
   }
   enhancements: {
-    termination_costs?: {
-      notice_period_cost: number
-      severance_cost: number
-      total: number
+    severance_provision?: {
+      monthly_amount: number
+      total_amount: number
       explanation: string
       confidence: number
+      already_included: boolean
+    }
+    probation_provision?: {
+      monthly_amount: number
+      total_amount: number
+      explanation: string
+      confidence: number
+      already_included: boolean
     }
     thirteenth_salary?: {
       monthly_amount: number
@@ -416,7 +424,6 @@ export interface GroqEnhancementResponse {
   }
   confidence_scores: {
     overall: number
-    termination_costs: number
     salary_enhancements: number
     allowances: number
   }

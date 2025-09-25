@@ -13,7 +13,6 @@ export interface PapayaAvailabilityFlags {
   payroll_14th_salary: boolean
   payroll_13th_and_14th: boolean
   payroll_cycle: boolean
-  termination_notice_period: boolean
   termination_severance_pay: boolean
   termination_probation_period: boolean
   common_benefits: boolean
@@ -37,7 +36,6 @@ export class PapayaAvailability {
       payroll_14th_salary: has('payroll{14th_salary}') || has('payroll{13th_&_14th_salaries}') ,
       payroll_13th_and_14th: has('payroll{13th_&_14th_salaries}'),
       payroll_cycle: has('payroll{payroll_cycle}') || has('payroll{payroll_frequency}'),
-      termination_notice_period: has('termination{notice_period}'),
       termination_severance_pay: has('termination{severance_pay}') || has('termination{severance}'),
       termination_probation_period: has('termination{probation_period}') || has('termination{probation}'),
       common_benefits: has('common_benefits'),
@@ -65,7 +63,7 @@ export class PapayaAvailability {
       hasMandatory13thSalary: flags.payroll_13th_salary,
       hasMandatory14thSalary: flags.payroll_14th_salary,
       hasVacationBonus: flags.payroll_13th_salary, // Often related to 13th salary systems
-      hasTerminationCosts: flags.termination_severance_pay || flags.termination_notice_period,
+      hasTerminationCosts: flags.termination_severance_pay,
       hasEmployerContributions: flags.contribution_employer_contributions,
       hasRemoteWorkSupport: flags.remote_work
     }
@@ -113,7 +111,7 @@ export class PapayaAvailability {
 
     if (flags.contribution_employer_contributions) categories.push('contributions')
     if (flags.payroll_13th_salary) categories.push('bonuses')
-    if (flags.termination_severance_pay || flags.termination_notice_period) categories.push('termination')
+    if (flags.termination_severance_pay) categories.push('termination')
     if (flags.common_benefits) categories.push('allowances')
 
     // Country-specific amount estimation ranges (in local currency units)

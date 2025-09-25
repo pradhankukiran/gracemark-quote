@@ -17,8 +17,8 @@ import { ProviderSelector } from "./components/ProviderSelector"
 import { ProviderLogo } from "./components/ProviderLogo"
 import { EnhancementProvider, useEnhancementContext } from "@/hooks/enhancement/EnhancementContext"
 import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, transformToRemoteQuote, transformOysterQuoteToDisplayQuote } from "@/lib/shared/utils/apiUtils"
-import { EORFormData, RemoteAPIResponse } from "@/lib/shared/types"
-import { ProviderType, EnhancedQuote } from "@/lib/types/enhancement"
+import { EORFormData, RemoteAPIResponse, Quote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
+import { ProviderType, EnhancedQuote, TerminationComponentEnhancement } from "@/lib/types/enhancement"
 import { convertCurrency } from "@/lib/currency-converter"
 import { getRawQuote } from "@/lib/shared/utils/rawQuoteStore"
 
@@ -264,19 +264,24 @@ const QuotePageContent = memo(() => {
     const terminationTotal = isAllInclusive ? (costData.terminationMonthly * duration) : 0
     const oneTimeTotal = costData.oneTimeTotal
 
-    // Calculate monthly recurring costs (what goes into bill rate)
-    const recurringMonthly = costData.baseSalaryMonthly + costData.statutoryMonthly + costData.allowancesMonthly + (isAllInclusive ? costData.terminationMonthly : 0)
+    const coreMonthlyCost = costData.baseSalaryMonthly + costData.statutoryMonthly + costData.allowancesMonthly
+    const terminationMonthlyFull = costData.terminationMonthly
+    const totalMonthlyQuoteCost = coreMonthlyCost + terminationMonthlyFull
+    const actualMonthlyQuote = billRate
 
-    // Calculate expected Gracemark fee (45% of monthly recurring costs)
+    // Calculate monthly recurring costs (what goes into bill rate)
+    const recurringMonthly = isAllInclusive ? totalMonthlyQuoteCost : coreMonthlyCost
+
+    // Calculate expected Gracemark fee (45% of total monthly cost of the selected quote)
     const GRACEMARK_FEE_PERCENTAGE = 0.45
-    const expectedGracemarkFeeMonthly = recurringMonthly * GRACEMARK_FEE_PERCENTAGE
+    const expectedGracemarkFeeMonthly = actualMonthlyQuote * GRACEMARK_FEE_PERCENTAGE
 
     // Provider fee is included within Gracemark fee (typically 30% of Gracemark fee)
     const PROVIDER_FEE_RATIO = 0.30
     const providerFeeMonthly = expectedGracemarkFeeMonthly * PROVIDER_FEE_RATIO
 
     // Expected bill rate composition (what we should charge monthly)
-    const expectedBillRateMonthly = recurringMonthly + expectedGracemarkFeeMonthly
+    const expectedBillRateMonthly = actualMonthlyQuote
 
     // Total costs for full assignment (for cash flow check)
     const recurringTotal = recurringMonthly * duration
@@ -2417,12 +2422,50 @@ const QuotePageContent = memo(() => {
     }
 
     const providerKey = finalChoice.provider as ProviderType
-    const quotesAny = quoteData?.quotes as Record<string, any> | undefined
-    const displayQuote = quotesAny?.[providerKey]
+
+    const resolveDisplayQuote = (): Quote | undefined => {
+      if (!quoteData?.quotes) return undefined
+      const raw = (quoteData.quotes as Record<string, unknown>)[providerKey]
+      if (!raw) return undefined
+
+      const isDisplayQuote = (value: unknown): value is Quote => {
+        return !!value && typeof value === 'object' && Array.isArray((value as Record<string, unknown>).costs)
+      }
+
+      if (providerKey === 'remote') {
+        if (isDisplayQuote(raw)) return raw
+        if (typeof raw === 'object' && raw !== null && 'employment' in raw) {
+          return transformRemoteResponseToQuote(raw as RemoteAPIResponse)
+        }
+        return undefined
+      }
+
+      if (providerKey === 'rivermate') {
+        if (isDisplayQuote(raw)) return raw
+        if (typeof raw === 'object' && raw !== null && 'taxItems' in (raw as Record<string, unknown>)) {
+          return transformRivermateQuoteToDisplayQuote(raw as RivermateQuote)
+        }
+        return undefined
+      }
+
+      if (providerKey === 'oyster') {
+        if (isDisplayQuote(raw)) return raw
+        if (typeof raw === 'object' && raw !== null && 'contributions' in (raw as Record<string, unknown>)) {
+          return transformOysterQuoteToDisplayQuote(raw as OysterQuote)
+        }
+        return undefined
+      }
+
+      return isDisplayQuote(raw) ? raw : undefined
+    }
+
+    const displayQuote = resolveDisplayQuote()
     if (displayQuote) {
-      if (Array.isArray(displayQuote.costs)) pushCostArray(displayQuote.costs, `${finalChoice.provider} Cost`)
-      if (displayQuote.breakdown && typeof displayQuote.breakdown === 'object') {
-        pushBreakdownObject(displayQuote.breakdown, `${finalChoice.provider} Breakdown`)
+      if (Array.isArray(displayQuote.costs)) {
+        pushCostArray(displayQuote.costs, `${finalChoice.provider} Cost`)
+      }
+      if (displayQuote && typeof (displayQuote as any).breakdown === 'object') {
+        pushBreakdownObject((displayQuote as any).breakdown, `${finalChoice.provider} Breakdown`)
       }
     }
 
@@ -2451,10 +2494,23 @@ const QuotePageContent = memo(() => {
     }
 
     if (enhancedQuote.enhancements) {
-      const terminationMonthly = resolveMonthlyAmount(enhancedQuote.enhancements.terminationCosts?.totalTerminationCost)
-      if (terminationMonthly > 0) {
-        addCostEntry('termination_costs', 'Termination Costs', terminationMonthly)
+      const { severanceProvision, probationProvision } = enhancedQuote.enhancements
+
+      const addTerminationComponentEntry = (
+        key: string,
+        label: string,
+        component: TerminationComponentEnhancement | undefined
+      ) => {
+        if (!component) return
+        if (component.isAlreadyIncluded) return
+        const monthly = Number(component.monthlyAmount || 0)
+        if (!Number.isFinite(monthly) || monthly <= 0) return
+        addCostEntry(key, label, monthly)
       }
+
+      // Termination notice removed - only severance and probation shown
+      addTerminationComponentEntry('severance_provision', 'Severance Provision', severanceProvision)
+      addTerminationComponentEntry('probation_provision', 'Probation Provision', probationProvision)
 
       if (enhancedQuote.enhancements.additionalContributions) {
         Object.entries(enhancedQuote.enhancements.additionalContributions).forEach(([key, value]) => {
@@ -2466,7 +2522,13 @@ const QuotePageContent = memo(() => {
       }
 
       Object.entries(enhancedQuote.enhancements).forEach(([key, value]) => {
-        if (key === 'terminationCosts' || key === 'additionalContributions') return
+        if (
+          key === 'terminationCosts' ||
+          key === 'terminationNotice' ||
+          key === 'severanceProvision' ||
+          key === 'probationProvision' ||
+          key === 'additionalContributions'
+        ) return
         if (!value || typeof value !== 'object') return
 
         const monthlyValue = resolveMonthlyAmount(
@@ -2492,6 +2554,13 @@ const QuotePageContent = memo(() => {
     const mergedItemsMap = new Map<string, { key: string; name: string; monthly_amount: number }>()
     normalisedItems.forEach(item => {
       const normalizedKey = item.key.toLowerCase()
+      const normalizedName = item.name.toLowerCase()
+      const isTerminationEntry = normalizedKey.includes('termination') || normalizedName.includes('termination')
+      const isSeveranceEntry = normalizedKey.includes('severance') || normalizedName.includes('severance')
+      const isProbationEntry = normalizedKey.includes('probation') || normalizedName.includes('probation')
+      if (isTerminationEntry && !isSeveranceEntry && !isProbationEntry) {
+        return
+      }
       const amount = Number(resolveMonthlyAmount(item.monthly_amount))
       if (!Number.isFinite(amount) || amount === 0) return
       const rounded = Number(amount.toFixed(2))
@@ -2576,7 +2645,12 @@ const QuotePageContent = memo(() => {
 
         if (key.includes('base_salary') || name.includes('base salary')) {
           baseSalary[item.key] = amount
-        } else if (key.includes('termination') || key.includes('severance') || name.includes('termination')) {
+        } else if (
+          key.includes('severance') ||
+          name.includes('severance') ||
+          key.includes('probation') ||
+          name.includes('probation')
+        ) {
           terminationCosts[item.key] = amount
         } else if (key.includes('setup') || key.includes('onboarding') || name.includes('background check')) {
           oneTimeFees[item.key] = amount
@@ -3147,11 +3221,24 @@ const QuotePageContent = memo(() => {
 
       if (enh && enh.enhancements) {
         // Termination (monthlyized)
-        const tc = enh.enhancements.terminationCosts
-        if (tc && typeof tc.totalTerminationCost === 'number' && tc.totalTerminationCost > 0) {
-          const months = Math.max(1, Number(tc.basedOnContractMonths || (enh?.contractDurationMonths || 12)))
-          const monthly = tc.totalTerminationCost / months
-          addExtra('Termination Provision', monthly, ['termination', 'severance', 'notice', 'accrual', 'provision'])
+        const terminationComponentExtras: Array<{ label: string; amount: number; guards: string[] }> = []
+
+        const pushTerminationComponent = (
+          label: string,
+          value: TerminationComponentEnhancement | undefined,
+          guards: string[]
+        ) => {
+          if (!value || value.isAlreadyIncluded) return
+          const monthly = Number(value.monthlyAmount || 0)
+          if (!Number.isFinite(monthly) || monthly <= 0) return
+          terminationComponentExtras.push({ label, amount: monthly, guards })
+        }
+
+        pushTerminationComponent('Severance Provision', enh.enhancements.severanceProvision, ['severance provision'])
+        pushTerminationComponent('Probation Provision', enh.enhancements.probationProvision, ['probation provision'])
+
+        if (terminationComponentExtras.length > 0) {
+          terminationComponentExtras.forEach(entry => addExtra(entry.label, entry.amount, entry.guards))
         }
         // 13th salary
         const th13 = enh.enhancements.thirteenthSalary

@@ -60,6 +60,7 @@ STRICT RULES:
 - Apply the provided formulas exactly and round each item to 2 decimals (half-up)
 - CRITICAL: Do NOT double-count items already included by the provider
 - CRITICAL: Mark already_included=true for benefits found in provider inclusions
+- TERMINATION: Break termination liability into severance and probation components where data is available.
 - Statutory-only: include ONLY items mandated by law; skip optional allowances
 - All-inclusive: include ONLY items explicitly present in the legal profile (Papaya-derived) — mandatory items and allowances with clear amounts/rates. Do NOT add anything not in the profile.
 - Missing benefits must have clear legal justification from the legal profile
@@ -114,11 +115,17 @@ FOCUS: Your primary job is gap analysis - finding what's legally required but mi
       `OUTPUT JSON EXAMPLE (MATCH EXACT KEYS):`,
       '{',
       '  "enhancements": {',
-      '    "termination_costs": {',
-      '      "notice_period_cost": 0,',
-      '      "severance_cost": 0,',
-      '      "total": 0,',
-      '      "explanation": ""',
+      '    "severance_provision": {',
+      '      "monthly_amount": 0,',
+      '      "total_amount": 0,',
+      '      "explanation": "",',
+      '      "already_included": false',
+      '    },',
+      '    "probation_provision": {',
+      '      "monthly_amount": 0,',
+      '      "total_amount": 0,',
+      '      "explanation": "",',
+      '      "already_included": false',
       '    },',
       '    "thirteenth_salary": {',
       '      "monthly_amount": 0,',
@@ -171,7 +178,7 @@ FOCUS: Your primary job is gap analysis - finding what's legally required but mi
       '- For MISSING MANDATORY items: set already_included=false, compute proper enhancement amounts.',
       '- In statutory-only mode: include ONLY items that are mandatory by law (set mandatory=true for legally required allowances).',
       '- In all-inclusive mode: include mandatory + commonly required benefits.',
-      '- Compute termination_costs using given formulas and divide by contract months to monthlyize.',
+      '- Populate severance_provision and probation_provision with individual monthly amounts (already_included=true when provider covers them).',
       '- Provide clear explanations for why each missing benefit is required (reference legal profile).',
       '- Set final_monthly_total = base_monthly + total_monthly_enhancement (missing items only).',
       '- If NO benefits are missing, total_monthly_enhancement should be 0.',
@@ -282,7 +289,7 @@ RULES: amounts monthly in quote currency; include benefits found with amount > 0
     const parts: string[] = []
     if (papayaData.data.termination) {
       const t = papayaData.data.termination
-      parts.push(`TERMINATION: ${t.notice_period || 'Standard notice'}, ${t.severance_pay || 'Standard severance'}`)
+      parts.push(`TERMINATION: ${t.severance_pay || 'Standard severance'} severance requirement`)
     }
     if (papayaData.data.payroll?.payroll_cycle) {
       const p = papayaData.data.payroll.payroll_cycle
@@ -375,7 +382,7 @@ FORM DATA LOGIC (CRITICAL):
 - quoteType = "all-inclusive" + addBenefits = false → Include ONLY mandatory items
 
 BENEFIT CATEGORIES:
-1. MANDATORY BENEFITS: Always include if missing (13th salary, termination costs, required contributions, authority payments)
+1. MANDATORY BENEFITS: Always include if missing (13th salary, severance/probation provisions, required contributions, authority payments)
 2. COMMON BENEFITS: Include only if quoteType="all-inclusive" AND addBenefits=true
 
 PROVIDER-SPECIFIC GAP ANALYSIS:
@@ -384,7 +391,8 @@ PROVIDER-SPECIFIC GAP ANALYSIS:
 - Different providers MUST produce different results based on their actual inclusions
 
 CALCULATION RULES:
-- Mandatory items: Allow formula-based calculations (e.g., termination = months × salary)
+- Mandatory items: Allow formula-based calculations (e.g., severance = severance_months × salary / contract_months; probation = (probation_days/30) × salary / contract_months)
+- Always emit separate severance_provision and probation_provision entries.
 - Common benefits: Use Papaya explicit amounts from common_benefits section
 - All outputs: Monthly amounts in base currency, rounded to 2 decimals
 - Valid JSON only, no explanations outside JSON
@@ -422,7 +430,8 @@ SUCCESS CRITERIA: Providers with different inclusions get different enhancement 
       meal_vouchers: monthlyOf(src.mealVouchers),
       social_security: monthlyOf(src.socialSecurity),
       health_insurance: monthlyOf(src.healthInsurance),
-      termination_costs: 0 // Providers never explicitly include termination costs (contingent liabilities)
+      severance_provision: 0,
+      probation_provision: 0,
     }
 
     // Form data logic for benefit inclusion
@@ -466,7 +475,7 @@ ${quoteType === 'statutory-only'
       '',
       'MANDATORY BENEFITS (always include if missing):',
       '• 13th Salary: Check payroll section for "Aguinaldo" or "13th month"',
-      '• Termination Costs: Check termination section (notice + severance)',
+      '• Termination Provisions: Check termination section (severance + probation obligations)',
       '• Required Contributions: Check employer contribution requirements and authority payments',
       '',
       includeCommonBenefits ? [
@@ -480,7 +489,7 @@ ${quoteType === 'statutory-only'
       '',
       '═══ STEP 4: GAP ANALYSIS PER BENEFIT ═══',
       '',
-      '⚠️ IMPORTANT: TERMINATION COSTS are handled in PHASE 1 (always calculated), NOT here.',
+      '⚠️ IMPORTANT: TERMINATION PROVISIONS (severance, probation) are handled in PHASE 1 (always calculated), NOT here.',
       '',
       'For regular benefits (salary components, allowances):',
       '',
@@ -507,7 +516,8 @@ ${quoteType === 'statutory-only'
       '',
       '═══ CALCULATION FORMULAS ═══',
       '• 13th Salary: BASE_SALARY ÷ 12 (if Papaya says mandatory)',
-      '• Termination: ((YEARS_OF_SERVICE × MONTHLY_SALARY) + (NOTICE_MONTHS × MONTHLY_SALARY)) ÷ CONTRACT_MONTHS',
+      '• Severance: SEVERANCE_MONTHS × BASE_SALARY ÷ CONTRACT_MONTHS',
+      '• Probation: (PROBATION_DAYS / 30) × BASE_SALARY ÷ CONTRACT_MONTHS (0 if no probation obligations)',
       '• Common Benefits: Use exact monthly amounts from Papaya common_benefits',
       '• Currency: Convert Papaya amounts to base currency if needed',
       '',
@@ -572,8 +582,9 @@ ${quoteType === 'statutory-only'
       'TYPE 3 - PERCENTAGE-BASED CONTRIBUTIONS (pension, health, social security):',
       '{"monthly_amount": X, "percentage": "Y%", "calculation_base": BASE_SALARY, "explanation": "Papaya text quote", "already_included": boolean}',
       '',
-      'TYPE 4 - TERMINATION COSTS (always calculate - no gap analysis):',
-      '{"monthly_amount": X, "total_estimated": Y, "explanation": "Papaya termination requirements spread over contract"}',
+      'TYPE 4 - TERMINATION COMPONENTS (always calculate - no gap analysis):',
+      '{"monthly_amount": X, "total_amount": Y, "explanation": "Papaya termination requirement", "already_included": boolean}',
+      '  • Emit separate objects for "severance_provision" and "probation_provision"',
       '',
       'TYPE 5 - RANGE-BASED BENEFITS (amounts like "5,000 to 7,000"):',
       '{"monthly_amount": midpoint, "min_amount": X, "max_amount": Y, "explanation": "Papaya text quote", "already_included": boolean}',
@@ -590,7 +601,7 @@ ${quoteType === 'statutory-only'
       '• Find "Gym Allowance – 5,000 to 7,000 ARS monthly" → Create "gym_allowance" object',
       '• Find "Internet Allowance – 2,500 ARS monthly" → Create "internet_allowance" object',  
       '• Find "Private Health Insurance – 10,000 to 12,000 ARS monthly" → Create "private_health_insurance" object',
-      '• Find termination section → ALWAYS create "termination_costs" using simple formula (no gap analysis)',
+      '• Find termination section → ALWAYS create "severance_provision" and "probation_provision" objects using legal formulas (no gap analysis)',
       '',
       'JSON STRUCTURE:',
       `{
@@ -605,7 +616,8 @@ ${quoteType === 'statutory-only'
           // CREATE OBJECTS DYNAMICALLY FOR EVERY BENEFIT YOU FIND
           // Examples of what you might discover:
           // "thirteenth_salary": {...},
-          // "termination_costs": {...},
+          // "severance_provision": {...},
+          // "probation_provision": {...},
           // "gym_allowance": {...},
           // "internet_allowance": {...},
           // "meal_vouchers": {...},
@@ -628,7 +640,7 @@ ${quoteType === 'statutory-only'
       '• Better to over-include than miss legitimate costs',
       '',
       'COMPREHENSIVE COVERAGE REQUIREMENTS:',
-      '• TERMINATION COSTS: ALWAYS calculate if termination section exists - NO exceptions, NO gap analysis',
+      '• TERMINATION COSTS: ALWAYS calculate severance and probation components if termination section exists - NO exceptions, NO gap analysis',
       '• MANDATORY BENEFITS: Always include regardless of form settings (13th salary, contributions, authority payments)',
       '• COMMON BENEFITS: Include ALL when addBenefits=true (be exhaustive)',
       '• EMPLOYER CONTRIBUTIONS: Calculate and include every percentage/amount',
@@ -750,7 +762,7 @@ RESPONSE JSON SHAPE (exact keys):
       `- Statutory-only: include ONLY mandatory items; skip non-mandatory allowances.\n` +
       `- All-inclusive: include mandatory items and allowances present in baseline.\n` +
       `- Avoid double counting (if provider coverage >= baseline, delta=0 with already_included=true).\n` +
-      `- Termination costs: use the provided baseline monthly provision as a single item (do not split).\n` +
+      `- Termination: compute separate deltas for severance and probation components.\n` +
       `- Output strictly valid JSON with the exact keys requested (no extra text).`
     )
   }
@@ -769,7 +781,8 @@ RESPONSE JSON SHAPE (exact keys):
       '{',
       '  "analysis": { "provider_coverage": [], "missing_requirements": [], "double_counting_risks": [] },',
       '  "enhancements": {',
-      '    "termination_costs": { "total": 0, "explanation": "" },',
+      '    "severance_provision": { "monthly_amount": 0, "total_amount": 0, "explanation": "", "already_included": false },',
+      '    "probation_provision": { "monthly_amount": 0, "total_amount": 0, "explanation": "", "already_included": false },',
       '    "thirteenth_salary": { "monthly_amount": 0, "yearly_amount": 0, "explanation": "", "already_included": false },',
       '    "fourteenth_salary": { "monthly_amount": 0, "yearly_amount": 0, "explanation": "", "already_included": false },',
       '    "vacation_bonus": { "amount": 0, "explanation": "", "already_included": false },',

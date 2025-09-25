@@ -10,6 +10,7 @@ import {
   MultiProviderResult,
   EnhancementError,
   TerminationCostBreakdown,
+  TerminationComponentEnhancement,
   OverlapAnalysis,
   StandardizedBenefitData,
   DirectEnhancementInput,
@@ -486,15 +487,29 @@ export class EnhancementEngine {
     const enhancementData: EnhancedQuote['enhancements'] = {}
 
     // Termination costs
-    if (enhancements.termination_costs) {
-      const tc = enhancements.termination_costs
-      enhancementData.terminationCosts = {
-        noticePeriodCost: tc.notice_period_cost || 0,
-        severanceCost: tc.severance_cost || 0,
-        totalTerminationCost: tc.total || 0,
-        explanation: tc.explanation || 'Standard termination provisions',
-        confidence: tc.confidence || 0.5,
-        basedOnContractMonths: input.contractDurationMonths
+    const contractMonths = Math.max(1, input.contractDurationMonths || 12)
+
+    // Severance provision
+    if (enhancements.severance_provision) {
+      const sp = enhancements.severance_provision
+      enhancementData.severanceProvision = {
+        monthlyAmount: sp.monthly_amount || 0,
+        totalAmount: sp.total_amount || 0,
+        explanation: sp.explanation || 'Severance provision derived from legal requirements.',
+        confidence: sp.confidence || 0.5,
+        isAlreadyIncluded: sp.already_included || false
+      }
+    }
+
+    // Probation provision
+    if (enhancements.probation_provision) {
+      const pp = enhancements.probation_provision
+      enhancementData.probationProvision = {
+        monthlyAmount: pp.monthly_amount || 0,
+        totalAmount: pp.total_amount || 0,
+        explanation: pp.explanation || 'Probation termination provision derived from legal requirements.',
+        confidence: pp.confidence || 0.5,
+        isAlreadyIncluded: pp.already_included || false
       }
     }
 
@@ -597,18 +612,63 @@ export class EnhancementEngine {
         const hasLLMTermination = !!enhancementData.terminationCosts && (enhancementData.terminationCosts.totalTerminationCost || 0) > 0
         const noticeDays = Math.max(0, Number(lr.terminationCosts?.noticePeriodDays || 0))
         const severanceMonths = Math.max(0, Number(lr.terminationCosts?.severanceMonths || 0))
-        const derivedMonths = (noticeDays / 30) + severanceMonths
-        const effectiveMonths = derivedMonths > 0 ? derivedMonths : 3 // fallback: 3 months total if parsing unavailable
-        const termTotal = effectiveMonths * baseSalary
+        const probationDays = Math.max(0, Number(lr.terminationCosts?.probationPeriodDays || 0))
+
+        let noticeTotal = noticeDays > 0 ? (noticeDays / 30) * baseSalary : 0
+        let severanceTotal = severanceMonths > 0 ? severanceMonths * baseSalary : 0
+        let probationTotal = probationDays > 0 ? (probationDays / 30) * baseSalary : 0
+
+        if (noticeTotal < 0) noticeTotal = 0
+        if (severanceTotal < 0) severanceTotal = 0
+        if (probationTotal < 0) probationTotal = 0
+
+        let termTotal = noticeTotal + severanceTotal + probationTotal
+
+        if (termTotal <= 0 && baseSalary > 0) {
+          termTotal = 3 * baseSalary
+          if (severanceTotal <= 0) {
+            severanceTotal = termTotal
+          }
+        }
+
         const termMonthly = months > 0 ? (termTotal / months) : 0
         if (!hasLLMTermination && termMonthly > 0) {
           enhancementData.terminationCosts = {
-            noticePeriodCost: (noticeDays / 30) > 0 ? (noticeDays / 30) * baseSalary : 0,
-            severanceCost: severanceMonths > 0 ? (severanceMonths * baseSalary) : (effectiveMonths >= 3 ? termTotal : 0),
-            totalTerminationCost: termTotal,
-            explanation: 'Deterministic termination provision based on Papaya legal profile (notice + severance).',
+            noticePeriodCost: Number(noticeTotal.toFixed(2)),
+            severanceCost: Number(severanceTotal.toFixed(2)),
+            probationCost: Number(probationTotal.toFixed(2)),
+            totalTerminationCost: Number(termTotal.toFixed(2)),
+            explanation: 'Deterministic termination provision based on Papaya legal profile.',
             confidence: 0.8,
             basedOnContractMonths: months
+          }
+
+          const buildComponent = (total: number, explanation: string): TerminationComponentEnhancement | undefined => {
+            if (!total || total <= 0) return undefined
+            const monthlyAmount = Number((total / months).toFixed(2))
+            if (monthlyAmount <= 0) return undefined
+            return {
+              monthlyAmount,
+              totalAmount: Number(total.toFixed(2)),
+              explanation,
+              confidence: 0.8,
+              isAlreadyIncluded: false
+            }
+          }
+
+          const deterministicNotice = buildComponent(noticeTotal, 'Deterministic notice period provision (legal profile).')
+          if (deterministicNotice) {
+            enhancementData.terminationNotice = deterministicNotice
+          }
+
+          const deterministicSeverance = buildComponent(severanceTotal, 'Deterministic severance provision (legal profile).')
+          if (deterministicSeverance) {
+            enhancementData.severanceProvision = deterministicSeverance
+          }
+
+          const deterministicProbation = buildComponent(probationTotal, 'Deterministic probation termination provision (legal profile).')
+          if (deterministicProbation) {
+            enhancementData.probationProvision = deterministicProbation
           }
         }
 
@@ -707,8 +767,21 @@ export class EnhancementEngine {
       if (included && typeof n === 'number' && isFinite(n) && n > 0) monthlyEnhancements.push(n)
     }
 
-    // Termination provision: monthlyize over contract duration if provided
-    if (enhancementData.terminationCosts && enhancementData.terminationCosts.totalTerminationCost > 0) {
+    let terminationComponentsAdded = false
+    if (enhancementData.terminationNotice && !enhancementData.terminationNotice.isAlreadyIncluded) {
+      addIf(enhancementData.terminationNotice.monthlyAmount)
+      terminationComponentsAdded = true
+    }
+    if (enhancementData.severanceProvision && !enhancementData.severanceProvision.isAlreadyIncluded) {
+      addIf(enhancementData.severanceProvision.monthlyAmount)
+      terminationComponentsAdded = true
+    }
+    if (enhancementData.probationProvision && !enhancementData.probationProvision.isAlreadyIncluded) {
+      addIf(enhancementData.probationProvision.monthlyAmount)
+      terminationComponentsAdded = true
+    }
+    // Fallback: use aggregate termination total if component breakdown unavailable
+    if (!terminationComponentsAdded && enhancementData.terminationCosts && enhancementData.terminationCosts.totalTerminationCost > 0) {
       const months = enhancementData.terminationCosts.basedOnContractMonths || input.contractDurationMonths || 12
       const monthlyized = months > 0 ? enhancementData.terminationCosts.totalTerminationCost / months : 0
       addIf(monthlyized)
@@ -868,23 +941,55 @@ export class EnhancementEngine {
 
     const items: PrepassLegalProfile['items'] = []
 
-    // Termination monthly provision
+    // Termination components (monthlyized)
     const noticeDays = Math.max(0, Number(legalProfile?.requirements?.terminationCosts?.noticePeriodDays || 0))
     const severanceMonths = Math.max(0, Number(legalProfile?.requirements?.terminationCosts?.severanceMonths || 0))
-    const termMonths = (noticeDays / 30) + severanceMonths
-    const termMonthly = termMonths > 0 ? (baseSalary * termMonths) / contractMonths : 0
-    if (termMonthly > 0) {
+    const probationDays = Math.max(0, Number(legalProfile?.requirements?.terminationCosts?.probationPeriodDays || 0))
+
+    const addTerminationComponent = (
+      key: string,
+      name: string,
+      component: 'notice' | 'severance' | 'probation',
+      totalAmount: number,
+      variables: Record<string, number>
+    ) => {
+      if (!totalAmount || totalAmount <= 0) return
+      const monthlyAmount = Number((totalAmount / contractMonths).toFixed(2))
+      if (monthlyAmount <= 0) return
       items.push({
-        key: 'termination_costs',
-        name: 'Termination Provision',
+        key,
+        name,
         category: 'termination',
-        mandatory: true,
-        formula: '((notice_days/30)+severance_months) * base_salary / contract_months',
-        variables: { notice_days: noticeDays, severance_months: severanceMonths },
-        monthly_amount_local: Number(termMonthly.toFixed(2)),
+        component,
+        mandatory: component !== 'probation',
+        formula:
+          component === 'notice'
+            ? '(notice_days/30) * base_salary_monthly / contract_months'
+            : component === 'severance'
+              ? 'severance_months * base_salary_monthly / contract_months'
+              : '(probation_days/30) * base_salary_monthly / contract_months',
+        variables,
+        monthly_amount_local: monthlyAmount,
         notes: 'Deterministic baseline from legal profile'
       })
     }
+
+    const noticeTotal = noticeDays > 0 ? (noticeDays / 30) * baseSalary : 0
+    const severanceTotal = severanceMonths > 0 ? severanceMonths * baseSalary : 0
+    const probationTotal = probationDays > 0 ? (probationDays / 30) * baseSalary : 0
+
+
+    addTerminationComponent('termination_severance', 'Severance Provision', 'severance', severanceTotal, {
+      severance_months: severanceMonths,
+      base_salary_monthly: baseSalary,
+      contract_months: contractMonths
+    })
+
+    addTerminationComponent('termination_probation', 'Probation Termination Provision', 'probation', probationTotal, {
+      probation_days: probationDays,
+      base_salary_monthly: baseSalary,
+      contract_months: contractMonths
+    })
 
     // 13th/14th salary
     if (legalProfile?.requirements?.mandatorySalaries?.has13thSalary) {
@@ -1026,7 +1131,6 @@ export class EnhancementEngine {
         if (key.includes('transport')) return 'transportation_allowance'
         if (key.includes('remote')) return 'remote_work_allowance'
         if (key.includes('meal')) return 'meal_vouchers'
-        if (item.category === 'termination') return 'termination_costs'
         if (item.category === 'contributions') return 'employer_contributions_total'
         return key
       })()
@@ -1034,19 +1138,6 @@ export class EnhancementEngine {
       // Provider coverage for mapped key
       const coverage = (providerCoverage as any)[mapKey] || 0
 
-      if (mapKey === 'termination_costs') {
-        // For termination, treat as monthly provision, compute total over contract for explanation
-        const total = providerMonthly * Math.max(1, params.contractMonths)
-        enhancements.termination_costs = {
-          notice_period_cost: 0,
-          severance_cost: 0,
-          total,
-          explanation: 'Termination liability monthly accrual from legal baseline',
-          confidence: 0.7
-        }
-        addDelta(providerMonthly)
-        return
-      }
 
       // Contributions: aggregate as one top-up to avoid duplicate UI entries
       if (mapKey === 'employer_contributions_total') {
@@ -1138,7 +1229,7 @@ export class EnhancementEngine {
         total_yearly_enhancement: Number((total * 12).toFixed(2)),
         final_monthly_total: Number((params.baseQuote.monthlyTotal + total).toFixed(2))
       },
-      confidence_scores: { overall: 0.75, termination_costs: enhancements.termination_costs ? 0.7 : 0, salary_enhancements: (enhancements.thirteenth_salary || enhancements.fourteenth_salary) ? 0.75 : 0, allowances: (enhancements.transportation_allowance || enhancements.remote_work_allowance || enhancements.meal_vouchers) ? 0.6 : 0 },
+      confidence_scores: { overall: 0.75, salary_enhancements: (enhancements.thirteenth_salary || enhancements.fourteenth_salary) ? 0.75 : 0, allowances: (enhancements.transportation_allowance || enhancements.remote_work_allowance || enhancements.meal_vouchers) ? 0.6 : 0 },
       recommendations: [],
       warnings
     }
@@ -1292,8 +1383,14 @@ export class EnhancementEngine {
     if (papayaData.data?.termination?.severance_pay) {
       confidence += 0.2
     }
+    if (papayaData.data?.termination?.probation_period) {
+      confidence += 0.1
+    }
     if (calculatedCosts.basedOnContractMonths > 0) {
       confidence += 0.1
+    }
+    if (calculatedCosts.probationCost > 0) {
+      confidence += 0.05
     }
 
     return Math.min(confidence, 1.0)

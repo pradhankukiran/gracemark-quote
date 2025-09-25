@@ -20,6 +20,7 @@ export interface PrepassLegalItem {
   max?: number
   source?: string
   notes?: string
+  component?: 'severance' | 'probation' | 'other'
 }
 
 export interface PrepassLegalProfile {
@@ -55,7 +56,6 @@ const PrepassSchema = z.object({
     payroll_14th_salary: z.boolean(),
     payroll_13th_and_14th: z.boolean(),
     payroll_cycle: z.boolean(),
-    termination_notice_period: z.boolean(),
     termination_severance_pay: z.boolean(),
     termination_probation_period: z.boolean(),
     common_benefits: z.boolean(),
@@ -74,7 +74,8 @@ const PrepassSchema = z.object({
     min: z.number().optional(),
     max: z.number().optional(),
     source: z.string().optional(),
-    notes: z.string().optional()
+    notes: z.string().optional(),
+    component: z.enum(['severance','probation','other']).optional()
   })),
   subtotals: z.object({ contributions: z.number(), bonuses: z.number(), allowances: z.number(), termination: z.number() }),
   total_monthly_local: z.number(),
@@ -133,7 +134,7 @@ export class CerebrasService {
     let response: any
     try {
       response = await client.chat.completions.create({
-        model: "qwen-3-32b",
+        model: "llama-4-maverick-17b-128e-instruct",
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -152,7 +153,7 @@ export class CerebrasService {
 
       // Retry without response_format
       response = await client.chat.completions.create({
-        model: "qwen-3-32b",
+        model: "llama-4-maverick-17b-128e-instruct",
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -268,9 +269,8 @@ export class CerebrasService {
       if (availability.payroll_14th_salary && d.payroll['14th_salary']) snippets.push(`14th Salary: ${d.payroll['14th_salary']}`)
       snippets.push('')
     }
-    if ((availability.termination_notice_period || availability.termination_severance_pay || availability.termination_probation_period) && d?.termination) {
+    if ((availability.termination_severance_pay || availability.termination_probation_period) && d?.termination) {
       snippets.push('TERMINATION:')
-      if (availability.termination_notice_period && d.termination.notice_period) snippets.push(`Notice Period: ${d.termination.notice_period}`)
       if (availability.termination_severance_pay && d.termination.severance_pay) snippets.push(`Severance Pay: ${d.termination.severance_pay}`)
       if (availability.termination_probation_period && d.termination.probation_period) snippets.push(`Probation Period: ${d.termination.probation_period}`)
       snippets.push('')
@@ -300,7 +300,7 @@ export class CerebrasService {
     let response: any
     try {
       response = await client.chat.completions.create({
-        model: "qwen-3-32b",
+        model: "llama-4-maverick-17b-128e-instruct",
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -322,7 +322,7 @@ export class CerebrasService {
 
       // Retry without response_format (some models may not support it)
       response = await client.chat.completions.create({
-        model: "qwen-3-32b",
+        model: "llama-4-maverick-17b-128e-instruct",
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -403,7 +403,7 @@ export class CerebrasService {
       '1. baseSalary: Base salary, gross salary components (NOT bonuses or statutory extras)',
       '2. statutoryMandatory: Legally required employer contributions, taxes, social security, pension contributions, mandatory insurance',
       '3. allowancesBenefits: Optional allowances like meal vouchers, transportation, remote work stipends, health benefits',
-      '4. terminationCosts: Notice period costs, severance payments, termination-related provisions',
+      '4. terminationCosts: Severance and probation provisions (monthlyized termination liabilities only)',
       '5. oneTimeFees: One-time setup costs, background checks, medical exams, onboarding fees',
       '',
       'CRITICAL RULES:',
@@ -411,6 +411,7 @@ export class CerebrasService {
       '- Vacation bonus = statutoryMandatory if legally required, allowancesBenefits if optional',
       '- Use country context to determine if items are legally mandatory vs optional',
       '- Each cost item goes into exactly ONE category',
+      '- Ignore termination notice or generic termination fees; only map severance/probation provisions to terminationCosts',
       '- Return JSON with exact structure: {baseSalary: {}, statutoryMandatory: {}, allowancesBenefits: {}, terminationCosts: {}, oneTimeFees: {}}',
       '- Use original item keys as keys in each category object',
       '- Values are the monthly amounts',
@@ -479,7 +480,11 @@ export class CerebrasService {
       '- Convert formats: yearly→/12, daily→×22, ranges→midpoint; round to 2 decimals.',
       '',
       'TERMINATION:',
-      '- Monthly provision = ((notice_days/30)+severance_months)×meta.base_salary_monthly / meta.contract_months.',
+      '- Produce distinct termination items for SEVERANCE and PROBATION when data is available.',
+      '- termination_severance monthly_amount_local = severance_months × meta.base_salary_monthly / meta.contract_months.',
+      '- termination_probation monthly_amount_local = (probation_days / 30) × meta.base_salary_monthly / meta.contract_months (0 if unknown).',
+      '- Set item.component to one of: "severance" or "probation" to indicate the sub-type.',
+      '- Sum of these components is the termination subtotal; avoid creating an extra aggregate row.',
       '- If tenure/years_of_service unknown: choose a conservative severance_months (e.g., 3) and add a warning.',
       '',
       'SCOPE:',
@@ -492,7 +497,8 @@ export class CerebrasService {
       '- COMMON_BENEFITS items → category: "allowances" (meal vouchers, transport, wellness, etc.)',
       '- EMPLOYER_CONTRIBUTIONS items → category: "contributions" (social security, payroll taxes, etc.)',
       '- 13th/14th salary, aguinaldo → category: "bonuses"',
-      '- Severance, notice periods → category: "termination"',
+      '- Severance or probation provisions → category: "termination"',
+      '- When emitting termination components, set category="termination" and component=severance|probation.',
       '- NEVER use "common_benefits" as a category value.',
       '',
       'DATA USE:',
@@ -526,7 +532,6 @@ export class CerebrasService {
       '    "payroll_13th_salary": true,',
       '    "payroll_14th_salary": true,',
       '    "payroll_cycle": true,',
-      '    "termination_notice_period": true,',
       '    "termination_severance_pay": true,',
       '    "termination_probation_period": true,',
       '    "common_benefits": true',
@@ -542,6 +547,26 @@ export class CerebrasService {
       '      "monthly_amount_local": 0.0,',
       '      "source": "PAYROLL",',
       '      "notes": "Aguinaldo"',
+      '    },',
+      '    {',
+      '      "key": "termination_severance",',
+      '      "name": "Severance Provision",',
+      '      "category": "termination",',
+      '      "component": "severance",',
+      '      "mandatory": true,',
+      '      "formula": "severance_months * base_salary_monthly / contract_months",',
+      '      "variables": { "severance_months": 1, "base_salary_monthly": 0.0, "contract_months": 12 },',
+      '      "monthly_amount_local": 0.0',
+      '    },',
+      '    {',
+      '      "key": "termination_probation",',
+      '      "name": "Probation Termination Provision",',
+      '      "category": "termination",',
+      '      "component": "probation",',
+      '      "mandatory": false,',
+      '      "formula": "(probation_days/30) * base_salary_monthly / contract_months",',
+      '      "variables": { "probation_days": 0, "base_salary_monthly": 0.0, "contract_months": 12 },',
+      '      "monthly_amount_local": 0.0',
       '    }',
       '  ],',
       '  "subtotals": { "contributions": 0.0, "bonuses": 0.0, "allowances": 0.0, "termination": 0.0 },',
@@ -782,6 +807,14 @@ export class CerebrasService {
           item.variables = normalizedVariables
         }
 
+        if ('component' in item && item.component) {
+          const componentValue = String(item.component).toLowerCase()
+          const validComponents = ['severance', 'probation', 'other'] as const
+          item.component = (validComponents.includes(componentValue as typeof validComponents[number])
+            ? componentValue
+            : 'other') as typeof item.component
+        }
+
         const category = String(item.category).toLowerCase()
 
         // If category is already valid, keep it
@@ -800,16 +833,19 @@ export class CerebrasService {
 
         // If no mapping found, try to guess based on item name/key
         const itemName = String(item.name || item.key || '').toLowerCase()
+        const itemKey = String(item.key || '').toLowerCase()
         let guessedCategory: typeof validCategories[number] = 'allowances' // default fallback
 
         if (itemName.includes('contribution') || itemName.includes('social') || itemName.includes('tax')) {
           guessedCategory = 'contributions'
         } else if (itemName.includes('13th') || itemName.includes('14th') || itemName.includes('salary') || itemName.includes('bonus')) {
           guessedCategory = 'bonuses'
-        } else if (itemName.includes('termination') || itemName.includes('severance') || itemName.includes('notice')) {
-          guessedCategory = 'termination'
         } else {
-          guessedCategory = 'allowances' // meal vouchers, transport, etc.
+          const isSeverance = itemName.includes('severance') || itemKey.includes('severance')
+          const isProbation = itemName.includes('probation') || itemKey.includes('probation')
+          if (isSeverance || isProbation) {
+            guessedCategory = 'termination'
+          }
         }
 
         return {
@@ -853,17 +889,48 @@ export class CerebrasService {
   private cleanLLMResponse(content: string): string {
     if (!content || typeof content !== 'string') return content
 
-    // Remove thinking tags and their content
-    let cleaned = content.replace(/<think>[\s\S]*?<\/think>/gi, '')
+    let cleaned = content
 
-    // Remove thinking blocks that might not have closing tags
+    // 1. Remove properly formed thinking tags first
+    cleaned = cleaned.replace(/<think>[\s\S]*?<\/think>/gi, '')
+
+    // 2. Remove malformed thinking tags (various patterns)
+    // Handle <think> without closing tag (remove everything from <think> to end)
     cleaned = cleaned.replace(/<think>[\s\S]*$/gi, '')
 
-    // Remove other common LLM artifacts
-    cleaned = cleaned.replace(/^[^{]*({[\s\S]*})[^}]*$/g, '$1') // Extract JSON part
+    // Handle partial thinking tags like "<think>Ok" or "<thi" etc
+    cleaned = cleaned.replace(/<thi[\s\S]*$/gi, '')
+    cleaned = cleaned.replace(/<th[\s\S]*$/gi, '')
+    cleaned = cleaned.replace(/<t[\s\S]*$/gi, '')
 
-    // Remove leading/trailing text before/after JSON
-    cleaned = cleaned.replace(/^[^{]*/, '').replace(/[^}]*$/, '')
+    // Remove any remaining incomplete XML-like tags at start
+    cleaned = cleaned.replace(/^[^{]*<[^>]*[^}]*$/g, '')
+
+    // 3. More aggressive thinking pattern removal
+    // Remove lines that look like thinking (common patterns)
+    cleaned = cleaned.replace(/^(ok|let me|i need to|first|thinking|analysis|approach)[\s\S]*?(?=\{)/gmi, '')
+
+    // 4. Extract JSON more aggressively
+    // Try to find the first complete JSON object
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      cleaned = jsonMatch[0];
+    } else {
+      // If no complete JSON found, try to extract from first { to last }
+      const firstBrace = cleaned.indexOf('{');
+      const lastBrace = cleaned.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+      } else {
+        // Remove any non-JSON content before the first {
+        cleaned = cleaned.replace(/^[^{]*/, '');
+        // Remove any non-JSON content after the last }
+        cleaned = cleaned.replace(/[^}]*$/, '');
+      }
+    }
+
+    // 5. Final cleanup - remove any remaining non-JSON artifacts
+    cleaned = cleaned.replace(/^[^{]*/, '').replace(/[^}]*$/, '');
 
     return cleaned.trim()
   }
@@ -890,7 +957,6 @@ export class CerebrasService {
       payroll_14th_salary: b('payroll_14th_salary') || b('payroll{14th_salary}') || b('payroll{13th_&_14th_salaries}'),
       payroll_13th_and_14th: b('payroll_13th_and_14th') || b('payroll{13th_&_14th_salaries}'),
       payroll_cycle: b('payroll_cycle') || b('payroll{payroll_cycle}') || b('payroll{payroll_frequency}'),
-      termination_notice_period: b('termination_notice_period') || b('termination{notice_period}'),
       termination_severance_pay: b('termination_severance_pay') || b('termination{severance_pay}') || b('termination{severance}') ,
       termination_probation_period: b('termination_probation_period') || b('termination{probation_period}') || b('termination{probation}'),
       common_benefits: b('common_benefits'),
