@@ -240,8 +240,7 @@ export class CerebrasService {
         has_13th: legalProfile?.requirements?.mandatorySalaries?.has13thSalary ?? false,
         has_14th: legalProfile?.requirements?.mandatorySalaries?.has14thSalary ?? false
       },
-      allowances: legalProfile?.requirements?.allowances || {},
-      contributions: legalProfile?.requirements?.contributions?.employerRates || {}
+      allowances: legalProfile?.requirements?.allowances || {}
     }
 
     const localCurrency = this.extractCurrency(core, full.country)
@@ -257,11 +256,6 @@ export class CerebrasService {
     // Presence-gated compact text (preserve headings)
     const snippets: string[] = []
     const d = core as any
-    if (availability.contribution_employer_contributions && d?.contribution?.employer_contributions) {
-      snippets.push('EMPLOYER_CONTRIBUTIONS:')
-      d.contribution.employer_contributions.forEach((c: any) => snippets.push(`- ${c.description}: ${c.rate}`))
-      snippets.push('')
-    }
     if ((availability.payroll_13th_salary || availability.payroll_14th_salary || availability.payroll_cycle) && d?.payroll) {
       snippets.push('PAYROLL:')
       if (availability.payroll_cycle && d.payroll.payroll_cycle) snippets.push(`Payroll Cycle: ${d.payroll.payroll_cycle}`)
@@ -401,7 +395,7 @@ export class CerebrasService {
       '',
       'CATEGORIES:',
       '1. baseSalary: Base salary, gross salary components (NOT bonuses or statutory extras)',
-      '2. statutoryMandatory: Legally required employer contributions, taxes, social security, pension contributions, mandatory insurance',
+      '2. statutoryMandatory: Legally required statutory taxes, social security, pension requirements, mandatory insurance',
       '3. allowancesBenefits: Optional allowances like meal vouchers, transportation, remote work stipends, health benefits',
       '4. terminationCosts: Severance and probation provisions (monthlyized termination liabilities only)',
       '5. oneTimeFees: One-time setup costs, background checks, medical exams, onboarding fees',
@@ -495,7 +489,7 @@ export class CerebrasService {
       'CATEGORY MAPPING (CRITICAL):',
       '- Use ONLY these exact category values: "contributions", "bonuses", "allowances", "termination"',
       '- COMMON_BENEFITS items → category: "allowances" (meal vouchers, transport, wellness, etc.)',
-      '- EMPLOYER_CONTRIBUTIONS items → category: "contributions" (social security, payroll taxes, etc.)',
+      '- EMPLOYER_CONTRIBUTIONS items → EXCLUDE from output (note any statutory context in warnings instead).',
       '- 13th/14th salary, aguinaldo → category: "bonuses"',
       '- Severance or probation provisions → category: "termination"',
       '- When emitting termination components, set category="termination" and component=severance|probation.',
@@ -505,8 +499,7 @@ export class CerebrasService {
       '- Prefer numeric values extracted from Papaya text when present.',
       '- For allowances in all-inclusive quotes: use NUMERIC_HINTS as primary source if Papaya lacks specific amounts, or estimate typical amounts if hints are empty.',
       '- Use AVAILABILITY flags to include sections only when present for the country.',
-      '- For employer contributions with multiple rate options (e.g., different company sizes), choose the higher/conservative rate and include only ONE entry per contribution type.',
-      '- For authority payments: include monthly provisions for mandatory government payments (payroll tax, social security, workers compensation, etc.) based on payment schedules provided. Categorize as "contributions".',
+      '- For authority payments: capture key insights in warnings (e.g., payment schedules) but do not create additional cost items.',
       '',
       'Return JSON only.'
     ].join('\n')
@@ -582,7 +575,7 @@ export class CerebrasService {
       '- Output exactly one JSON object with keys: meta, availability, items, subtotals, total_monthly_local, warnings.',
       '- Include all keys even if empty; numbers must be numbers (not strings).',
       '- Use meta.currency for all amounts; amounts are monthly.',
-      '- When multiple rates exist for the same contribution type, select the applicable one or choose the higher rate if uncertain.',
+      '- Skip employer contribution calculations; note any statutory contribution context in warnings instead.',
       '- Do not wrap the JSON object in arrays [] or add any extra brackets.',
       '- No code fences or commentary.',
       '',
@@ -794,8 +787,9 @@ export class CerebrasService {
       return undefined
     }
 
-    return items.map(item => {
-      if (item && typeof item === 'object' && item.category) {
+    return items
+      .map(item => {
+        if (item && typeof item === 'object' && item.category) {
         const normalizedVariables: Record<string, number | string | boolean> = {}
         if (item.variables && typeof item.variables === 'object') {
           Object.entries(item.variables).forEach(([key, value]) => {
@@ -819,12 +813,14 @@ export class CerebrasService {
 
         // If category is already valid, keep it
         if (validCategories.includes(category as any)) {
+          if (category === 'contributions') return null
           return item
         }
 
         // Try to map invalid category to valid one
         const mappedCategory = categoryMapping[category]
         if (mappedCategory) {
+          if (mappedCategory === 'contributions') return null
           return {
             ...item,
             category: mappedCategory
@@ -848,6 +844,7 @@ export class CerebrasService {
           }
         }
 
+        if (guessedCategory === 'contributions') return null
         return {
           ...item,
           category: guessedCategory
@@ -855,6 +852,7 @@ export class CerebrasService {
       }
       return item
     })
+      .filter(item => item != null)
   }
 
   private extractBalancedObject(s: string): string | null {

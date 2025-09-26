@@ -588,9 +588,6 @@ export class EnhancementEngine {
       }
     }
 
-    // Note: Do not mirror main employer_contributions_total into additionalContributions here to avoid double counting.
-    // The aggregate contribution is handled later in the totals section in a single, canonical place.
-
     // Medical exam
     if (enhancements.medical_exam) {
       const me = enhancements.medical_exam
@@ -622,23 +619,24 @@ export class EnhancementEngine {
         if (severanceTotal < 0) severanceTotal = 0
         if (probationTotal < 0) probationTotal = 0
 
-        let termTotal = noticeTotal + severanceTotal + probationTotal
+        let termTotal = severanceTotal + probationTotal
 
         if (termTotal <= 0 && baseSalary > 0) {
-          termTotal = 3 * baseSalary
+          const fallbackTotal = 3 * baseSalary
           if (severanceTotal <= 0) {
-            severanceTotal = termTotal
+            severanceTotal = fallbackTotal
           }
+          termTotal = Math.max(0, severanceTotal + probationTotal)
         }
 
         const termMonthly = months > 0 ? (termTotal / months) : 0
         if (!hasLLMTermination && termMonthly > 0) {
           enhancementData.terminationCosts = {
-            noticePeriodCost: Number(noticeTotal.toFixed(2)),
+            noticePeriodCost: 0,
             severanceCost: Number(severanceTotal.toFixed(2)),
             probationCost: Number(probationTotal.toFixed(2)),
-            totalTerminationCost: Number(termTotal.toFixed(2)),
-            explanation: 'Deterministic termination provision based on Papaya legal profile.',
+            totalTerminationCost: Number((severanceTotal + probationTotal).toFixed(2)),
+            explanation: 'Deterministic termination provision based on Papaya legal profile (severance and probation only).',
             confidence: 0.8,
             basedOnContractMonths: months
           }
@@ -654,11 +652,6 @@ export class EnhancementEngine {
               confidence: 0.8,
               isAlreadyIncluded: false
             }
-          }
-
-          const deterministicNotice = buildComponent(noticeTotal, 'Deterministic notice period provision (legal profile).')
-          if (deterministicNotice) {
-            enhancementData.terminationNotice = deterministicNotice
           }
 
           const deterministicSeverance = buildComponent(severanceTotal, 'Deterministic severance provision (legal profile).')
@@ -712,28 +705,6 @@ export class EnhancementEngine {
           }
         }
 
-        // Employer contributions from Papaya (prefer per-item details over aggregate if provider hasn't included them)
-        const hasLLMAggContrib = !!(groqResponse as any)?.enhancements?.employer_contributions_total && typeof (groqResponse as any)?.enhancements?.employer_contributions_total?.monthly_amount === 'number'
-        const employerRates = lr.contributions?.employerRates || {}
-        const sumRate = Object.values(employerRates).reduce((s, r) => s + (Number(r) || 0), 0)
-        const providerHasContribBreakdown = typeof baseQuote.breakdown?.statutoryContributions === 'number' && isFinite(baseQuote.breakdown!.statutoryContributions!) && (baseQuote.breakdown!.statutoryContributions! > 0)
-        if (!hasLLMAggContrib && !providerHasContribBreakdown && sumRate > 0) {
-          const perItem: Record<string, number> = {}
-          Object.entries(employerRates).forEach(([key, rate]) => {
-            const pct = Number(rate) || 0
-            if (pct > 0) {
-              const monthly = baseSalary * (pct / 100)
-              perItem[`employer_contrib_${key}`] = monthly
-            }
-          })
-          if (Object.keys(perItem).length > 0) {
-            enhancementData.additionalContributions = {
-              ...(enhancementData.additionalContributions || {}),
-              ...perItem
-            }
-          }
-        }
-
         // Common allowances from Papaya (include in all-inclusive mode)
         if (input.quoteType === 'all-inclusive') {
           const allow = lr.allowances || {}
@@ -753,10 +724,19 @@ export class EnhancementEngine {
       }
     } catch { /* noop deterministic safety */ }
 
+    const filterEmployerContrib = (values?: string[]): string[] => {
+      if (!Array.isArray(values)) return []
+      return values.filter(value => {
+        if (typeof value !== 'string') return true
+        const lower = value.toLowerCase()
+        return !(lower.includes('employer') && lower.includes('contrib'))
+      })
+    }
+
     // Build overlap analysis
     const overlapAnalysis: OverlapAnalysis = {
-      providerIncludes: analysis?.provider_coverage || [],
-      providerMissing: analysis?.missing_requirements || [],
+      providerIncludes: filterEmployerContrib(analysis?.provider_coverage as string[]),
+      providerMissing: filterEmployerContrib(analysis?.missing_requirements as string[]),
       doubleCountingRisk: analysis?.double_counting_risks || [],
       recommendations: groqResponse.recommendations || []
     }
@@ -768,10 +748,6 @@ export class EnhancementEngine {
     }
 
     let terminationComponentsAdded = false
-    if (enhancementData.terminationNotice && !enhancementData.terminationNotice.isAlreadyIncluded) {
-      addIf(enhancementData.terminationNotice.monthlyAmount)
-      terminationComponentsAdded = true
-    }
     if (enhancementData.severanceProvision && !enhancementData.severanceProvision.isAlreadyIncluded) {
       addIf(enhancementData.severanceProvision.monthlyAmount)
       terminationComponentsAdded = true
@@ -822,16 +798,84 @@ export class EnhancementEngine {
 
     // Additional contributions (assume monthly values)
     if (enhancementData.additionalContributions) {
-      Object.values(enhancementData.additionalContributions).forEach(v => addIf(v))
-    }
-    // Map aggregate employer contributions total if present in LLM output
-    const aggContrib: any = (groqResponse as any)?.enhancements?.employer_contributions_total
-    if (aggContrib && typeof aggContrib.monthly_amount === 'number' && isFinite(aggContrib.monthly_amount)) {
-      enhancementData.additionalContributions = {
-        ...(enhancementData.additionalContributions || {}),
-        employer_contributions_total: aggContrib.monthly_amount
-      }
-      addIf(aggContrib.monthly_amount)
+      const sanitized: Array<[string, number]> = []
+      Object.entries(enhancementData.additionalContributions).forEach(([key, rawValue]) => {
+        const amount = Number(rawValue)
+        if (!isFinite(amount) || amount <= 0) return
+        const lower = key.toLowerCase()
+
+        // Drop employer contribution style items outright
+        if (lower.includes('employer') && lower.includes('contrib')) return
+
+        if (lower.includes('allowance')) {
+          const promoteMeal = () => {
+            const current = enhancementData.mealVouchers
+            if (current) return true
+            if (!current) {
+              enhancementData.mealVouchers = {
+                monthlyAmount: amount,
+                currency: baseQuote.currency,
+                explanation: 'Additional meal voucher allowance',
+                confidence: 0.5,
+                isAlreadyIncluded: false,
+                isMandatory: false
+              }
+              addIf(amount)
+              return true
+            }
+            return false
+          }
+
+          const promoteTransport = () => {
+            const current = enhancementData.transportationAllowance
+            if (current) return true
+            if (!current) {
+              enhancementData.transportationAllowance = {
+                monthlyAmount: amount,
+                currency: baseQuote.currency,
+                explanation: 'Additional transportation allowance',
+                confidence: 0.5,
+                isAlreadyIncluded: false,
+                isMandatory: input.quoteType === 'statutory-only'
+              }
+              addIf(amount)
+              return true
+            }
+            return false
+          }
+
+          const promoteRemote = () => {
+            const current = enhancementData.remoteWorkAllowance
+            if (current) return true
+            if (!current) {
+              enhancementData.remoteWorkAllowance = {
+                monthlyAmount: amount,
+                currency: baseQuote.currency,
+                explanation: 'Additional remote work allowance',
+                confidence: 0.5,
+                isAlreadyIncluded: false,
+                isMandatory: false
+              }
+              addIf(amount)
+              return true
+            }
+            return false
+          }
+
+          if (lower.includes('meal')) {
+            if (promoteMeal()) return
+          } else if (lower.includes('transport')) {
+            if (promoteTransport()) return
+          } else if (lower.includes('remote') || lower.includes('wfh')) {
+            if (promoteRemote()) return
+          }
+        }
+
+        sanitized.push([key, amount])
+      })
+
+      enhancementData.additionalContributions = Object.fromEntries(sanitized)
+      sanitized.forEach(([, value]) => addIf(value))
     }
 
     let computedMonthlyEnhancement = monthlyEnhancements.reduce((s, n) => s + n, 0)
@@ -974,7 +1018,6 @@ export class EnhancementEngine {
       })
     }
 
-    const noticeTotal = noticeDays > 0 ? (noticeDays / 30) * baseSalary : 0
     const severanceTotal = severanceMonths > 0 ? severanceMonths * baseSalary : 0
     const probationTotal = probationDays > 0 ? (probationDays / 30) * baseSalary : 0
 
@@ -1012,16 +1055,6 @@ export class EnhancementEngine {
     addAllowance('meal_vouchers', 'Meal Vouchers', (allow as any).mealVoucherAmount)
     addAllowance('transportation_allowance', 'Transportation Allowance', (allow as any).transportationAmount)
     addAllowance('remote_work_allowance', 'Remote Work Allowance', (allow as any).remoteWorkAmount)
-
-    // Employer contributions (aggregate monthly cost from percentage rates)
-    const rates = legalProfile?.requirements?.contributions?.employerRates || {}
-    Object.entries(rates).forEach(([k, v]) => {
-      const pct = Math.max(0, Number(v || 0))
-      if (pct > 0) {
-        const amt = Number((baseSalary * (pct / 100)).toFixed(2))
-        items.push({ key: `employer_contrib_${k}`, name: `Employer Contribution - ${k}`, category: 'contributions', mandatory: true, monthly_amount_local: amt })
-      }
-    })
 
     // Subtotals and totals
     const subtotals = items.reduce((acc, it) => {
@@ -1083,8 +1116,7 @@ export class EnhancementEngine {
       vacation_bonus: monthlyOf((prov as any).vacationBonus),
       transportation_allowance: monthlyOf((prov as any).transportAllowance),
       remote_work_allowance: monthlyOf((prov as any).remoteWorkAllowance),
-      meal_vouchers: monthlyOf((prov as any).mealVouchers),
-      social_security: monthlyOf((prov as any).socialSecurity)
+      meal_vouchers: monthlyOf((prov as any).mealVouchers)
     }
 
     // Convert local baseline items → provider currency
@@ -1131,29 +1163,14 @@ export class EnhancementEngine {
         if (key.includes('transport')) return 'transportation_allowance'
         if (key.includes('remote')) return 'remote_work_allowance'
         if (key.includes('meal')) return 'meal_vouchers'
-        if (item.category === 'contributions') return 'employer_contributions_total'
+        if (item.category === 'contributions') return ''
         return key
       })()
 
+      if (!mapKey) return
+
       // Provider coverage for mapped key
       const coverage = (providerCoverage as any)[mapKey] || 0
-
-
-      // Contributions: aggregate as one top-up to avoid duplicate UI entries
-      if (mapKey === 'employer_contributions_total') {
-        const delta = Math.max(0, providerMonthly - Math.max(coverage, 0))
-        if (delta > 0) {
-          enhancements.employer_contributions_total = {
-            monthly_amount: delta,
-            explanation: 'Employer contributions baseline vs provider coverage',
-            confidence: 0.7,
-            already_included: delta === 0
-          }
-          addDelta(delta)
-          missing.push('employer_contributions')
-        }
-        return
-      }
 
       // Regular mapped items
       const delta = Math.max(0, providerMonthly - Math.max(coverage, 0))

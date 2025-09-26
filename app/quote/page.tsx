@@ -271,18 +271,18 @@ const QuotePageContent = memo(() => {
     const actualMonthlyQuote = billRate
 
     // Calculate monthly recurring costs (what goes into bill rate)
-    const recurringMonthly = isAllInclusive ? totalMonthlyQuoteCost : coreMonthlyCost
+    const recurringMonthly = totalMonthlyQuoteCost
 
     // Calculate expected Gracemark fee (45% of total monthly cost of the selected quote)
     const GRACEMARK_FEE_PERCENTAGE = 0.45
-    const expectedGracemarkFeeMonthly = actualMonthlyQuote * GRACEMARK_FEE_PERCENTAGE
+    const expectedGracemarkFeeMonthly = totalMonthlyQuoteCost * GRACEMARK_FEE_PERCENTAGE
 
     // Provider fee is included within Gracemark fee (typically 30% of Gracemark fee)
     const PROVIDER_FEE_RATIO = 0.30
     const providerFeeMonthly = expectedGracemarkFeeMonthly * PROVIDER_FEE_RATIO
 
     // Expected bill rate composition (what we should charge monthly)
-    const expectedBillRateMonthly = actualMonthlyQuote
+    const expectedBillRateMonthly = totalMonthlyQuoteCost + expectedGracemarkFeeMonthly
 
     // Total costs for full assignment (for cash flow check)
     const recurringTotal = recurringMonthly * duration
@@ -1572,16 +1572,21 @@ const QuotePageContent = memo(() => {
                           <div className="text-2xl font-bold text-slate-900 mb-1">
                             {(() => {
                               const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
+                              const recurringMonthly = acidTestResults?.breakdown?.recurringMonthly
                               const recurringMonthlyUSD = acidTestResults?.breakdown?.recurringMonthlyUSD
 
                               if (showUSD && typeof recurringMonthlyUSD === 'number') {
                                 return formatMoney(recurringMonthlyUSD, 'USD')
+                              }
+                              if (!showUSD && typeof recurringMonthly === 'number') {
+                                return formatMoney(recurringMonthly, acidTestResults?.summary?.currency || finalChoice.currency)
                               }
                               return formatMoney(finalChoice.price, finalChoice.currency)
                             })()}
                           </div>
                           {(() => {
                             const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
+                            const recurringMonthly = acidTestResults?.breakdown?.recurringMonthly
                             const recurringMonthlyUSD = acidTestResults?.breakdown?.recurringMonthlyUSD
                             const localCurrency = acidTestResults?.summary?.currency || finalChoice.currency
 
@@ -1591,7 +1596,7 @@ const QuotePageContent = memo(() => {
                                   ≈ {formatMoney(finalChoice.price, finalChoice.currency)} {localCurrency}
                                 </p>
                               )
-                            } else if (!showUSD && typeof recurringMonthlyUSD === 'number') {
+                            } else if (!showUSD && typeof recurringMonthlyUSD === 'number' && typeof recurringMonthly === 'number') {
                               return (
                                 <p className="text-xs text-slate-500">
                                   Approx. {formatMoney(recurringMonthlyUSD, 'USD')} in USD
@@ -3382,54 +3387,16 @@ const QuotePageContent = memo(() => {
         const mv = enh.enhancements.mealVouchers
         if (mv && mv.isAlreadyIncluded !== true) addExtra('Meal Vouchers', Number(mv.monthlyAmount || 0), ['meal voucher'])
 
-        // Main employer contributions
-        const ec = enh.enhancements.employer_contributions_total
-        if (ec && ec.isAlreadyIncluded !== true && typeof ec.monthly_amount === 'number' && ec.monthly_amount > 0) {
-          addExtra('Employer Contributions', Number(ec.monthly_amount), ['employer contributions', 'employer contribution', 'statutory contributions', 'statutory contribution'])
-        }
-
         // Additional contributions and local office
         const addc = enh.enhancements.additionalContributions || {}
-        let contribAgg = 0
-        let contribPerItem = 0
-        let contribAggPresent = false
         const localExtras: Array<{ name: string; amount: number; guards?: string[] }> = []
-
-        // Check if main enhancements already have employer contributions to prevent duplication
-        const hasMainEmployerContrib = !!(enh.enhancements?.employer_contributions_total)
-        if (hasMainEmployerContrib && addc.employer_contributions_total) {
-          console.warn('[Quote Processing] Skipping employer_contributions_total from additionalContributions - already present in main enhancements', {
-            main: enh.enhancements.employer_contributions_total,
-            additional: addc.employer_contributions_total
-          })
-        }
 
         Object.entries(addc).forEach(([k, v]) => {
           const n = Number(v)
           if (!isFinite(n) || n <= 0) return
           const key = String(k || '').toLowerCase()
 
-          // Skip employer contributions from additionalContributions if already in main enhancements
-          if ((key === 'employer_contributions_total' || (key.includes('baseline') && key.includes('employer') && key.includes('contribution'))) && hasMainEmployerContrib) {
-            return // Skip this item to prevent duplication
-          }
-
-          if (key === 'employer_contributions_total' || (key.includes('baseline') && key.includes('employer') && key.includes('contribution'))) {
-            contribAgg += n
-            contribAggPresent = true
-            return
-          }
-          if (key.startsWith('employer_contrib_') || (key.includes('employer') && key.includes('contribution'))) {
-            // Also check individual employer contribution items to prevent semantic duplicates
-            if (hasMainEmployerContrib) {
-              const mainAmount = Number(enh.enhancements.employer_contributions_total?.monthly_amount || 0)
-              // If individual items might sum to similar amount as main, skip them to prevent double-counting
-              console.warn(`[Quote Processing] Skipping individual employer contribution '${k}' (${n}) - main employer contribution already exists (${mainAmount})`)
-              return
-            }
-            contribPerItem += n
-            return
-          }
+          if (key.includes('employer') && key.includes('contribution')) return
           // Local office and other non-contribution extras
           const label = key.includes('local_meal_voucher') ? 'Meal Voucher (Local Office)'
             : key.includes('local_transportation') ? 'Transportation (Local Office)'
@@ -3441,8 +3408,6 @@ const QuotePageContent = memo(() => {
           localExtras.push({ name: label, amount: n })
         })
 
-        const contribTotal = contribAggPresent ? contribAgg : contribPerItem
-        if (contribTotal > 0) addExtra('Employer Contributions', contribTotal, ['employer contributions', 'employer contribution', 'statutory contributions', 'statutory contribution'])
         localExtras.forEach(le => addExtra(le.name, le.amount))
       }
     } catch { /* noop */ }

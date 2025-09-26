@@ -296,10 +296,6 @@ RULES: amounts monthly in quote currency; include benefits found with amount > 0
       if (p.toLowerCase().includes('13th')) parts.push('13TH SALARY: may be required')
       if (p.toLowerCase().includes('14th')) parts.push('14TH SALARY: may be required')
     }
-    if (papayaData.data.contribution?.employer_contributions) {
-      const first = papayaData.data.contribution.employer_contributions.slice(0, 3).map((c: { description: string; rate: string }) => `${c.description}: ${c.rate}`)
-      if (first.length) parts.push(`CONTRIBUTIONS: ${first.join(', ')}`)
-    }
     if (papayaData.data.authority_payments?.length) {
       const first = papayaData.data.authority_payments.slice(0, 3).map((ap: { authority_payment?: string; dates?: string }) => `${ap.authority_payment || 'Authority'}: ${ap.dates || 'Payment required'}`)
       if (first.length) parts.push(`AUTHORITY_PAYMENTS: ${first.join(', ')}`)
@@ -382,7 +378,7 @@ FORM DATA LOGIC (CRITICAL):
 - quoteType = "all-inclusive" + addBenefits = false → Include ONLY mandatory items
 
 BENEFIT CATEGORIES:
-1. MANDATORY BENEFITS: Always include if missing (13th salary, severance/probation provisions, required contributions, authority payments)
+1. MANDATORY BENEFITS: Always include if missing (13th salary, severance/probation provisions, authority payments)
 2. COMMON BENEFITS: Include only if quoteType="all-inclusive" AND addBenefits=true
 
 PROVIDER-SPECIFIC GAP ANALYSIS:
@@ -476,7 +472,6 @@ ${quoteType === 'statutory-only'
       'MANDATORY BENEFITS (always include if missing):',
       '• 13th Salary: Check payroll section for "Aguinaldo" or "13th month"',
       '• Termination Provisions: Check termination section (severance + probation obligations)',
-      '• Required Contributions: Check employer contribution requirements and authority payments',
       '',
       includeCommonBenefits ? [
         'COMMON BENEFITS (include if missing):',
@@ -549,23 +544,17 @@ ${quoteType === 'statutory-only'
       '   • Search for vacation bonus, vacation pay percentages → Calculate accordingly',
       '   • Look for payment cycle requirements and additional salary components',
       '',
-      '3. EMPLOYER CONTRIBUTION SECTION ANALYSIS:',
-      '   • Parse EVERY employer contribution percentage and amount',
-      '   • Calculate monthly costs: (BASE_SALARY × percentage) for each contribution',
-      '   • Include: pension, health, employment fund, insurance contributions',
-      '   • Fixed amounts (like "176 ARS") → add directly to monthly costs',
-      '',
-      '4. COMMON_BENEFITS SECTION PARSING (when addBenefits=true):',
+      '3. COMMON_BENEFITS SECTION PARSING (when addBenefits=true):',
       '   • Parse EVERY line containing benefit amounts',
       '   • Extract amounts in format "X to Y currency" → use midpoint: (X+Y)÷2',
       '   • Convert daily amounts to monthly: daily_amount × 22 working days',
       '   • Create separate objects for each benefit found',
       '',
-      '5. MINIMUM_WAGE & AUTHORITY_PAYMENTS:',
+      '4. MINIMUM_WAGE & AUTHORITY_PAYMENTS:',
       '   • Check for mandatory payment requirements',
       '   • Look for fixed costs that employers must pay',
       '',
-      '6. LEAVE SECTION ANALYSIS:',
+      '5. LEAVE SECTION ANALYSIS:',
       '   • Check for paid leave that employers must fund',
       '   • Calculate if there are specific employer costs mentioned',
       '',
@@ -579,21 +568,18 @@ ${quoteType === 'statutory-only'
       'TYPE 2 - FIXED ALLOWANCES (meal, transport, internet, mobile, gym):',
       '{"monthly_amount": X, "explanation": "Papaya text quote", "already_included": boolean, "mandatory": boolean}',
       '',
-      'TYPE 3 - PERCENTAGE-BASED CONTRIBUTIONS (pension, health, social security):',
-      '{"monthly_amount": X, "percentage": "Y%", "calculation_base": BASE_SALARY, "explanation": "Papaya text quote", "already_included": boolean}',
-      '',
-      'TYPE 4 - TERMINATION COMPONENTS (always calculate - no gap analysis):',
+      'TYPE 3 - TERMINATION COMPONENTS (always calculate - no gap analysis):',
       '{"monthly_amount": X, "total_amount": Y, "explanation": "Papaya termination requirement", "already_included": boolean}',
       '  • Emit separate objects for "severance_provision" and "probation_provision"',
       '',
-      'TYPE 5 - RANGE-BASED BENEFITS (amounts like "5,000 to 7,000"):',
+      'TYPE 4 - RANGE-BASED BENEFITS (amounts like "5,000 to 7,000"):',
       '{"monthly_amount": midpoint, "min_amount": X, "max_amount": Y, "explanation": "Papaya text quote", "already_included": boolean}',
       '',
-      'TYPE 6 - DAILY-TO-MONTHLY CONVERSION:',
+      'TYPE 5 - DAILY-TO-MONTHLY CONVERSION:',
       '{"monthly_amount": daily_amount * 22, "daily_amount": X, "explanation": "Papaya text quote", "already_included": boolean}',
       '',
       'NAMING CONVENTIONS:',
-      '• Use descriptive snake_case: "private_health_insurance", "employer_pension_contribution"',
+      '• Use descriptive snake_case: "private_health_insurance", "internet_allowance"',
       '• Be specific: "meal_vouchers" not "meal", "internet_allowance" not "internet"',
       '• Match Papaya terminology when possible',
       '',
@@ -609,7 +595,7 @@ ${quoteType === 'statutory-only'
           "provider_coverage": ["List what ${provider} actually includes"],
           "missing_requirements": ["List what ${provider} is missing"],
           "benefit_mode": "${quoteType === 'statutory-only' ? 'statutory-only' : (includeCommonBenefits ? 'inclusive+benefits' : 'inclusive-only-mandatory')}",
-          "papaya_sections_parsed": ["payroll", "termination", "common_benefits", "contribution"],
+          "papaya_sections_parsed": ["payroll", "termination", "common_benefits"],
           "total_benefits_found": 0
         },
         "enhancements": {
@@ -622,7 +608,6 @@ ${quoteType === 'statutory-only'
           // "internet_allowance": {...},
           // "meal_vouchers": {...},
           // "transportation_allowance": {...},
-          // "employer_health_contribution": {...},
           // etc.
         },
         "totals": {
@@ -641,9 +626,8 @@ ${quoteType === 'statutory-only'
       '',
       'COMPREHENSIVE COVERAGE REQUIREMENTS:',
       '• TERMINATION COSTS: ALWAYS calculate severance and probation components if termination section exists - NO exceptions, NO gap analysis',
-      '• MANDATORY BENEFITS: Always include regardless of form settings (13th salary, contributions, authority payments)',
+      '• MANDATORY BENEFITS: Always include regardless of form settings (13th salary, statutory bonuses, termination provisions)',
       '• COMMON BENEFITS: Include ALL when addBenefits=true (be exhaustive)',
-      '• EMPLOYER CONTRIBUTIONS: Calculate and include every percentage/amount',
       '• RANGES: Use midpoint calculations for "X to Y" amounts',
       '',
       'ROBUST COST CALCULATION RULES:',
@@ -717,7 +701,7 @@ STRICT RULES:
 - Currency: ALWAYS output in the local country currency detected from Papaya (no conversion). Use that as the single output currency.
 - Base salary: The base salary provided is MONTHLY and must be used as-is.
 - Quote types:
-  - statutory-only: include ONLY legally mandated employer costs (social security, mandatory pension/insurances, mandatory bonuses where applicable, legally required allowances, and termination provisions if applicable and monthlyized).
+  - statutory-only: include ONLY legally mandated salary components, statutory allowances, and termination provisions (monthlyized when required).
   - all-inclusive: include statutory baseline PLUS commonly provided allowances/benefits listed by Papaya with clear amounts.
 - Statutory-only EXCLUSIONS: Do NOT include enhanced/optional pension uplifts, private healthcare, meal/food allowances, remote/WFH allowances, car allowances, wellness/gym, or any other common benefits that are not explicitly mandated by law. Do NOT include leave entitlements (e.g., paternity/maternity) as monthly costs unless Papaya specifies a concrete monthly employer payment.
 - Conditional items: If a statutory item is conditional (e.g., UK Apprenticeship Levy requires exceeding a paybill threshold) and the condition cannot be determined from inputs, set the amount to 0 and add a short warning.
@@ -739,7 +723,6 @@ RESPONSE JSON SHAPE (exact keys):
       { "key": "string", "name": "string", "monthly_amount": 0 }
     ],
     "subtotals": {
-      "contributions": 0,
       "bonuses": 0,
       "allowances": 0,
       "termination": 0
@@ -871,13 +854,13 @@ RESPONSE JSON SHAPE (exact keys):
       '',
       includeCommonBenefits ? [
         'BENEFIT INCLUSION RULES:',
-        '• MANDATORY BENEFITS: Always include if missing (13th salary, termination costs, required contributions)',
+        '• MANDATORY BENEFITS: Always include if missing (13th salary, termination costs, statutory allowances)',
         '• COMMON BENEFITS: Include ALL when addBenefits=true (meal vouchers, transportation, allowances)',
         '• Use Papaya amounts and convert to monthly as needed',
         ''
       ].join('\n') : [
         'BENEFIT INCLUSION RULES:',
-        '• MANDATORY ONLY: Include only legally required items (13th salary, termination costs, required contributions)',
+        '• MANDATORY ONLY: Include only legally required items (13th salary, termination costs, statutory allowances)',
         '• SKIP COMMON BENEFITS: Do not include meal vouchers, transportation allowances, or other optional benefits',
         ''
       ].join('\n'),
@@ -897,7 +880,7 @@ RESPONSE JSON SHAPE (exact keys):
       (quoteType === 'all-inclusive' && addBenefitsFlag === false
         ? '  * All-inclusive + addBenefits=false (THIS REQUEST): Include only mandatory items'
         : '  * All-inclusive + addBenefits=false (not this request): Include only mandatory items'),
-      '- MANDATORY ALWAYS: employer contributions, authority payments, 13th/14th salary (if required), termination costs',
+      '- MANDATORY ALWAYS: authority payments, 13th/14th salary (if required), termination costs',
       includeCommonBenefits
         ? '- COMMON BENEFITS (INCLUDE): meal vouchers, transportation, internet/mobile allowances, WFH stipends from Papaya common_benefits section'
         : '- COMMON BENEFITS (EXCLUDE): meal vouchers, transportation, internet/mobile allowances, WFH stipends',
