@@ -509,18 +509,16 @@ const QuotePageContent = memo(() => {
       return
     }
 
-    if (!acidTestCostData || !finalChoice || !quoteData?.formData) {
+    if (!acidTestCostData || !finalChoice) {
       setIsComputingAcidTest(false)
       setAcidTestResults(null)
       return
     }
 
-    // Use automatic values instead of user inputs
-    const automaticBillRate = finalChoice.price
-    const automaticDuration = Number((quoteData.formData as EORFormData)?.contractDuration) || 6
-    const automaticIsAllInclusive = true // Most quotes are all-inclusive
+    const resolvedBillRate = monthlyBillRate > 0 ? monthlyBillRate : (finalChoice.price || 0)
+    const resolvedDuration = projectDuration
 
-    if (automaticBillRate <= 0 || automaticDuration <= 0) {
+    if (resolvedBillRate <= 0 || resolvedDuration <= 0) {
       setIsComputingAcidTest(false)
       setAcidTestResults(null)
       return
@@ -529,7 +527,7 @@ const QuotePageContent = memo(() => {
     let cancelled = false
     setIsComputingAcidTest(true)
 
-    buildAcidTestCalculation(acidTestCostData, automaticBillRate, automaticDuration, automaticIsAllInclusive)
+    buildAcidTestCalculation(acidTestCostData, resolvedBillRate, resolvedDuration, isAllInclusiveQuote)
       .then(result => {
         if (!cancelled) {
           setAcidTestError(null)
@@ -550,7 +548,15 @@ const QuotePageContent = memo(() => {
     return () => {
       cancelled = true
     }
-  }, [showAcidTestForm, acidTestCostData, finalChoice, quoteData?.formData, buildAcidTestCalculation])
+  }, [
+    showAcidTestForm,
+    acidTestCostData,
+    finalChoice,
+    monthlyBillRate,
+    projectDuration,
+    isAllInclusiveQuote,
+    buildAcidTestCalculation
+  ])
 
   // Body scroll lock when modal is open
   useEffect(() => {
@@ -1608,8 +1614,8 @@ const QuotePageContent = memo(() => {
                           <p className="text-xs text-slate-500">from {finalChoice.provider}</p>
                         </div>
 
-                        {/* Right: Currency Toggle */}
-                        <div className="flex flex-col items-end">
+                        {/* Right: Controls */}
+                        <div className="flex flex-col items-end gap-3">
                           {acidTestResults && acidTestHasUSDData ? (
                             <div className="inline-flex items-center gap-1 bg-slate-100 rounded-lg p-1 shadow-sm">
                               <button
@@ -1636,10 +1642,33 @@ const QuotePageContent = memo(() => {
                               </button>
                             </div>
                           ) : (
-                            <div className="text-sm text-slate-500">
+                            <Badge className="bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1 text-xs">
                               Currency: {finalChoice.currency}
-                            </div>
+                            </Badge>
                           )}
+
+                          <div className="flex flex-col items-end">
+                            <label
+                              htmlFor="acid-test-duration"
+                              className="text-xs font-semibold text-slate-600 uppercase tracking-wide"
+                            >
+                              Project Duration (months)
+                            </label>
+                            <Input
+                              id="acid-test-duration"
+                              type="number"
+                              min={1}
+                              max={120}
+                              value={projectDuration > 0 ? projectDuration : ''}
+                              onChange={event => handleDurationChange(event.target.value)}
+                              className="mt-1 w-28 text-right"
+                            />
+                            {acidTestValidation.durationError && (
+                              <span className="mt-1 text-xs text-red-500">
+                                {acidTestValidation.durationError}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -3063,6 +3092,10 @@ const QuotePageContent = memo(() => {
     setIsComputingAcidTest(false);
     setAcidTestValidation({});
     setShowAcidTestForm(true);
+
+    const configuredDuration = Number((quoteData?.formData as EORFormData)?.contractDuration) || 6;
+    setProjectDuration(configuredDuration);
+    setMonthlyBillRate(finalChoice.price || 0);
 
     void extractSelectedQuoteData(finalChoice)
       .then(result => {
