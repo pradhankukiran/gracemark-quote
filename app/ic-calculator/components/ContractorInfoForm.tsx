@@ -8,19 +8,32 @@ import { FORM_STYLES } from "../../eor-calculator/styles/constants"
 interface ContractorInfoFormProps {
   contractorName: string
   serviceType: string
+  country: string
+  currency: string
   serviceTypes: string[]
+  countries: string[]
   onFormUpdate: (updates: Partial<ICFormData>) => void
+  onCountryChange: (country: string) => void
 }
 
 export const ContractorInfoForm = memo(({
   contractorName,
   serviceType,
+  country,
+  currency,
   serviceTypes,
+  countries,
   onFormUpdate,
+  onCountryChange,
 }: ContractorInfoFormProps) => {
   const serviceTypeOptions = useMemo(() =>
     serviceTypes.map(type => ({ value: type, label: type })),
     [serviceTypes]
+  )
+
+  const countryOptions = useMemo(() =>
+    countries.map(country => ({ value: country, label: country })),
+    [countries]
   )
 
   const handleContractorNameChange = useCallback((value: string) => {
@@ -30,6 +43,10 @@ export const ContractorInfoForm = memo(({
   const handleServiceTypeChange = useCallback((value: string) => {
     onFormUpdate({ serviceType: value })
   }, [onFormUpdate])
+
+  const handleCountryChange = useCallback((value: string) => {
+    onCountryChange(value)
+  }, [onCountryChange])
 
   return (
     <div>
@@ -57,6 +74,24 @@ export const ContractorInfoForm = memo(({
           placeholder="Select service type"
           options={serviceTypeOptions}
           required
+        />
+        <FormField
+          type="select"
+          label="Country"
+          htmlFor="country"
+          value={country}
+          onChange={handleCountryChange}
+          placeholder="Select country"
+          options={countryOptions}
+          required
+        />
+        <FormField
+          type="input"
+          label="Currency"
+          htmlFor="currency"
+          value={currency}
+          onChange={() => {}} // Currency is auto-updated based on country
+          readOnly
         />
       </div>
     </div>

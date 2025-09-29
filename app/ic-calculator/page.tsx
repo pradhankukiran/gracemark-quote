@@ -11,7 +11,6 @@ import { useICQuoteCalculation } from "./hooks/useICQuoteCalculation"
 
 import { ContractorInfoForm } from "./components/ContractorInfoForm"
 import { RateConfigurationForm } from "./components/RateConfigurationForm"
-import { LocationForm } from "./components/LocationForm"
 import { ContractDetailsForm } from "./components/ContractDetailsForm"
 import { FormActions } from "./components/FormActions"
 import { QuoteResults } from "./components/QuoteResults"
@@ -91,8 +90,12 @@ export default function ICCalculatorPage() {
                 <ContractorInfoForm
                   contractorName={formData.contractorName}
                   serviceType={formData.serviceType}
+                  country={formData.country}
+                  currency={currency}
                   serviceTypes={serviceTypes}
+                  countries={countries}
                   onFormUpdate={updateFormData}
+                  onCountryChange={handleCountryChange}
                 />
 
                 <Separator />
@@ -101,19 +104,6 @@ export default function ICCalculatorPage() {
                   rateType={formData.rateType}
                   rateAmount={formData.rateAmount}
                   onFormUpdate={updateFormData}
-                />
-
-                <Separator />
-
-                <LocationForm
-                  country={formData.country}
-                  state={formData.state}
-                  currency={currency}
-                  countries={countries}
-                  availableStates={availableStates}
-                  showStateDropdown={showStateDropdown}
-                  onFormUpdate={updateFormData}
-                  onCountryChange={handleCountryChange}
                 />
 
                 <Separator />
