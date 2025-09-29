@@ -313,10 +313,26 @@ const QuotePageContent = memo(() => {
   const [monthlyBillRate, setMonthlyBillRate] = useState<number>(0)
   const [projectDuration, setProjectDuration] = useState<number>(6)
   const [isAllInclusiveQuote, setIsAllInclusiveQuote] = useState<boolean>(true)
-  const [acidTestDisplayCurrency, setAcidTestDisplayCurrency] = useState<"local" | "usd">("local")
   const [acidTestResults, setAcidTestResults] = useState<AcidTestCalculationResult | null>(null)
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
   const [isExportingResults, setIsExportingResults] = useState(false)
+
+  // New Bill Rate Calculator state
+  const [billRateInput, setBillRateInput] = useState<number>(0)
+  const [billRateCurrency, setBillRateCurrency] = useState<'local' | 'USD'>('local')
+  const [durationInput, setDurationInput] = useState<number>(6)
+  const [profitabilityResults, setProfitabilityResults] = useState<{
+    totalRevenue: number
+    totalCosts: number
+    profit: number
+    profitUSD?: number
+    isProfit: boolean
+    meetsMinimum: boolean
+    currency: string
+    totalRevenueOther?: number
+    totalCostsOther?: number
+    otherCurrency?: string
+  } | null>(null)
   const acidTestHasUSDData = useMemo(() => {
     if (!acidTestResults) return false
     if (acidTestResults.summary.currency === 'USD') return false
@@ -373,25 +389,6 @@ const QuotePageContent = memo(() => {
 
   const MIN_PROFIT_THRESHOLD_USD = 1000
 
-  useEffect(() => {
-    if (!acidTestResults) {
-      if (acidTestDisplayCurrency !== 'local') {
-        setAcidTestDisplayCurrency('local')
-      }
-      return
-    }
-
-    if (acidTestResults.summary.currency === 'USD') {
-      if (acidTestDisplayCurrency !== 'local') {
-        setAcidTestDisplayCurrency('local')
-      }
-      return
-    }
-
-    if (!acidTestHasUSDData && acidTestDisplayCurrency === 'usd') {
-      setAcidTestDisplayCurrency('local')
-    }
-  }, [acidTestResults, acidTestHasUSDData, acidTestDisplayCurrency])
 
   const buildAcidTestCalculation = useCallback(async (
     costData: AcidTestCostData,
@@ -399,7 +396,10 @@ const QuotePageContent = memo(() => {
     duration: number,
     isAllInclusive: boolean
   ): Promise<AcidTestCalculationResult> => {
-    // Calculate component totals for full assignment
+    // Use the authoritative reconciliation price instead of recalculating
+    const totalMonthlyQuoteCost = finalChoice?.price || 0
+
+    // Calculate component totals for full assignment (for breakdown display)
     const salaryTotal = costData.baseSalaryMonthly * duration
     const statutoryTotal = costData.statutoryMonthly * duration
     const allowancesTotal = costData.allowancesMonthly * duration
@@ -407,9 +407,9 @@ const QuotePageContent = memo(() => {
     const terminationTotal = isAllInclusive ? (costData.terminationMonthly * duration) : 0
     const oneTimeTotal = costData.oneTimeTotal
 
+    // For display purposes only - these are not used in the main calculation
     const coreMonthlyCost = costData.baseSalaryMonthly + costData.statutoryMonthly + costData.allowancesMonthly
     const terminationMonthlyFull = costData.terminationMonthly
-    const totalMonthlyQuoteCost = coreMonthlyCost + terminationMonthlyFull
     const actualMonthlyQuote = billRate
 
     // Calculate monthly recurring costs (what goes into bill rate)
@@ -643,7 +643,103 @@ const QuotePageContent = memo(() => {
       },
       conversionError,
     }
-  }, [])
+  }, [finalChoice])
+
+  const calculateProfitability = useCallback(async (
+    billRate: number,
+    duration: number
+  ) => {
+    if (!acidTestCostData || billRate <= 0 || duration <= 0) {
+      setProfitabilityResults(null)
+      return
+    }
+
+    const localCurrency = acidTestCostData.currency
+    const billCurrency = billRateCurrency === 'local' ? localCurrency : 'USD'
+
+    // Calculate total costs in local currency (what we pay out)
+    const monthlyProviderCosts = acidTestCostData.baseSalaryMonthly +
+                                acidTestCostData.statutoryMonthly +
+                                acidTestCostData.allowancesMonthly +
+                                acidTestCostData.terminationMonthly
+    const totalCostsLocal = (monthlyProviderCosts * duration) + acidTestCostData.oneTimeTotal
+
+    // Calculate total revenue and costs in the same currency for comparison
+    let totalRevenue: number
+    let totalCosts: number
+    let revenueInOtherCurrency: number | undefined
+    let costsInOtherCurrency: number | undefined
+
+    try {
+      if (billCurrency === localCurrency) {
+        // Both in local currency
+        totalRevenue = billRate * duration
+        totalCosts = totalCostsLocal
+
+        // Convert to USD for display
+        if (localCurrency !== 'USD') {
+          const revenueUSDRaw = await convertCurrency(totalRevenue, localCurrency, 'USD')
+          const costsUSDRaw = await convertCurrency(totalCosts, localCurrency, 'USD')
+
+          // Validate conversion results
+          revenueInOtherCurrency = (typeof revenueUSDRaw === 'number' && !isNaN(revenueUSDRaw)) ? revenueUSDRaw : undefined
+          costsInOtherCurrency = (typeof costsUSDRaw === 'number' && !isNaN(costsUSDRaw)) ? costsUSDRaw : undefined
+        }
+      } else {
+        // Bill rate in USD, costs in local currency
+        totalRevenue = billRate * duration // in USD
+        const costsUSDRaw = await convertCurrency(totalCostsLocal, localCurrency, 'USD')
+        totalCosts = (typeof costsUSDRaw === 'number' && !isNaN(costsUSDRaw)) ? costsUSDRaw : totalCostsLocal
+
+        // Convert to local currency for display
+        const revenueLocalRaw = await convertCurrency(totalRevenue, 'USD', localCurrency)
+        revenueInOtherCurrency = (typeof revenueLocalRaw === 'number' && !isNaN(revenueLocalRaw)) ? revenueLocalRaw : undefined
+        costsInOtherCurrency = totalCostsLocal
+      }
+    } catch (error) {
+      console.error('Currency conversion failed:', error)
+      // Fallback to local currency calculation
+      totalRevenue = billRate * duration
+      totalCosts = totalCostsLocal
+    }
+
+    // Calculate profit in the primary currency
+    const profit = totalRevenue - totalCosts
+    const isProfit = profit > 0
+
+    // Convert to USD for minimum check
+    let profitUSD: number | undefined
+    let meetsMinimum = false
+
+    try {
+      if (billCurrency === 'USD') {
+        profitUSD = profit
+      } else {
+        const profitUSDRaw = await convertCurrency(profit, localCurrency, 'USD')
+        // Validate conversion result
+        profitUSD = (typeof profitUSDRaw === 'number' && !isNaN(profitUSDRaw)) ? profitUSDRaw : undefined
+      }
+
+      meetsMinimum = profitUSD !== undefined && profitUSD >= MIN_PROFIT_THRESHOLD_USD
+    } catch (error) {
+      console.error('Currency conversion failed:', error)
+      profitUSD = undefined
+    }
+
+    setProfitabilityResults({
+      totalRevenue,
+      totalCosts,
+      profit,
+      profitUSD,
+      isProfit,
+      meetsMinimum,
+      currency: billCurrency,
+      // Additional data for dual currency display
+      totalRevenueOther: revenueInOtherCurrency,
+      totalCostsOther: costsInOtherCurrency,
+      otherCurrency: billCurrency === 'USD' ? localCurrency : 'USD'
+    })
+  }, [acidTestCostData, billRateCurrency, convertCurrency])
 
   useEffect(() => {
     if (!showAcidTestForm) {
@@ -1077,7 +1173,16 @@ const QuotePageContent = memo(() => {
     const enhancement = enhancements[provider]
     const enhancedMonthly = enhancement ? parseNumericValue(enhancement.finalTotal) : null
 
-    // Use enhanced total if available (it already includes all enhancements)
+    // Detect inflated enhanced quotes by comparing to base (sanity check)
+    const isEnhancedInflated = enhancedMonthly !== null && baseTotal !== null &&
+                              enhancedMonthly > baseTotal * 2.5 // Enhanced shouldn't be more than 2.5x base
+
+    // Use base total if enhanced appears inflated from old buggy calculations
+    if (isEnhancedInflated) {
+      return baseTotal
+    }
+
+    // Use enhanced total if available and reasonable
     if (enhancedMonthly !== null && enhancedMonthly > 0) {
       return enhancedMonthly
     }
@@ -1789,35 +1894,25 @@ const QuotePageContent = memo(() => {
                           </div>
                           <div className="text-2xl font-bold text-slate-900 mb-1">
                             {(() => {
-                              const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
                               const recurringMonthly = acidTestResults?.breakdown?.recurringMonthly
-                              const recurringMonthlyUSD = acidTestResults?.breakdown?.recurringMonthlyUSD
+                              const localCurrency = acidTestResults?.summary?.currency || finalChoice.currency
 
-                              if (showUSD && typeof recurringMonthlyUSD === 'number') {
-                                return formatMoney(recurringMonthlyUSD, 'USD')
-                              }
-                              if (!showUSD && typeof recurringMonthly === 'number') {
-                                return formatMoney(recurringMonthly, acidTestResults?.summary?.currency || finalChoice.currency)
+                              if (typeof recurringMonthly === 'number') {
+                                return formatMoney(recurringMonthly, localCurrency)
                               }
                               return formatMoney(finalChoice.price, finalChoice.currency)
                             })()}
                           </div>
                           {(() => {
-                            const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
                             const recurringMonthly = acidTestResults?.breakdown?.recurringMonthly
                             const recurringMonthlyUSD = acidTestResults?.breakdown?.recurringMonthlyUSD
                             const localCurrency = acidTestResults?.summary?.currency || finalChoice.currency
 
-                            if (showUSD && typeof recurringMonthlyUSD === 'number') {
+                            // Show USD equivalent if local currency is not USD and we have USD data
+                            if (localCurrency !== 'USD' && typeof recurringMonthlyUSD === 'number') {
                               return (
                                 <p className="text-xs text-slate-500">
-                                  ≈ {formatMoney(finalChoice.price, finalChoice.currency)} {localCurrency}
-                                </p>
-                              )
-                            } else if (!showUSD && typeof recurringMonthlyUSD === 'number' && typeof recurringMonthly === 'number') {
-                              return (
-                                <p className="text-xs text-slate-500">
-                                  Approx. {formatMoney(recurringMonthlyUSD, 'USD')} in USD
+                                  ≈ {formatMoney(recurringMonthlyUSD, 'USD')}
                                 </p>
                               )
                             }
@@ -1828,59 +1923,35 @@ const QuotePageContent = memo(() => {
 
                         {/* Right: Controls */}
                         <div className="flex flex-col items-end gap-3">
-                          {acidTestResults && acidTestHasUSDData ? (
-                            <div className="inline-flex items-center gap-1 bg-slate-100 rounded-lg p-1 shadow-sm">
-                              <button
-                                type="button"
-                                onClick={() => setAcidTestDisplayCurrency("local")}
-                                className={`px-3 py-2 text-sm font-semibold rounded-md transition-all ${
-                                  acidTestDisplayCurrency === "local"
-                                    ? 'bg-white text-slate-900 shadow-sm'
-                                    : 'text-slate-600 hover:text-slate-900'
-                                }`}
-                              >
-                                Local ({acidTestResults.summary.currency})
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setAcidTestDisplayCurrency("usd")}
-                                className={`px-3 py-2 text-sm font-semibold rounded-md transition-all ${
-                                  acidTestDisplayCurrency === "usd"
-                                    ? 'bg-white text-slate-900 shadow-sm'
-                                    : 'text-slate-600 hover:text-slate-900'
-                                }`}
-                              >
-                                USD
-                              </button>
-                            </div>
-                          ) : (
-                            <Badge className="bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1 text-xs">
-                              Currency: {finalChoice.currency}
-                            </Badge>
-                          )}
+                          <Badge className="bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1 text-xs">
+                            Local: {finalChoice.currency}
+                          </Badge>
 
-                          <div className="flex flex-col items-end">
-                            <label
-                              htmlFor="acid-test-duration"
-                              className="text-xs font-semibold text-slate-600 uppercase tracking-wide"
-                            >
-                              Project Duration (months)
-                            </label>
-                            <Input
-                              id="acid-test-duration"
-                              type="number"
-                              min={1}
-                              max={120}
-                              value={projectDuration > 0 ? projectDuration : ''}
-                              onChange={event => handleDurationChange(event.target.value)}
-                              className="mt-1 w-28 text-right"
-                            />
-                            {acidTestValidation.durationError && (
-                              <span className="mt-1 text-xs text-red-500">
-                                {acidTestValidation.durationError}
-                              </span>
-                            )}
-                          </div>
+                          {/* Old duration input - hidden since we now have the new calculator below */}
+                          {false && (
+                            <div className="flex flex-col items-end">
+                              <label
+                                htmlFor="acid-test-duration"
+                                className="text-xs font-semibold text-slate-600 uppercase tracking-wide"
+                              >
+                                Project Duration (months)
+                              </label>
+                              <Input
+                                id="acid-test-duration"
+                                type="number"
+                                min={1}
+                                max={120}
+                                value={projectDuration > 0 ? projectDuration : ''}
+                                onChange={event => handleDurationChange(event.target.value)}
+                                className="mt-1 w-28 text-right"
+                              />
+                              {acidTestValidation.durationError && (
+                                <span className="mt-1 text-xs text-red-500">
+                                  {acidTestValidation.durationError}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1955,35 +2026,17 @@ const QuotePageContent = memo(() => {
                                   : 'Warning - Profit below the USD 1,000 minimum')
                               : 'Fail - Project is not profitable'
 
-                            const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
-                            let usedLocalFallback = false
-
+                            // Always show local currency as primary, with USD as secondary when available
                             const formatAmount = (localValue: number, usdValue?: number) => {
-                              if (showUSD) {
-                                if (typeof usdValue === 'number') {
-                                  return formatMoney(usdValue, 'USD')
-                                }
-                                usedLocalFallback = true
-                              }
                               return formatMoney(localValue, summary.currency)
                             }
 
                             const renderApproxLine = (localValue: number, usdValue?: number) => {
-                              if (showUSD) {
-                                if (typeof usdValue === 'number') {
-                                  return (
-                                    <p className="text-xs text-slate-500">
-                                      ≈ {formatMoney(localValue, summary.currency)} {summary.currency}
-                                    </p>
-                                  )
-                                }
-                                return null
-                              }
-
+                              // Show USD equivalent if local currency is not USD and we have USD data
                               if (summary.currency !== 'USD' && typeof usdValue === 'number') {
                                 return (
                                   <p className="text-xs text-slate-500">
-                                    Approx. {formatMoney(usdValue, 'USD')} in USD
+                                    ≈ {formatMoney(usdValue, 'USD')}
                                   </p>
                                 )
                               }
@@ -2004,11 +2057,6 @@ const QuotePageContent = memo(() => {
 
                             return (
                               <div className="space-y-6">
-                                {showUSD && usedLocalFallback && (
-                                  <p className="text-xs text-amber-600 text-center">
-                                    Some USD conversions are unavailable; showing local currency where needed.
-                                  </p>
-                                )}
                                 {/* <div className="grid gap-4 lg:grid-cols-3">
                                   <div className="flex h-full flex-col gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
                                     <div className="flex items-center gap-2 text-slate-700">
@@ -2087,50 +2135,25 @@ const QuotePageContent = memo(() => {
                                       <div className="text-center">
                                         <p className="text-sm text-slate-500 mb-1">Monthly Bill Rate</p>
                                         <p className="text-xl font-bold text-blue-600">
-                                          {(() => {
-                                            const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
-                                            const monthlyUSD = billRateComposition.actualBillRateUSD
-                                            if (showUSD && typeof monthlyUSD === 'number') {
-                                              return formatMoney(monthlyUSD, 'USD')
-                                            }
-                                            return formatMoney(summary.billRateMonthly, summary.currency)
-                                          })()}
+                                          {formatMoney(summary.billRateMonthly, summary.currency)}
                                         </p>
                                       </div>
                                       <div className="text-center">
                                         <p className="text-sm text-slate-500 mb-1">Total Revenue</p>
                                         <p className="text-xl font-bold text-green-600">
-                                          {(() => {
-                                            const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
-                                            if (showUSD && typeof summary.revenueUSD === 'number') {
-                                              return formatMoney(summary.revenueUSD, 'USD')
-                                            }
-                                            return formatMoney(summary.revenueTotal, summary.currency)
-                                          })()}
+                                          {formatMoney(summary.revenueTotal, summary.currency)}
                                         </p>
                                       </div>
                                       <div className="text-center">
                                         <p className="text-sm text-slate-500 mb-1">Total Costs</p>
                                         <p className="text-xl font-bold text-red-600">
-                                          {(() => {
-                                            const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
-                                            if (showUSD && typeof summary.totalCostUSD === 'number') {
-                                              return formatMoney(summary.totalCostUSD, 'USD')
-                                            }
-                                            return formatMoney(summary.totalCost, summary.currency)
-                                          })()}
+                                          {formatMoney(summary.totalCost, summary.currency)}
                                         </p>
                                       </div>
                                       <div className="text-center">
                                         <p className="text-sm text-slate-500 mb-1">Profit</p>
                                         <p className={`text-xl font-bold ${summary.profitLocal >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                                          {(() => {
-                                            const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
-                                            if (showUSD && typeof summary.profitUSD === 'number') {
-                                              return formatMoney(summary.profitUSD, 'USD')
-                                            }
-                                            return formatMoney(summary.profitLocal, summary.currency)
-                                          })()}
+                                          {formatMoney(summary.profitLocal, summary.currency)}
                                         </p>
                                       </div>
                                     </div>
@@ -2207,6 +2230,9 @@ const QuotePageContent = memo(() => {
                                           <tr>
                                             <th className="text-left py-4 px-6 font-semibold text-slate-800">Cost Component</th>
                                             <th className="text-right py-4 px-6 font-semibold text-slate-800">Monthly Amount</th>
+                                            {acidTestCostData?.currency !== 'USD' && (
+                                              <th className="text-right py-4 px-6 font-semibold text-slate-800">USD Amount</th>
+                                            )}
                                             <th className="text-center py-4 px-6 font-semibold text-slate-800">Category</th>
                                           </tr>
                                         </thead>
@@ -2227,8 +2253,16 @@ const QuotePageContent = memo(() => {
                                               </div>
                                             </td>
                                             <td className="py-4 px-6 text-right font-semibold text-slate-900">
-                                              {formatAmount(billRateComposition.salaryMonthly, billRateComposition.salaryMonthlyUSD)}
+                                              {formatMoney(billRateComposition.salaryMonthly, acidTestCostData?.currency || 'EUR')}
                                             </td>
+                                            {acidTestCostData?.currency !== 'USD' && (
+                                              <td className="py-4 px-6 text-right font-semibold text-slate-700">
+                                                {billRateComposition.salaryMonthlyUSD
+                                                  ? formatMoney(billRateComposition.salaryMonthlyUSD, 'USD')
+                                                  : '—'
+                                                }
+                                              </td>
+                                            )}
                                             <td className="py-4 px-6 text-center">
                                               <Badge className="bg-blue-100 text-blue-800 border-blue-200">Core</Badge>
                                             </td>
@@ -2243,12 +2277,13 @@ const QuotePageContent = memo(() => {
                                                 </div>
                                               </td>
                                               <td className="py-3 px-6 text-right text-sm font-medium text-slate-700">
-                                                {(() => {
-                                                  const showUSD = acidTestDisplayCurrency === 'usd' && acidTestHasUSDData
-                                                  // For detail items, we don't have individual USD conversions, so show local currency
-                                                  return formatMoney(amount, acidTestCostData.currency)
-                                                })()}
+                                                {formatMoney(amount, acidTestCostData.currency)}
                                               </td>
+                                              {acidTestCostData?.currency !== 'USD' && (
+                                                <td className="py-3 px-6 text-right text-sm font-medium text-slate-500">
+                                                  —
+                                                </td>
+                                              )}
                                               <td className="py-3 px-6 text-center">
                                                 <Badge className="bg-blue-50 text-blue-600 border-blue-100 text-xs">Detail</Badge>
                                               </td>
@@ -2270,8 +2305,16 @@ const QuotePageContent = memo(() => {
                                               </div>
                                             </td>
                                             <td className="py-4 px-6 text-right font-semibold text-slate-900">
-                                              {formatAmount(billRateComposition.statutoryMonthly, billRateComposition.statutoryMonthlyUSD)}
+                                              {formatMoney(billRateComposition.statutoryMonthly, acidTestCostData?.currency || 'EUR')}
                                             </td>
+                                            {acidTestCostData?.currency !== 'USD' && (
+                                              <td className="py-4 px-6 text-right font-semibold text-slate-700">
+                                                {billRateComposition.statutoryMonthlyUSD
+                                                  ? formatMoney(billRateComposition.statutoryMonthlyUSD, 'USD')
+                                                  : '—'
+                                                }
+                                              </td>
+                                            )}
                                             <td className="py-4 px-6 text-center">
                                               <Badge className="bg-orange-100 text-orange-800 border-orange-200">Legal</Badge>
                                             </td>
@@ -2288,6 +2331,11 @@ const QuotePageContent = memo(() => {
                                               <td className="py-3 px-6 text-right text-sm font-medium text-slate-700">
                                                 {formatMoney(amount, acidTestCostData.currency)}
                                               </td>
+                                              {acidTestCostData?.currency !== 'USD' && (
+                                                <td className="py-3 px-6 text-right text-sm font-medium text-slate-500">
+                                                  —
+                                                </td>
+                                              )}
                                               <td className="py-3 px-6 text-center">
                                                 <Badge className="bg-orange-50 text-orange-600 border-orange-100 text-xs">Detail</Badge>
                                               </td>
@@ -2311,8 +2359,16 @@ const QuotePageContent = memo(() => {
                                                   </div>
                                                 </td>
                                                 <td className="py-4 px-6 text-right font-semibold text-slate-900">
-                                                  {formatAmount(billRateComposition.allowancesMonthly, billRateComposition.allowancesMonthlyUSD)}
+                                                  {formatMoney(billRateComposition.allowancesMonthly, acidTestCostData?.currency || 'EUR')}
                                                 </td>
+                                                {acidTestCostData?.currency !== 'USD' && (
+                                                  <td className="py-4 px-6 text-right font-semibold text-slate-700">
+                                                    {billRateComposition.allowancesMonthlyUSD
+                                                      ? formatMoney(billRateComposition.allowancesMonthlyUSD, 'USD')
+                                                      : '—'
+                                                    }
+                                                  </td>
+                                                )}
                                                 <td className="py-4 px-6 text-center">
                                                   <Badge className="bg-green-100 text-green-800 border-green-200">Benefits</Badge>
                                                 </td>
@@ -2329,6 +2385,11 @@ const QuotePageContent = memo(() => {
                                                   <td className="py-3 px-6 text-right text-sm font-medium text-slate-700">
                                                     {formatMoney(amount, acidTestCostData.currency)}
                                                   </td>
+                                                  {acidTestCostData?.currency !== 'USD' && (
+                                                    <td className="py-3 px-6 text-right text-sm font-medium text-slate-500">
+                                                      —
+                                                    </td>
+                                                  )}
                                                   <td className="py-3 px-6 text-center">
                                                     <Badge className="bg-green-50 text-green-600 border-green-100 text-xs">Detail</Badge>
                                                   </td>
@@ -2354,8 +2415,16 @@ const QuotePageContent = memo(() => {
                                                   </div>
                                                 </td>
                                                 <td className="py-4 px-6 text-right font-semibold text-slate-900">
-                                                  {formatAmount(billRateComposition.terminationMonthly, billRateComposition.terminationMonthlyUSD)}
+                                                  {formatMoney(billRateComposition.terminationMonthly, acidTestCostData?.currency || 'EUR')}
                                                 </td>
+                                                {acidTestCostData?.currency !== 'USD' && (
+                                                  <td className="py-4 px-6 text-right font-semibold text-slate-700">
+                                                    {billRateComposition.terminationMonthlyUSD
+                                                      ? formatMoney(billRateComposition.terminationMonthlyUSD, 'USD')
+                                                      : '—'
+                                                    }
+                                                  </td>
+                                                )}
                                                 <td className="py-4 px-6 text-center">
                                                   <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Risk</Badge>
                                                 </td>
@@ -2372,6 +2441,11 @@ const QuotePageContent = memo(() => {
                                                   <td className="py-3 px-6 text-right text-sm font-medium text-slate-700">
                                                     {formatMoney(amount, acidTestCostData.currency)}
                                                   </td>
+                                                  {acidTestCostData?.currency !== 'USD' && (
+                                                    <td className="py-3 px-6 text-right text-sm font-medium text-slate-500">
+                                                      —
+                                                    </td>
+                                                  )}
                                                   <td className="py-3 px-6 text-center">
                                                     <Badge className="bg-yellow-50 text-yellow-600 border-yellow-100 text-xs">Detail</Badge>
                                                   </td>
@@ -2389,8 +2463,16 @@ const QuotePageContent = memo(() => {
                                               </div>
                                             </td>
                                             <td className="py-4 px-6 text-right font-bold text-purple-900">
-                                              {formatAmount(billRateComposition.gracemarkFeeMonthly, billRateComposition.gracemarkFeeMonthlyUSD)}
+                                              {formatMoney(billRateComposition.gracemarkFeeMonthly, acidTestCostData?.currency || 'EUR')}
                                             </td>
+                                            {acidTestCostData?.currency !== 'USD' && (
+                                              <td className="py-4 px-6 text-right font-bold text-purple-700">
+                                                {billRateComposition.gracemarkFeeMonthlyUSD
+                                                  ? formatMoney(billRateComposition.gracemarkFeeMonthlyUSD, 'USD')
+                                                  : '—'
+                                                }
+                                              </td>
+                                            )}
                                             <td className="py-4 px-6 text-center">
                                               <Badge className="bg-purple-100 text-purple-800 border-purple-200">Service</Badge>
                                             </td>
@@ -2403,8 +2485,16 @@ const QuotePageContent = memo(() => {
                                               </div>
                                             </td>
                                             <td className="py-3 px-6 text-right font-medium">
-                                              {formatAmount(billRateComposition.providerFeeMonthly, billRateComposition.providerFeeMonthlyUSD)}
+                                              {formatMoney(billRateComposition.providerFeeMonthly, acidTestCostData?.currency || 'EUR')}
                                             </td>
+                                            {acidTestCostData?.currency !== 'USD' && (
+                                              <td className="py-3 px-6 text-right font-medium text-slate-600">
+                                                {billRateComposition.providerFeeMonthlyUSD
+                                                  ? formatMoney(billRateComposition.providerFeeMonthlyUSD, 'USD')
+                                                  : '—'
+                                                }
+                                              </td>
+                                            )}
                                             <td className="py-3 px-6 text-center">
                                               <Badge className="bg-slate-100 text-slate-600 border-slate-200 text-xs">Included</Badge>
                                             </td>
@@ -2414,8 +2504,16 @@ const QuotePageContent = memo(() => {
                                           <tr>
                                             <td className="py-4 px-6 font-bold text-lg">Expected Bill Rate</td>
                                             <td className="py-4 px-6 text-right font-bold text-xl">
-                                              {formatAmount(billRateComposition.expectedBillRate, billRateComposition.expectedBillRateUSD)}
+                                              {formatMoney(billRateComposition.expectedBillRate, acidTestCostData?.currency || 'EUR')}
                                             </td>
+                                            {acidTestCostData?.currency !== 'USD' && (
+                                              <td className="py-4 px-6 text-right font-bold text-xl text-green-200">
+                                                {billRateComposition.expectedBillRateUSD
+                                                  ? formatMoney(billRateComposition.expectedBillRateUSD, 'USD')
+                                                  : '—'
+                                                }
+                                              </td>
+                                            )}
                                             <td className="py-4 px-6 text-center">
                                               <Badge className="bg-white text-slate-800 border-slate-200">Total</Badge>
                                             </td>
@@ -2424,6 +2522,247 @@ const QuotePageContent = memo(() => {
                                       </table>
                                     </div>
                                   </div>
+
+                                  {/* Bill Rate Calculator Section */}
+                                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-lg">
+                                    <div className="bg-blue-600 text-white p-4">
+                                      <h5 className="text-lg font-bold flex items-center gap-2">
+                                        <Calculator className="h-5 w-5" />
+                                        Profitability Calculator
+                                      </h5>
+                                      <p className="text-blue-100 text-sm mt-1">Calculate total assignment profit based on your bill rate</p>
+                                    </div>
+
+                                    <div className="p-6">
+                                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                                        {/* Monthly Bill Rate Input */}
+                                        <div>
+                                          <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                            Monthly Bill Rate
+                                          </label>
+                                          <div className="relative">
+                                            <input
+                                              type="number"
+                                              min={0}
+                                              step={100}
+                                              value={billRateInput > 0 ? billRateInput : ''}
+                                              onChange={(e) => setBillRateInput(parseFloat(e.target.value) || 0)}
+                                              className="w-full pl-20 pr-4 py-3 text-lg font-semibold border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-right"
+                                              placeholder="Enter rate..."
+                                            />
+                                            <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                                              <select
+                                                value={billRateCurrency}
+                                                onChange={(e) => setBillRateCurrency(e.target.value as 'local' | 'USD')}
+                                                className="text-slate-700 font-medium bg-transparent border-none focus:outline-none focus:ring-0 pr-6"
+                                              >
+                                                <option value="local">{acidTestCostData?.currency || '€'}</option>
+                                                <option value="USD">USD</option>
+                                              </select>
+                                            </div>
+                                          </div>
+                                          {/* Show equivalent in other currency */}
+                                          {billRateInput > 0 && (
+                                            <div className="mt-1 text-xs text-slate-500">
+                                              {billRateCurrency === 'local' ? (
+                                                <span>≈ [USD equivalent will be calculated]</span>
+                                              ) : (
+                                                <span>≈ [{acidTestCostData?.currency || '€'} equivalent will be calculated]</span>
+                                              )}
+                                            </div>
+                                          )}
+                                        </div>
+
+                                        {/* Project Duration Input */}
+                                        <div>
+                                          <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                            Project Duration
+                                          </label>
+                                          <input
+                                            type="number"
+                                            min={1}
+                                            max={120}
+                                            value={durationInput > 0 ? durationInput : ''}
+                                            onChange={(e) => setDurationInput(parseInt(e.target.value) || 0)}
+                                            className="w-full px-4 py-3 text-lg font-semibold border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-center"
+                                            placeholder="Months"
+                                          />
+                                          <div className="text-xs text-slate-500 mt-1 text-center">months</div>
+                                        </div>
+
+                                        {/* Calculate Button */}
+                                        <div>
+                                          <Button
+                                            onClick={() => calculateProfitability(billRateInput, durationInput)}
+                                            disabled={billRateInput <= 0 || durationInput <= 0}
+                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                          >
+                                            <Calculator className="h-5 w-5 mr-2" />
+                                            Calculate Profit
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Profitability Results Display */}
+                                  {profitabilityResults && (
+                                    <div className={`border-2 shadow-lg ${
+                                      profitabilityResults.isProfit
+                                        ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200'
+                                        : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200'
+                                    }`}>
+                                      <div className={`text-white p-4 ${
+                                        profitabilityResults.isProfit ? 'bg-green-600' : 'bg-red-600'
+                                      }`}>
+                                        <h5 className="text-lg font-bold flex items-center gap-2">
+                                          {profitabilityResults.isProfit ? (
+                                            <CheckCircle className="h-5 w-5" />
+                                          ) : (
+                                            <XCircle className="h-5 w-5" />
+                                          )}
+                                          Assignment Profitability Analysis
+                                        </h5>
+                                        <p className={`text-sm mt-1 ${
+                                          profitabilityResults.isProfit ? 'text-green-100' : 'text-red-100'
+                                        }`}>
+                                          {profitabilityResults.isProfit
+                                            ? 'This assignment is profitable'
+                                            : 'This assignment will result in a loss'
+                                          }
+                                        </p>
+                                      </div>
+
+                                      <div className="p-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                          {/* Total Revenue */}
+                                          <div className="bg-white border border-slate-200 p-4 text-center shadow-sm">
+                                            <div className="text-sm font-medium text-slate-600 mb-2">Total Assignment Revenue</div>
+                                            <div className="text-2xl font-bold text-slate-900">
+                                              {formatMoney(profitabilityResults.totalRevenue, profitabilityResults.currency)}
+                                            </div>
+                                            {profitabilityResults.totalRevenueOther && profitabilityResults.otherCurrency && (
+                                              <div className="text-sm text-slate-600 mt-1">
+                                                ≈ {formatMoney(profitabilityResults.totalRevenueOther, profitabilityResults.otherCurrency)}
+                                              </div>
+                                            )}
+                                            <div className="text-xs text-slate-500 mt-1">What client pays us</div>
+                                          </div>
+
+                                          {/* Total Costs */}
+                                          <div className="bg-white border border-slate-200 p-4 text-center shadow-sm">
+                                            <div className="text-sm font-medium text-slate-600 mb-2">Total Assignment Costs</div>
+                                            <div className="text-2xl font-bold text-slate-900">
+                                              {formatMoney(profitabilityResults.totalCosts, profitabilityResults.currency)}
+                                            </div>
+                                            {profitabilityResults.totalCostsOther && profitabilityResults.otherCurrency && (
+                                              <div className="text-sm text-slate-600 mt-1">
+                                                ≈ {formatMoney(profitabilityResults.totalCostsOther, profitabilityResults.otherCurrency)}
+                                              </div>
+                                            )}
+                                            <div className="text-xs text-slate-500 mt-1">What we pay provider</div>
+                                          </div>
+
+                                          {/* Profit/Loss */}
+                                          <div className={`border-2 p-4 text-center shadow-sm ${
+                                            profitabilityResults.isProfit
+                                              ? 'bg-green-50 border-green-200'
+                                              : 'bg-red-50 border-red-200'
+                                          }`}>
+                                            <div className="text-sm font-medium text-slate-600 mb-2">
+                                              {profitabilityResults.isProfit ? 'Total Profit' : 'Total Loss'}
+                                            </div>
+                                            <div className={`text-2xl font-bold ${
+                                              profitabilityResults.isProfit ? 'text-green-700' : 'text-red-700'
+                                            }`}>
+                                              {formatMoney(Math.abs(profitabilityResults.profit), profitabilityResults.currency)}
+                                            </div>
+                                            {profitabilityResults.otherCurrency && (
+                                              <div className="text-sm text-slate-600 mt-1">
+                                                {profitabilityResults.currency === 'USD' && profitabilityResults.totalCostsOther && profitabilityResults.totalRevenueOther ? (
+                                                  <span>≈ {formatMoney(Math.abs(profitabilityResults.totalRevenueOther - profitabilityResults.totalCostsOther), profitabilityResults.otherCurrency)}</span>
+                                                ) : profitabilityResults.profitUSD ? (
+                                                  <span>≈ {formatMoney(Math.abs(profitabilityResults.profitUSD), 'USD')}</span>
+                                                ) : null}
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+
+                                        {/* Minimum Threshold Check */}
+                                        <div className="mt-6 p-4 border border-slate-200 bg-slate-50 rounded-lg">
+                                          <div className="flex items-center justify-between mb-3">
+                                            <div className="flex items-center gap-2">
+                                              <Target className="h-5 w-5 text-slate-600" />
+                                              <span className="font-medium text-slate-700">Minimum Profit Threshold</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              {profitabilityResults.profitUSD === undefined ? (
+                                                <Badge className="bg-amber-100 text-amber-800 border-amber-200">
+                                                  ⚠ USD conversion unavailable
+                                                </Badge>
+                                              ) : profitabilityResults.meetsMinimum ? (
+                                                <Badge className="bg-green-100 text-green-800 border-green-200">
+                                                  ✓ Meets $1,000 USD minimum
+                                                </Badge>
+                                              ) : profitabilityResults.isProfit ? (
+                                                <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                                                  ⚠ Below $1,000 USD minimum
+                                                </Badge>
+                                              ) : (
+                                                <Badge className="bg-red-100 text-red-800 border-red-200">
+                                                  ✗ Assignment unprofitable
+                                                </Badge>
+                                              )}
+                                            </div>
+                                          </div>
+
+                                          <div className="text-sm text-slate-600">
+                                            <div className="flex justify-between items-center mb-2">
+                                              <span>Required minimum:</span>
+                                              <span className="font-medium text-slate-700">
+                                                {formatMoney(MIN_PROFIT_THRESHOLD_USD, 'USD')}
+                                              </span>
+                                            </div>
+
+                                            {profitabilityResults.profitUSD !== undefined ? (
+                                              <>
+                                                <div className="flex justify-between items-center mb-2">
+                                                  <span>Current profit (USD):</span>
+                                                  <span className={`font-medium ${profitabilityResults.isProfit ? 'text-green-700' : 'text-red-700'}`}>
+                                                    {profitabilityResults.isProfit ? '+' : ''}{formatMoney(profitabilityResults.profitUSD, 'USD')}
+                                                  </span>
+                                                </div>
+
+                                                {!profitabilityResults.meetsMinimum && profitabilityResults.isProfit && (
+                                                  <div className="pt-2 mt-2 border-t border-slate-300">
+                                                    <span className="text-yellow-700 font-medium">
+                                                      Need {formatMoney(MIN_PROFIT_THRESHOLD_USD - profitabilityResults.profitUSD, 'USD')} more profit to meet threshold
+                                                    </span>
+                                                  </div>
+                                                )}
+                                                {!profitabilityResults.isProfit && (
+                                                  <div className="pt-2 mt-2 border-t border-slate-300">
+                                                    <span className="text-red-700 font-medium">
+                                                      Assignment must be profitable to meet minimum threshold
+                                                    </span>
+                                                  </div>
+                                                )}
+                                              </>
+                                            ) : (
+                                              <div className="pt-2 mt-2 border-t border-slate-300">
+                                                <div className="p-2 bg-amber-50 border border-amber-200 rounded text-amber-800 text-sm">
+                                                  <span className="font-medium">⚠ USD conversion unavailable</span>
+                                                  <br />
+                                                  <span className="text-xs">Cannot verify $1,000 minimum threshold for {profitabilityResults.currency} currency.</span>
+                                                </div>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
 
                                   {/* Rate Comparison Section */}
                                   {/* <div className="grid gap-6 lg:grid-cols-2">
@@ -3516,11 +3855,41 @@ const QuotePageContent = memo(() => {
         }
 
         const { aggregates, categories } = result;
+
+        // Scale components to match reconciliation total (fixes inflated enhanced quote data)
+        const cerebrasTotalMonthly = aggregates.baseSalaryMonthly + aggregates.statutoryMonthly +
+                                   aggregates.allowancesMonthly + aggregates.terminationMonthly;
+        const reconciliationTotal = finalChoice.price || 0;
+
+        const scaleFactor = cerebrasTotalMonthly > 0 ? reconciliationTotal / cerebrasTotalMonthly : 1;
+
+        // Scale all monthly amounts
+        const scaledAggregates = {
+          ...aggregates,
+          baseSalaryMonthly: aggregates.baseSalaryMonthly * scaleFactor,
+          statutoryMonthly: aggregates.statutoryMonthly * scaleFactor,
+          allowancesMonthly: aggregates.allowancesMonthly * scaleFactor,
+          terminationMonthly: aggregates.terminationMonthly * scaleFactor,
+        };
+
+        // Scale category details
+        const scaledCategories = Object.fromEntries(
+          Object.entries(categories).map(([categoryName, items]) => [
+            categoryName,
+            Object.fromEntries(
+              Object.entries(items as Record<string, number>).map(([itemKey, amount]) => [
+                itemKey,
+                amount * scaleFactor
+              ])
+            )
+          ])
+        );
+
         setAcidTestCostData({
           provider: finalChoice.provider,
           currency: finalChoice.currency,
-          categories,
-          ...aggregates,
+          categories: scaledCategories,
+          ...scaledAggregates,
         });
       })
       .catch(err => {
