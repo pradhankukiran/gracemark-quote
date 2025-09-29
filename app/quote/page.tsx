@@ -681,7 +681,7 @@ const QuotePageContent = memo(() => {
       recurringBase > 0 ? recurringBase * (1 + GRACEMARK_FEE_PERCENTAGE) : 0
     )
 
-    const totalRecurringCostsLocal = expectedBillRateLocal * duration
+    const totalRecurringCostsLocal = recurringBase * duration
     const totalCostsLocal = totalRecurringCostsLocal + acidTestCostData.oneTimeTotal
 
     // Calculate total revenue and costs in the same currency for comparison
@@ -709,7 +709,12 @@ const QuotePageContent = memo(() => {
         totalRevenue = billRate * duration // in USD
         const costsConversion = await convertCurrency(totalCostsLocal, localCurrency, 'USD')
         const convertedCostsUSD = extractConvertedAmount(costsConversion)
-        totalCosts = convertedCostsUSD ?? totalCostsLocal
+
+        if (convertedCostsUSD === null || convertedCostsUSD === undefined) {
+          throw new Error(`Failed to convert costs from ${localCurrency} to USD`)
+        }
+
+        totalCosts = convertedCostsUSD
 
         const revenueLocalConversion = await convertCurrency(totalRevenue, 'USD', localCurrency)
         revenueInOtherCurrency = extractConvertedAmount(revenueLocalConversion)
@@ -717,9 +722,8 @@ const QuotePageContent = memo(() => {
       }
     } catch (error) {
       console.error('Currency conversion failed:', error)
-      // Fallback to local currency calculation
-      totalRevenue = billRate * duration
-      totalCosts = totalCostsLocal
+      // Don't proceed with mixed currencies - let the error bubble up
+      throw new Error(`Cannot calculate profitability: Currency conversion failed for ${localCurrency} to USD`)
     }
 
     // Calculate profit in the primary currency
