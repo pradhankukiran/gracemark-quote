@@ -114,6 +114,16 @@ type AcidTestCalculationResult = {
   conversionError?: string | null
 }
 
+const GRACEMARK_FEE_PERCENTAGE = 0.45
+const PROVIDER_FEE_RATIO = 0.30
+type ConversionPayload = Awaited<ReturnType<typeof convertCurrency>>
+
+const extractConvertedAmount = (conversion: ConversionPayload): number | undefined => {
+  if (!conversion || !conversion.success || !conversion.data) return undefined
+  const amount = Number(conversion.data.target_amount)
+  return Number.isFinite(amount) ? amount : undefined
+}
+
 const LoadingSpinner = () => (
   <div role="status" aria-label="Loading quotes" className="flex items-center justify-center">
     <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-primary" />
@@ -416,11 +426,9 @@ const QuotePageContent = memo(() => {
     const recurringMonthly = totalMonthlyQuoteCost
 
     // Calculate expected Gracemark fee (45% of total monthly cost of the selected quote)
-    const GRACEMARK_FEE_PERCENTAGE = 0.45
     const expectedGracemarkFeeMonthly = totalMonthlyQuoteCost * GRACEMARK_FEE_PERCENTAGE
 
     // Provider fee is included within Gracemark fee (typically 30% of Gracemark fee)
-    const PROVIDER_FEE_RATIO = 0.30
     const providerFeeMonthly = expectedGracemarkFeeMonthly * PROVIDER_FEE_RATIO
 
     // Expected bill rate composition (what we should charge monthly)
@@ -661,8 +669,15 @@ const QuotePageContent = memo(() => {
     const monthlyProviderCosts = acidTestCostData.baseSalaryMonthly +
                                 acidTestCostData.statutoryMonthly +
                                 acidTestCostData.allowancesMonthly +
-                                acidTestCostData.terminationMonthly
-    const totalCostsLocal = (monthlyProviderCosts * duration) + acidTestCostData.oneTimeTotal
+                                (isAllInclusiveQuote ? acidTestCostData.terminationMonthly : 0)
+
+    const recurringBase = Number.isFinite(monthlyProviderCosts) ? Math.max(monthlyProviderCosts, 0) : 0
+    const expectedBillRateLocal = acidTestResults?.billRateComposition.expectedBillRate ?? (
+      recurringBase > 0 ? recurringBase * (1 + GRACEMARK_FEE_PERCENTAGE) : 0
+    )
+
+    const totalRecurringCostsLocal = expectedBillRateLocal * duration
+    const totalCostsLocal = totalRecurringCostsLocal + acidTestCostData.oneTimeTotal
 
     // Calculate total revenue and costs in the same currency for comparison
     let totalRevenue: number
@@ -678,22 +693,21 @@ const QuotePageContent = memo(() => {
 
         // Convert to USD for display
         if (localCurrency !== 'USD') {
-          const revenueUSDRaw = await convertCurrency(totalRevenue, localCurrency, 'USD')
-          const costsUSDRaw = await convertCurrency(totalCosts, localCurrency, 'USD')
+          const revenueConversion = await convertCurrency(totalRevenue, localCurrency, 'USD')
+          const costsConversion = await convertCurrency(totalCosts, localCurrency, 'USD')
 
-          // Validate conversion results
-          revenueInOtherCurrency = (typeof revenueUSDRaw === 'number' && !isNaN(revenueUSDRaw)) ? revenueUSDRaw : undefined
-          costsInOtherCurrency = (typeof costsUSDRaw === 'number' && !isNaN(costsUSDRaw)) ? costsUSDRaw : undefined
+          revenueInOtherCurrency = extractConvertedAmount(revenueConversion)
+          costsInOtherCurrency = extractConvertedAmount(costsConversion)
         }
       } else {
         // Bill rate in USD, costs in local currency
         totalRevenue = billRate * duration // in USD
-        const costsUSDRaw = await convertCurrency(totalCostsLocal, localCurrency, 'USD')
-        totalCosts = (typeof costsUSDRaw === 'number' && !isNaN(costsUSDRaw)) ? costsUSDRaw : totalCostsLocal
+        const costsConversion = await convertCurrency(totalCostsLocal, localCurrency, 'USD')
+        const convertedCostsUSD = extractConvertedAmount(costsConversion)
+        totalCosts = convertedCostsUSD ?? totalCostsLocal
 
-        // Convert to local currency for display
-        const revenueLocalRaw = await convertCurrency(totalRevenue, 'USD', localCurrency)
-        revenueInOtherCurrency = (typeof revenueLocalRaw === 'number' && !isNaN(revenueLocalRaw)) ? revenueLocalRaw : undefined
+        const revenueLocalConversion = await convertCurrency(totalRevenue, 'USD', localCurrency)
+        revenueInOtherCurrency = extractConvertedAmount(revenueLocalConversion)
         costsInOtherCurrency = totalCostsLocal
       }
     } catch (error) {
@@ -715,9 +729,8 @@ const QuotePageContent = memo(() => {
       if (billCurrency === 'USD') {
         profitUSD = profit
       } else {
-        const profitUSDRaw = await convertCurrency(profit, localCurrency, 'USD')
-        // Validate conversion result
-        profitUSD = (typeof profitUSDRaw === 'number' && !isNaN(profitUSDRaw)) ? profitUSDRaw : undefined
+        const profitConversion = await convertCurrency(profit, localCurrency, 'USD')
+        profitUSD = extractConvertedAmount(profitConversion)
       }
 
       meetsMinimum = profitUSD !== undefined && profitUSD >= MIN_PROFIT_THRESHOLD_USD
@@ -739,7 +752,7 @@ const QuotePageContent = memo(() => {
       totalCostsOther: costsInOtherCurrency,
       otherCurrency: billCurrency === 'USD' ? localCurrency : 'USD'
     })
-  }, [acidTestCostData, billRateCurrency, convertCurrency])
+  }, [acidTestCostData, acidTestResults, billRateCurrency, convertCurrency, isAllInclusiveQuote])
 
   useEffect(() => {
     if (!showAcidTestForm) {
