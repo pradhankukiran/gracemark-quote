@@ -670,18 +670,15 @@ const QuotePageContent = memo(() => {
     const localCurrency = acidTestCostData.currency
     const billCurrency = billRateCurrency === 'local' ? localCurrency : 'USD'
 
-    // Calculate total costs in local currency (what we pay out)
-    const monthlyProviderCosts = acidTestCostData.baseSalaryMonthly +
-                                acidTestCostData.statutoryMonthly +
-                                acidTestCostData.allowancesMonthly +
-                                (isAllInclusiveQuote ? acidTestCostData.terminationMonthly : 0)
+    // Get expected bill rate from cost structure breakdown (includes all monthly costs + Gracemark fee)
+    const expectedBillRateLocal = acidTestResults?.billRateComposition.expectedBillRate ?? 0
 
-    const recurringBase = Number.isFinite(monthlyProviderCosts) ? Math.max(monthlyProviderCosts, 0) : 0
-    const expectedBillRateLocal = acidTestResults?.billRateComposition.expectedBillRate ?? (
-      recurringBase > 0 ? recurringBase * (1 + GRACEMARK_FEE_PERCENTAGE) : 0
-    )
+    if (expectedBillRateLocal <= 0) {
+      throw new Error('Expected bill rate not available from cost structure breakdown')
+    }
 
-    const totalRecurringCostsLocal = recurringBase * duration
+    // Calculate total costs using expected bill rate (what we charge per month)
+    const totalRecurringCostsLocal = expectedBillRateLocal * duration
     const totalCostsLocal = totalRecurringCostsLocal + acidTestCostData.oneTimeTotal
 
     // Calculate total revenue and costs in the same currency for comparison
