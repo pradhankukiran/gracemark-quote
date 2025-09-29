@@ -122,13 +122,13 @@ export class CerebrasService {
     const systemPrompt = this.buildCategorizationSystemPrompt()
     const userPrompt = this.buildCategorizationUserPrompt({ provider, country, currency, costItems })
 
-    console.log('[CerebrasService] Sending categorizeCostItems request', {
-      provider,
-      country,
-      currency,
-      costItemCount: costItems.length,
-      costItems
-    })
+    // console.log('[CerebrasService] Sending categorizeCostItems request', {
+    //   provider,
+    //   country,
+    //   currency,
+    //   costItemCount: costItems.length,
+    //   costItems
+    // })
 
     const client = await this.getClient()
     let response: any
@@ -190,12 +190,12 @@ export class CerebrasService {
             oneTimeFees: parsed.oneTimeFees || {}
           }
 
-          console.log('[CerebrasService] Received categorizeCostItems response', {
-            provider,
-            country,
-            currency,
-            result
-          })
+          // console.log('[CerebrasService] Received categorizeCostItems response', {
+          //   provider,
+          //   country,
+          //   currency,
+          //   result
+          // })
 
           return result
         }
@@ -713,20 +713,20 @@ export class CerebrasService {
       const rawAvailability = parseIfJsonString(obj.availability) as Record<string, boolean> | undefined
       if (rawAvailability) {
         obj.availability = this.normalizeAvailability(rawAvailability)
-        if (process.env.NODE_ENV === 'development') {
-          console.log('[CerebrasService] Normalized availability from Cerebras response:', {
-            raw: rawAvailability,
-            normalized: obj.availability
-          })
-        }
+        // if (process.env.NODE_ENV === 'development') {
+        //   console.log('[CerebrasService] Normalized availability from Cerebras response:', {
+        //     raw: rawAvailability,
+        //     normalized: obj.availability
+        //   })
+        // }
       } else {
         // If Cerebras didn't return availability, use country code to generate defaults
         const meta = obj.meta as any
         const countryCode = meta?.country_code || 'US'
         obj.availability = PapayaAvailability.getFlags(countryCode)
-        if (process.env.NODE_ENV === 'development') {
-          console.log('[CerebrasService] Using fallback availability for country:', countryCode, obj.availability)
-        }
+        // if (process.env.NODE_ENV === 'development') {
+        //   console.log('[CerebrasService] Using fallback availability for country:', countryCode, obj.availability)
+        // }
       }
 
       const parsedItems = Array.isArray(obj.items) ? obj.items : parseIfJsonString(obj.items)
