@@ -148,8 +148,8 @@ export class LegalProfileService {
   private static buildFormulas() {
     // Keep formulas readable so the LLM can follow them deterministically
     return `FORMULAS (all monthly, round to 2 decimals, half-up):
-1) thirteenth_salary_monthly = BASE_SALARY / 12
-2) fourteenth_salary_monthly = BASE_SALARY / 12
+1) thirteenth_salary_monthly = BASE_SALARY (13th salary accrual equals one month of base salary)
+2) fourteenth_salary_monthly = BASE_SALARY (14th salary accrual equals one month of base salary)
 3) vacation_bonus_monthly = (BASE_SALARY * (VACATION_BONUS_PERCENT/100)) / 12
 4) transportation_allowance_monthly = LEGALLY_DEFINED_AMOUNT (if applicable)
 5) remote_work_allowance_monthly = LEGALLY_DEFINED_AMOUNT (if applicable)

@@ -815,19 +815,19 @@ export class GroqService {
         } else if (isAllInclusive) {
           // All-inclusive: include if legally mandatory OR presence flag true
           if (presence.payroll_13th_salary && !baselineProviderCurrency['thirteenth_salary']) {
-            baselineProviderCurrency['thirteenth_salary'] = Number((baseMonthly / 12).toFixed(2))
+            baselineProviderCurrency['thirteenth_salary'] = Number(baseMonthly.toFixed(2))
             baselineMandatoryFlags['thirteenth_salary'] = !!legal.mandatorySalaries.has13thSalary // mark true only if mandatory
           }
           if (legal.mandatorySalaries.has13thSalary && !baselineProviderCurrency['thirteenth_salary']) {
-            baselineProviderCurrency['thirteenth_salary'] = Number((baseMonthly / 12).toFixed(2))
+            baselineProviderCurrency['thirteenth_salary'] = Number(baseMonthly.toFixed(2))
             baselineMandatoryFlags['thirteenth_salary'] = true
           }
           if (presence.payroll_14th_salary && !baselineProviderCurrency['fourteenth_salary']) {
-            baselineProviderCurrency['fourteenth_salary'] = Number((baseMonthly / 12).toFixed(2))
+            baselineProviderCurrency['fourteenth_salary'] = Number(baseMonthly.toFixed(2))
             baselineMandatoryFlags['fourteenth_salary'] = !!legal.mandatorySalaries.has14thSalary
           }
           if (legal.mandatorySalaries.has14thSalary && !baselineProviderCurrency['fourteenth_salary']) {
-            baselineProviderCurrency['fourteenth_salary'] = Number((baseMonthly / 12).toFixed(2))
+            baselineProviderCurrency['fourteenth_salary'] = Number(baseMonthly.toFixed(2))
             baselineMandatoryFlags['fourteenth_salary'] = true
           }
         }

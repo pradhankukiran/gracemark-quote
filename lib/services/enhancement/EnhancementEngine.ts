@@ -668,7 +668,7 @@ export class EnhancementEngine {
         // 13th salary
         const hasTh13 = !!enhancementData.thirteenthSalary && ((enhancementData.thirteenthSalary.monthlyAmount || 0) > 0 || (enhancementData.thirteenthSalary.yearlyAmount || 0) > 0)
         if (!hasTh13 && lr.mandatorySalaries?.has13thSalary) {
-          const m = baseSalary / 12
+          const m = baseSalary // baseSalary is already monthly, 13th salary monthly accrual equals base monthly
           enhancementData.thirteenthSalary = {
             monthlyAmount: m,
             yearlyAmount: m * 12,
@@ -681,7 +681,7 @@ export class EnhancementEngine {
         // 14th salary
         const hasTh14 = !!enhancementData.fourteenthSalary && ((enhancementData.fourteenthSalary.monthlyAmount || 0) > 0 || (enhancementData.fourteenthSalary.yearlyAmount || 0) > 0)
         if (!hasTh14 && lr.mandatorySalaries?.has14thSalary) {
-          const m = baseSalary / 12
+          const m = baseSalary // baseSalary is already monthly, 14th salary monthly accrual equals base monthly
           enhancementData.fourteenthSalary = {
             monthlyAmount: m,
             yearlyAmount: m * 12,

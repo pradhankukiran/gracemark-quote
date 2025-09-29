@@ -18,7 +18,7 @@ import { ProviderLogo } from "./components/ProviderLogo"
 import { EnhancementProvider, useEnhancementContext } from "@/hooks/enhancement/EnhancementContext"
 import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, transformToRemoteQuote, transformOysterQuoteToDisplayQuote } from "@/lib/shared/utils/apiUtils"
 import { EORFormData, RemoteAPIResponse, Quote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
-import { ProviderType, EnhancedQuote, TerminationComponentEnhancement } from "@/lib/types/enhancement"
+import { ProviderType, EnhancedQuote, TerminationComponentEnhancement, BonusEnhancement, AllowanceEnhancement, SalaryEnhancement } from "@/lib/types/enhancement"
 import { convertCurrency } from "@/lib/currency-converter"
 import { getRawQuote } from "@/lib/shared/utils/rawQuoteStore"
 
@@ -121,6 +121,137 @@ const LoadingSpinner = () => (
   </div>
 )
 
+const parseNumericValue = (value: unknown): number | null => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    if (!trimmed) return null
+
+    // Remove currency symbols and whitespace characters
+    let cleaned = trimmed.replace(/[\s$€£¥₱₹₩₦₭₮₰₲₳₴₵₺₽₡₢₣₤₥₧₨₫฿₠₣]+/g, '')
+
+    const hasComma = cleaned.includes(',')
+    const hasDot = cleaned.includes('.')
+
+    if (hasComma && hasDot) {
+      // Assume the character appearing later is the decimal separator
+      if (cleaned.lastIndexOf(',') > cleaned.lastIndexOf('.')) {
+        // Comma is decimal separator -> remove thousands dots, flip comma to dot
+        cleaned = cleaned.replace(/\./g, '').replace(/,/g, '.')
+      } else {
+        // Dot is decimal separator -> remove thousands commas
+        cleaned = cleaned.replace(/,/g, '')
+      }
+    } else if (hasComma && !hasDot) {
+      // Only commas present -> treat as decimal separator
+      cleaned = cleaned.replace(/,/g, '.')
+    }
+
+    // Remove any characters that are not part of a number
+    cleaned = cleaned.replace(/[^0-9eE+\-\.]/g, '')
+
+    const parsed = Number.parseFloat(cleaned)
+    return Number.isFinite(parsed) ? parsed : null
+  }
+
+  return null
+}
+
+const computeEnhancementAddOns = (
+  provider: ProviderType,
+  enhancement: EnhancedQuote | undefined,
+  contractMonths: number
+): number => {
+  if (!enhancement) return 0
+
+  const months = Math.max(1, Number.isFinite(contractMonths) ? contractMonths : 12)
+
+  let total = 0
+  const add = (value: unknown) => {
+    const parsed = parseNumericValue(value)
+    if (parsed !== null && parsed > 0) {
+      total += parsed
+    }
+  }
+
+  const deriveFromMonthly = (totalValue: unknown, monthlyValue: unknown): number => {
+    const parsedTotal = parseNumericValue(totalValue)
+    const parsedMonthly = parseNumericValue(monthlyValue)
+
+    if (parsedMonthly !== null && parsedMonthly > 0) {
+      const derived = parsedMonthly * months
+      if (parsedTotal !== null && parsedTotal > 0) {
+        const threshold = derived * 0.75
+        return parsedTotal < threshold ? derived : parsedTotal
+      }
+      return derived
+    }
+
+    if (parsedTotal !== null && parsedTotal > 0) {
+      return parsedTotal
+    }
+
+    return 0
+  }
+
+  const enh = enhancement.enhancements || {}
+
+  const terminationItems: Array<TerminationComponentEnhancement | undefined> = []
+  if (provider !== 'deel') {
+    terminationItems.push(enh.severanceProvision)
+  }
+  terminationItems.push(enh.probationProvision)
+  terminationItems.forEach(item => {
+    if (!item || item.isAlreadyIncluded) return
+    const amount = deriveFromMonthly(item.totalAmount, item.monthlyAmount)
+    add(amount)
+  })
+
+  const salaryEnhancements: Array<SalaryEnhancement | undefined> = [
+    enh.thirteenthSalary,
+    enh.fourteenthSalary,
+  ]
+  salaryEnhancements.forEach(item => {
+    if (!item || item.isAlreadyIncluded) return
+    const amount = deriveFromMonthly(item.yearlyAmount, item.monthlyAmount)
+    add(amount)
+  })
+
+  const bonusItems: Array<BonusEnhancement | undefined> = [
+    enh.vacationBonus,
+  ]
+  bonusItems.forEach(item => {
+    if (!item || item.isAlreadyIncluded) return
+    const parsed = parseNumericValue(item.amount)
+    if (parsed === null || parsed <= 0) return
+    const amount = item.frequency === 'monthly' ? parsed * months : parsed
+    add(amount)
+  })
+
+  const allowanceItems: Array<AllowanceEnhancement | undefined> = [
+    enh.transportationAllowance,
+    enh.remoteWorkAllowance,
+    enh.mealVouchers,
+  ]
+  allowanceItems.forEach(item => {
+    if (!item || item.isAlreadyIncluded) return
+    add(item.monthlyAmount)
+  })
+
+  if (enh.additionalContributions) {
+    Object.values(enh.additionalContributions).forEach(add)
+  }
+
+  if (enh.medicalExam?.required) {
+    add(enh.medicalExam.estimatedCost)
+  }
+
+  return total
+}
+
 const QuotePageContent = memo(() => {
   const searchParams = useSearchParams()
   const quoteId = searchParams.get('id')
@@ -221,6 +352,17 @@ const QuotePageContent = memo(() => {
 
     return [...summaryUSD, ...breakdownUSD, ...compositionUSD].some(value => typeof value === 'number')
   }, [acidTestResults])
+
+  const contractMonths = useMemo(() => {
+    const form = quoteData?.formData as EORFormData | undefined
+    const durationRaw = form?.contractDuration
+    const parsed = Number.parseInt(typeof durationRaw === 'string' ? durationRaw : String(durationRaw ?? ''), 10)
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return parsed
+    }
+    return 12
+  }, [quoteData?.formData])
+
   const [acidTestValidation, setAcidTestValidation] = useState<{
     billRateError?: string;
     durationError?: string;
@@ -877,6 +1019,76 @@ const QuotePageContent = memo(() => {
 
   // --- REFRESHED RECONCILIATION LOGIC ---
   const allProviders: Array<ProviderType> = ['deel','remote','rivermate','oyster','rippling','skuad','velocity']
+
+  const getBaseQuoteTotal = (provider: ProviderType): number | null => {
+    if (!quoteData) return null
+
+    const quotes = quoteData.quotes as Record<string, unknown>
+    const rawQuote = quotes[provider]
+    if (!rawQuote) return null
+
+    if (provider === 'deel') {
+      const totalCosts = (rawQuote as any)?.total_costs ?? (rawQuote as any)?.totalCosts
+      const parsed = parseNumericValue(totalCosts)
+      return parsed !== null && parsed > 0 ? parsed : null
+    }
+
+    if (provider === 'remote') {
+      if ((rawQuote as RemoteAPIResponse)?.employment?.employer_currency_costs) {
+        const displayQuote = transformRemoteResponseToQuote(rawQuote as RemoteAPIResponse)
+        const parsed = parseNumericValue(displayQuote?.total_costs)
+        return parsed !== null && parsed > 0 ? parsed : null
+      }
+
+      const total = (rawQuote as any)?.total
+      const parsed = parseNumericValue(total)
+      return parsed !== null && parsed > 0 ? parsed : null
+    }
+
+    if (provider === 'rivermate') {
+      if (typeof (rawQuote as any)?.total === 'number') {
+        const parsed = parseNumericValue((rawQuote as any)?.total)
+        return parsed !== null && parsed > 0 ? parsed : null
+      }
+
+      const displayQuote = transformRivermateQuoteToDisplayQuote(rawQuote as RivermateQuote)
+      const parsed = parseNumericValue(displayQuote?.total_costs)
+      return parsed !== null && parsed > 0 ? parsed : null
+    }
+
+    if (provider === 'oyster') {
+      if (typeof (rawQuote as any)?.total === 'number') {
+        const parsed = parseNumericValue((rawQuote as any)?.total)
+        return parsed !== null && parsed > 0 ? parsed : null
+      }
+      const displayQuote = transformOysterQuoteToDisplayQuote(rawQuote as OysterQuote)
+      const parsed = parseNumericValue(displayQuote?.total_costs)
+      return parsed !== null && parsed > 0 ? parsed : null
+    }
+
+    // Providers using the generic Quote structure (rippling, skuad, velocity)
+    const totalCosts = (rawQuote as any)?.total_costs ?? (rawQuote as any)?.totalCosts
+    const parsed = parseNumericValue(totalCosts)
+    return parsed !== null && parsed > 0 ? parsed : null
+  }
+
+  const getProviderPrice = (provider: ProviderType): number | null => {
+    const baseTotal = getBaseQuoteTotal(provider)
+    const enhancement = enhancements[provider]
+    const enhancedMonthly = enhancement ? parseNumericValue(enhancement.finalTotal) : null
+
+    // Use enhanced total if available (it already includes all enhancements)
+    if (enhancedMonthly !== null && enhancedMonthly > 0) {
+      return enhancedMonthly
+    }
+
+    // Otherwise use base total (provider's complete quote)
+    if (baseTotal !== null && baseTotal > 0) {
+      return baseTotal
+    }
+
+    return null
+  }
 
   const getReconciliationStatus = () => {
     // Treat 'inactive' as a terminal state when no processing is in-flight,
@@ -2451,24 +2663,6 @@ const QuotePageContent = memo(() => {
         .filter(Boolean) as Array<{ key: string; name: string; monthly_amount: number }>
     }
 
-    let items: any[] = Array.isArray(enhancedQuote.fullQuote?.items)
-      ? [...(enhancedQuote.fullQuote?.items as any[])]
-      : []
-
-    const convertFrequencyToMonthly = (amount: number, frequency?: string) => {
-      if (!frequency || !Number.isFinite(amount)) return amount
-      const freq = frequency.toLowerCase()
-      if (freq.includes('one_time') || freq.includes('one-time')) return amount
-      if (freq.includes('year')) return amount / 12
-      if (freq.includes('annual')) return amount / 12
-      if (freq.includes('quarter')) return amount / 3
-      if (freq.includes('semiannual') || freq.includes('semi-annual') || freq.includes('biannual')) return amount / 6
-      if (freq.includes('biweek')) return amount * (26 / 12)
-      if (freq.includes('week')) return amount * (52 / 12)
-      if (freq.includes('day')) return amount * 21.75
-      return amount
-    }
-
     const formatKeyName = (raw: string) => raw
       .replace(/([A-Z])/g, ' $1')
       .replace(/_/g, ' ')
@@ -2476,232 +2670,394 @@ const QuotePageContent = memo(() => {
       .trim()
       .replace(/\b\w/g, letter => letter.toUpperCase())
 
-    const addCostEntry = (keyCandidate: string | undefined, nameCandidate: string | undefined, amountInput: unknown, frequency?: string) => {
-      const amount = resolveMonthlyAmount(amountInput)
-      const monthly = convertFrequencyToMonthly(amount, frequency)
-      if (!Number.isFinite(monthly) || monthly === 0) return
-      const safeNameBase = nameCandidate && nameCandidate.trim().length > 0 ? nameCandidate.trim() : (keyCandidate && keyCandidate.trim().length > 0 ? keyCandidate.trim() : `Item ${items.length + 1}`)
-      const safeName = formatKeyName(safeNameBase)
-      const normalizedKeyBase = keyCandidate && keyCandidate.trim().length > 0 ? keyCandidate.trim() : safeName
-      const normalizedKey = normalizedKeyBase.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || `item_${items.length + 1}`
-      items.push({
+    const normalizeFullQuoteItem = (
+      entry: any,
+      index: number
+    ): { key: string; name: string; monthly_amount: number } | null => {
+      if (!entry) return null
+
+      const amount = resolveMonthlyAmount(
+        (entry as any).monthly_amount ??
+        (entry as any).monthlyAmount ??
+        (entry as any).amount ??
+        (entry as any).monthly_amount_local ??
+        (entry as any).value
+      )
+      if (!Number.isFinite(amount) || amount === 0) return null
+
+      const rawKey = typeof entry?.key === 'string' && entry.key.trim().length > 0
+        ? entry.key.trim()
+        : `item_${index}`
+      const safeName = typeof entry?.name === 'string' && entry.name.trim().length > 0
+        ? entry.name.trim()
+        : formatKeyName(rawKey)
+
+      const normalizedKey = rawKey
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_|_$/g, '') || `item_${index}`
+
+      return {
         key: normalizedKey,
         name: safeName,
-        monthly_amount: Number(monthly.toFixed(2))
-      })
-    }
-
-    const pushCostArray = (costs: any[], contextLabel: string) => {
-      costs.forEach((entry, idx) => {
-        if (!entry) return
-        const entryName = typeof entry?.name === 'string' && entry.name.trim().length > 0
-          ? entry.name.trim()
-          : `${contextLabel} ${idx + 1}`
-        const entryKey = typeof entry?.key === 'string' && entry.key.trim().length > 0 ? entry.key.trim() : entryName
-        const frequency = typeof entry?.frequency === 'string' ? entry.frequency : undefined
-        const amountCandidate = entry?.monthly_amount ?? entry?.monthlyAmount ?? entry?.monthly_amount_local ?? entry?.amount ?? entry?.value ?? entry?.usd_amount ?? entry?.local_amount
-        addCostEntry(entryKey, entryName, amountCandidate, frequency)
-      })
-    }
-
-    const visitedRaw = new WeakSet<object>()
-
-    function scanRawValue(value: unknown, contextLabel: string): void {
-      if (!value) return
-      if (Array.isArray(value)) {
-        pushCostArray(value, contextLabel)
-        value.forEach((entry) => {
-          if (entry && typeof entry === 'object') scanRawValue(entry, contextLabel)
-        })
-        return
+        monthly_amount: Number(amount.toFixed(2))
       }
-      if (typeof value !== 'object') return
-      const obj = value as Record<string, unknown>
-      if (visitedRaw.has(obj)) return
-      visitedRaw.add(obj as object)
-
-      if (Array.isArray(obj.costs)) pushCostArray(obj.costs as any[], `${contextLabel} Costs`)
-      if (Array.isArray((obj as any).items)) pushCostArray((obj as any).items as any[], `${contextLabel} Items`)
-      if (Array.isArray((obj as any).line_items)) pushCostArray((obj as any).line_items as any[], `${contextLabel} Line`)
-      if (Array.isArray((obj as any).components)) pushCostArray((obj as any).components as any[], `${contextLabel} Component`)
-      if (Array.isArray((obj as any).monthly_contributions_breakdown)) pushCostArray((obj as any).monthly_contributions_breakdown as any[], `${contextLabel} Contribution`)
-      if (Array.isArray((obj as any).monthly_benefits_breakdown)) pushCostArray((obj as any).monthly_benefits_breakdown as any[], `${contextLabel} Benefit`)
-      if (Array.isArray((obj as any).allowances)) pushCostArray((obj as any).allowances as any[], `${contextLabel} Allowance`)
-      if (Array.isArray((obj as any).fees)) pushCostArray((obj as any).fees as any[], `${contextLabel} Fee`)
-
-      const breakdownKeys = [
-        'breakdown',
-        'monthly_costs_breakdown',
-        'monthlyBreakdown',
-        'employer_contributions_breakdown',
-        'statutoryContributions',
-        'statutory_contributions',
-        'additionalFees',
-        'additional_fees',
-        'totals'
-      ]
-      breakdownKeys.forEach(key => {
-        const entry = obj[key]
-        if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
-          pushBreakdownObject(entry as Record<string, unknown>, formatKeyName(key))
-        }
-      })
-
-      Object.entries(obj).forEach(([key, child]) => {
-        if (!child) return
-        if (Array.isArray(child) || typeof child === 'object') {
-          scanRawValue(child, formatKeyName(key))
-        }
-      })
     }
 
-    function pushBreakdownObject(record: Record<string, unknown>, contextLabel: string): void {
-      Object.entries(record).forEach(([key, value]) => {
-        if (key === 'baseCost') return
-        if (value == null) return
-        const combinedLabel = formatKeyName(`${contextLabel} ${key}`)
-        if (typeof value === 'number' || typeof value === 'string' || typeof value === 'bigint') {
-          addCostEntry(key, combinedLabel, value)
+    const sumItems = (list: Array<{ monthly_amount: number }>) =>
+      list.reduce((total, current) => total + current.monthly_amount, 0)
+
+    const dropEmployeeSideEntries = (item: { key: string; name: string }) => {
+      const lowerName = item.name.toLowerCase()
+      const lowerKey = item.key.toLowerCase()
+      const exclusionPatterns = [
+        'employee contribution',
+        'employee_contribution',
+        'employee tax',
+        'employee_tax',
+        'income tax',
+        'income_tax',
+        'withholding',
+        'net salary',
+        'net pay',
+        'take home',
+        'employee social',
+        'employee pension'
+      ]
+      return exclusionPatterns.some(pattern =>
+        lowerName.includes(pattern) || lowerKey.includes(pattern.replace(/\s+/g, '_'))
+      )
+    }
+
+    const structuredItemsCandidate: Array<{ key: string; name: string; monthly_amount: number }> = Array.isArray(enhancedQuote.fullQuote?.items)
+      ? (enhancedQuote.fullQuote?.items as any[])
+          .map((entry, index) => normalizeFullQuoteItem(entry, index))
+          .filter((item): item is { key: string; name: string; monthly_amount: number } => !!item && !dropEmployeeSideEntries(item))
+      : []
+
+    let items: Array<{ key: string; name: string; monthly_amount: number }> = []
+
+    const useFallbackAggregation = true
+
+    if (useFallbackAggregation) {
+      const entryTypeDedup: Record<string, Set<string>> = {}
+      const seenEntryFingerprints = new Set<string>()
+      const seenFallbackEntries = new Set<string>()
+
+      const classifyEntryName = (name: string):
+        | 'base_salary'
+        | 'statutory'
+        | 'termination'
+        | 'gracemark'
+        | 'provider_fee'
+        | 'allowance'
+        | 'one_time'
+        | 'other' => {
+        const lower = name.toLowerCase()
+        if (/(base|gross|net).*salary/.test(lower) || lower.includes('base cost') || lower.includes('gross pay')) {
+          return 'base_salary'
+        }
+        if (lower.includes('statutory') || lower.includes('employer contribution') || lower.includes('social security') || lower.includes('insurance') || lower.includes('tax')) {
+          return 'statutory'
+        }
+        if (lower.includes('termination') || lower.includes('severance') || lower.includes('probation') || lower.includes('notice')) {
+          return 'termination'
+        }
+        if (lower.includes('gracemark')) {
+          return 'gracemark'
+        }
+        if (lower.includes('provider fee') || lower.includes('platform fee')) {
+          return 'provider_fee'
+        }
+        if (lower.includes('allowance') || lower.includes('benefit') || lower.includes('voucher')) {
+          return 'allowance'
+        }
+        if (lower.includes('one-time') || lower.includes('one time') || lower.includes('setup') || lower.includes('onboarding')) {
+          return 'one_time'
+        }
+        return 'other'
+      }
+
+      const convertFrequencyToMonthly = (amount: number, frequency?: string) => {
+        if (!frequency || !Number.isFinite(amount)) return amount
+        const freq = frequency.toLowerCase()
+        if (freq.includes('one_time') || freq.includes('one-time')) return amount
+        if (freq.includes('year')) return amount / 12
+        if (freq.includes('annual')) return amount / 12
+        if (freq.includes('quarter')) return amount / 3
+        if (freq.includes('semiannual') || freq.includes('semi-annual') || freq.includes('biannual')) return amount / 6
+        if (freq.includes('biweek')) return amount * (26 / 12)
+        if (freq.includes('week')) return amount * (52 / 12)
+        if (freq.includes('day')) return amount * 21.75
+        return amount
+      }
+
+      const addCostEntry = (keyCandidate: string | undefined, nameCandidate: string | undefined, amountInput: unknown, frequency?: string) => {
+        const amount = resolveMonthlyAmount(amountInput)
+        const monthly = convertFrequencyToMonthly(amount, frequency)
+        if (!Number.isFinite(monthly) || monthly === 0) return
+        const safeNameBase = nameCandidate && nameCandidate.trim().length > 0 ? nameCandidate.trim() : (keyCandidate && keyCandidate.trim().length > 0 ? keyCandidate.trim() : `Item ${items.length + 1}`)
+        const safeName = formatKeyName(safeNameBase)
+        const normalizedKeyBase = keyCandidate && keyCandidate.trim().length > 0 ? keyCandidate.trim() : safeName
+        const normalizedKey = normalizedKeyBase.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || `item_${items.length + 1}`
+        const fingerprint = `${normalizedKey}:${monthly.toFixed(2)}`
+
+        if (seenEntryFingerprints.has(fingerprint)) {
           return
         }
-        if (typeof value === 'object') {
-          const frequency = typeof (value as any)?.frequency === 'string' ? (value as any).frequency : undefined
-          const amountCandidate = (value as any)?.monthly_amount ?? (value as any)?.monthlyAmount ?? (value as any)?.amount ?? (value as any)?.value
-          if (amountCandidate !== undefined) {
-            addCostEntry(key, combinedLabel, amountCandidate, frequency)
-          } else {
-            scanRawValue(value, combinedLabel)
+
+        const normalizedNameLower = safeName.toLowerCase()
+        const hashKey = `${normalizedNameLower}:${monthly.toFixed(2)}`
+        if (seenFallbackEntries.has(hashKey)) {
+          return
+        }
+        if (dropEmployeeSideEntries({ key: normalizedKey, name: safeName })) {
+          return
+        }
+        if (normalizedNameLower.includes('total') && !/allowance|benefit|termination|gracemark|provider/.test(normalizedNameLower)) {
+          return
+        }
+
+        const entryType = classifyEntryName(safeName)
+        const dedupeSensitiveTypes: Record<typeof entryType, true | undefined> = {
+          base_salary: true,
+          gracemark: true,
+          provider_fee: true,
+        }
+        if (dedupeSensitiveTypes[entryType]) {
+          const amountKey = monthly.toFixed(2)
+          if (!entryTypeDedup[entryType]) {
+            entryTypeDedup[entryType] = new Set<string>()
           }
+          const bucket = entryTypeDedup[entryType]!
+          const compositeKey = `${entryType}:${amountKey}`
+          if (bucket.has(compositeKey)) {
+            return
+          }
+          bucket.add(compositeKey)
         }
-      })
-    }
+        seenFallbackEntries.add(hashKey)
 
-    const providerKey = finalChoice.provider as ProviderType
+        items.push({
+          key: normalizedKey,
+          name: safeName,
+          monthly_amount: Number(monthly.toFixed(2))
+        })
 
-    const resolveDisplayQuote = (): Quote | undefined => {
-      if (!quoteData?.quotes) return undefined
-      const raw = (quoteData.quotes as Record<string, unknown>)[providerKey]
-      if (!raw) return undefined
-
-      const isDisplayQuote = (value: unknown): value is Quote => {
-        return !!value && typeof value === 'object' && Array.isArray((value as Record<string, unknown>).costs)
+        seenEntryFingerprints.add(fingerprint)
       }
 
-      if (providerKey === 'remote') {
-        if (isDisplayQuote(raw)) return raw
-        if (typeof raw === 'object' && raw !== null && 'employment' in raw) {
-          return transformRemoteResponseToQuote(raw as RemoteAPIResponse)
-        }
-        return undefined
-      }
-
-      if (providerKey === 'rivermate') {
-        if (isDisplayQuote(raw)) return raw
-        if (typeof raw === 'object' && raw !== null && 'taxItems' in (raw as Record<string, unknown>)) {
-          return transformRivermateQuoteToDisplayQuote(raw as RivermateQuote)
-        }
-        return undefined
-      }
-
-      if (providerKey === 'oyster') {
-        if (isDisplayQuote(raw)) return raw
-        if (typeof raw === 'object' && raw !== null && 'contributions' in (raw as Record<string, unknown>)) {
-          return transformOysterQuoteToDisplayQuote(raw as OysterQuote)
-        }
-        return undefined
-      }
-
-      return isDisplayQuote(raw) ? raw : undefined
-    }
-
-    const displayQuote = resolveDisplayQuote()
-    if (displayQuote) {
-      if (Array.isArray(displayQuote.costs)) {
-        pushCostArray(displayQuote.costs, `${finalChoice.provider} Cost`)
-      }
-      if (displayQuote && typeof (displayQuote as any).breakdown === 'object') {
-        pushBreakdownObject((displayQuote as any).breakdown, `${finalChoice.provider} Breakdown`)
-      }
-    }
-
-    const rawEntry = getRawQuote(providerKey)
-    if (rawEntry?.primary) {
-      scanRawValue(rawEntry.primary, `${finalChoice.provider} Raw`)
-    }
-
-    const hasBaseSalaryFromItems = items.some(
-      entry => typeof entry?.name === 'string' && entry.name.toLowerCase() === 'base salary'
-    )
-
-    if (!hasBaseSalaryFromItems) {
-      const baseSalaryCandidates = [
-        enhancedQuote.fullQuote?.base_salary_monthly,
-        enhancedQuote.baseQuote?.baseCost,
-        enhancedQuote.monthlyCostBreakdown?.baseCost
-      ]
-      const baseSalary = baseSalaryCandidates
-        .map(resolveMonthlyAmount)
-        .find(amount => amount > 0) || 0
-
-      if (baseSalary > 0) {
-        addCostEntry('base_salary', 'Base Salary', baseSalary)
-      }
-    }
-
-    if (enhancedQuote.enhancements) {
-      const { severanceProvision, probationProvision } = enhancedQuote.enhancements
-
-      const addTerminationComponentEntry = (
-        key: string,
-        label: string,
-        component: TerminationComponentEnhancement | undefined
-      ) => {
-        if (!component) return
-        if (component.isAlreadyIncluded) return
-        const monthly = Number(component.monthlyAmount || 0)
-        if (!Number.isFinite(monthly) || monthly <= 0) return
-        addCostEntry(key, label, monthly)
-      }
-
-      // Termination notice removed - only severance and probation shown
-      addTerminationComponentEntry('severance_provision', 'Severance Provision', severanceProvision)
-      addTerminationComponentEntry('probation_provision', 'Probation Provision', probationProvision)
-
-      if (enhancedQuote.enhancements.additionalContributions) {
-        Object.entries(enhancedQuote.enhancements.additionalContributions).forEach(([key, value]) => {
-          const sourceValue = (value && typeof value === 'object' && 'monthly_amount' in (value as Record<string, unknown>))
-            ? (value as any).monthly_amount
-            : value
-          addCostEntry(key, key.replace(/_/g, ' '), sourceValue)
+      const pushCostArray = (costs: any[], contextLabel: string) => {
+        costs.forEach((entry, idx) => {
+          if (!entry) return
+          const entryName = typeof entry?.name === 'string' && entry.name.trim().length > 0
+            ? entry.name.trim()
+            : `${contextLabel} ${idx + 1}`
+          const entryKey = typeof entry?.key === 'string' && entry.key.trim().length > 0 ? entry.key.trim() : entryName
+          const frequency = typeof entry?.frequency === 'string' ? entry.frequency : undefined
+          const amountCandidate = entry?.monthly_amount ?? entry?.monthlyAmount ?? entry?.monthly_amount_local ?? entry?.amount ?? entry?.value ?? entry?.usd_amount ?? entry?.local_amount
+          addCostEntry(entryKey, entryName, amountCandidate, frequency)
         })
       }
 
-      Object.entries(enhancedQuote.enhancements).forEach(([key, value]) => {
-        if (
-          key === 'terminationCosts' ||
-          key === 'terminationNotice' ||
-          key === 'severanceProvision' ||
-          key === 'probationProvision' ||
-          key === 'additionalContributions'
-        ) return
-        if (!value || typeof value !== 'object') return
+      const visitedRaw = new WeakSet<object>()
 
-        const monthlyValue = resolveMonthlyAmount(
-          (value as any).monthly_amount ??
-          (value as any).monthlyAmount ??
-          (value as any).amount ??
-          (value as any).monthly_amount_local ??
-          0
-        )
-
-        if (monthlyValue > 0) {
-          addCostEntry(key, key.replace(/_/g, ' '), monthlyValue)
+      function scanRawValue(value: unknown, contextLabel: string): void {
+        if (!value) return
+        if (Array.isArray(value)) {
+          pushCostArray(value, contextLabel)
+          value.forEach((entry) => {
+            if (entry && typeof entry === 'object') scanRawValue(entry, contextLabel)
+          })
+          return
         }
-      })
-    }
+        if (typeof value !== 'object') return
+        const obj = value as Record<string, unknown>
+        if (visitedRaw.has(obj)) return
+        visitedRaw.add(obj as object)
 
-    if (enhancedQuote.baseQuote?.breakdown) {
-      pushBreakdownObject(enhancedQuote.baseQuote.breakdown, 'Base Quote')
+        if (Array.isArray(obj.costs)) pushCostArray(obj.costs as any[], `${contextLabel} Costs`)
+        if (Array.isArray((obj as any).items)) pushCostArray((obj as any).items as any[], `${contextLabel} Items`)
+        if (Array.isArray((obj as any).line_items)) pushCostArray((obj as any).line_items as any[], `${contextLabel} Line`)
+        if (Array.isArray((obj as any).components)) pushCostArray((obj as any).components as any[], `${contextLabel} Component`)
+        if (Array.isArray((obj as any).monthly_contributions_breakdown)) pushCostArray((obj as any).monthly_contributions_breakdown as any[], `${contextLabel} Contribution`)
+        if (Array.isArray((obj as any).monthly_benefits_breakdown)) pushCostArray((obj as any).monthly_benefits_breakdown as any[], `${contextLabel} Benefit`)
+        if (Array.isArray((obj as any).allowances)) pushCostArray((obj as any).allowances as any[], `${contextLabel} Allowance`)
+        if (Array.isArray((obj as any).fees)) pushCostArray((obj as any).fees as any[], `${contextLabel} Fee`)
+
+        const breakdownKeys = [
+          'breakdown',
+          'monthly_costs_breakdown',
+          'monthlyBreakdown',
+          'employer_contributions_breakdown',
+          'statutoryContributions',
+          'statutory_contributions',
+          'additionalFees',
+          'additional_fees',
+          'totals'
+        ]
+        breakdownKeys.forEach(key => {
+          const entry = obj[key]
+          if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+            pushBreakdownObject(entry as Record<string, unknown>, formatKeyName(key))
+          }
+        })
+
+        Object.entries(obj).forEach(([key, child]) => {
+          if (!child) return
+          if (Array.isArray(child) || typeof child === 'object') {
+            scanRawValue(child, formatKeyName(key))
+          }
+        })
+      }
+
+      function pushBreakdownObject(record: Record<string, unknown>, contextLabel: string): void {
+        Object.entries(record).forEach(([key, value]) => {
+          if (key === 'baseCost') return
+          if (value == null) return
+          const combinedLabel = formatKeyName(`${contextLabel} ${key}`)
+          if (typeof value === 'number' || typeof value === 'string' || typeof value === 'bigint') {
+            addCostEntry(key, combinedLabel, value)
+            return
+          }
+          if (typeof value === 'object') {
+            const frequency = typeof (value as any)?.frequency === 'string' ? (value as any).frequency : undefined
+            const amountCandidate = (value as any)?.monthly_amount ?? (value as any)?.monthlyAmount ?? (value as any)?.amount ?? (value as any)?.value
+            if (amountCandidate !== undefined) {
+              addCostEntry(key, combinedLabel, amountCandidate, frequency)
+            } else {
+              scanRawValue(value, combinedLabel)
+            }
+          }
+        })
+      }
+
+      const providerKey = finalChoice.provider as ProviderType
+
+      const resolveDisplayQuote = (): Quote | undefined => {
+        if (!quoteData?.quotes) return undefined
+        const raw = (quoteData.quotes as Record<string, unknown>)[providerKey]
+        if (!raw) return undefined
+
+        const isDisplayQuote = (value: unknown): value is Quote => {
+          return !!value && typeof value === 'object' && Array.isArray((value as Record<string, unknown>).costs)
+        }
+
+        if (providerKey === 'remote') {
+          if (isDisplayQuote(raw)) return raw
+          if (typeof raw === 'object' && raw !== null && 'employment' in raw) {
+            return transformRemoteResponseToQuote(raw as RemoteAPIResponse)
+          }
+          return undefined
+        }
+
+        if (providerKey === 'rivermate') {
+          if (isDisplayQuote(raw)) return raw
+          if (typeof raw === 'object' && raw !== null && 'taxItems' in (raw as Record<string, unknown>)) {
+            return transformRivermateQuoteToDisplayQuote(raw as RivermateQuote)
+          }
+          return undefined
+        }
+
+        if (providerKey === 'oyster') {
+          if (isDisplayQuote(raw)) return raw
+          if (typeof raw === 'object' && raw !== null && 'contributions' in (raw as Record<string, unknown>)) {
+            return transformOysterQuoteToDisplayQuote(raw as OysterQuote)
+          }
+          return undefined
+        }
+
+        return isDisplayQuote(raw) ? raw : undefined
+      }
+
+      const displayQuote = resolveDisplayQuote()
+      if (displayQuote) {
+        if (Array.isArray(displayQuote.costs)) {
+          pushCostArray(displayQuote.costs, `${finalChoice.provider} Cost`)
+        }
+        if (displayQuote && typeof (displayQuote as any).breakdown === 'object') {
+          pushBreakdownObject((displayQuote as any).breakdown, `${finalChoice.provider} Breakdown`)
+        }
+      }
+
+      const rawEntry = getRawQuote(providerKey)
+      if (rawEntry?.primary) {
+        scanRawValue(rawEntry.primary, `${finalChoice.provider} Raw`)
+      }
+
+      const hasBaseSalaryFromItems = items.some(
+        entry => typeof entry?.name === 'string' && entry.name.toLowerCase() === 'base salary'
+      )
+
+      if (!hasBaseSalaryFromItems) {
+        const baseSalaryCandidates = [
+          enhancedQuote.fullQuote?.base_salary_monthly,
+          enhancedQuote.baseQuote?.baseCost,
+          enhancedQuote.monthlyCostBreakdown?.baseCost
+        ]
+        const baseSalary = baseSalaryCandidates
+          .map(resolveMonthlyAmount)
+          .find(amount => amount > 0) || 0
+
+        if (baseSalary > 0) {
+          addCostEntry('base_salary', 'Base Salary', baseSalary)
+        }
+      }
+
+      if (enhancedQuote.enhancements) {
+        const { severanceProvision, probationProvision } = enhancedQuote.enhancements
+
+        const addTerminationComponentEntry = (
+          key: string,
+          label: string,
+          component: TerminationComponentEnhancement | undefined
+        ) => {
+          if (!component) return
+          if (component.isAlreadyIncluded) return
+          const monthly = Number(component.monthlyAmount || 0)
+          if (!Number.isFinite(monthly) || monthly <= 0) return
+          addCostEntry(key, label, monthly)
+        }
+
+        addTerminationComponentEntry('severance_provision', 'Severance Provision', severanceProvision)
+        addTerminationComponentEntry('probation_provision', 'Probation Provision', probationProvision)
+
+        if (enhancedQuote.enhancements.additionalContributions) {
+          Object.entries(enhancedQuote.enhancements.additionalContributions).forEach(([key, value]) => {
+            const sourceValue = (value && typeof value === 'object' && 'monthly_amount' in (value as Record<string, unknown>))
+              ? (value as any).monthly_amount
+              : value
+            addCostEntry(key, key.replace(/_/g, ' '), sourceValue)
+          })
+        }
+
+        Object.entries(enhancedQuote.enhancements).forEach(([key, value]) => {
+          if (
+            key === 'terminationCosts' ||
+            key === 'terminationNotice' ||
+            key === 'severanceProvision' ||
+            key === 'probationProvision' ||
+            key === 'additionalContributions'
+          ) return
+          if (!value || typeof value !== 'object') return
+
+          const monthlyValue = resolveMonthlyAmount(
+            (value as any).monthly_amount ??
+            (value as any).monthlyAmount ??
+            (value as any).amount ??
+            (value as any).monthly_amount_local ??
+            0
+          )
+
+          if (monthlyValue > 0) {
+            addCostEntry(key, key.replace(/_/g, ' '), monthlyValue)
+          }
+        })
+      }
+
+      if (enhancedQuote.baseQuote?.breakdown) {
+        pushBreakdownObject(enhancedQuote.baseQuote.breakdown, 'Base Quote')
+      }
     }
 
     const normalisedItems = normaliseItems(items)
@@ -2737,9 +3093,61 @@ const QuotePageContent = memo(() => {
 
     const mergedItems = Array.from(mergedItemsMap.values())
 
-    if (mergedItems.length === 0) {
+    const structuredTotal = sumItems(structuredItemsCandidate)
+    const fallbackTotal = sumItems(mergedItems)
+
+    console.log('[AcidTest] Provider source comparison', {
+      provider: finalChoice.provider,
+      structuredCount: structuredItemsCandidate.length,
+      structuredTotal,
+      fallbackCount: mergedItems.length,
+      fallbackTotal,
+    })
+
+    const combinedItemsMap = new Map<string, { key: string; name: string; monthly_amount: number }>()
+
+    const normaliseCombinedItem = (item: { key: string; name: string; monthly_amount: number }) => {
+      const normalizedKey = item.key.toLowerCase()
+      return {
+        key: normalizedKey,
+        name: formatKeyName(item.name),
+        monthly_amount: Number(item.monthly_amount.toFixed(2))
+      }
+    }
+
+    const addItemsToCombined = (
+      itemsToAdd: Array<{ key: string; name: string; monthly_amount: number }>,
+      { overwrite }: { overwrite: boolean }
+    ) => {
+      itemsToAdd.forEach(item => {
+        if (dropEmployeeSideEntries(item)) return
+        if (!Number.isFinite(item.monthly_amount) || item.monthly_amount === 0) return
+
+        const normalizedKey = item.key.toLowerCase()
+        if (!overwrite && combinedItemsMap.has(normalizedKey)) {
+          return
+        }
+
+        combinedItemsMap.set(normalizedKey, normaliseCombinedItem(item))
+      })
+    }
+
+    addItemsToCombined(structuredItemsCandidate, { overwrite: true })
+    addItemsToCombined(mergedItems, { overwrite: false })
+
+    if (combinedItemsMap.size === 0) {
       return null
     }
+
+    const selectedItems = Array.from(combinedItemsMap.values())
+
+    const combinedTotal = sumItems(selectedItems)
+
+    console.log('[AcidTest] Combined selection', {
+      provider: finalChoice.provider,
+      combinedCount: selectedItems.length,
+      combinedTotal,
+    })
 
     const buildAggregates = (categories: AcidTestCategoryBuckets) => {
       const sumBucket = (bucket: Record<string, number>) =>
@@ -2758,7 +3166,7 @@ const QuotePageContent = memo(() => {
       provider: finalChoice.provider,
       country: (quoteData?.formData as EORFormData)?.country || 'Unknown',
       currency: finalChoice.currency,
-      costItems: mergedItems.map(item => ({
+      costItems: selectedItems.map(item => ({
         key: item.key,
         name: item.name,
         monthly_amount: item.monthly_amount
@@ -2793,7 +3201,7 @@ const QuotePageContent = memo(() => {
       const terminationCosts: Record<string, number> = {}
       const oneTimeFees: Record<string, number> = {}
 
-      mergedItems.forEach(item => {
+      selectedItems.forEach(item => {
         const key = item.key.toLowerCase()
         const name = item.name.toLowerCase()
         const amount = item.monthly_amount || 0
@@ -2856,9 +3264,12 @@ const QuotePageContent = memo(() => {
       startPhase('gathering')
       await smoothProgressUpdate(5)
 
-      const prices: { provider: string; price: number }[] = allProviders
-        .map(p => ({ provider: p, price: enhancements[p]?.finalTotal || 0 }))
-        .filter(p => p.price !== undefined && p.price !== null && p.price > 0);
+      const prices: { provider: ProviderType; price: number }[] = allProviders
+        .map(provider => {
+          const price = getProviderPrice(provider)
+          return price ? { provider, price } : null
+        })
+        .filter((item): item is { provider: ProviderType; price: number } => item !== null)
 
       if (prices.length === 0) {
         return;
@@ -2969,13 +3380,12 @@ const QuotePageContent = memo(() => {
       startPhase('gathering')
       await smoothProgressUpdate(5)
 
-      const prices = allProviders
+      const prices: { provider: ProviderType; price: number }[] = allProviders
         .map(provider => {
-          const quote = (quoteData?.results as EORQuoteResults)?.[provider]
-          if (!quote || typeof quote.total !== 'number') return null
-          return { provider, price: quote.total }
+          const price = getProviderPrice(provider)
+          return price ? { provider, price } : null
         })
-        .filter((item): item is { provider: string; price: number } => item !== null)
+        .filter((item): item is { provider: ProviderType; price: number } => item !== null)
 
       if (prices.length === 0) {
         return;
