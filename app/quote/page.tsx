@@ -1970,61 +1970,46 @@ const QuotePageContent = memo(() => {
                     </div>
 
 
-                    {isCategorizingCosts ? (
-                      <div className="bg-white border border-slate-200 shadow-sm p-8">
+                    {(isCategorizingCosts || isComputingAcidTest) ? (
+                      <div className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 shadow-sm p-10">
                         <div className="flex flex-col items-center justify-center gap-4 text-center">
                           <div className="flex items-center justify-center gap-3">
                             <LoadingSpinner />
-                            <div className="text-lg font-semibold text-slate-700">Categorizing costs...</div>
+                            <div className="text-xl font-bold text-purple-700">Categorizing Costs & Computing Acid Test...</div>
                           </div>
-                          <p className="text-sm text-slate-500 max-w-md">
-                            Analyzing cost structure from the selected provider to prepare your profitability assessment.
-                          </p>
+                          <div className="space-y-2">
+                            <p className="text-sm text-purple-600 max-w-lg">
+                              Analyzing cost structure and running comprehensive profitability analysis.
+                            </p>
+                            <div className="flex items-center gap-2 text-xs text-purple-500">
+                              <Target className="h-4 w-4" />
+                              <span>This may take a few moments...</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    ) : (
-                      !acidTestCostData && (
-                        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 shadow-sm p-6">
-                          <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0 w-10 h-10 bg-amber-100 border border-amber-200 flex items-center justify-center">
-                              <XCircle className="h-5 w-5 text-amber-600" />
-                            </div>
-                            <div>
-                              <h5 className="text-lg font-semibold text-amber-800 mb-2">Cost Data Unavailable</h5>
-                              <p className="text-sm text-amber-700 mb-3">
-                                Unable to load the cost breakdown for this provider. This may be due to missing data or a temporary connectivity issue.
-                              </p>
-                              <p className="text-xs text-amber-600">
-                                Try adjusting the project parameters above or refresh the page to retry.
-                              </p>
-                            </div>
+                    ) : !acidTestCostData ? (
+                      <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 shadow-sm p-6">
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0 w-10 h-10 bg-amber-100 border border-amber-200 flex items-center justify-center">
+                            <XCircle className="h-5 w-5 text-amber-600" />
+                          </div>
+                          <div>
+                            <h5 className="text-lg font-semibold text-amber-800 mb-2">Cost Data Unavailable</h5>
+                            <p className="text-sm text-amber-700 mb-3">
+                              Unable to load the cost breakdown for this provider. This may be due to missing data or a temporary connectivity issue.
+                            </p>
+                            <p className="text-xs text-amber-600">
+                              Try adjusting the project parameters above or refresh the page to retry.
+                            </p>
                           </div>
                         </div>
-                      )
-                    )}
+                      </div>
+                    ) : null}
 
-                    {acidTestCostData && (
+                    {acidTestCostData && acidTestResults && !isComputingAcidTest && (
                       <div className="space-y-6">
-                        {isComputingAcidTest ? (
-                          <div className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 shadow-sm p-10">
-                            <div className="flex flex-col items-center justify-center gap-4 text-center">
-                              <div className="flex items-center justify-center gap-3">
-                                <LoadingSpinner />
-                                <div className="text-xl font-bold text-purple-700">Computing Acid Test...</div>
-                              </div>
-                              <div className="space-y-2">
-                                <p className="text-sm text-purple-600 max-w-lg">
-                                  Running comprehensive profitability analysis including revenue projections, cost breakdowns, and margin calculations.
-                                </p>
-                                <div className="flex items-center gap-2 text-xs text-purple-500">
-                                  <Target className="h-4 w-4" />
-                                  <span>This may take a few moments...</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ) : acidTestResults ? (
-                          (() => {
+                        {(() => {
                             const { summary, breakdown, billRateComposition, conversionError } = acidTestResults
                             const profitClass = summary.profitLocal >= 0 ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
                             const profitTextClass = summary.profitLocal >= 0 ? 'text-green-700' : 'text-red-700'
@@ -2876,12 +2861,7 @@ const QuotePageContent = memo(() => {
                                 </div>
                               </div>
                             )
-                          })()
-                        ) : (
-                          <p className="text-sm text-slate-600">
-                            Enter a monthly bill rate and project duration to see the acid test results.
-                          </p>
-                        )}
+                          })()}
                       </div>
                     )}
 

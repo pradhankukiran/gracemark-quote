@@ -69,57 +69,48 @@ To get the project up and running, follow these steps:
 
 ## API Endpoints
 
-The application has the following API endpoints:
+### Provider Cost Calculations
+- `POST /api/eor-cost` - Deel cost estimation
+- `POST /api/remote-cost` - Remote cost estimation
+- `POST /api/oyster-cost` - Oyster cost estimation
+- `POST /api/rippling-cost` - Rippling cost estimation
+- `POST /api/rivermate-cost` - Rivermate cost estimation
+- `POST /api/skuad-cost` - Skuad cost estimation
+- `POST /api/velocity-cost` - Velocity cost estimation
+- `POST /api/ic-cost` - Independent Contractor cost calculation
 
-- `POST /api/currency-converter`: Converts a given amount from a source currency to a target currency.
-- `POST /api/eor-cost`: Calculates the EOR cost for a given salary, country, and currency using the Deel API.
-- `POST /api/remote-cost`: Calculates the EOR cost for a given salary, country, and currency using the Remote API.
-- `POST /api/enhancement/quote`: Enhances a single provider quote using Groq LLM.
-- `POST /api/enhancement/batch`: Enhances multiple provider quotes in one request.
-- `GET /api/enhancement/quote`: Health check and stats for enhancement engine.
-- `GET /api/enhancement/debug`: Debug endpoints (`?action=stats|cache|performance|health`).
+### Utilities
+- `POST /api/currency-converter` - Currency conversion
+- `GET /api/eor-validations/[country_code]` - Country-specific EOR validations
+- `POST /api/eor-benefits` - Benefits information
+- `POST /api/eor-benefits/attachment` - Benefits attachment handling
+- `POST /api/categorize-costs` - Cost categorization
+- `POST /api/reconciliation` - Cost reconciliation
+
+### Enhancement Engine (LLM)
+- `POST /api/enhancement/quote` - Enhance single provider quote
+- `POST /api/enhancement/batch` - Enhance multiple quotes
+- `GET /api/enhancement/debug` - Debug endpoints
 
 ## File Structure
 
-The project has the following file structure:
-
 ```
-.
-├── app
-│   ├── api
-│   │   ├── currency-converter
-│   │   │   └── route.ts
-│   │   ├── eor-cost
-│   │   │   └── route.ts
-│   │   └── remote-cost
-│   │       └── route.ts
-│   ├── eor-calculator
-│   │   └── page.tsx
-│   └── ic-calculator
-│       └── page.tsx
-├── components
-│   ├── theme-provider.tsx
-│   └── ui
-│       ├── button.tsx
-│       ├── card.tsx
-│       ├── checkbox.tsx
-│       ├── input.tsx
-│       ├── label.tsx
-│       ├── select.tsx
-│       └── separator.tsx
-├── lib
-│   ├── country-data.ts
-│   ├── currency-converter.ts
-│   ├── data.ts
-│   ├── remote-mapping.ts
-│   ├── remote-slugs.json
-│   └── utils.ts
-├── public
-│   ├── placeholder-logo.png
-│   ├── placeholder-logo.svg
-│   ├── placeholder-user.jpg
-│   ├── placeholder.jpg
-│   └── placeholder.svg
-└── styles
-    └── globals.css
+app/
+├── api/                    # API routes
+│   ├── *-cost/            # Provider cost endpoints (7 providers)
+│   ├── ic-cost/           # IC cost calculation
+│   ├── currency-converter/
+│   ├── eor-validations/
+│   ├── eor-benefits/
+│   ├── categorize-costs/
+│   ├── reconciliation/
+│   └── enhancement/       # LLM enhancement engine
+├── quote/                 # EOR calculator
+│   ├── components/
+│   └── hooks/            # Provider-specific hooks
+└── ic-calculator/         # IC calculator
+    ├── components/
+    └── hooks/
+components/ui/             # shadcn/ui components
+lib/                       # Utilities and data
 ```
