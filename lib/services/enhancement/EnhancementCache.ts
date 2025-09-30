@@ -127,6 +127,7 @@ class EnhancementCacheService {
     return `prepass|${base.join('|')}`
   }
 
+  // CACHING DISABLED - Always return null to force fresh calculation
   public getPrepassBaseline(params: {
     countryCode: string
     baseSalaryMonthly: number | string
@@ -134,17 +135,7 @@ class EnhancementCacheService {
     quoteType: string
     employmentType?: string
   }): any | null {
-    try {
-      const key = this.generatePrepassKey(params)
-      const entry = this.prepassCache.get(key)
-      if (!entry || !this.isValidEntry(entry)) {
-        if (entry) this.prepassCache.delete(key)
-        return null
-      }
-      return entry.data
-    } catch {
-      return null
-    }
+    return null
   }
 
   public setPrepassBaseline(
@@ -252,34 +243,14 @@ class EnhancementCacheService {
   }
 
   // Retrieve enhancement result from cache
+  // CACHING DISABLED - Always return null to force fresh calculation
   public get(
     provider: string,
     formData: any,
     quote: any,
     quoteType: string
   ): any | null {
-    try {
-      const key = this.generateCacheKey({
-        provider,
-        country: formData.country,
-        baseSalary: formData.baseSalary,
-        contractDuration: formData.contractDuration,
-        employmentType: formData.employmentType,
-        quoteType,
-        quoteHash: this.hashQuote(quote)
-      })
-
-      const entry = this.cache.get(key)
-      if (!entry || !this.isValidEntry(entry)) {
-        if (entry) this.cache.delete(key)
-        return null
-      }
-
-      return entry.data
-    } catch (error) {
-      console.warn('Failed to retrieve cached enhancement:', error)
-      return null
-    }
+    return null
   }
 
   // Check if enhancement exists in cache
@@ -361,23 +332,12 @@ class EnhancementCacheService {
   }
 
   // Retrieve extraction result from cache
+  // CACHING DISABLED - Always return null to force fresh calculation
   public getExtraction(
     provider: string,
     originalResponse: any
   ): any | null {
-    try {
-      const key = this.generateExtractionCacheKey(provider, originalResponse)
-      const entry = this.cache.get(key)
-
-      if (!entry || !this.isValidEntry(entry)) {
-        return null
-      }
-
-      return entry.data
-    } catch (error) {
-      console.warn('Failed to retrieve cached extraction:', error)
-      return null
-    }
+    return null
   }
 
   // Clear all cache entries

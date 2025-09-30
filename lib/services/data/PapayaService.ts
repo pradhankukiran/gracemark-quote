@@ -40,6 +40,15 @@ export class PapayaService {
   private static cache = new Map<string, PapayaCountryData>()
   private static coreCache = new Map<string, PapayaCountryData["data"]>()
 
+  // TEMPORARY: Clear caches on module load to pick up detection logic changes
+  // static {
+  //   if (typeof window === 'undefined') {
+  //     console.log('[PapayaService] Clearing caches (detection logic updated)')
+  //     this.cache.clear()
+  //     this.coreCache.clear()
+  //   }
+  // }
+
   // Minimal alias map for non-standard/alternate codes seen in inputs
   // Keep this list intentionally short and data-driven per repo contents.
   // Example: Papaya stores United Kingdom under GB, but some inputs use UK.
@@ -273,23 +282,40 @@ export class PapayaService {
     // Require an explicit mention of the salary type
     if (!mentions.some(p => text.includes(p))) return false
 
-    // Negative/soft indicators that imply non-mandatory or discretionary/common practice
-    const softNegative = [
-      'customary', 'customarily', 'commonly', 'common', 'typical', 'typically',
-      'discretionary', 'at employer discretion', 'may be paid', 'might be paid', 'can be paid',
-      'optional', 'not mandatory', 'not required', 'not obligated', 'no legal requirement',
-      'depends on company policy', 'case by case', 'subject to contract', 'n/a'
+    // Strong negative indicators that explicitly mark as non-mandatory
+    const explicitNegative = [
+      'not mandatory', 'not required', 'not obligated', 'no legal requirement',
+      'optional', 'discretionary', 'at employer discretion',
+      'may be paid', 'might be paid', 'can be paid',
+      'depends on company policy', 'case by case', 'subject to contract',
+      'n/a', 'not applicable'
     ]
-    if (softNegative.some(w => text.includes(w))) return false
 
-    // Strong positive/mandatory indicators
+    // Only reject if explicitly marked as non-mandatory
+    if (explicitNegative.some(w => text.includes(w))) return false
+
+    // DEFAULT TO MANDATORY: If 13th/14th salary is mentioned without explicit negative indicators,
+    // assume it's mandatory. This is the correct default for most countries where these bonuses exist.
+    // Countries like Argentina (Aguinaldo), Brazil (Décimo Terceiro), etc. have mandatory 13th salary
+    // even if the Papaya data doesn't use the exact word "mandatory".
+
+    // Check for positive mandatory signals (for high confidence)
     const mandatorySignals = [
       'mandatory', 'required', 'must', 'obligatory', 'by law', 'legal requirement',
-      'statutory', 'entitled', 'guaranteed', 'shall', 'is paid' // "is paid" alone isn't perfect but often used in mandatory contexts
+      'statutory', 'entitled', 'guaranteed', 'shall', 'is paid', 'labor law'
     ]
 
-    // Only treat as mandatory if positive mandatory signals present (avoid long-text heuristics)
-    return mandatorySignals.some(w => text.includes(w))
+    const hasMandatorySignal = mandatorySignals.some(w => text.includes(w))
+
+    // Also check for soft/ambiguous indicators that suggest non-mandatory practice
+    const softNegative = [
+      'customary', 'customarily', 'commonly', 'common', 'typical', 'typically'
+    ]
+    const hasSoftNegative = softNegative.some(w => text.includes(w))
+
+    // If has mandatory signal OR no soft negative, treat as mandatory
+    // This assumes 13th/14th salary is mandatory by default in countries where it's mentioned
+    return hasMandatorySignal || !hasSoftNegative
   }
 
   /**

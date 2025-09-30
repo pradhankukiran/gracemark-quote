@@ -325,7 +325,7 @@ export default function EORCalculatorPage() {
 
                 <FormSectionHeader
                   icon={Heart}
-                  title="Employee Benefits"
+                  title="Employee Benefits (Optional)"
                   subtitle="Select benefit plans for the employee. Mandatory benefits must have a selection."
                 />
 

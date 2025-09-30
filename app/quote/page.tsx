@@ -3506,13 +3506,13 @@ const QuotePageContent = memo(() => {
     const structuredTotal = sumItems(structuredItemsCandidate)
     const fallbackTotal = sumItems(mergedItems)
 
-    console.log('[AcidTest] Provider source comparison', {
-      provider: finalChoice.provider,
-      structuredCount: structuredItemsCandidate.length,
-      structuredTotal,
-      fallbackCount: mergedItems.length,
-      fallbackTotal,
-    })
+    // console.log('[AcidTest] Provider source comparison', {
+    //   provider: finalChoice.provider,
+    //   structuredCount: structuredItemsCandidate.length,
+    //   structuredTotal,
+    //   fallbackCount: mergedItems.length,
+    //   fallbackTotal,
+    // })
 
     const combinedItemsMap = new Map<string, { key: string; name: string; monthly_amount: number }>()
 
@@ -3553,11 +3553,11 @@ const QuotePageContent = memo(() => {
 
     const combinedTotal = sumItems(selectedItems)
 
-    console.log('[AcidTest] Combined selection', {
-      provider: finalChoice.provider,
-      combinedCount: selectedItems.length,
-      combinedTotal,
-    })
+    // console.log('[AcidTest] Combined selection', {
+    //   provider: finalChoice.provider,
+    //   combinedCount: selectedItems.length,
+    //   combinedTotal,
+    // })
 
     const buildAggregates = (categories: AcidTestCategoryBuckets) => {
       const sumBucket = (bucket: Record<string, number>) =>
@@ -3584,7 +3584,7 @@ const QuotePageContent = memo(() => {
     }
 
     try {
-      console.log('[Cerebras] Request payload:', requestPayload)
+      // console.log('[Cerebras] Request payload:', requestPayload)
 
       const response = await fetch('/api/categorize-costs', {
         method: 'POST',
@@ -3599,7 +3599,7 @@ const QuotePageContent = memo(() => {
       }
 
       const categorizedData: AcidTestCategoryBuckets = await response.json()
-      console.log('[Cerebras] Response payload:', categorizedData)
+      // console.log('[Cerebras] Response payload:', categorizedData)
       const aggregates = buildAggregates(categorizedData)
       return { categories: categorizedData, aggregates }
     } catch (error) {

@@ -162,7 +162,7 @@ export class EnhancementEngine {
 
       // console.log(`[Enhancement] Enhancements computed for ${params.provider}. Transforming response...`)
       // Step 5: Transform Groq response to EnhancedQuote format
-      const enhancedQuote = this.transformGroqResponse(
+      let enhancedQuote = this.transformGroqResponse(
         groqResponse,
         normalizedQuote,
         {
@@ -172,6 +172,11 @@ export class EnhancementEngine {
           legalRequirements: legalProfile.requirements
         }
       )
+
+      // Step 5.5: Filter termination costs for statutory-only quotes
+      if (quoteType === 'statutory-only') {
+        enhancedQuote = this.filterTerminationCosts(enhancedQuote)
+      }
 
       // Debug logging for enhanced quote result
       if (typeof window === 'undefined') {
@@ -392,7 +397,7 @@ export class EnhancementEngine {
       }
 
       // console.log(`[Enhancement] Enhancements computed for ${params.provider}. Transforming response...`)
-      const enhancedQuote = this.transformGroqResponse(
+      let enhancedQuote = this.transformGroqResponse(
         groqLikeResponse,
         normalizedQuote,
         {
@@ -402,6 +407,11 @@ export class EnhancementEngine {
           legalRequirements: legalProfile?.requirements
         }
       )
+
+      // Filter termination costs for statutory-only quotes
+      if (quoteType === 'statutory-only') {
+        enhancedQuote = this.filterTerminationCosts(enhancedQuote)
+      }
 
       // Debug logging for enhanced quote result
       if (typeof window === 'undefined') {
@@ -482,6 +492,7 @@ export class EnhancementEngine {
     input: { quoteType: 'all-inclusive' | 'statutory-only'; contractDurationMonths: number; formData?: EORFormData; legalRequirements?: LegalRequirements }
   ): EnhancedQuote {
     const { enhancements, confidence_scores, analysis } = groqResponse
+    const isStatutoryOnly = input.quoteType === 'statutory-only'
 
     // Build enhancement objects
     const enhancementData: EnhancedQuote['enhancements'] = {}
@@ -490,7 +501,7 @@ export class EnhancementEngine {
     const contractMonths = Math.max(1, input.contractDurationMonths || 12)
 
     // Severance provision
-    if (enhancements.severance_provision) {
+    if (!isStatutoryOnly && enhancements.severance_provision) {
       const sp = enhancements.severance_provision
       enhancementData.severanceProvision = {
         monthlyAmount: sp.monthly_amount || 0,
@@ -502,7 +513,7 @@ export class EnhancementEngine {
     }
 
     // Probation provision
-    if (enhancements.probation_provision) {
+    if (!isStatutoryOnly && enhancements.probation_provision) {
       const pp = enhancements.probation_provision
       enhancementData.probationProvision = {
         monthlyAmount: pp.monthly_amount || 0,
@@ -605,63 +616,65 @@ export class EnhancementEngine {
       const lr = input.legalRequirements
 
       if (lr && baseSalary > 0) {
-        // Termination costs (monthlyized)
-        const hasLLMTermination = !!enhancementData.terminationCosts && (enhancementData.terminationCosts.totalTerminationCost || 0) > 0
-        const noticeDays = Math.max(0, Number(lr.terminationCosts?.noticePeriodDays || 0))
-        const severanceMonths = Math.max(0, Number(lr.terminationCosts?.severanceMonths || 0))
-        const probationDays = Math.max(0, Number(lr.terminationCosts?.probationPeriodDays || 0))
+        if (!isStatutoryOnly) {
+          // Termination costs (monthlyized)
+          const hasLLMTermination = !!enhancementData.terminationCosts && (enhancementData.terminationCosts.totalTerminationCost || 0) > 0
+          const noticeDays = Math.max(0, Number(lr.terminationCosts?.noticePeriodDays || 0))
+          const severanceMonths = Math.max(0, Number(lr.terminationCosts?.severanceMonths || 0))
+          const probationDays = Math.max(0, Number(lr.terminationCosts?.probationPeriodDays || 0))
 
-        let noticeTotal = noticeDays > 0 ? (noticeDays / 30) * baseSalary : 0
-        let severanceTotal = severanceMonths > 0 ? severanceMonths * baseSalary : 0
-        let probationTotal = probationDays > 0 ? (probationDays / 30) * baseSalary : 0
+          let noticeTotal = noticeDays > 0 ? (noticeDays / 30) * baseSalary : 0
+          let severanceTotal = severanceMonths > 0 ? severanceMonths * baseSalary : 0
+          let probationTotal = probationDays > 0 ? (probationDays / 30) * baseSalary : 0
 
-        if (noticeTotal < 0) noticeTotal = 0
-        if (severanceTotal < 0) severanceTotal = 0
-        if (probationTotal < 0) probationTotal = 0
+          if (noticeTotal < 0) noticeTotal = 0
+          if (severanceTotal < 0) severanceTotal = 0
+          if (probationTotal < 0) probationTotal = 0
 
-        let termTotal = severanceTotal + probationTotal
+          let termTotal = severanceTotal + probationTotal
 
-        if (termTotal <= 0 && baseSalary > 0) {
-          const fallbackTotal = 3 * baseSalary
-          if (severanceTotal <= 0) {
-            severanceTotal = fallbackTotal
-          }
-          termTotal = Math.max(0, severanceTotal + probationTotal)
-        }
-
-        const termMonthly = months > 0 ? (termTotal / months) : 0
-        if (!hasLLMTermination && termMonthly > 0) {
-          enhancementData.terminationCosts = {
-            noticePeriodCost: 0,
-            severanceCost: Number(severanceTotal.toFixed(2)),
-            probationCost: Number(probationTotal.toFixed(2)),
-            totalTerminationCost: Number((severanceTotal + probationTotal).toFixed(2)),
-            explanation: 'Deterministic termination provision based on Papaya legal profile (severance and probation only).',
-            confidence: 0.8,
-            basedOnContractMonths: months
-          }
-
-          const buildComponent = (total: number, explanation: string): TerminationComponentEnhancement | undefined => {
-            if (!total || total <= 0) return undefined
-            const monthlyAmount = Number((total / months).toFixed(2))
-            if (monthlyAmount <= 0) return undefined
-            return {
-              monthlyAmount,
-              totalAmount: Number(total.toFixed(2)),
-              explanation,
-              confidence: 0.8,
-              isAlreadyIncluded: false
+          if (termTotal <= 0 && baseSalary > 0) {
+            const fallbackTotal = 3 * baseSalary
+            if (severanceTotal <= 0) {
+              severanceTotal = fallbackTotal
             }
+            termTotal = Math.max(0, severanceTotal + probationTotal)
           }
 
-          const deterministicSeverance = buildComponent(severanceTotal, 'Deterministic severance provision (legal profile).')
-          if (deterministicSeverance) {
-            enhancementData.severanceProvision = deterministicSeverance
-          }
+          const termMonthly = months > 0 ? (termTotal / months) : 0
+          if (!hasLLMTermination && termMonthly > 0) {
+            enhancementData.terminationCosts = {
+              noticePeriodCost: 0,
+              severanceCost: Number(severanceTotal.toFixed(2)),
+              probationCost: Number(probationTotal.toFixed(2)),
+              totalTerminationCost: Number((severanceTotal + probationTotal).toFixed(2)),
+              explanation: 'Deterministic termination provision based on Papaya legal profile (severance and probation only).',
+              confidence: 0.8,
+              basedOnContractMonths: months
+            }
 
-          const deterministicProbation = buildComponent(probationTotal, 'Deterministic probation termination provision (legal profile).')
-          if (deterministicProbation) {
-            enhancementData.probationProvision = deterministicProbation
+            const buildComponent = (total: number, explanation: string): TerminationComponentEnhancement | undefined => {
+              if (!total || total <= 0) return undefined
+              const monthlyAmount = Number((total / months).toFixed(2))
+              if (monthlyAmount <= 0) return undefined
+              return {
+                monthlyAmount,
+                totalAmount: Number(total.toFixed(2)),
+                explanation,
+                confidence: 0.8,
+                isAlreadyIncluded: false
+              }
+            }
+
+            const deterministicSeverance = buildComponent(severanceTotal, 'Deterministic severance provision (legal profile).')
+            if (deterministicSeverance) {
+              enhancementData.severanceProvision = deterministicSeverance
+            }
+
+            const deterministicProbation = buildComponent(probationTotal, 'Deterministic probation termination provision (legal profile).')
+            if (deterministicProbation) {
+              enhancementData.probationProvision = deterministicProbation
+            }
           }
         }
 
@@ -757,7 +770,7 @@ export class EnhancementEngine {
       terminationComponentsAdded = true
     }
     // Fallback: use aggregate termination total if component breakdown unavailable
-    if (!terminationComponentsAdded && enhancementData.terminationCosts && enhancementData.terminationCosts.totalTerminationCost > 0) {
+    if (!isStatutoryOnly && !terminationComponentsAdded && enhancementData.terminationCosts && enhancementData.terminationCosts.totalTerminationCost > 0) {
       const months = enhancementData.terminationCosts.basedOnContractMonths || input.contractDurationMonths || 12
       const monthlyized = months > 0 ? enhancementData.terminationCosts.totalTerminationCost / months : 0
       addIf(monthlyized)
@@ -883,6 +896,9 @@ export class EnhancementEngine {
 
     // If a fullQuote is present, override enhancement total to align with full monthly total
     let fullQuote = (groqResponse as any)?.full_quote as (EnhancedQuote['fullQuote'] | undefined)
+    if (isStatutoryOnly && fullQuote) {
+      fullQuote = undefined
+    }
     if (fullQuote && typeof fullQuote === 'object') {
       try {
         const fqTotal = Number((fullQuote as any)?.total_monthly) || 0
@@ -1322,8 +1338,9 @@ export class EnhancementEngine {
     // Enhancement data validation
     Object.values(quote.enhancements).forEach(enhancement => {
       if (enhancement && 'confidence' in enhancement) {
-        if (enhancement.confidence < 0 || enhancement.confidence > 1) {
-          console.warn(`Invalid enhancement confidence score: ${enhancement.confidence}`)
+        const confidence = (enhancement as { confidence?: number }).confidence
+        if (typeof confidence === 'number' && (confidence < 0 || confidence > 1)) {
+          console.warn(`Invalid enhancement confidence score: ${confidence}`)
         }
       }
     })
@@ -1393,6 +1410,9 @@ export class EnhancementEngine {
   ): number {
     let confidence = 0.5 // Base confidence
 
+    const basedOnContractMonths = calculatedCosts.basedOnContractMonths ?? 0
+    const probationCost = calculatedCosts.probationCost ?? 0
+
     // Increase confidence if we have specific legal data
     if (papayaData.data?.termination?.notice_period) {
       confidence += 0.2
@@ -1403,10 +1423,10 @@ export class EnhancementEngine {
     if (papayaData.data?.termination?.probation_period) {
       confidence += 0.1
     }
-    if (calculatedCosts.basedOnContractMonths > 0) {
+    if (basedOnContractMonths > 0) {
       confidence += 0.1
     }
-    if (calculatedCosts.probationCost > 0) {
+    if (probationCost > 0) {
       confidence += 0.05
     }
 
@@ -1645,6 +1665,117 @@ export class EnhancementEngine {
    */
   cleanupCache() {
     enhancementCache.cleanup()
+  }
+
+  /**
+   * Filter out termination costs from enhanced quote (for statutory-only mode)
+   */
+  private filterTerminationCosts(enhancedQuote: EnhancedQuote): EnhancedQuote {
+    const { enhancements } = enhancedQuote
+
+    const buildSanitizedFullQuote = (): EnhancedQuote['fullQuote'] | undefined => undefined
+
+    const severanceMonthly =
+      enhancements.severanceProvision && !enhancements.severanceProvision.isAlreadyIncluded
+        ? enhancements.severanceProvision.monthlyAmount || 0
+        : 0
+
+    const probationMonthly =
+      enhancements.probationProvision && !enhancements.probationProvision.isAlreadyIncluded
+        ? enhancements.probationProvision.monthlyAmount || 0
+        : 0
+
+    let terminationReduction = severanceMonthly + probationMonthly
+
+    const terminationCosts = enhancements.terminationCosts
+    if (terminationReduction === 0 && terminationCosts && terminationCosts.totalTerminationCost > 0) {
+      const months = terminationCosts.basedOnContractMonths && terminationCosts.basedOnContractMonths > 0
+        ? terminationCosts.basedOnContractMonths
+        : 12
+      const fallbackMonthly = months > 0
+        ? terminationCosts.totalTerminationCost / months
+        : terminationCosts.totalTerminationCost
+      if (fallbackMonthly > 0) {
+        terminationReduction += fallbackMonthly
+      }
+    }
+
+    // DEBUG LOGGING
+    // if (typeof window === 'undefined') {
+    //   console.log('[filterTerminationCosts] DEBUG START')
+    //   console.log('Provider:', enhancedQuote.provider)
+    //   console.log('Original totalEnhancement:', enhancedQuote.totalEnhancement)
+    //   console.log('Original finalTotal:', enhancedQuote.finalTotal)
+    //   console.log('Original monthlyCostBreakdown.enhancements:', enhancedQuote.monthlyCostBreakdown.enhancements)
+    //   console.log('---')
+    //   console.log('Severance monthly:', severanceMonthly, 'isAlreadyIncluded:', enhancements.severanceProvision?.isAlreadyIncluded)
+    //   console.log('Probation monthly:', probationMonthly, 'isAlreadyIncluded:', enhancements.probationProvision?.isAlreadyIncluded)
+    //   console.log('Termination costs total:', terminationCosts?.totalTerminationCost)
+    //   console.log('CALCULATED terminationReduction:', terminationReduction)
+    //   console.log('---')
+    //   console.log('Other enhancements present:')
+    //   if (enhancements.thirteenthSalary) console.log('  13th salary monthly:', enhancements.thirteenthSalary.monthlyAmount, 'isAlreadyIncluded:', enhancements.thirteenthSalary.isAlreadyIncluded)
+    //   if (enhancements.fourteenthSalary) console.log('  14th salary monthly:', enhancements.fourteenthSalary.monthlyAmount, 'isAlreadyIncluded:', enhancements.fourteenthSalary.isAlreadyIncluded)
+    //   if (enhancements.vacationBonus) console.log('  Vacation bonus amount:', enhancements.vacationBonus.amount, 'isAlreadyIncluded:', enhancements.vacationBonus.isAlreadyIncluded)
+    //   if (enhancements.transportationAllowance) console.log('  Transportation monthly:', enhancements.transportationAllowance.monthlyAmount, 'isAlreadyIncluded:', enhancements.transportationAllowance.isAlreadyIncluded)
+    //   if (enhancements.remoteWorkAllowance) console.log('  Remote work monthly:', enhancements.remoteWorkAllowance.monthlyAmount, 'isAlreadyIncluded:', enhancements.remoteWorkAllowance.isAlreadyIncluded)
+    //   if (enhancements.mealVouchers) console.log('  Meal vouchers monthly:', enhancements.mealVouchers.monthlyAmount, 'isAlreadyIncluded:', enhancements.mealVouchers.isAlreadyIncluded)
+    // }
+
+    const updatedEnhancements: EnhancedQuote['enhancements'] = {
+      ...enhancements,
+      severanceProvision: undefined,
+      probationProvision: undefined,
+      terminationCosts: undefined
+    }
+
+    if (terminationReduction <= 0) {
+      // if (typeof window === 'undefined') {
+      //   console.log('No termination reduction needed (terminationReduction <= 0)')
+      //   console.log('[filterTerminationCosts] DEBUG END\n')
+      // }
+      const sanitizedFullQuote = buildSanitizedFullQuote()
+      return {
+        ...enhancedQuote,
+        enhancements: updatedEnhancements,
+        fullQuote: sanitizedFullQuote ?? enhancedQuote.fullQuote
+      }
+    }
+
+    const subtractSafely = (value: number): number => {
+      const adjusted = Number((value - terminationReduction).toFixed(2))
+      return adjusted < 0 ? 0 : adjusted
+    }
+
+    const updatedTotalEnhancement = subtractSafely(enhancedQuote.totalEnhancement)
+    const updatedFinalTotal = subtractSafely(enhancedQuote.finalTotal)
+    const updatedMonthlyEnhancements = subtractSafely(enhancedQuote.monthlyCostBreakdown.enhancements)
+    const harmonizedEnhancement = Number(updatedMonthlyEnhancements.toFixed(2))
+    const harmonizedFinalTotal = Number(updatedFinalTotal.toFixed(2))
+    const sanitizedFullQuote = buildSanitizedFullQuote()
+
+    // DEBUG LOGGING
+    // if (typeof window === 'undefined') {
+    //   console.log('---')
+    //   console.log('AFTER SUBTRACTION:')
+    //   console.log('New totalEnhancement:', harmonizedEnhancement, '(was:', enhancedQuote.totalEnhancement, ', reduced by:', terminationReduction, ')')
+    //   console.log('New finalTotal:', harmonizedFinalTotal, '(was:', enhancedQuote.finalTotal, ')')
+    //   console.log('Difference in totalEnhancement:', (enhancedQuote.totalEnhancement - harmonizedEnhancement).toFixed(2))
+    //   console.log('[filterTerminationCosts] DEBUG END\n')
+    // }
+
+    return {
+      ...enhancedQuote,
+      enhancements: updatedEnhancements,
+      totalEnhancement: harmonizedEnhancement,
+      finalTotal: harmonizedFinalTotal,
+      monthlyCostBreakdown: {
+        ...enhancedQuote.monthlyCostBreakdown,
+        enhancements: harmonizedEnhancement,
+        total: harmonizedFinalTotal
+      },
+      fullQuote: sanitizedFullQuote ?? enhancedQuote.fullQuote
+    }
   }
 
   /**

@@ -193,6 +193,16 @@ export interface LegalRequirements {
   }
 }
 
+export interface TerminationCostBreakdown {
+  noticePeriodCost?: number
+  severanceCost?: number
+  probationCost?: number
+  totalTerminationCost: number
+  explanation?: string
+  confidence?: number
+  basedOnContractMonths?: number
+}
+
 // Individual Enhancement Calculations
 
 export interface TerminationComponentEnhancement {
@@ -262,6 +272,7 @@ export interface EnhancedQuote {
     mealVouchers?: AllowanceEnhancement
     medicalExam?: MedicalExamCosts
     additionalContributions?: Record<string, number>
+    terminationCosts?: TerminationCostBreakdown
   }
   
   // Totals
@@ -333,6 +344,7 @@ export interface ArithmeticComputeInput {
   baseQuote: NormalizedQuote
   quoteType: 'all-inclusive' | 'statutory-only'
   contractDurationMonths: number
+  formData?: EORFormData
   extractedBenefits: StandardizedBenefitData
   legalProfile: LegalProfileInfo
 }

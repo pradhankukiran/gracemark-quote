@@ -436,6 +436,13 @@ export class GroqService {
         // Accept both monthly_amount (as per prompt schema) and monthly_amount_local (older)
         const monthlyLocal = Math.max(0, Number((item as any).monthly_amount ?? (item as any).monthly_amount_local ?? 0))
         const monthlyAmount = await convertLocalToProvider(monthlyLocal)
+        const mandatory = Boolean(
+          (item as any).mandatory ??
+          (item as any).mandatory_flag ??
+          (item as any).mandatoryFlag ??
+          (item as any).is_mandatory ??
+          (item as any).isMandatory
+        )
         if (monthlyAmount <= 0) continue
 
         // Map items to enhancement objects based on category and name

@@ -414,14 +414,17 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
 
   // Retry logic for enhancement API calls
   const retryEnhancementWithBackoff = useCallback(async (
-    provider: Provider, 
-    quote: unknown, 
-    formData: EORFormData, 
+    provider: Provider,
+    quote: unknown,
+    formData: EORFormData,
     maxRetries = 3
   ): Promise<unknown> => {
+    const quoteMode: 'all-inclusive' | 'statutory-only' =
+      formData.quoteType === 'statutory-only' ? 'statutory-only' : 'all-inclusive'
+
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
-        return await enhanceQuote(provider, quote, formData)
+        return await enhanceQuote(provider, quote, formData, quoteMode)
       } catch (error: unknown) {
         const isLastAttempt = attempt === maxRetries
         
@@ -454,7 +457,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   const scheduleEnhancement = useCallback(async (provider: Provider, quote: unknown, formData: EORFormData): Promise<void> => {
     if (enhancementEnqueuedRef.current[provider] || enhancementInFlightRef.current[provider]) return
     enhancementEnqueuedRef.current[provider] = true
-    
+
     // NORMALIZATION CHECK: Test if quote can be normalized for enhancement
     const normalizedQuote = normalizeQuoteForEnhancement(provider as any, quote);
     if (!normalizedQuote || !isValidNormalizedQuote(normalizedQuote)) {

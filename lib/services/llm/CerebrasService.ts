@@ -20,7 +20,7 @@ export interface PrepassLegalItem {
   max?: number
   source?: string
   notes?: string
-  component?: 'severance' | 'probation' | 'other'
+  component?: 'severance' | 'probation' | 'notice' | 'other'
 }
 
 export interface PrepassLegalProfile {
@@ -75,7 +75,7 @@ const PrepassSchema = z.object({
     max: z.number().optional(),
     source: z.string().optional(),
     notes: z.string().optional(),
-    component: z.enum(['severance','probation','other']).optional()
+    component: z.enum(['severance','probation','notice','other']).optional()
   })),
   subtotals: z.object({ contributions: z.number(), bonuses: z.number(), allowances: z.number(), termination: z.number() }),
   total_monthly_local: z.number(),
