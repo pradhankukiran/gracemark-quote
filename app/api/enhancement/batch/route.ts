@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     // Build up a partial map then cast when invoking the engine
     const providerQuotes: Partial<Record<ProviderType, Record<string, unknown>>> = {}
     Object.entries(validatedInput.providerQuotes).forEach(([provider, quote]) => {
-      if (['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'].includes(provider)) {
+      if (['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity', 'playroll', 'omnipresent'].includes(provider)) {
         providerQuotes[provider as ProviderType] = quote
       }
     })
@@ -153,7 +153,7 @@ export async function GET(request: NextRequest) {
   // This could be extended to support async processing with job queues
   return NextResponse.json({
     message: 'Batch processing is synchronous',
-    supportedProviders: ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'],
-    maxConcurrentJobs: 7
+    supportedProviders: ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity', 'playroll', 'omnipresent'],
+    maxConcurrentJobs: 8
   })
 }

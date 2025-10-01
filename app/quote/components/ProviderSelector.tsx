@@ -11,7 +11,7 @@ interface ProviderSelectorProps {
   providerStates: { [K in Provider]: ProviderStatus };
 }
 
-const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'];
+const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity', 'playroll', 'omnipresent'];
 
 export const ProviderSelector = memo(({
   currentProvider,

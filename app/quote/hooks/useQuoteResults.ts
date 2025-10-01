@@ -9,12 +9,14 @@ import { useOysterQuote } from "./useOysterQuote";
 import { useRipplingQuote } from "./useRipplingQuote";
 import { useSkuadQuote } from "./useSkuadQuote";
 import { useVelocityQuote } from "./useVelocityQuote";
+import { usePlayrollQuote } from "./usePlayrollQuote";
+import { useOmnipresentQuote } from "./useOmnipresentQuote";
 import { useEnhancementContext } from "@/hooks/enhancement/EnhancementContext";
 import { transformRemoteResponseToQuote } from "@/lib/shared/utils/apiUtils";
 import { clearRawQuotes } from "@/lib/shared/utils/rawQuoteStore";
 import { isRemoteAPIResponse, validateQuoteWithDebugging, isValidQuote, normalizeQuoteForEnhancement, isValidNormalizedQuote } from "@/lib/shared/utils/quoteNormalizer";
 
-export type Provider = 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity';
+export type Provider = 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity' | 'playroll' | 'omnipresent';
 
 export type ProviderState = 'inactive' | 'loading-base' | 'loading-enhanced' | 'active' | 'failed' | 'enhancement-failed';
 
@@ -26,9 +28,9 @@ export interface ProviderStatus {
 }
 
 // Sequential loading queue (legacy). We'll run in parallel mode now.
-const SEQUENTIAL_LOADING_QUEUE: Provider[] = ['remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'];
+const SEQUENTIAL_LOADING_QUEUE: Provider[] = ['remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity', 'playroll', 'omnipresent'];
 const PARALLEL_MODE = true
-const OTHER_PROVIDERS: Provider[] = ['remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity']
+const OTHER_PROVIDERS: Provider[] = ['remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity', 'playroll', 'omnipresent']
 
 interface UseQuoteResultsReturn {
   quoteData: QuoteData | null;
@@ -66,6 +68,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     rippling: { status: 'inactive', hasData: false },
     skuad: { status: 'inactive', hasData: false },
     velocity: { status: 'inactive', hasData: false },
+    playroll: { status: 'inactive', hasData: false },
+    omnipresent: { status: 'inactive', hasData: false },
   });
   
   // Sequential loading management (legacy base-quote flow)
@@ -118,6 +122,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       case 'rippling':
       case 'skuad':
       case 'velocity':
+      case 'playroll':
+      case 'omnipresent':
         // These typically return DisplayQuote format
         return !!(
           (quote as any)?.salary && 
@@ -166,6 +172,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       case 'rippling': providerQuote = data.quotes.rippling; break;
       case 'skuad': providerQuote = data.quotes.skuad; break;
       case 'velocity': providerQuote = data.quotes.velocity; break;
+      case 'playroll': providerQuote = data.quotes.playroll; break;
+      case 'omnipresent': providerQuote = data.quotes.omnipresent; break;
       default: return false;
     }
 
@@ -200,6 +208,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       case 'rippling': comparisonQuote = data.quotes.comparisonRippling; break;
       case 'skuad': comparisonQuote = data.quotes.comparisonSkuad; break;
       case 'velocity': comparisonQuote = data.quotes.comparisonVelocity; break;
+      case 'playroll': comparisonQuote = data.quotes.comparisonPlayroll; break;
+      case 'omnipresent': comparisonQuote = data.quotes.comparisonOmnipresent; break;
       default: return false;
     }
 
@@ -224,6 +234,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       case 'rippling': providerDual = dualQuotes.rippling; break;
       case 'skuad': providerDual = dualQuotes.skuad; break;
       case 'velocity': providerDual = dualQuotes.velocity; break;
+      case 'playroll': providerDual = dualQuotes.playroll; break;
+      case 'omnipresent': providerDual = dualQuotes.omnipresent; break;
       default: return false;
     }
 
@@ -273,6 +285,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       case 'rippling': providerDual = dualQuotes?.rippling; break;
       case 'skuad': providerDual = dualQuotes?.skuad; break;
       case 'velocity': providerDual = dualQuotes?.velocity; break;
+      case 'playroll': providerDual = dualQuotes?.playroll; break;
+      case 'omnipresent': providerDual = dualQuotes?.omnipresent; break;
       default: return false;
     }
 
@@ -304,7 +318,12 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     rippling: false,
     skuad: false,
     velocity: false,
+    playroll: false,
+    omnipresent: false,
   })
+  const MAX_BACKGROUND_BASE_CONCURRENCY = 8
+  const backgroundQueueRef = useRef<Provider[]>([])
+  const backgroundActiveCountRef = useRef(0)
   const enhancementInFlightRef = useRef<Record<Provider, boolean>>({
     deel: false,
     remote: false,
@@ -313,6 +332,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     rippling: false,
     skuad: false,
     velocity: false,
+    playroll: false,
+    omnipresent: false,
   })
   // Track if a provider has been enqueued for enhancement to prevent re-enqueue storms
   const enhancementEnqueuedRef = useRef<Record<Provider, boolean>>({
@@ -323,6 +344,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     rippling: false,
     skuad: false,
     velocity: false,
+    playroll: false,
+    omnipresent: false,
   })
   const enhancementFailedRef = useRef<Record<Provider, boolean>>({
     deel: false,
@@ -332,6 +355,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     rippling: false,
     skuad: false,
     velocity: false,
+    playroll: false,
+    omnipresent: false,
   })
   // Track comparison base fetch in-flight per provider to avoid premature 'inactive' state
   const compareInFlightRef = useRef<Record<Provider, boolean>>({
@@ -342,6 +367,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     rippling: false,
     skuad: false,
     velocity: false,
+    playroll: false,
+    omnipresent: false,
   })
   // Track when comparison quotes are fully loaded (both primary and comparison data)
   const comparisonCompleteRef = useRef<Record<Provider, boolean>>({
@@ -352,6 +379,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     rippling: false,
     skuad: false,
     velocity: false,
+    playroll: false,
+    omnipresent: false,
   })
   // Track when dual currency quotes are fully loaded for a provider
   const dualCurrencyCompleteRef = useRef<Record<Provider, boolean>>({
@@ -362,6 +391,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     rippling: false,
     skuad: false,
     velocity: false,
+    playroll: false,
+    omnipresent: false,
   })
   // Track base quote failures to preserve 'failed' status instead of reverting to 'inactive'
   const baseFailedRef = useRef<Record<Provider, boolean>>({
@@ -372,6 +403,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     rippling: false,
     skuad: false,
     velocity: false,
+    playroll: false,
+    omnipresent: false,
   })
   // Track normalization failures (base quote cannot be normalized for enhancement)
   const normalizationFailedRef = useRef<Record<Provider, boolean>>({
@@ -382,6 +415,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     rippling: false,
     skuad: false,
     velocity: false,
+    playroll: false,
+    omnipresent: false,
   })
 
   // Enhancement Concurrency Control
@@ -510,6 +545,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   const { loading: ripplingLoading, calculateRipplingQuote } = useRipplingQuote();
   const { loading: skuadLoading, calculateSkuadQuote } = useSkuadQuote();
   const { loading: velocityLoading, calculateVelocityQuote } = useVelocityQuote();
+  const { loading: playrollLoading, calculatePlayrollQuote } = usePlayrollQuote();
+  const { loading: omnipresentLoading, calculateOmnipresentQuote } = useOmnipresentQuote();
 
   const providerLoading = useMemo(() => ({
     deel: deelLoading,
@@ -518,8 +555,10 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     oyster: oysterLoading,
     rippling: ripplingLoading,
     skuad: skuadLoading,
-    velocity: velocityLoading
-  }) as const, [deelLoading, remoteLoading, rivermateLoading, oysterLoading, ripplingLoading, skuadLoading, velocityLoading])
+    velocity: velocityLoading,
+    playroll: playrollLoading,
+    omnipresent: omnipresentLoading,
+  }) as const, [deelLoading, remoteLoading, rivermateLoading, oysterLoading, ripplingLoading, skuadLoading, velocityLoading, playrollLoading, omnipresentLoading])
 
   // Note: Removed serial enhanced queue system - now processing sequentially inline
 
@@ -690,6 +729,22 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
             throw apiError;
           }
           break;
+        case 'playroll':
+          try {
+            calculatedQuote = await calculatePlayrollQuote(form, currentQuoteData);
+          } catch (apiError) {
+            console.error(`❌ Playroll API call failed:`, apiError);
+            throw apiError;
+          }
+          break;
+        case 'omnipresent':
+          try {
+            calculatedQuote = await calculateOmnipresentQuote(form, currentQuoteData);
+          } catch (apiError) {
+            console.error(`❌ Omnipresent API call failed:`, apiError);
+            throw apiError;
+          }
+          break;
         default:
           console.error(`❌ Unknown provider: ${nextProvider}`);
           updateProviderState(nextProvider, { status: 'failed', error: `Unknown provider: ${nextProvider}` });
@@ -763,7 +818,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     }
   }, [currentQueueIndex, updateProviderState, hasProviderData, quoteId, quoteData,
       calculateRemoteQuote, calculateRivermateQuote, calculateOysterQuote, 
-      calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote, enhancements]);
+      calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote, calculatePlayrollQuote, enhancements]);
 
   // Keep a stable ref to the latest processor to avoid effect rescheduling stalls
   const processNextProviderRef = useRef(processNextProvider);
@@ -798,9 +853,15 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
             ? !!quoteData.dualCurrencyQuotes?.oyster?.isDualCurrencyMode
             : newProvider === 'rippling'
               ? !!quoteData.dualCurrencyQuotes?.rippling?.isDualCurrencyMode
-              : newProvider === 'skuad'
-                ? !!quoteData.dualCurrencyQuotes?.skuad?.isDualCurrencyMode
-                : !!quoteData.dualCurrencyQuotes?.velocity?.isDualCurrencyMode;
+                : newProvider === 'skuad'
+                  ? !!quoteData.dualCurrencyQuotes?.skuad?.isDualCurrencyMode
+                  : newProvider === 'velocity'
+                    ? !!quoteData.dualCurrencyQuotes?.velocity?.isDualCurrencyMode
+                  : newProvider === 'playroll'
+                    ? !!quoteData.dualCurrencyQuotes?.playroll?.isDualCurrencyMode
+                    : newProvider === 'omnipresent'
+                      ? !!quoteData.dualCurrencyQuotes?.omnipresent?.isDualCurrencyMode
+                      : false;
 
     // If provider is active but missing dual currency data, calculate it
     if (quoteData.status === 'completed' && needsDual && !hasDualForProvider) {
@@ -822,6 +883,10 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           calculatedQuote = await calculateSkuadQuote(form, quoteData);
         } else if (newProvider === 'velocity') {
           calculatedQuote = await calculateVelocityQuote(form, quoteData);
+        } else if (newProvider === 'playroll') {
+          calculatedQuote = await calculatePlayrollQuote(form, quoteData);
+        } else if (newProvider === 'omnipresent') {
+          calculatedQuote = await calculateOmnipresentQuote(form, quoteData);
         }
         if (calculatedQuote) {
           setQuoteData(calculatedQuote);
@@ -836,7 +901,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     }
   }, [quoteData, currentProvider, providerStates, quoteId,
       calculateDeelQuote, calculateRemoteQuote, calculateRivermateQuote, 
-      calculateOysterQuote, calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote, providerLoading]);
+      calculateOysterQuote, calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote, calculatePlayrollQuote, calculateOmnipresentQuote, providerLoading]);
 
   const refreshQuote = useCallback(() => {
     // console.log("Refreshing quote...");
@@ -1030,100 +1095,128 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
             }
           })()
 
-          // 2) As soon as Deel has started, kick off others in parallel
-          OTHER_PROVIDERS.forEach((provider) => {
+          // 2) As soon as Deel has started, kick off others with bounded concurrency
+          const baseData = (quoteData || data) as QuoteData
+
+          const runBackgroundProvider = async (provider: Provider) => {
+            try {
+              if (baseInFlightRef.current[provider] || hasProviderData(provider, baseData)) return
+              baseInFlightRef.current[provider] = true
+
+              let result: QuoteData | undefined
+              switch (provider) {
+                case 'remote':
+                  result = await calculateRemoteQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                case 'rivermate':
+                  result = await calculateRivermateQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                case 'oyster':
+                  result = await calculateOysterQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                case 'rippling':
+                  result = await calculateRipplingQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                case 'skuad':
+                  result = await calculateSkuadQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                case 'velocity':
+                  result = await calculateVelocityQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                case 'playroll':
+                  result = await calculatePlayrollQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                case 'omnipresent':
+                  result = await calculateOmnipresentQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                default:
+                  return
+              }
+
+              if (result) {
+                const providerQuoteData = (result.quotes as Record<string, unknown>)[provider]
+                const isValid = isValidProviderQuote(provider, providerQuoteData)
+
+                if (isValid) {
+                  mergeAndPersist(result)
+
+                  if (!enhancementEnqueuedRef.current[provider] && !enhancementInFlightRef.current[provider]) {
+                    void scheduleEnhancement(provider, providerQuoteData, result.formData as EORFormData)
+                  }
+
+                  compareInFlightRef.current[provider] = true
+                  ;(async () => {
+                    try {
+                      let compRes: QuoteData | undefined
+                      switch (provider) {
+                        case 'remote': compRes = await calculateRemoteQuote(form, (quoteData || data) as QuoteData); break
+                        case 'rivermate': compRes = await calculateRivermateQuote(form, (quoteData || data) as QuoteData); break
+                        case 'oyster': compRes = await calculateOysterQuote(form, (quoteData || data) as QuoteData); break
+                        case 'rippling': compRes = await calculateRipplingQuote(form, (quoteData || data) as QuoteData); break
+                        case 'skuad': compRes = await calculateSkuadQuote(form, (quoteData || data) as QuoteData); break
+                        case 'velocity': compRes = await calculateVelocityQuote(form, (quoteData || data) as QuoteData); break
+                        case 'playroll': compRes = await calculatePlayrollQuote(form, (quoteData || data) as QuoteData); break
+                        case 'omnipresent': compRes = await calculateOmnipresentQuote(form, (quoteData || data) as QuoteData); break
+                      }
+                      if (compRes) {
+                        mergeAndPersist(compRes)
+                        setQuoteData(currentData => {
+                          if (!currentData || !compRes) return currentData
+                          const isReady = isComparisonReady(provider, compRes)
+                          const isDualReady = isDualCurrencyComparisonReady(provider, compRes)
+                          if (isReady && isDualReady) {
+                            comparisonCompleteRef.current[provider] = true
+                            dualCurrencyCompleteRef.current[provider] = true
+                            updateProviderState(provider, { status: 'loading-enhanced', hasData: true })
+                          }
+                          return currentData
+                        })
+                      }
+                    } catch { /* noop */ }
+                    finally {
+                      compareInFlightRef.current[provider] = false
+                    }
+                  })()
+                } else {
+                  console.warn(`❌ ${provider} parallel quote validation failed - invalid structure`)
+                  updateProviderState(provider, {
+                    status: 'failed',
+                    error: `Quote validation failed: invalid structure`
+                  })
+                }
+              } else {
+                updateProviderState(provider, { status: 'failed', error: 'No quote data returned' })
+              }
+            } catch (e: unknown) {
+              console.error(`❌ ${provider} base quote failed:`, e)
+              const errorMessage = e instanceof Error ? e.message : 'Failed to calculate quote'
+              updateProviderState(provider, { status: 'failed', error: errorMessage })
+              baseFailedRef.current[provider] = true
+            } finally {
+              baseInFlightRef.current[provider] = false
+            }
+          }
+
+          backgroundQueueRef.current = [...OTHER_PROVIDERS]
+          backgroundActiveCountRef.current = 0
+
+          OTHER_PROVIDERS.forEach(provider => {
             if (!hasProviderData(provider, (quoteData || data) as QuoteData)) {
               updateProviderState(provider, { status: 'loading-base' })
             }
-            const run = async () => {
-              try {
-                if (baseInFlightRef.current[provider] || hasProviderData(provider, (quoteData || data) as QuoteData)) return
-                baseInFlightRef.current[provider] = true
-            const baseData = (quoteData || data) as QuoteData
-            let result: QuoteData | undefined
-                switch (provider) {
-                  case 'remote':
-                    result = await calculateRemoteQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
-                  case 'rivermate':
-                    result = await calculateRivermateQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
-                  case 'oyster':
-                    result = await calculateOysterQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
-                  case 'rippling':
-                    result = await calculateRipplingQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
-                  case 'skuad':
-                    result = await calculateSkuadQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
-                  case 'velocity':
-                    result = await calculateVelocityQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
-                  default:
-                    return
-                }
-                  if (result) {
-                    // Validate the calculated quote before considering it successful (parallel mode)
-                    const providerQuoteData = (result.quotes as Record<string, unknown>)[provider];
-                    const isValid = isValidProviderQuote(provider, providerQuoteData);
-                    
-                    if (isValid) {
-                      // console.log(`✅ ${provider} parallel base quote calculated and validated successfully`);
-                      mergeAndPersist(result)
-                      // Immediately schedule enhancement for this provider (parallel mode)
-                      if (!enhancementEnqueuedRef.current[provider] && !enhancementInFlightRef.current[provider]) {
-                        void scheduleEnhancement(provider, providerQuoteData, result.formData as EORFormData)
-                      }
-                      // Start comparison base fetch in background for this provider
-                      compareInFlightRef.current[provider] = true
-                      ;(async () => {
-                        try {
-                          let compRes: QuoteData | undefined
-                          switch (provider) {
-                            case 'remote': compRes = await calculateRemoteQuote(form, (quoteData || data) as QuoteData); break
-                            case 'rivermate': compRes = await calculateRivermateQuote(form, (quoteData || data) as QuoteData); break
-                            case 'oyster': compRes = await calculateOysterQuote(form, (quoteData || data) as QuoteData); break
-                            case 'rippling': compRes = await calculateRipplingQuote(form, (quoteData || data) as QuoteData); break
-                            case 'skuad': compRes = await calculateSkuadQuote(form, (quoteData || data) as QuoteData); break
-                            case 'velocity': compRes = await calculateVelocityQuote(form, (quoteData || data) as QuoteData); break
-                          }
-                          if (compRes) {
-                            mergeAndPersist(compRes)
-                            // Check if comparison is now ready for this provider
-                            setQuoteData(currentData => {
-                              if (!currentData || !compRes) return currentData
-                              const isReady = isComparisonReady(provider, compRes)
-                              const isDualReady = isDualCurrencyComparisonReady(provider, compRes)
-                              if (isReady && isDualReady) {
-                                comparisonCompleteRef.current[provider] = true
-                                dualCurrencyCompleteRef.current[provider] = true
-                                // Update provider state to reflect comparison readiness
-                                updateProviderState(provider, { status: 'loading-enhanced', hasData: true })
-                              }
-                              return currentData
-                            })
-                          }
-                        } catch { /* noop */ }
-                        finally {
-                          compareInFlightRef.current[provider] = false
-                        }
-                      })()
-                    } else {
-                      console.warn(`❌ ${provider} parallel quote validation failed - invalid structure`);
-                      updateProviderState(provider, { 
-                        status: 'failed', 
-                        error: `Quote validation failed: invalid structure` 
-                      });
-                    }
-                  } else {
-                    updateProviderState(provider, { status: 'failed', error: 'No quote data returned' })
-                  }
-      } catch (e: unknown) {
-        console.error(`❌ ${provider} base quote failed:`, e)
-        const errorMessage = e instanceof Error ? e.message : 'Failed to calculate quote'
-        updateProviderState(provider, { status: 'failed', error: errorMessage })
-        baseFailedRef.current[provider] = true
-      } finally {
-        baseInFlightRef.current[provider] = false
-      }
-            }
-            void run()
           })
+
+          const launchNextBackgroundProvider = () => {
+            if (backgroundActiveCountRef.current >= MAX_BACKGROUND_BASE_CONCURRENCY) return
+            const nextProvider = backgroundQueueRef.current.shift()
+            if (!nextProvider) return
+
+            backgroundActiveCountRef.current += 1
+            void (async () => {
+              try {
+                await runBackgroundProvider(nextProvider)
+              } finally {
+                backgroundActiveCountRef.current = Math.max(0, backgroundActiveCountRef.current - 1)
+                launchNextBackgroundProvider()
+              }
+            })()
+          }
+
+          for (let i = 0; i < MAX_BACKGROUND_BASE_CONCURRENCY; i += 1) {
+            launchNextBackgroundProvider()
+          }
 
           // 3) Unlock UI early: mark overall status as completed to allow tab navigation
           setQuoteData(prev => {
@@ -1144,7 +1237,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         }
       } else if (data.status === 'completed') {
         // Update provider states with comparison and dual currency readiness
-        const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'];
+        const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity', 'playroll', 'omnipresent'];
         providers.forEach(provider => {
           // If normalization failed earlier, keep provider inactive
           if (normalizationFailedRef.current[provider]) {
@@ -1246,7 +1339,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     };
 
     processQuote();
-  }, [quoteId, calculateDeelQuote, calculateRemoteQuote, calculateRivermateQuote, calculateOysterQuote, calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote, updateProviderState, hasProviderData, enhancements, scheduleEnhancement]);
+  }, [quoteId, calculateDeelQuote, calculateRemoteQuote, calculateRivermateQuote, calculateOysterQuote, calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote, calculatePlayrollQuote, updateProviderState, hasProviderData, enhancements, scheduleEnhancement]);
   
   // Separate useEffect for sequential loading trigger (prevents circular dependency)
   useEffect(() => {
@@ -1291,6 +1384,8 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           case 'rippling': return !quoteData.quotes?.rippling;
           case 'skuad': return !quoteData.quotes?.skuad;
           case 'velocity': return !quoteData.quotes?.velocity;
+      case 'playroll': return !quoteData.quotes?.playroll;
+      case 'omnipresent': return !quoteData.quotes?.omnipresent;
           default: return true;
         }
       });
@@ -1377,7 +1472,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   // Sync provider states with enhancement progress/results; do not override error states
   useEffect(() => {
     if (!quoteData) return;
-    const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'];
+    const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity', 'playroll', 'omnipresent'];
     providers.forEach(provider => {
       const hasBase = hasProviderData(provider, quoteData);
       if (!hasBase) {
@@ -1412,11 +1507,11 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     clearRawQuotes()
     hasStartedSequentialRef.current = false;
     isSequentialLoadingRef.current = false;
-    enhancementFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
-    normalizationFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
-    baseFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
-    comparisonCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
-    dualCurrencyCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+    enhancementFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
+    normalizationFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
+    baseFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
+    comparisonCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
+    dualCurrencyCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
 
     return () => {
       // Cleanup on unmount or quote change
@@ -1428,14 +1523,14 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       isSequentialLoadingRef.current = false;
       hasStartedSequentialRef.current = false;
       // Clear in-flight guards and schedulers on cleanup
-      baseInFlightRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
-      enhancementInFlightRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
-      enhancementEnqueuedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
-      enhancementFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
-      normalizationFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
-      compareInFlightRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
-      comparisonCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
-      dualCurrencyCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false }
+      baseInFlightRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
+      enhancementInFlightRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
+      enhancementEnqueuedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
+      enhancementFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
+      normalizationFailedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
+      compareInFlightRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
+      comparisonCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
+      dualCurrencyCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
       clearRawQuotes()
     };
   }, [quoteId]);
@@ -1445,7 +1540,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     if (!quoteData || quoteData.status !== 'completed') return;
 
     const form = quoteData.formData as EORFormData;
-    const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'];
+    const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity', 'playroll', 'omnipresent'];
     providers.forEach((provider) => {
       try {
         // Skip if no base quote available for this provider
@@ -1474,7 +1569,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     if (!form?.enableComparison) return;
 
     const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-    const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity'];
+    const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity', 'playroll', 'omnipresent'];
     providers.forEach((provider) => {
       try {
         const primaryDone = !!enhancements[provider];
@@ -1496,7 +1591,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
 
   // Calculate progress for reconciliation button (parallel mode): single batch view
   const enhancementBatchInfo = useMemo(() => {
-    const allProviders: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity']
+    const allProviders: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity', 'playroll', 'omnipresent']
     const total = allProviders.length
     const completed = allProviders.filter(provider => {
       const status = providerStates[provider]?.status

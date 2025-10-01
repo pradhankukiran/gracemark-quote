@@ -14,6 +14,10 @@ type CompatibleUsdConversions = USDConversions | {
   compareSkuad?: USDConversions['deel']
   velocity?: USDConversions['deel']
   compareVelocity?: USDConversions['deel']
+  playroll?: USDConversions['deel']
+  comparePlayroll?: USDConversions['deel']
+  omnipresent?: USDConversions['deel']
+  compareOmnipresent?: USDConversions['deel']
 }
 
 interface QuoteComparisonProps {
@@ -28,7 +32,7 @@ interface QuoteComparisonProps {
   isConvertingComparisonToUSD: boolean
   usdConversionError?: string | null
   dualCurrencyQuotes?: DualCurrencyQuotes
-  provider?: 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity'
+  provider?: 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity' | 'playroll' | 'omnipresent'
   // Comparison readiness state
   isComparisonReady?: boolean
   isDualCurrencyReady?: boolean
@@ -46,6 +50,8 @@ const getProviderUsdConversion = (
       case 'remote': return conversions.compareRemote as USDConversions['deel']
       case 'rivermate':
       case 'oyster': return conversions.compare as USDConversions['deel']
+      case 'playroll': return conversions.comparePlayroll as USDConversions['deel']
+      case 'omnipresent': return conversions.compareOmnipresent as USDConversions['deel']
       case 'rippling': return conversions.compareRippling as USDConversions['deel']
       case 'skuad': return conversions.compareSkuad as USDConversions['deel']
       case 'velocity': return conversions.compareVelocity as USDConversions['deel']
@@ -56,6 +62,8 @@ const getProviderUsdConversion = (
       case 'remote': return conversions.remote as USDConversions['deel']
       case 'rivermate':
       case 'oyster': return conversions.deel as USDConversions['deel']
+      case 'playroll': return conversions.playroll as USDConversions['deel']
+      case 'omnipresent': return conversions.omnipresent as USDConversions['deel']
       case 'rippling': return conversions.rippling as USDConversions['deel']
       case 'skuad': return conversions.skuad as USDConversions['deel']
       case 'velocity': return conversions.velocity as USDConversions['deel']
@@ -84,89 +92,6 @@ export const QuoteComparison = memo(({
 
   // Check if we should show loading state
   const shouldShowLoading = isLoadingComparison || !isComparisonReady || (isDualMode && isDualCurrencyReady === false)
-
-  // If comparison data is not ready, show loading state
-  if (shouldShowLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Loading placeholders for both quotes */}
-          <div className="bg-white border shadow-sm p-6 animate-pulse">
-            <div className="flex justify-center mb-4">
-              <div className="h-8 w-32 bg-slate-200 rounded"></div>
-            </div>
-            <div className="text-center mb-6">
-              <div className="h-6 w-24 bg-slate-200 rounded mx-auto mb-2"></div>
-              <div className="h-4 w-16 bg-slate-200 rounded mx-auto"></div>
-            </div>
-            <div className="space-y-3">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="flex justify-between">
-                  <div className="h-4 w-32 bg-slate-200 rounded"></div>
-                  <div className="h-4 w-20 bg-slate-200 rounded"></div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 pt-4 border-t">
-              <div className="flex justify-between">
-                <div className="h-6 w-40 bg-slate-200 rounded"></div>
-                <div className="h-6 w-24 bg-slate-200 rounded"></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white border shadow-sm p-6 animate-pulse">
-            <div className="flex justify-center mb-4">
-              <div className="h-8 w-32 bg-slate-200 rounded"></div>
-            </div>
-            <div className="text-center mb-6">
-              <div className="h-6 w-24 bg-slate-200 rounded mx-auto mb-2"></div>
-              <div className="h-4 w-16 bg-slate-200 rounded mx-auto"></div>
-            </div>
-            <div className="space-y-3">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="flex justify-between">
-                  <div className="h-4 w-32 bg-slate-200 rounded"></div>
-                  <div className="h-4 w-20 bg-slate-200 rounded"></div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 pt-4 border-t">
-              <div className="flex justify-between">
-                <div className="h-6 w-40 bg-slate-200 rounded"></div>
-                <div className="h-6 w-24 bg-slate-200 rounded"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="text-center text-slate-600">
-          <div className="flex items-center justify-center gap-2">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600"></div>
-            <span>Loading comparison data...</span>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const primaryCardDualQuotes = isDualMode ? {
-    ...dualCurrencyQuotes,
-    selectedCurrencyQuote: dualCurrencyQuotes.selectedCurrencyQuote,
-    localCurrencyQuote: dualCurrencyQuotes.localCurrencyQuote,
-    compareSelectedCurrencyQuote: null,
-    compareLocalCurrencyQuote: null,
-    hasComparison: false,
-  } : undefined
-
-  const comparisonCardDualQuotes = isDualMode ? {
-    ...dualCurrencyQuotes,
-    selectedCurrencyQuote: dualCurrencyQuotes.compareSelectedCurrencyQuote,
-    localCurrencyQuote: dualCurrencyQuotes.compareLocalCurrencyQuote,
-    compareSelectedCurrencyQuote: null,
-    compareLocalCurrencyQuote: null,
-    hasComparison: false,
-  } : undefined
 
   const mergeWithEnhancements = (
     quote: DeelAPIResponse | undefined,
@@ -300,6 +225,24 @@ export const QuoteComparison = memo(({
     return result
   }
 
+  const primaryCardDualQuotes = isDualMode ? {
+    ...dualCurrencyQuotes,
+    selectedCurrencyQuote: dualCurrencyQuotes.selectedCurrencyQuote,
+    localCurrencyQuote: dualCurrencyQuotes.localCurrencyQuote,
+    compareSelectedCurrencyQuote: null,
+    compareLocalCurrencyQuote: null,
+    hasComparison: false,
+  } : undefined
+
+  const comparisonCardDualQuotes = isDualMode ? {
+    ...dualCurrencyQuotes,
+    selectedCurrencyQuote: dualCurrencyQuotes.compareSelectedCurrencyQuote,
+    localCurrencyQuote: dualCurrencyQuotes.compareLocalCurrencyQuote,
+    compareSelectedCurrencyQuote: null,
+    compareLocalCurrencyQuote: null,
+    hasComparison: false,
+  } : undefined
+
   const primaryMerged = useMemo(() => mergeWithEnhancements(
     primaryQuote,
     (enhancements as any)?.[provider],
@@ -313,6 +256,70 @@ export const QuoteComparison = memo(({
     getProviderUsdConversion(usdConversions, provider, true),
     isDualMode
   ), [comparisonQuote, enhancements, provider, usdConversions, isDualMode])
+
+  if (shouldShowLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Loading placeholders for both quotes */}
+          <div className="bg-white border shadow-sm p-6 animate-pulse">
+            <div className="flex justify-center mb-4">
+              <div className="h-8 w-32 bg-slate-200 rounded"></div>
+            </div>
+            <div className="text-center mb-6">
+              <div className="h-6 w-24 bg-slate-200 rounded mx-auto mb-2"></div>
+              <div className="h-4 w-16 bg-slate-200 rounded mx-auto"></div>
+            </div>
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex justify-between">
+                  <div className="h-4 w-32 bg-slate-200 rounded"></div>
+                  <div className="h-4 w-20 bg-slate-200 rounded"></div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 pt-4 border-t">
+              <div className="flex justify-between">
+                <div className="h-6 w-40 bg-slate-200 rounded"></div>
+                <div className="h-6 w-24 bg-slate-200 rounded"></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white border shadow-sm p-6 animate-pulse">
+            <div className="flex justify-center mb-4">
+              <div className="h-8 w-32 bg-slate-200 rounded"></div>
+            </div>
+            <div className="text-center mb-6">
+              <div className="h-6 w-24 bg-slate-200 rounded mx-auto mb-2"></div>
+              <div className="h-4 w-16 bg-slate-200 rounded mx-auto"></div>
+            </div>
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex justify-between">
+                  <div className="h-4 w-32 bg-slate-200 rounded"></div>
+                  <div className="h-4 w-20 bg-slate-200 rounded"></div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 pt-4 border-t">
+              <div className="flex justify-between">
+                <div className="h-6 w-40 bg-slate-200 rounded"></div>
+                <div className="h-6 w-24 bg-slate-200 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-center text-slate-600">
+          <div className="flex items-center justify-center gap-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600"></div>
+            <span>Loading comparison data...</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

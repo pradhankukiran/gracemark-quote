@@ -16,7 +16,7 @@ interface ProviderTheme {
 interface GenericQuoteCardProps {
   quote?: Quote;
   title: string;
-  provider: 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity';
+  provider: 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity' | 'playroll' | 'omnipresent';
   badgeText?: string;
   badgeColor?: string;
   usdConversions?: USDConversions[keyof USDConversions];
@@ -36,7 +36,7 @@ interface GenericQuoteCardProps {
   shimmerExtrasCount?: number;
 }
 
-const providerThemes: { [key in 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity']: ProviderTheme } = {
+const providerThemes: { [key in 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity' | 'playroll' | 'omnipresent']: ProviderTheme } = {
   deel: {
     logo: <ProviderLogo provider="deel" />,
     brandColor: "text-primary",
@@ -79,6 +79,18 @@ const providerThemes: { [key in 'deel' | 'remote' | 'rivermate' | 'oyster' | 'ri
     gradientFrom: "from-orange-50",
     gradientTo: "to-orange-100",
   },
+  playroll: {
+    logo: <ProviderLogo provider="playroll" />,
+    brandColor: "text-indigo-700",
+    gradientFrom: "from-indigo-50",
+    gradientTo: "to-indigo-100",
+  },
+  omnipresent: {
+    logo: <ProviderLogo provider="omnipresent" />,
+    brandColor: "text-emerald-700",
+    gradientFrom: "from-emerald-50",
+    gradientTo: "to-emerald-100",
+  },
 };
 
 export const GenericQuoteCard = memo(({
@@ -118,7 +130,7 @@ export const GenericQuoteCard = memo(({
   let originalQuote = isDualCurrencyMode ? localQuote : quote;
   let changedQuote = isDualCurrencyMode ? selectedQuote : undefined;
   // Track an effective USD conversions object (may be extended)
-  let effectiveUsdConv: any = usdConversions as any
+  const effectiveUsdConv: any = usdConversions as any
 
   // Inject merged extras into quote rows (inline) and update totals/US conversions
   try {

@@ -283,6 +283,39 @@ export const fetchVelocityGlobalCost = async (requestData: QuoteRequestData): Pr
 }
 
 /**
+ * Fetches Playroll cost estimates
+ */
+export const fetchPlayrollCost = async (requestData: QuoteRequestData): Promise<unknown> => {
+  return fetchJsonWithRetry<unknown>("/api/playroll-cost", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      salary: requestData.salary,
+      country: requestData.country,
+      currency: requestData.currency,
+      state: requestData.state ?? null,
+      salaryFrequency: requestData.salaryFrequency,
+    }),
+  }, { retries: 1, backoffMs: 300 })
+}
+
+/**
+ * Fetches Omnipresent cost estimates
+ */
+export const fetchOmnipresentCost = async (requestData: QuoteRequestData): Promise<unknown> => {
+  return fetchJsonWithRetry<unknown>("/api/omnipresent-cost", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      salary: requestData.salary,
+      country: requestData.country,
+      currency: requestData.currency,
+      salaryFrequency: requestData.salaryFrequency,
+    }),
+  }, { retries: 1, backoffMs: 300 })
+}
+
+/**
  * Transforms a Remote.com API response into a standardized Quote object
  */
 export const transformRemoteResponseToQuote = (remoteResponse: RemoteAPIResponse): Quote => {
@@ -713,6 +746,116 @@ export const transformVelocityResponseToQuote = (resp: unknown): Quote => {
     severance_accural: '0',
     total_costs: String((annualTotal / 12).toFixed(2)),
     employer_costs: String((annualTotal / 12).toFixed(2)),
+    costs,
+    benefits_data: [],
+    additional_data: { additional_notes: [] },
+  }
+}
+
+/**
+ * Transforms a Playroll API response into a standardized Quote object (monthly)
+ */
+export const transformPlayrollResponseToQuote = (resp: unknown): Quote => {
+  const response = resp as Record<string, any>
+  const outputs = Array.isArray(response?.outputs) ? response.outputs : []
+  const countryCode = typeof response?.countryCode === 'string' ? response.countryCode : ''
+  const countryInfo = countryCode ? getCountryByCode(countryCode) : undefined
+  const country = countryInfo?.name || ''
+
+  const totalItem = outputs.find((item: any) => {
+    const label = (item?.label || '').toString().toLowerCase()
+    return label === 'total cost to company'
+  })
+
+  const inputSalary = Array.isArray(response?.inputs)
+    ? response.inputs.find((input: any) => input?.id === 'grossSalary')
+    : null
+
+  const currency = (totalItem?.currencyCode || inputSalary?.currencyCode || '').toString().toUpperCase()
+  const monthlySalary = Number(inputSalary?.amount ?? 0)
+
+  const costs: QuoteCost[] = outputs
+    .filter((item: any) => {
+      const label = (item?.label || '').toString().toLowerCase()
+      return label && label !== 'total cost to company'
+    })
+    .map((item: any) => ({
+      name: String(item?.label || item?.id || ''),
+      amount: String(item?.amount ?? '0'),
+      frequency: (item?.frequency || 'monthly') === 'annual' ? 'annual' : 'monthly',
+      country,
+      country_code: countryCode,
+    }))
+
+  const totalAmount = Number(totalItem?.amount ?? 0)
+  const totalString = Number.isFinite(totalAmount) ? String(totalAmount) : '0'
+
+  return {
+    provider: 'playroll',
+    salary: Number.isFinite(monthlySalary) ? String(monthlySalary) : '0',
+    currency,
+    country,
+    country_code: countryCode,
+    deel_fee: '0',
+    severance_accural: '0',
+    total_costs: totalString,
+    employer_costs: totalString,
+    costs,
+    benefits_data: [],
+    additional_data: { additional_notes: [] },
+  }
+}
+
+/**
+ * Transforms an Omnipresent API response into a standardized Quote object (monthly)
+ */
+export const transformOmnipresentResponseToQuote = (resp: unknown): Quote => {
+  const response = resp as Record<string, any>
+  const countryBlock = response?.country || {}
+  const countryCode = typeof countryBlock?.code === 'string' ? countryBlock.code : ''
+  const country = typeof countryBlock?.name === 'string' ? countryBlock.name : ''
+
+  const currency = String(
+    response?.targetCurrency?.code ||
+    response?.localCurrency?.code ||
+    ''
+  ).toUpperCase()
+
+  const pickAmount = (value: any): number => {
+    if (!value || typeof value !== 'object') return 0
+    if (currency && typeof value[currency] === 'number') return value[currency]
+    if (typeof value.USD === 'number') return value.USD
+    const firstNumericKey = Object.values(value).find((v) => typeof v === 'number')
+    return typeof firstNumericKey === 'number' ? firstNumericKey : 0
+  }
+
+  const monthlySalary = pickAmount(response?.grossSalary)
+  const employerSubtotal = pickAmount(response?.employerCosts?.subtotal)
+  const totalCost = pickAmount(response?.totalCost || response?.employerCosts?.subtotal)
+
+  const costItems = Array.isArray(response?.employerCosts?.costs) ? response.employerCosts.costs : []
+
+  const costs: QuoteCost[] = costItems.map((item: any) => {
+    const amount = pickAmount(item)
+    return {
+      name: String(item?.name || ''),
+      amount: Number.isFinite(amount) ? amount.toFixed(2) : '0',
+      frequency: 'monthly',
+      country,
+      country_code: countryCode,
+    }
+  })
+
+  return {
+    provider: 'omnipresent',
+    salary: Number.isFinite(monthlySalary) ? monthlySalary.toFixed(2) : '0',
+    currency,
+    country,
+    country_code: countryCode,
+    deel_fee: '0',
+    severance_accural: '0',
+    total_costs: Number.isFinite(totalCost) ? totalCost.toFixed(2) : '0',
+    employer_costs: Number.isFinite(employerSubtotal) ? employerSubtotal.toFixed(2) : '0',
     costs,
     benefits_data: [],
     additional_data: { additional_notes: [] },

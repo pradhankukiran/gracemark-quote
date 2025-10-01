@@ -289,6 +289,8 @@ export const normalizeQuoteForEnhancement = (
       case 'rippling':
       case 'skuad':
       case 'velocity':
+      case 'playroll':
+      case 'omnipresent':
         if (isDisplayQuote(baseQuote)) {
           return normalizeGenericDisplayQuote(baseQuote, provider)
         }

@@ -1647,7 +1647,7 @@ export class EnhancementEngine {
     return {
       groqStats: this.groqService.getStats(),
       papayaCountries: PapayaService.getAvailableCountries().length,
-      supportedProviders: 7,
+      supportedProviders: 9,
       cacheStats: enhancementCache.getStats(),
       performanceStats: EnhancementPerformanceMonitor.getMetrics()
     }

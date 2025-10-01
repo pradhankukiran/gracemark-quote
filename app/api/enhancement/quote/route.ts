@@ -10,7 +10,7 @@ import { EORFormData } from '@/lib/shared/types'
 
 // Input validation schema
 const EnhancementRequestSchema = z.object({
-  provider: z.enum(['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity']),
+  provider: z.enum(['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity', 'playroll', 'omnipresent']),
   providerQuote: z.object({
     provider: z.string(),
     currency: z.string(),

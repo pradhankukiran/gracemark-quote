@@ -31,7 +31,7 @@ To get the project up and running, follow these steps:
     GROQ_API_KEY=your_groq_api_key
     # Optional: enable provider-specific keys to spread load (Pass 2)
     GROQ_MULTI_KEY_ENABLED=false
-    # Mapping: 1: deel, 2: remote, 3: rivermate, 4: oyster, 5: rippling, 6: skuad, 7: velocity
+    # Mapping: 1: deel, 2: remote, 3: rivermate, 4: oyster, 5: rippling, 6: skuad, 7: velocity, 8: playroll, 9: omnipresent
     GROQ_API_KEY_1=
     GROQ_API_KEY_2=
     GROQ_API_KEY_3=
@@ -39,6 +39,8 @@ To get the project up and running, follow these steps:
     GROQ_API_KEY_5=
     GROQ_API_KEY_6=
     GROQ_API_KEY_7=
+    GROQ_API_KEY_8=
+    GROQ_API_KEY_9=
     # Optional overrides
     GROQ_MODEL=openai/gpt-oss-20b
     GROQ_TEMPERATURE=0.1

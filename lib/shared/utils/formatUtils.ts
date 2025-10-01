@@ -72,16 +72,23 @@ export const formatCurrency = (
  * @param defaultValue - Fallback value
  * @returns Valid number or default
  */
-export const safeNumber = (value: number | undefined | null, defaultValue: number = 0): number => {
-  if (value === undefined || value === null || isNaN(value)) {
+export const safeNumber = (value: number | string | undefined | null, defaultValue: number = 0): number => {
+  if (value === undefined || value === null) {
     return defaultValue
   }
-  
-  if (typeof value !== 'number') {
-    return defaultValue
+
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : defaultValue
   }
-  
-  return value
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    if (!trimmed) return defaultValue
+    const parsed = Number.parseFloat(trimmed.replace(/[^0-9eE+\-\.]/g, ''))
+    return Number.isFinite(parsed) ? parsed : defaultValue
+  }
+
+  return defaultValue
 }
 
 /**

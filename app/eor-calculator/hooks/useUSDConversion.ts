@@ -20,6 +20,10 @@ export const useUSDConversion = () => {
   const [isConvertingCompareSkuadToUsd, setIsConvertingCompareSkuadToUsd] = useState(false)
   const [isConvertingVelocityToUsd, setIsConvertingVelocityToUsd] = useState(false)
   const [isConvertingCompareVelocityToUsd, setIsConvertingCompareVelocityToUsd] = useState(false)
+  const [isConvertingPlayrollToUsd, setIsConvertingPlayrollToUsd] = useState(false)
+  const [isConvertingComparePlayrollToUsd, setIsConvertingComparePlayrollToUsd] = useState(false)
+  const [isConvertingOmnipresentToUsd, setIsConvertingOmnipresentToUsd] = useState(false)
+  const [isConvertingCompareOmnipresentToUsd, setIsConvertingCompareOmnipresentToUsd] = useState(false)
   const [usdConversionError, setUsdConversionError] = useState<string | null>(null)
   
   const conversionAbortControllerRef = useRef<{
@@ -31,19 +35,23 @@ export const useUSDConversion = () => {
     compareSkuad: AbortController | null,
     velocity: AbortController | null,
     compareVelocity: AbortController | null,
+    playroll: AbortController | null,
+    comparePlayroll: AbortController | null,
+    omnipresent: AbortController | null,
+    compareOmnipresent: AbortController | null,
     remote: AbortController | null,
     compareRemote: AbortController | null,
     rivermate: AbortController | null,
     compareRivermate: AbortController | null,
     oyster: AbortController | null,
     compareOyster: AbortController | null,
-  }>({ deel: null, compare: null, rippling: null, compareRippling: null, skuad: null, compareSkuad: null, velocity: null, compareVelocity: null, remote: null, compareRemote: null, rivermate: null, compareRivermate: null, oyster: null, compareOyster: null });
+  }>({ deel: null, compare: null, rippling: null, compareRippling: null, skuad: null, compareSkuad: null, velocity: null, compareVelocity: null, playroll: null, comparePlayroll: null, omnipresent: null, compareOmnipresent: null, remote: null, compareRemote: null, rivermate: null, compareRivermate: null, oyster: null, compareOyster: null });
   
   const convertedQuotesRef = useRef<Set<string>>(new Set())
 
   const convertQuoteToUSD = useCallback(async (
     quote: DeelQuote | RivermateQuote, 
-    quoteType: "deel" | "compare" | "rivermate" | "compareRivermate" | "rippling" | "compareRippling" | "skuad" | "compareSkuad" | "velocity" | "compareVelocity"
+    quoteType: "deel" | "compare" | "rivermate" | "compareRivermate" | "rippling" | "compareRippling" | "skuad" | "compareSkuad" | "velocity" | "compareVelocity" | "playroll" | "comparePlayroll" | "omnipresent" | "compareOmnipresent"
   ) => {
     if (!quote || quote.currency === "USD") return
 
@@ -62,13 +70,17 @@ export const useUSDConversion = () => {
       if (quoteType === "compareSkuad") setIsConvertingCompareSkuadToUsd(true)
       if (quoteType === "velocity") setIsConvertingVelocityToUsd(true)
       if (quoteType === "compareVelocity") setIsConvertingCompareVelocityToUsd(true)
+      if (quoteType === "playroll") setIsConvertingPlayrollToUsd(true)
+      if (quoteType === "comparePlayroll") setIsConvertingComparePlayrollToUsd(true)
+      if (quoteType === "omnipresent") setIsConvertingOmnipresentToUsd(true)
+      if (quoteType === "compareOmnipresent") setIsConvertingCompareOmnipresentToUsd(true)
       if (quoteType === "rivermate") setIsConvertingRivermateToUsd(true)
       if (quoteType === "compareRivermate") setIsConvertingCompareRivermateToUsd(true)
     setUsdConversionError(null)
 
     try {
       const result = await (
-        quoteType === 'deel' || quoteType === 'compare' || quoteType === 'rippling' || quoteType === 'compareRippling' || quoteType === 'skuad' || quoteType === 'compareSkuad' || quoteType === 'velocity' || quoteType === 'compareVelocity'
+        quoteType === 'deel' || quoteType === 'compare' || quoteType === 'rippling' || quoteType === 'compareRippling' || quoteType === 'skuad' || quoteType === 'compareSkuad' || quoteType === 'velocity' || quoteType === 'compareVelocity' || quoteType === 'playroll' || quoteType === 'comparePlayroll' || quoteType === 'omnipresent' || quoteType === 'compareOmnipresent'
           ? convertDeelQuoteToUsd(quote as DeelQuote, abortController.signal)
           : convertRivermateQuoteToUsd(quote as RivermateQuote, abortController.signal)
       )
@@ -98,6 +110,10 @@ export const useUSDConversion = () => {
         if (quoteType === "compareSkuad") setIsConvertingCompareSkuadToUsd(false)
         if (quoteType === "velocity") setIsConvertingVelocityToUsd(false)
         if (quoteType === "compareVelocity") setIsConvertingCompareVelocityToUsd(false)
+        if (quoteType === "playroll") setIsConvertingPlayrollToUsd(false)
+        if (quoteType === "comparePlayroll") setIsConvertingComparePlayrollToUsd(false)
+        if (quoteType === "omnipresent") setIsConvertingOmnipresentToUsd(false)
+        if (quoteType === "compareOmnipresent") setIsConvertingCompareOmnipresentToUsd(false)
         conversionAbortControllerRef.current[quoteType] = null
       }
     }
@@ -153,7 +169,7 @@ export const useUSDConversion = () => {
 
   const clearUSDConversions = useCallback(() => {
     Object.values(conversionAbortControllerRef.current).forEach(controller => controller?.abort());
-    conversionAbortControllerRef.current = { deel: null, compare: null, rippling: null, compareRippling: null, skuad: null, compareSkuad: null, velocity: null, compareVelocity: null, remote: null, compareRemote: null, rivermate: null, compareRivermate: null, oyster: null, compareOyster: null };
+    conversionAbortControllerRef.current = { deel: null, compare: null, rippling: null, compareRippling: null, skuad: null, compareSkuad: null, velocity: null, compareVelocity: null, playroll: null, comparePlayroll: null, omnipresent: null, compareOmnipresent: null, remote: null, compareRemote: null, rivermate: null, compareRivermate: null, oyster: null, compareOyster: null };
     
     convertedQuotesRef.current.clear()
     
@@ -173,9 +189,13 @@ export const useUSDConversion = () => {
     setIsConvertingCompareSkuadToUsd(false)
     setIsConvertingVelocityToUsd(false)
     setIsConvertingCompareVelocityToUsd(false)
+    setIsConvertingPlayrollToUsd(false)
+    setIsConvertingComparePlayrollToUsd(false)
+    setIsConvertingOmnipresentToUsd(false)
+    setIsConvertingCompareOmnipresentToUsd(false)
   }, [])
 
-  const autoConvertQuote = useCallback((quote: DeelQuote | RivermateQuote | OysterQuote | null, quoteType: "deel" | "compare" | "rivermate" | "compareRivermate" | "oyster" | "compareOyster" | "rippling" | "compareRippling" | "skuad" | "compareSkuad" | "velocity" | "compareVelocity") => {
+  const autoConvertQuote = useCallback((quote: DeelQuote | RivermateQuote | OysterQuote | null, quoteType: "deel" | "compare" | "rivermate" | "compareRivermate" | "oyster" | "compareOyster" | "rippling" | "compareRippling" | "skuad" | "compareSkuad" | "velocity" | "compareVelocity" | "playroll" | "comparePlayroll" | "omnipresent" | "compareOmnipresent") => {
     if (!quote || quote.currency === "USD") return
     
     const totalCosts = 'total_costs' in quote ? quote.total_costs : quote.total.toString()
@@ -209,7 +229,7 @@ export const useUSDConversion = () => {
         }
       })()
     } else {
-      convertQuoteToUSD(quote as DeelQuote | RivermateQuote, quoteType as 'deel' | 'compare' | 'rivermate' | 'compareRivermate')
+      convertQuoteToUSD(quote as DeelQuote | RivermateQuote, quoteType as Parameters<typeof convertQuoteToUSD>[1])
     }
 
     return () => {}
@@ -250,6 +270,10 @@ export const useUSDConversion = () => {
     isConvertingCompareSkuadToUsd,
     isConvertingVelocityToUsd,
     isConvertingCompareVelocityToUsd,
+    isConvertingPlayrollToUsd,
+    isConvertingComparePlayrollToUsd,
+    isConvertingOmnipresentToUsd,
+    isConvertingCompareOmnipresentToUsd,
     usdConversionError,
     convertQuoteToUSD,
     convertRemoteQuoteToUSD,

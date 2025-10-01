@@ -109,6 +109,8 @@ export class GroqService {
           key5: present('GROQ_API_KEY_5'),
           key6: present('GROQ_API_KEY_6'),
           key7: present('GROQ_API_KEY_7'),
+          key8: present('GROQ_API_KEY_8'),
+          key9: present('GROQ_API_KEY_9'),
         }
       }
       // Only log on server side
@@ -1875,7 +1877,7 @@ export class GroqService {
   /**
    * Resolve Groq client for arithmetic compute (per provider -> key slot)
    * Mapping:
-   *  1: deel, 2: remote, 3: rivermate, 4: oyster, 5: rippling, 6: skuad, 7: velocity
+   *  1: deel, 2: remote, 3: rivermate, 4: oyster, 5: rippling, 6: skuad, 7: velocity, 8: playroll, 9: omnipresent
    */
   private getProviderClient(provider: ProviderType): Groq {
     if (!this.multiKeyEnabled) return this.clients.default || (this.client as Groq)
@@ -1908,7 +1910,7 @@ export class GroqService {
     return client
   }
 
-  private mapProviderToSlot(provider: ProviderType): 1 | 2 | 3 | 4 | 5 | 6 | 7 {
+  private mapProviderToSlot(provider: ProviderType): 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 {
     switch (provider) {
       case 'deel': return 1
       case 'remote': return 2
@@ -1917,6 +1919,8 @@ export class GroqService {
       case 'rippling': return 5
       case 'skuad': return 6
       case 'velocity': return 7
+      case 'playroll': return 8
+      case 'omnipresent': return 9
       default: return 1
     }
   }

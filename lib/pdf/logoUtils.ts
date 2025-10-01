@@ -33,8 +33,8 @@ export const PROVIDER_LOGOS: Record<ProviderType, ProviderLogoData> = {
   oyster: {
     name: 'Oyster',
     imagePath: '/oyster_logo.png',
-    width: 40,
-    height: 24
+    width: 30,
+    height: 20
   },
   rippling: {
     name: 'Rippling',
@@ -52,6 +52,18 @@ export const PROVIDER_LOGOS: Record<ProviderType, ProviderLogoData> = {
     name: 'Pebl',
     imagePath: '/pebl_logo.png',
     width: 40,
+    height: 24
+  },
+  playroll: {
+    name: 'Playroll',
+    imagePath: '/playroll_logo.png',
+    width: 60,
+    height: 24
+  },
+  omnipresent: {
+    name: 'Omnipresent',
+    imagePath: '/omnipresent_logo.png',
+    width: 70,
     height: 24
   }
 };

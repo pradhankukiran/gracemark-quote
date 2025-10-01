@@ -19,6 +19,7 @@ import { EnhancementProvider, useEnhancementContext } from "@/hooks/enhancement/
 import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, transformToRemoteQuote, transformOysterQuoteToDisplayQuote } from "@/lib/shared/utils/apiUtils"
 import { EORFormData, RemoteAPIResponse, Quote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
 import { ProviderType, EnhancedQuote, TerminationComponentEnhancement, BonusEnhancement, AllowanceEnhancement, SalaryEnhancement } from "@/lib/types/enhancement"
+import { safeNumber } from "@/lib/shared/utils/formatUtils"
 import { convertCurrency } from "@/lib/currency-converter"
 import { getRawQuote } from "@/lib/shared/utils/rawQuoteStore"
 
@@ -294,6 +295,10 @@ const QuotePageContent = memo(() => {
     isConvertingCompareSkuadToUsd,
     isConvertingVelocityToUsd,
     isConvertingCompareVelocityToUsd,
+    isConvertingPlayrollToUsd,
+    isConvertingComparePlayrollToUsd,
+    isConvertingOmnipresentToUsd,
+    isConvertingCompareOmnipresentToUsd,
     usdConversionError,
     autoConvertQuote,
     autoConvertRemoteQuote,
@@ -945,6 +950,10 @@ const QuotePageContent = memo(() => {
     if ((quoteData.quotes as any).comparisonSkuad) autoConvertQuote((quoteData.quotes as any).comparisonSkuad as any, 'compareSkuad')
     if ((quoteData.quotes as any).velocity) autoConvertQuote((quoteData.quotes as any).velocity as any, 'velocity')
     if ((quoteData.quotes as any).comparisonVelocity) autoConvertQuote((quoteData.quotes as any).comparisonVelocity as any, 'compareVelocity')
+    if ((quoteData.quotes as any).playroll) autoConvertQuote((quoteData.quotes as any).playroll as any, 'playroll')
+    if ((quoteData.quotes as any).comparisonPlayroll) autoConvertQuote((quoteData.quotes as any).comparisonPlayroll as any, 'comparePlayroll')
+    if ((quoteData.quotes as any).omnipresent) autoConvertQuote((quoteData.quotes as any).omnipresent as any, 'omnipresent')
+    if ((quoteData.quotes as any).comparisonOmnipresent) autoConvertQuote((quoteData.quotes as any).comparisonOmnipresent as any, 'compareOmnipresent')
   }, [quoteData?.status, quoteData?.quotes, autoConvertQuote, autoConvertRemoteQuote])
 
   const handleExportAcidTestResults = useCallback(async () => {
@@ -1139,7 +1148,7 @@ const QuotePageContent = memo(() => {
   // calculating handled by the unified loading block above
 
   // --- REFRESHED RECONCILIATION LOGIC ---
-  const allProviders: Array<ProviderType> = ['deel','remote','rivermate','oyster','rippling','skuad','velocity']
+  const allProviders: Array<ProviderType> = ['deel','remote','rivermate','oyster','rippling','skuad','velocity','playroll','omnipresent']
 
   const getBaseQuoteTotal = (provider: ProviderType): number | null => {
     if (!quoteData) return null
@@ -1196,28 +1205,36 @@ const QuotePageContent = memo(() => {
   const getProviderPrice = (provider: ProviderType): number | null => {
     const baseTotal = getBaseQuoteTotal(provider)
     const enhancement = enhancements[provider]
-    const enhancedMonthly = enhancement ? parseNumericValue(enhancement.finalTotal) : null
+    if (enhancement) {
+      const baseComponent = safeNumber(
+        enhancement.monthlyCostBreakdown?.baseCost,
+        safeNumber(enhancement.baseQuote?.monthlyTotal, baseTotal ?? 0)
+      )
 
-    // Detect inflated enhanced quotes by comparing to base (sanity check)
-    const isEnhancedInflated = enhancedMonthly !== null && baseTotal !== null &&
-                              enhancedMonthly > baseTotal * 2.5 // Enhanced shouldn't be more than 2.5x base
+      const enhancementComponent = safeNumber(
+        enhancement.monthlyCostBreakdown?.enhancements,
+        safeNumber(enhancement.totalEnhancement, 0)
+      )
 
-    // Use base total if enhanced appears inflated from old buggy calculations
-    if (isEnhancedInflated) {
-      return baseTotal
+      const combinedFromBreakdown = safeNumber(
+        enhancement.monthlyCostBreakdown?.total,
+        baseComponent + enhancementComponent
+      )
+
+      if (combinedFromBreakdown > 0) {
+        return combinedFromBreakdown
+      }
+
+      if (baseTotal !== null && baseTotal > 0) {
+        const addOns = computeEnhancementAddOns(provider, enhancement, contractMonths)
+        const recomputed = baseComponent + addOns
+        if (Number.isFinite(recomputed) && recomputed > 0) {
+          return recomputed
+        }
+      }
     }
 
-    // Use enhanced total if available and reasonable
-    if (enhancedMonthly !== null && enhancedMonthly > 0) {
-      return enhancedMonthly
-    }
-
-    // Otherwise use base total (provider's complete quote)
-    if (baseTotal !== null && baseTotal > 0) {
-      return baseTotal
-    }
-
-    return null
+    return baseTotal !== null && baseTotal > 0 ? baseTotal : null
   }
 
   const getReconciliationStatus = () => {
@@ -3145,7 +3162,7 @@ const QuotePageContent = memo(() => {
           .filter((item): item is { key: string; name: string; monthly_amount: number } => !!item && !dropEmployeeSideEntries(item))
       : []
 
-    let items: Array<{ key: string; name: string; monthly_amount: number }> = []
+    const items: Array<{ key: string; name: string; monthly_amount: number }> = []
 
     const useFallbackAggregation = true
 
@@ -4071,8 +4088,12 @@ const QuotePageContent = memo(() => {
             quoteData.quotes.rippling ? { ...quoteData.quotes.rippling, provider: 'rippling' } : quoteData.quotes.rippling
           ) : currentProvider === 'skuad' ? (
             (quoteData.quotes as any).skuad ? { ...(quoteData.quotes as any).skuad, provider: 'skuad' } : (quoteData.quotes as any).skuad
-          ) : (
+          ) : currentProvider === 'velocity' ? (
             (quoteData.quotes as any).velocity ? { ...(quoteData.quotes as any).velocity, provider: 'velocity' } : (quoteData.quotes as any).velocity
+          ) : currentProvider === 'playroll' ? (
+            (quoteData.quotes as any).playroll ? { ...(quoteData.quotes as any).playroll, provider: 'playroll' } : (quoteData.quotes as any).playroll
+          ) : (
+            (quoteData.quotes as any).omnipresent ? { ...(quoteData.quotes as any).omnipresent, provider: 'omnipresent' } : (quoteData.quotes as any).omnipresent
           );
 
     if (process.env.NODE_ENV === 'development') {
@@ -4096,7 +4117,11 @@ const QuotePageContent = memo(() => {
               ? quoteData.dualCurrencyQuotes?.rippling
               : currentProvider === 'skuad'
                 ? (quoteData.dualCurrencyQuotes as any)?.skuad
-                : (quoteData.dualCurrencyQuotes as any)?.velocity;
+                : currentProvider === 'velocity'
+                  ? (quoteData.dualCurrencyQuotes as any)?.velocity
+                  : currentProvider === 'playroll'
+                    ? (quoteData.dualCurrencyQuotes as any)?.playroll
+                    : (quoteData.dualCurrencyQuotes as any)?.omnipresent;
     const isConvertingToUSD = currentProvider === 'deel'
       ? isConvertingDeelToUsd
       : currentProvider === 'remote'
@@ -4109,7 +4134,11 @@ const QuotePageContent = memo(() => {
               ? isConvertingRipplingToUsd 
               : currentProvider === 'skuad' 
                 ? isConvertingSkuadToUsd 
-                : isConvertingVelocityToUsd;
+                : currentProvider === 'velocity'
+                  ? isConvertingVelocityToUsd
+                  : currentProvider === 'playroll'
+                    ? isConvertingPlayrollToUsd
+                    : isConvertingOmnipresentToUsd;
     const conversions = currentProvider === 'deel'
       ? usdConversions.deel
       : currentProvider === 'remote'
@@ -4122,7 +4151,11 @@ const QuotePageContent = memo(() => {
               ? (usdConversions as any).rippling
               : currentProvider === 'skuad'
                 ? (usdConversions as any).skuad
-                : (usdConversions as any).velocity;
+                : currentProvider === 'velocity'
+                  ? (usdConversions as any).velocity
+                  : currentProvider === 'playroll'
+                    ? (usdConversions as any).playroll
+                    : (usdConversions as any).omnipresent;
     const eorForm = quoteData.formData as EORFormData;
 
     if (!quote && !dualCurrencyQuotes) return null;
@@ -4520,6 +4553,60 @@ const QuotePageContent = memo(() => {
             isConvertingComparisonToUSD={isConvertingCompareVelocityToUsd}
             usdConversionError={usdConversionError}
             dualCurrencyQuotes={(quoteData.dualCurrencyQuotes as any)?.velocity}
+            isComparisonReady={comparisonReady}
+            isDualCurrencyReady={dualCurrencyReady}
+            isLoadingComparison={isLoadingComparison}
+          />
+        </div>
+      );
+    }
+
+    if (currentProvider === 'playroll') {
+      const comparisonReady = quoteData ? isComparisonReady('playroll', quoteData) : false;
+      const dualCurrencyReady = quoteData ? isDualCurrencyComparisonReady('playroll', quoteData) : false;
+      const isLoadingComparison = providerLoading.playroll ||
+        (eorForm.enableComparison && (!((quoteData.quotes as any).playroll) || !((quoteData.quotes as any).comparisonPlayroll)));
+
+      return (
+        <div className="space-y-6">
+          <QuoteComparison
+            provider="playroll"
+            primaryQuote={(quoteData.quotes as any).playroll as any}
+            comparisonQuote={(quoteData.quotes as any).comparisonPlayroll as any}
+            primaryTitle={eorForm.country}
+            comparisonTitle={eorForm.compareCountry}
+            usdConversions={usdConversions}
+            isConvertingPrimaryToUSD={isConvertingPlayrollToUsd}
+            isConvertingComparisonToUSD={isConvertingComparePlayrollToUsd}
+            usdConversionError={usdConversionError}
+            dualCurrencyQuotes={(quoteData.dualCurrencyQuotes as any)?.playroll}
+            isComparisonReady={comparisonReady}
+            isDualCurrencyReady={dualCurrencyReady}
+            isLoadingComparison={isLoadingComparison}
+          />
+        </div>
+      );
+    }
+
+    if (currentProvider === 'omnipresent') {
+      const comparisonReady = quoteData ? isComparisonReady('omnipresent', quoteData) : false;
+      const dualCurrencyReady = quoteData ? isDualCurrencyComparisonReady('omnipresent', quoteData) : false;
+      const isLoadingComparison = providerLoading.omnipresent ||
+        (eorForm.enableComparison && (!((quoteData.quotes as any).omnipresent) || !((quoteData.quotes as any).comparisonOmnipresent)));
+
+      return (
+        <div className="space-y-6">
+          <QuoteComparison
+            provider="omnipresent"
+            primaryQuote={(quoteData.quotes as any).omnipresent as any}
+            comparisonQuote={(quoteData.quotes as any).comparisonOmnipresent as any}
+            primaryTitle={eorForm.country}
+            comparisonTitle={eorForm.compareCountry}
+            usdConversions={usdConversions}
+            isConvertingPrimaryToUSD={isConvertingOmnipresentToUsd}
+            isConvertingComparisonToUSD={isConvertingCompareOmnipresentToUsd}
+            usdConversionError={usdConversionError}
+            dualCurrencyQuotes={(quoteData.dualCurrencyQuotes as any)?.omnipresent}
             isComparisonReady={comparisonReady}
             isDualCurrencyReady={dualCurrencyReady}
             isLoadingComparison={isLoadingComparison}

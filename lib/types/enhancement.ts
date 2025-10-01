@@ -3,7 +3,7 @@
 import { EORFormData } from "@/lib/shared/types"
 
 // Provider Types
-export type ProviderType = 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity'
+export type ProviderType = 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity' | 'playroll' | 'omnipresent'
 
 // Provider Response Types
 export interface RemoteAPIResponse {

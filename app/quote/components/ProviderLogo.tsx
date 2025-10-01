@@ -16,6 +16,8 @@ const LOGO_MAP: Record<Provider, { src: string; alt: string }> = {
   rippling: { src: "/rippling_logo.png", alt: "Rippling Logo" },
   skuad: { src: "/skuad_logo.png", alt: "Skuad Logo" },
   velocity: { src: "/pebl_logo.png", alt: "Velocity Global Logo" },
+  playroll: { src: "/playroll_logo.png", alt: "Playroll Logo" },
+  omnipresent: { src: "/omnipresent_logo.png", alt: "Omnipresent Logo" },
 }
 
 export const ProviderLogo = memo(({ provider, maxWidth = 120, maxHeight = 24 }: ProviderLogoProps) => {

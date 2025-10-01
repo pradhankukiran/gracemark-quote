@@ -343,6 +343,30 @@ export interface USDConversions {
     costs: number[]
     totalCosts: number
   }
+  playroll?: {
+    salary: number
+    deelFee: number
+    costs: number[]
+    totalCosts: number
+  }
+  comparePlayroll?: {
+    salary: number
+    deelFee: number
+    costs: number[]
+    totalCosts: number
+  }
+  omnipresent?: {
+    salary: number
+    deelFee: number
+    costs: number[]
+    totalCosts: number
+  }
+  compareOmnipresent?: {
+    salary: number
+    deelFee: number
+    costs: number[]
+    totalCosts: number
+  }
   rippling?: {
     salary: number
     deelFee: number
@@ -414,6 +438,8 @@ export interface DualCurrencyQuotes {
   rippling?: ProviderDualCurrencyQuotes
   skuad?: ProviderDualCurrencyQuotes
   velocity?: ProviderDualCurrencyQuotes
+  playroll?: ProviderDualCurrencyQuotes
+  omnipresent?: ProviderDualCurrencyQuotes
   // Legacy support - will be phased out
   selectedCurrencyQuote?: Quote | null
   localCurrencyQuote?: Quote | null
@@ -556,6 +582,10 @@ export interface QuoteData {
     comparisonSkuad?: Quote
     velocity?: Quote
     comparisonVelocity?: Quote
+    playroll?: Quote
+    comparisonPlayroll?: Quote
+    omnipresent?: Quote
+    comparisonOmnipresent?: Quote
     ic?: ICQuoteResult
   }
   metadata: {
