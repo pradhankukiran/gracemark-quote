@@ -17,6 +17,7 @@ import { ProviderSelector } from "./components/ProviderSelector"
 import { ProviderLogo } from "./components/ProviderLogo"
 import { EnhancementProvider, useEnhancementContext } from "@/hooks/enhancement/EnhancementContext"
 import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, transformToRemoteQuote, transformOysterQuoteToDisplayQuote } from "@/lib/shared/utils/apiUtils"
+import { identifyBenefitKey } from "@/lib/shared/utils/benefitNormalization"
 import { EORFormData, RemoteAPIResponse, Quote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
 import { ProviderType, EnhancedQuote, TerminationComponentEnhancement, BonusEnhancement, AllowanceEnhancement, SalaryEnhancement } from "@/lib/types/enhancement"
 import { safeNumber } from "@/lib/shared/utils/formatUtils"
@@ -74,6 +75,8 @@ type BillRateComposition = {
   actualBillRate: number
   rateDiscrepancy: number
   gracemarkFeePercentage: number
+  targetGracemarkFeeMonthly: number
+  targetGracemarkFeePercentage: number
   // USD versions
   salaryMonthlyUSD?: number
   statutoryMonthlyUSD?: number
@@ -412,9 +415,6 @@ const QuotePageContent = memo(() => {
     duration: number,
     isAllInclusive: boolean
   ): Promise<AcidTestCalculationResult> => {
-    // Use the authoritative reconciliation price instead of recalculating
-    const totalMonthlyQuoteCost = finalChoice?.price || 0
-
     // Calculate component totals for full assignment (for breakdown display)
     const salaryTotal = costData.baseSalaryMonthly * duration
     const statutoryTotal = costData.statutoryMonthly * duration
@@ -428,17 +428,21 @@ const QuotePageContent = memo(() => {
     const terminationMonthlyFull = costData.terminationMonthly
     const actualMonthlyQuote = billRate
 
-    // Calculate monthly recurring costs (what goes into bill rate)
-    const recurringMonthly = totalMonthlyQuoteCost
+    // Calculate monthly recurring costs from actual categorized components
+    const recurringMonthly = costData.baseSalaryMonthly + costData.statutoryMonthly +
+                            costData.allowancesMonthly +
+                            (isAllInclusive ? costData.terminationMonthly : 0)
 
-    // Calculate expected Gracemark fee (45% of total monthly cost of the selected quote)
-    const expectedGracemarkFeeMonthly = totalMonthlyQuoteCost * GRACEMARK_FEE_PERCENTAGE
+    // Target Gracemark fee (_policy_) and expected bill rate
+    const targetGracemarkFeeMonthly = recurringMonthly * GRACEMARK_FEE_PERCENTAGE
+    const expectedBillRateMonthly = recurringMonthly + targetGracemarkFeeMonthly
 
-    // Provider fee is included within Gracemark fee (typically 30% of Gracemark fee)
-    const providerFeeMonthly = expectedGracemarkFeeMonthly * PROVIDER_FEE_RATIO
+    // Actual Gracemark fee based on current bill rate
+    const actualGracemarkFeeMonthly = billRate - recurringMonthly
+    const gracemarkFeePercentage = recurringMonthly !== 0 ? actualGracemarkFeeMonthly / recurringMonthly : 0
 
-    // Expected bill rate composition (what we should charge monthly)
-    const expectedBillRateMonthly = totalMonthlyQuoteCost + expectedGracemarkFeeMonthly
+    // Provider fee share from the actual Gracemark fee (never negative)
+    const providerFeeMonthly = Math.max(actualGracemarkFeeMonthly, 0) * PROVIDER_FEE_RATIO
 
     // Total costs for full assignment (for cash flow check)
     const recurringTotal = recurringMonthly * duration
@@ -451,7 +455,7 @@ const QuotePageContent = memo(() => {
     // Cash flow calculation: Revenue vs what we pay out
     const profitLocal = actualRevenueTotal - totalCostsGracemark
 
-    const marginMonthly = billRate - recurringMonthly
+    const marginMonthly = actualGracemarkFeeMonthly
     const marginTotal = marginMonthly * duration - oneTimeTotal
 
     // Comprehensive USD conversion
@@ -502,7 +506,7 @@ const QuotePageContent = memo(() => {
       statutoryMonthlyUSD = costData.statutoryMonthly
       allowancesMonthlyUSD = costData.allowancesMonthly
       terminationMonthlyUSD = isAllInclusive ? costData.terminationMonthly : 0
-      gracemarkFeeMonthlyUSD = expectedGracemarkFeeMonthly
+      gracemarkFeeMonthlyUSD = actualGracemarkFeeMonthly
       providerFeeMonthlyUSD = providerFeeMonthly
       expectedBillRateUSD = expectedBillRateMonthly
       actualBillRateUSD = billRate
@@ -526,7 +530,7 @@ const QuotePageContent = memo(() => {
           convertCurrency(costData.statutoryMonthly, costData.currency, 'USD'),
           convertCurrency(costData.allowancesMonthly, costData.currency, 'USD'),
           convertCurrency(isAllInclusive ? costData.terminationMonthly : 0, costData.currency, 'USD'),
-          convertCurrency(expectedGracemarkFeeMonthly, costData.currency, 'USD'),
+          convertCurrency(actualGracemarkFeeMonthly, costData.currency, 'USD'),
           convertCurrency(providerFeeMonthly, costData.currency, 'USD'),
           convertCurrency(expectedBillRateMonthly, costData.currency, 'USD'),
           convertCurrency(billRate, costData.currency, 'USD'),
@@ -635,12 +639,14 @@ const QuotePageContent = memo(() => {
         statutoryMonthly: costData.statutoryMonthly,
         terminationMonthly: isAllInclusive ? costData.terminationMonthly : 0,
         allowancesMonthly: costData.allowancesMonthly,
-        gracemarkFeeMonthly: expectedGracemarkFeeMonthly,
+        gracemarkFeeMonthly: actualGracemarkFeeMonthly,
         providerFeeMonthly: providerFeeMonthly,
         expectedBillRate: expectedBillRateMonthly,
         actualBillRate: billRate,
         rateDiscrepancy: rateDiscrepancy,
-        gracemarkFeePercentage: GRACEMARK_FEE_PERCENTAGE,
+        gracemarkFeePercentage: gracemarkFeePercentage,
+        targetGracemarkFeeMonthly,
+        targetGracemarkFeePercentage: GRACEMARK_FEE_PERCENTAGE,
         // USD versions
         salaryMonthlyUSD,
         statutoryMonthlyUSD,
@@ -1017,12 +1023,14 @@ const QuotePageContent = memo(() => {
         pushRow('Total Monthly Cost (Before Gracemark Fee)', baseMonthlyCost, baseMonthlyUSD)
       }
 
-      if (billRateComposition.gracemarkFeeMonthly > 0) {
-        const gracemarkUSD = typeof billRateComposition.gracemarkFeeMonthlyUSD === 'number'
-          ? Number(billRateComposition.gracemarkFeeMonthlyUSD.toFixed(2))
-          : toUSD(billRateComposition.gracemarkFeeMonthly)
-        pushRow('Gracemark Fee (45%)', billRateComposition.gracemarkFeeMonthly, gracemarkUSD)
-      }
+      const gracemarkUSD = typeof billRateComposition.gracemarkFeeMonthlyUSD === 'number'
+        ? Number(billRateComposition.gracemarkFeeMonthlyUSD.toFixed(2))
+        : toUSD(billRateComposition.gracemarkFeeMonthly)
+      const gracemarkPercentValue = Number.isFinite(billRateComposition.gracemarkFeePercentage)
+        ? billRateComposition.gracemarkFeePercentage
+        : billRateComposition.targetGracemarkFeePercentage
+      const gracemarkPercentLabel = `${(gracemarkPercentValue * 100).toFixed(1)}%`
+      pushRow(`Gracemark Fee (${gracemarkPercentLabel})`, billRateComposition.gracemarkFeeMonthly, gracemarkUSD)
 
       if (billRateComposition.providerFeeMonthly > 0) {
         const providerUSD = typeof billRateComposition.providerFeeMonthlyUSD === 'number'
@@ -1176,12 +1184,21 @@ const QuotePageContent = memo(() => {
     }
 
     if (provider === 'rivermate') {
-      if (typeof (rawQuote as any)?.total === 'number') {
-        const parsed = parseNumericValue((rawQuote as any)?.total)
-        return parsed !== null && parsed > 0 ? parsed : null
+      // Calculate from displayed components (salary + taxItems)
+      // Excludes management fee and accruals that are in the API's total field
+      const rq = rawQuote as RivermateQuote
+      const salary = parseNumericValue(rq?.salary)
+      const taxSum = (rq?.taxItems || []).reduce((sum, item) => {
+        const amount = parseNumericValue(item?.amount)
+        return sum + (amount ?? 0)
+      }, 0)
+
+      if (salary !== null && salary > 0) {
+        return salary + taxSum
       }
 
-      const displayQuote = transformRivermateQuoteToDisplayQuote(rawQuote as RivermateQuote)
+      // Fallback to transformation
+      const displayQuote = transformRivermateQuoteToDisplayQuote(rq)
       const parsed = parseNumericValue(displayQuote?.total_costs)
       return parsed !== null && parsed > 0 ? parsed : null
     }
@@ -2480,7 +2497,12 @@ const QuotePageContent = memo(() => {
                                               <div className="flex items-center gap-3">
                                                 <div className="w-3 h-3 bg-purple-600"></div>
                                                 <span className="font-bold text-purple-800">
-                                                  Gracemark Fee ({Math.round(billRateComposition.gracemarkFeePercentage * 100)}%)
+                                                  {(() => {
+                                                    const value = Number.isFinite(billRateComposition.gracemarkFeePercentage)
+                                                      ? billRateComposition.gracemarkFeePercentage
+                                                      : billRateComposition.targetGracemarkFeePercentage
+                                                    return `Gracemark Fee (${(value * 100).toFixed(1)}%)`
+                                                  })()}
                                                 </span>
                                               </div>
                                             </td>
@@ -2934,7 +2956,10 @@ const QuotePageContent = memo(() => {
                                                     typeof billRateComposition.rateDiscrepancyUSD === 'number'
                                                       ? Math.abs(billRateComposition.rateDiscrepancyUSD)
                                                       : undefined
-                                                  )} below the expected rate. Consider increasing to ensure proper {Math.round(billRateComposition.gracemarkFeePercentage * 100)}% Gracemark fee coverage.
+                                                  )} below the expected rate. Consider increasing to ensure proper {Math.round(billRateComposition.targetGracemarkFeePercentage * 100)}% Gracemark fee coverage (current coverage {(Number.isFinite(billRateComposition.gracemarkFeePercentage)
+                                                    ? (billRateComposition.gracemarkFeePercentage * 100).toFixed(1)
+                                                    : (billRateComposition.targetGracemarkFeePercentage * 100).toFixed(1)
+                                                  )}%).
                                                 </>
                                               )}
                                             </p>
@@ -3053,12 +3078,15 @@ const QuotePageContent = memo(() => {
           const keyBase = rawKey.length
             ? rawKey
             : (typeof (item as any).name === 'string' && (item as any).name.trim().length
-              ? (item as any).name.trim().toLowerCase().replace(/\s+/g, '_')
+              ? (item as any).name.trim()
               : `item_${index}`)
 
           const friendlyName = typeof (item as any).name === 'string' && (item as any).name.trim().length
             ? (item as any).name.trim()
             : keyBase.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())
+
+          const normalizedKeyBase = keyBase.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || `item_${index}`
+          const canonicalKey = canonicalizeKey(normalizedKeyBase, friendlyName)
 
           const amountCandidates = [
             (item as any).monthly_amount,
@@ -3082,7 +3110,7 @@ const QuotePageContent = memo(() => {
 
           return {
             ...(item as Record<string, unknown>),
-            key: keyBase,
+            key: canonicalKey,
             name: friendlyName,
             monthly_amount: monthlyAmount
           } as { key: string; name: string; monthly_amount: number }
@@ -3096,6 +3124,40 @@ const QuotePageContent = memo(() => {
       .replace(/\s+/g, ' ')
       .trim()
       .replace(/\b\w/g, letter => letter.toUpperCase())
+
+    const canonicalizeKey = (normalizedKeyInput: string, name: string): string => {
+      const normalizedKey = normalizedKeyInput.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')
+      const lowerName = name.toLowerCase()
+
+      if (lowerName.includes('base salary') || normalizedKey.includes('base_salary')) {
+        return 'base_salary'
+      }
+
+      const benefitKey = identifyBenefitKey(name) || identifyBenefitKey(normalizedKey.replace(/_/g, ' '))
+      if (benefitKey === 'socialSecurity') return 'social_security_contributions'
+      if (benefitKey === 'thirteenthSalary') return 'thirteenth_salary'
+      if (benefitKey === 'fourteenthSalary') return 'fourteenth_salary'
+      if (benefitKey === 'vacationBonus') return 'vacation_bonus'
+      if (benefitKey === 'transportAllowance') return 'transportation_allowance'
+      if (benefitKey === 'remoteWorkAllowance') return 'remote_work_allowance'
+      if (benefitKey === 'mealVouchers') return 'meal_vouchers'
+      if (benefitKey === 'healthInsurance') return 'health_insurance'
+
+      if (normalizedKey.includes('statutory') && normalizedKey.includes('contribution')) {
+        return 'social_security_contributions'
+      }
+      if (normalizedKey.includes('social_security')) {
+        return 'social_security_contributions'
+      }
+      if (normalizedKey.includes('thirteenthsalary')) {
+        return 'thirteenth_salary'
+      }
+      if (normalizedKey.includes('fourteenthsalary')) {
+        return 'fourteenth_salary'
+      }
+
+      return normalizedKey
+    }
 
     const normalizeFullQuoteItem = (
       entry: any,
@@ -3124,8 +3186,10 @@ const QuotePageContent = memo(() => {
         .replace(/[^a-z0-9]+/g, '_')
         .replace(/^_|_$/g, '') || `item_${index}`
 
+      const canonicalKey = canonicalizeKey(normalizedKey, safeName)
+
       return {
-        key: normalizedKey,
+        key: canonicalKey,
         name: safeName,
         monthly_amount: Number(amount.toFixed(2))
       }
@@ -3223,27 +3287,26 @@ const QuotePageContent = memo(() => {
         const amount = resolveMonthlyAmount(amountInput)
         const monthly = convertFrequencyToMonthly(amount, frequency)
         if (!Number.isFinite(monthly) || monthly === 0) return
-        const safeNameBase = nameCandidate && nameCandidate.trim().length > 0 ? nameCandidate.trim() : (keyCandidate && keyCandidate.trim().length > 0 ? keyCandidate.trim() : `Item ${items.length + 1}`)
-        const safeName = formatKeyName(safeNameBase)
-        const normalizedKeyBase = keyCandidate && keyCandidate.trim().length > 0 ? keyCandidate.trim() : safeName
-        const normalizedKey = normalizedKeyBase.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || `item_${items.length + 1}`
-        const fingerprint = `${normalizedKey}:${monthly.toFixed(2)}`
 
-        if (seenEntryFingerprints.has(fingerprint)) {
-          return
-        }
+        const safeNameBase = nameCandidate && nameCandidate.trim().length > 0
+          ? nameCandidate.trim()
+          : (keyCandidate && keyCandidate.trim().length > 0
+            ? keyCandidate.trim()
+            : `Item ${items.length + 1}`)
+        const safeName = formatKeyName(safeNameBase)
+
+        const normalizedKeyBase = keyCandidate && keyCandidate.trim().length > 0 ? keyCandidate.trim() : safeName
+        const sanitizedKey = normalizedKeyBase.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || `item_${items.length + 1}`
+        const canonicalKey = canonicalizeKey(sanitizedKey, safeName)
+        const fingerprint = `${canonicalKey}:${monthly.toFixed(2)}`
+
+        if (seenEntryFingerprints.has(fingerprint)) return
 
         const normalizedNameLower = safeName.toLowerCase()
         const hashKey = `${normalizedNameLower}:${monthly.toFixed(2)}`
-        if (seenFallbackEntries.has(hashKey)) {
-          return
-        }
-        if (dropEmployeeSideEntries({ key: normalizedKey, name: safeName })) {
-          return
-        }
-        if (normalizedNameLower.includes('total') && !/allowance|benefit|termination|gracemark|provider/.test(normalizedNameLower)) {
-          return
-        }
+        if (seenFallbackEntries.has(hashKey)) return
+        if (dropEmployeeSideEntries({ key: canonicalKey, name: safeName })) return
+        if (normalizedNameLower.includes('total') && !/allowance|benefit|termination|gracemark|provider/.test(normalizedNameLower)) return
 
         const entryType = classifyEntryName(safeName)
         const dedupeSensitiveTypes: Record<typeof entryType, true | undefined> = {
@@ -3258,19 +3321,16 @@ const QuotePageContent = memo(() => {
           }
           const bucket = entryTypeDedup[entryType]!
           const compositeKey = `${entryType}:${amountKey}`
-          if (bucket.has(compositeKey)) {
-            return
-          }
+          if (bucket.has(compositeKey)) return
           bucket.add(compositeKey)
         }
-        seenFallbackEntries.add(hashKey)
 
+        seenFallbackEntries.add(hashKey)
         items.push({
-          key: normalizedKey,
+          key: canonicalKey,
           name: safeName,
           monthly_amount: Number(monthly.toFixed(2))
         })
-
         seenEntryFingerprints.add(fingerprint)
       }
 
@@ -3491,7 +3551,8 @@ const QuotePageContent = memo(() => {
 
     const mergedItemsMap = new Map<string, { key: string; name: string; monthly_amount: number }>()
     normalisedItems.forEach(item => {
-      const normalizedKey = item.key.toLowerCase()
+      const canonicalKey = canonicalizeKey(item.key, item.name)
+      const normalizedKey = canonicalKey.toLowerCase()
       const normalizedName = item.name.toLowerCase()
       const isTerminationEntry = normalizedKey.includes('termination') || normalizedName.includes('termination')
       const isSeveranceEntry = normalizedKey.includes('severance') || normalizedName.includes('severance')
@@ -3502,7 +3563,7 @@ const QuotePageContent = memo(() => {
       const amount = Number(resolveMonthlyAmount(item.monthly_amount))
       if (!Number.isFinite(amount) || amount === 0) return
       const rounded = Number(amount.toFixed(2))
-      const existing = mergedItemsMap.get(normalizedKey)
+      const existing = mergedItemsMap.get(canonicalKey)
       if (existing) {
         existing.monthly_amount = Math.max(existing.monthly_amount, rounded)
         const formattedName = formatKeyName(item.name)
@@ -3510,8 +3571,8 @@ const QuotePageContent = memo(() => {
           existing.name = formattedName
         }
       } else {
-        mergedItemsMap.set(normalizedKey, {
-          key: normalizedKey,
+        mergedItemsMap.set(canonicalKey, {
+          key: canonicalKey,
           name: formatKeyName(item.name),
           monthly_amount: rounded
         })
@@ -3534,9 +3595,10 @@ const QuotePageContent = memo(() => {
     const combinedItemsMap = new Map<string, { key: string; name: string; monthly_amount: number }>()
 
     const normaliseCombinedItem = (item: { key: string; name: string; monthly_amount: number }) => {
-      const normalizedKey = item.key.toLowerCase()
+      const sanitizedKey = item.key.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')
+      const canonicalKey = canonicalizeKey(sanitizedKey, item.name)
       return {
-        key: normalizedKey,
+        key: canonicalKey,
         name: formatKeyName(item.name),
         monthly_amount: Number(item.monthly_amount.toFixed(2))
       }
@@ -3550,12 +3612,12 @@ const QuotePageContent = memo(() => {
         if (dropEmployeeSideEntries(item)) return
         if (!Number.isFinite(item.monthly_amount) || item.monthly_amount === 0) return
 
-        const normalizedKey = item.key.toLowerCase()
-        if (!overwrite && combinedItemsMap.has(normalizedKey)) {
+        const normalizedEntry = normaliseCombinedItem(item)
+        if (!overwrite && combinedItemsMap.has(normalizedEntry.key)) {
           return
         }
 
-        combinedItemsMap.set(normalizedKey, normaliseCombinedItem(item))
+        combinedItemsMap.set(normalizedEntry.key, normalizedEntry)
       })
     }
 
@@ -3932,7 +3994,6 @@ const QuotePageContent = memo(() => {
 
     const configuredDuration = Number((quoteData?.formData as EORFormData)?.contractDuration) || 6;
     setProjectDuration(configuredDuration);
-    setMonthlyBillRate(finalChoice.price || 0);
 
     void extractSelectedQuoteData(finalChoice)
       .then(result => {
@@ -3944,41 +4005,19 @@ const QuotePageContent = memo(() => {
 
         const { aggregates, categories } = result;
 
-        // Scale components to match reconciliation total (fixes inflated enhanced quote data)
-        const cerebrasTotalMonthly = aggregates.baseSalaryMonthly + aggregates.statutoryMonthly +
-                                   aggregates.allowancesMonthly + aggregates.terminationMonthly;
-        const reconciliationTotal = finalChoice.price || 0;
-
-        const scaleFactor = cerebrasTotalMonthly > 0 ? reconciliationTotal / cerebrasTotalMonthly : 1;
-
-        // Scale all monthly amounts
-        const scaledAggregates = {
-          ...aggregates,
-          baseSalaryMonthly: aggregates.baseSalaryMonthly * scaleFactor,
-          statutoryMonthly: aggregates.statutoryMonthly * scaleFactor,
-          allowancesMonthly: aggregates.allowancesMonthly * scaleFactor,
-          terminationMonthly: aggregates.terminationMonthly * scaleFactor,
-        };
-
-        // Scale category details
-        const scaledCategories = Object.fromEntries(
-          Object.entries(categories).map(([categoryName, items]) => [
-            categoryName,
-            Object.fromEntries(
-              Object.entries(items as Record<string, number>).map(([itemKey, amount]) => [
-                itemKey,
-                amount * scaleFactor
-              ])
-            )
-          ])
-        );
-
         setAcidTestCostData({
           provider: finalChoice.provider,
           currency: finalChoice.currency,
-          categories: scaledCategories,
-          ...scaledAggregates,
+          categories,
+          ...aggregates,
         });
+
+        // Calculate default bill rate from actual categorized components
+        const recurringMonthly = aggregates.baseSalaryMonthly + aggregates.statutoryMonthly +
+                                 aggregates.allowancesMonthly +
+                                 (isAllInclusiveQuote ? aggregates.terminationMonthly : 0);
+        const defaultBillRate = recurringMonthly * (1 + GRACEMARK_FEE_PERCENTAGE);
+        setMonthlyBillRate(Number(defaultBillRate.toFixed(2)));
       })
       .catch(err => {
         console.error('Failed to categorize cost items with Cerebras:', err);
