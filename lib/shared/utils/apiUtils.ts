@@ -595,7 +595,7 @@ export const transformToRivermateQuote = (response: RivermateAPIResponse): River
   const employerCosts = response?.employer_costs;
   const accruals = response?.accruals;
   const grossSalaryMonthly = response?.gross_salary?.monthly ?? 0;
-  const totalMonthlyCost = response?.total_monthly_cost ?? response?.total_employment_cost?.monthly ?? 0;
+  const totalMonthlyCost = response?.total_employment_cost?.monthly ?? response?.total_monthly_cost ?? 0;
   const currency = getRivermateCurrency(response);
 
   // Extract tax items
@@ -633,6 +633,8 @@ export const transformOysterResponseToQuote = (oysterResponse: unknown): Quote =
   const annualSalary = Number(calc?.annualGrossSalary || 0)
   const monthlySalary = annualSalary / 12
   const employerContribs = (calc?.taxes?.employer?.contributions || []) as Array<{ name: string; amount: number }>
+  const employerContribTotalAnnual = Number(calc?.taxes?.employer?.total || 0)
+  const employerContribTotalMonthly = employerContribTotalAnnual > 0 ? employerContribTotalAnnual / 12 : undefined
 
   const costs: QuoteCost[] = employerContribs.map((c) => ({
     name: c.name,
@@ -645,7 +647,11 @@ export const transformOysterResponseToQuote = (oysterResponse: unknown): Quote =
   const normalizedCosts = normalizeAndDeduplicateQuoteCosts(costs, {
     baseMonthly: monthlySalary
   })
-  const totalMonthlyCosts = monthlySalary + normalizedCosts.reduce((sum, c) => sum + Number.parseFloat(c.amount || '0'), 0)
+  const contributionsTotal = normalizedCosts.reduce((sum, c) => sum + Number.parseFloat(c.amount || '0'), 0)
+  const monthlyEmployerCharges = employerContribTotalMonthly && employerContribTotalMonthly > 0
+    ? employerContribTotalMonthly
+    : contributionsTotal
+  const totalMonthlyCosts = monthlySalary + monthlyEmployerCharges
 
   return {
     provider: 'oyster',
@@ -930,8 +936,15 @@ export const transformToOysterQuote = (oysterResponse: any): OysterQuote => {
   const annualSalary = Number(calc?.annualGrossSalary || 0)
   const monthlySalary = annualSalary / 12
   const employerContribs = (calc?.taxes?.employer?.contributions || []) as Array<{ name: string; amount: number }>
+  const employerContribTotalAnnual = Number(calc?.taxes?.employer?.total || 0)
+  const employerContribTotalMonthly = employerContribTotalAnnual > 0 ? employerContribTotalAnnual / 12 : undefined
   const contributions = employerContribs.map((c) => ({ name: c.name, amount: (Number(c.amount || 0)) / 12 }))
-  const total = monthlySalary + contributions.reduce((s, v) => s + v.amount, 0)
+
+  const contributionsSum = contributions.reduce((s, v) => s + (v.amount || 0), 0)
+  const monthlyEmployerCharges = employerContribTotalMonthly && employerContribTotalMonthly > 0
+    ? employerContribTotalMonthly
+    : contributionsSum
+  const total = monthlySalary + monthlyEmployerCharges
 
   return {
     provider: 'oyster',

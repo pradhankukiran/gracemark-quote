@@ -174,6 +174,57 @@ const parseNumericValue = (value: unknown): number | null => {
   return null
 }
 
+const baseQuoteContainsPattern = (enhancement: EnhancedQuote | undefined, pattern: RegExp): boolean => {
+  if (!enhancement?.baseQuote) return false
+
+  const original = enhancement.baseQuote.originalResponse as Record<string, unknown> | undefined
+  if (!original) return false
+
+  const names: string[] = []
+
+  const pushName = (value: unknown) => {
+    if (typeof value === 'string' && value.trim()) {
+      names.push(value.trim())
+    }
+  }
+
+  const extractFromArray = (items: unknown) => {
+    if (!Array.isArray(items)) return
+    items.forEach(entry => {
+      if (entry && typeof entry === 'object') {
+        pushName((entry as Record<string, unknown>).name)
+        pushName((entry as Record<string, unknown>).label)
+        pushName((entry as Record<string, unknown>).title)
+      }
+    })
+  }
+
+  extractFromArray((original as any)?.costs)
+  extractFromArray((original as any)?.taxes?.employer?.contributions)
+  extractFromArray((original as any)?.employerCosts?.costs)
+  extractFromArray((original as any)?.contributions)
+
+  return names.some(name => pattern.test(name))
+}
+
+const resolveEnhancementMonthly = (
+  totalValue: unknown,
+  monthlyValue: unknown,
+  months: number
+): number => {
+  const parsedMonthly = parseNumericValue(monthlyValue)
+  if (parsedMonthly !== null && parsedMonthly > 0) {
+    return parsedMonthly
+  }
+
+  const parsedTotal = parseNumericValue(totalValue)
+  if (parsedTotal !== null && parsedTotal > 0 && months > 0) {
+    return parsedTotal / months
+  }
+
+  return 0
+}
+
 const computeEnhancementAddOns = (
   provider: ProviderType,
   enhancement: EnhancedQuote | undefined,
@@ -191,26 +242,6 @@ const computeEnhancementAddOns = (
     }
   }
 
-  const deriveFromMonthly = (totalValue: unknown, monthlyValue: unknown): number => {
-    const parsedTotal = parseNumericValue(totalValue)
-    const parsedMonthly = parseNumericValue(monthlyValue)
-
-    if (parsedMonthly !== null && parsedMonthly > 0) {
-      const derived = parsedMonthly * months
-      if (parsedTotal !== null && parsedTotal > 0) {
-        const threshold = derived * 0.75
-        return parsedTotal < threshold ? derived : parsedTotal
-      }
-      return derived
-    }
-
-    if (parsedTotal !== null && parsedTotal > 0) {
-      return parsedTotal
-    }
-
-    return 0
-  }
-
   const enh = enhancement.enhancements || {}
 
   const terminationItems: Array<TerminationComponentEnhancement | undefined> = []
@@ -220,7 +251,7 @@ const computeEnhancementAddOns = (
   terminationItems.push(enh.probationProvision)
   terminationItems.forEach(item => {
     if (!item || item.isAlreadyIncluded) return
-    const amount = deriveFromMonthly(item.totalAmount, item.monthlyAmount)
+    const amount = resolveEnhancementMonthly(item.totalAmount, item.monthlyAmount, months)
     add(amount)
   })
 
@@ -228,9 +259,13 @@ const computeEnhancementAddOns = (
     enh.thirteenthSalary,
     enh.fourteenthSalary,
   ]
+  const baseIncludesThirteenth = baseQuoteContainsPattern(enhancement, /13(?:th)?|thirteenth|aguinaldo/i)
+  const baseIncludesFourteenth = baseQuoteContainsPattern(enhancement, /14(?:th)?|fourteenth/i)
   salaryEnhancements.forEach(item => {
     if (!item || item.isAlreadyIncluded) return
-    const amount = deriveFromMonthly(item.yearlyAmount, item.monthlyAmount)
+    if (item === enh.thirteenthSalary && baseIncludesThirteenth) return
+    if (item === enh.fourteenthSalary && baseIncludesFourteenth) return
+    const amount = resolveEnhancementMonthly(item.yearlyAmount, item.monthlyAmount, months)
     add(amount)
   })
 
@@ -241,7 +276,9 @@ const computeEnhancementAddOns = (
     if (!item || item.isAlreadyIncluded) return
     const parsed = parseNumericValue(item.amount)
     if (parsed === null || parsed <= 0) return
-    const amount = item.frequency === 'monthly' ? parsed * months : parsed
+    const amount = item.frequency === 'monthly'
+      ? parsed
+      : parsed / (months > 0 ? months : 1)
     add(amount)
   })
 
@@ -1158,71 +1195,150 @@ const QuotePageContent = memo(() => {
   // --- REFRESHED RECONCILIATION LOGIC ---
   const allProviders: Array<ProviderType> = ['deel','remote','rivermate','oyster','rippling','skuad','velocity','playroll','omnipresent']
 
+  const pickPositive = (...values: unknown[]): number | null => {
+    for (const value of values) {
+      const parsed = parseNumericValue(value)
+      if (parsed !== null && parsed > 0) {
+        return parsed
+      }
+    }
+    return null
+  }
+
   const getBaseQuoteTotal = (provider: ProviderType): number | null => {
     if (!quoteData) return null
 
-    const quotes = quoteData.quotes as Record<string, unknown>
-    const rawQuote = quotes[provider]
+    const rawQuote = (quoteData.quotes as Record<string, unknown>)[provider]
     if (!rawQuote) return null
 
     if (provider === 'deel') {
-      const totalCosts = (rawQuote as any)?.total_costs ?? (rawQuote as any)?.totalCosts
-      const parsed = parseNumericValue(totalCosts)
-      return parsed !== null && parsed > 0 ? parsed : null
+      return pickPositive(
+        (rawQuote as any)?.total_costs,
+        (rawQuote as any)?.totalCosts,
+        (rawQuote as any)?.total,
+        (rawQuote as any)?.monthly_total
+      )
     }
 
     if (provider === 'remote') {
       if ((rawQuote as RemoteAPIResponse)?.employment?.employer_currency_costs) {
         const displayQuote = transformRemoteResponseToQuote(rawQuote as RemoteAPIResponse)
-        const parsed = parseNumericValue(displayQuote?.total_costs)
-        return parsed !== null && parsed > 0 ? parsed : null
+        return pickPositive(displayQuote?.total_costs)
       }
 
-      const total = (rawQuote as any)?.total
-      const parsed = parseNumericValue(total)
-      return parsed !== null && parsed > 0 ? parsed : null
+      return pickPositive(
+        (rawQuote as any)?.monthly_total,
+        (rawQuote as any)?.total,
+        (rawQuote as any)?.total_costs,
+        (rawQuote as any)?.totalCosts
+      )
     }
 
     if (provider === 'rivermate') {
-      // Calculate from displayed components (salary + taxItems)
-      // Excludes management fee and accruals that are in the API's total field
       const rq = rawQuote as RivermateQuote
-      const salary = parseNumericValue(rq?.salary)
+      const directTotal = pickPositive(rq?.total)
+      if (directTotal !== null) {
+        return directTotal
+      }
+
+      const salary = parseNumericValue(rq?.salary) ?? 0
       const taxSum = (rq?.taxItems || []).reduce((sum, item) => {
         const amount = parseNumericValue(item?.amount)
         return sum + (amount ?? 0)
       }, 0)
-
-      if (salary !== null && salary > 0) {
-        return salary + taxSum
+      const accruals = parseNumericValue(rq?.accrualsProvision) ?? 0
+      const combined = salary + taxSum + accruals
+      if (combined > 0) {
+        return combined
       }
 
-      // Fallback to transformation
       const displayQuote = transformRivermateQuoteToDisplayQuote(rq)
-      const parsed = parseNumericValue(displayQuote?.total_costs)
-      return parsed !== null && parsed > 0 ? parsed : null
+      return pickPositive(displayQuote?.total_costs)
     }
 
     if (provider === 'oyster') {
-      if (typeof (rawQuote as any)?.total === 'number') {
-        const parsed = parseNumericValue((rawQuote as any)?.total)
-        return parsed !== null && parsed > 0 ? parsed : null
+      const directTotal = pickPositive((rawQuote as any)?.total)
+      if (directTotal !== null) {
+        return directTotal
       }
       const displayQuote = transformOysterQuoteToDisplayQuote(rawQuote as OysterQuote)
-      const parsed = parseNumericValue(displayQuote?.total_costs)
-      return parsed !== null && parsed > 0 ? parsed : null
+      return pickPositive(displayQuote?.total_costs)
     }
 
-    // Providers using the generic Quote structure (rippling, skuad, velocity)
-    const totalCosts = (rawQuote as any)?.total_costs ?? (rawQuote as any)?.totalCosts
-    const parsed = parseNumericValue(totalCosts)
-    return parsed !== null && parsed > 0 ? parsed : null
+    if (provider === 'rippling' || provider === 'skuad' || provider === 'velocity' || provider === 'playroll' || provider === 'omnipresent') {
+      return pickPositive((rawQuote as any)?.total_costs, (rawQuote as any)?.totalCosts, (rawQuote as any)?.total)
+    }
+
+    return null
   }
 
   const getProviderPrice = (provider: ProviderType): number | null => {
     const baseTotal = getBaseQuoteTotal(provider)
     const enhancement = enhancements[provider]
+
     if (enhancement) {
+      if (provider === 'oyster') {
+        const baseComponent = safeNumber(
+          enhancement.baseQuote?.monthlyTotal,
+          baseTotal ?? 0
+        )
+        const resolvedBase = baseComponent > 0 ? baseComponent : (baseTotal ?? 0)
+
+        const months = Math.max(1, Number.isFinite(contractMonths) ? contractMonths : 12)
+        let enhancementValue = safeNumber(
+          enhancement.monthlyCostBreakdown?.enhancements,
+          0
+        )
+
+        if (enhancementValue <= 0) {
+          enhancementValue = computeEnhancementAddOns(provider, enhancement, contractMonths)
+        }
+
+        const enhStruct = enhancement.enhancements || {}
+        const baseIncludesThirteenth = baseQuoteContainsPattern(enhancement, /13(?:th)?|thirteenth|aguinaldo/i)
+        if (baseIncludesThirteenth && enhStruct.thirteenthSalary && !enhStruct.thirteenthSalary.isAlreadyIncluded) {
+          const duplicate = resolveEnhancementMonthly(
+            enhStruct.thirteenthSalary.yearlyAmount,
+            enhStruct.thirteenthSalary.monthlyAmount,
+            months
+          )
+          if (duplicate > 0) {
+            enhancementValue -= duplicate
+          }
+        }
+
+        const baseIncludesFourteenth = baseQuoteContainsPattern(enhancement, /14(?:th)?|fourteenth/i)
+        if (baseIncludesFourteenth && enhStruct.fourteenthSalary && !enhStruct.fourteenthSalary.isAlreadyIncluded) {
+          const duplicate = resolveEnhancementMonthly(
+            enhStruct.fourteenthSalary.yearlyAmount,
+            enhStruct.fourteenthSalary.monthlyAmount,
+            months
+          )
+          if (duplicate > 0) {
+            enhancementValue -= duplicate
+          }
+        }
+
+        const combined = Math.max(0, resolvedBase) + Math.max(0, enhancementValue)
+        if (combined > 0) {
+          return combined
+        }
+      }
+      const breakdownTotal = safeNumber(
+        enhancement.monthlyCostBreakdown?.total,
+        safeNumber(enhancement.finalTotal, 0)
+      )
+
+      if (breakdownTotal > 0) {
+        if (baseTotal !== null && baseTotal > 0) {
+          const tolerance = baseTotal * 0.02
+          if (Math.abs(breakdownTotal - baseTotal) <= tolerance) {
+            return baseTotal
+          }
+        }
+        return breakdownTotal
+      }
+
       const baseComponent = safeNumber(
         enhancement.monthlyCostBreakdown?.baseCost,
         safeNumber(enhancement.baseQuote?.monthlyTotal, baseTotal ?? 0)
@@ -1230,24 +1346,15 @@ const QuotePageContent = memo(() => {
 
       const enhancementComponent = safeNumber(
         enhancement.monthlyCostBreakdown?.enhancements,
-        safeNumber(enhancement.totalEnhancement, 0)
+        safeNumber(
+          enhancement.totalEnhancement,
+          computeEnhancementAddOns(provider, enhancement, contractMonths)
+        )
       )
 
-      const combinedFromBreakdown = safeNumber(
-        enhancement.monthlyCostBreakdown?.total,
-        baseComponent + enhancementComponent
-      )
-
-      if (combinedFromBreakdown > 0) {
-        return combinedFromBreakdown
-      }
-
-      if (baseTotal !== null && baseTotal > 0) {
-        const addOns = computeEnhancementAddOns(provider, enhancement, contractMonths)
-        const recomputed = baseComponent + addOns
-        if (Number.isFinite(recomputed) && recomputed > 0) {
-          return recomputed
-        }
+      const combined = baseComponent + enhancementComponent
+      if (combined > 0) {
+        return combined
       }
     }
 
