@@ -2,6 +2,7 @@
 
 import { DeelAPIResponse, RemoteAPIResponse, ValidationAPIResponse, BenefitsAPIResponse, EORFormData, Quote, QuoteCost, DeelQuote, RemoteQuote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
 import { getCountryByName, getCountryByCode } from "@/lib/country-data"
+import { normalizeAndDeduplicateQuoteCosts } from "@/lib/shared/utils/benefitNormalization"
 
 // Default values for optional fields (optionally by country, reserved for future use)
 export const getDefaultValues = (_countryCode?: string) => {
@@ -349,6 +350,10 @@ export const transformRemoteResponseToQuote = (remoteResponse: RemoteAPIResponse
     }))
   ];
 
+  const normalizedCosts = normalizeAndDeduplicateQuoteCosts(quoteCosts, {
+    baseMonthly: Number(costs?.monthly_gross_salary) || 0
+  })
+
   return {
     provider: 'remote',
     salary: costs?.monthly_gross_salary?.toString() || '0',
@@ -359,7 +364,7 @@ export const transformRemoteResponseToQuote = (remoteResponse: RemoteAPIResponse
     severance_accural: '0', // This would need to be extracted if Remote provides it
     total_costs: costs?.monthly_total?.toString() || '0',
     employer_costs: costs?.monthly_total?.toString() || '0',
-    costs: quoteCosts,
+    costs: normalizedCosts,
     benefits_data: [],
     additional_data: {
       additional_notes: []
@@ -427,7 +432,11 @@ export const transformRivermateResponseToQuote = (response: RivermateAPIResponse
 
   // Exclude management fee and accruals from displayed costs
   // Compute total as salary + sum(tax items) only
-  const taxSum = costs.reduce((sum, c) => sum + Number.parseFloat(c.amount || '0'), 0);
+  const normalizedCosts = normalizeAndDeduplicateQuoteCosts(costs, {
+    baseMonthly: Number(grossSalaryMonthly) || 0
+  })
+
+  const taxSum = normalizedCosts.reduce((sum, c) => sum + Number.parseFloat(c.amount || '0'), 0);
   const displayTotal = Number(grossSalaryMonthly) + taxSum;
 
   return {
@@ -440,7 +449,7 @@ export const transformRivermateResponseToQuote = (response: RivermateAPIResponse
     severance_accural: '0',
     total_costs: displayTotal.toString(),
     employer_costs: displayTotal.toString(),
-    costs,
+    costs: normalizedCosts,
     benefits_data: [],
     additional_data: { additional_notes: [] },
   };
@@ -451,21 +460,22 @@ export const transformRivermateResponseToQuote = (response: RivermateAPIResponse
  * into a display-ready Quote (Deel-like structure) for UI rendering.
  */
 export const transformRivermateQuoteToDisplayQuote = (rq: RivermateQuote): Quote => {
-  const costs: QuoteCost[] = [];
+  const costs: QuoteCost[] = []
 
-  // Tax items
   for (const item of rq.taxItems || []) {
     costs.push({
       name: item.name,
       amount: (item.amount ?? 0).toString(),
       frequency: 'monthly',
       country: rq.country,
-      country_code: rq.country_code,
+      country_code: rq.country_code
     })
   }
 
-  // Exclude management fee and accruals from displayed totals: compute salary + sum(tax items)
-  const taxSum = (rq.taxItems || []).reduce((sum, it) => sum + (it.amount ?? 0), 0)
+  const normalizedCosts = normalizeAndDeduplicateQuoteCosts(costs, {
+    baseMonthly: Number(rq.salary) || 0
+  })
+  const taxSum = normalizedCosts.reduce((sum, it) => sum + Number.parseFloat(it.amount || '0'), 0)
   const displayTotal = Number(rq.salary) + taxSum
 
   return {
@@ -478,7 +488,7 @@ export const transformRivermateQuoteToDisplayQuote = (rq: RivermateQuote): Quote
     severance_accural: '0',
     total_costs: displayTotal.toString(),
     employer_costs: displayTotal.toString(),
-    costs,
+    costs: normalizedCosts,
     benefits_data: [],
     additional_data: { additional_notes: [] },
   }
@@ -526,9 +536,34 @@ export const fetchBenefitsData = async (params: BenefitsRequestParams): Promise<
  * Transforms a Deel API response to DeelQuote (adds required provider field)
  */
 export const transformToDeelQuote = (response: DeelAPIResponse): DeelQuote => {
+  const rawCosts = Array.isArray(response?.costs) ? response.costs : []
+  const parseNumericString = (value: unknown): number => {
+    if (typeof value === 'number') return value
+    if (typeof value === 'string') {
+      const cleaned = value.replace(/[^0-9,\.\-]/g, '').replace(/,(?=\d{3}(?:\D|$))/g, '').replace(',', '.')
+      const parsed = Number.parseFloat(cleaned)
+      return Number.isFinite(parsed) ? parsed : 0
+    }
+    return 0
+  }
+
+  const mappedCosts: QuoteCost[] = rawCosts.map((cost: any) => ({
+    name: String(cost?.name || cost?.title || ''),
+    amount: typeof cost?.amount === 'string' ? cost.amount : String(cost?.amount ?? '0'),
+    frequency: String(cost?.frequency || 'monthly').toLowerCase(),
+    country: String(cost?.country || response.country || ''),
+    country_code: String(cost?.country_code || response.country_code || ''),
+  }))
+
+  const baseMonthly = parseNumericString(response?.salary)
+  const normalizedCosts = normalizeAndDeduplicateQuoteCosts(mappedCosts, {
+    baseMonthly
+  })
+
   return {
     ...response,
-    provider: 'deel' // Add required provider field for validation
+    provider: 'deel',
+    costs: normalizedCosts
   };
 }
 
@@ -601,13 +636,16 @@ export const transformOysterResponseToQuote = (oysterResponse: unknown): Quote =
 
   const costs: QuoteCost[] = employerContribs.map((c) => ({
     name: c.name,
-    amount: ((Number(c.amount || 0)) / 12).toString(),
-    frequency: 'monthly',
+    amount: Number(c.amount || 0).toString(),
+    frequency: 'yearly',
     country: country?.name || '',
     country_code: country?.code || '',
   }))
 
-  const totalMonthlyCosts = monthlySalary + costs.reduce((sum, c) => sum + Number.parseFloat(c.amount || '0'), 0)
+  const normalizedCosts = normalizeAndDeduplicateQuoteCosts(costs, {
+    baseMonthly: monthlySalary
+  })
+  const totalMonthlyCosts = monthlySalary + normalizedCosts.reduce((sum, c) => sum + Number.parseFloat(c.amount || '0'), 0)
 
   return {
     provider: 'oyster',
@@ -619,7 +657,7 @@ export const transformOysterResponseToQuote = (oysterResponse: unknown): Quote =
     severance_accural: '0',
     total_costs: totalMonthlyCosts.toString(),
     employer_costs: totalMonthlyCosts.toString(),
-    costs,
+    costs: normalizedCosts,
     benefits_data: [],
     additional_data: { additional_notes: [] },
   }
@@ -646,6 +684,11 @@ export const transformRipplingResponseToQuote = (ripplingResponse: unknown): Quo
     country_code: '',
   }))
 
+  const baseMonthly = Number.parseFloat(toStringNum(gross?.monthly_value || '0')) || 0
+  const normalizedCosts = normalizeAndDeduplicateQuoteCosts(quoteCosts, {
+    baseMonthly
+  })
+
   return {
     provider: 'rippling',
     salary: toStringNum(gross?.monthly_value || '0'),
@@ -656,7 +699,7 @@ export const transformRipplingResponseToQuote = (ripplingResponse: unknown): Quo
     severance_accural: '0',
     total_costs: toStringNum(total?.monthly_value || employer?.monthly_value || '0'),
     employer_costs: toStringNum(total?.monthly_value || employer?.monthly_value || '0'),
-    costs: quoteCosts,
+    costs: normalizedCosts,
     benefits_data: [],
     additional_data: { additional_notes: [] },
   }
@@ -689,9 +732,12 @@ export const transformSkuadResponseToQuote = (resp: unknown): Quote => {
   const totalBillingMonthly = data?.totalEmploymentCost?.billingAmounts?.monthlyValue
   const totalLocalMonthly = data?.totalEmploymentCost?.localAmounts?.monthlyValue
   const salaryMonthly = monthly?.grossSalary
+  const normalizedCosts = normalizeAndDeduplicateQuoteCosts(costs, {
+    baseMonthly: Number(salaryMonthly) || 0
+  })
   const computedMonthly = (() => {
     const base = Number(salaryMonthly) || 0
-    const sum = costs.reduce((s, c) => s + (Number.parseFloat(c.amount) || 0), 0)
+    const sum = normalizedCosts.reduce((s, c) => s + (Number.parseFloat(c.amount) || 0), 0)
     return base + sum
   })()
 
@@ -705,7 +751,7 @@ export const transformSkuadResponseToQuote = (resp: unknown): Quote => {
     severance_accural: '0',
     total_costs: String(totalBillingMonthly ?? totalLocalMonthly ?? computedMonthly),
     employer_costs: String(totalBillingMonthly ?? totalLocalMonthly ?? computedMonthly),
-    costs,
+    costs: normalizedCosts,
     benefits_data: [],
     additional_data: { additional_notes: [] },
   }
@@ -727,14 +773,18 @@ export const transformVelocityResponseToQuote = (resp: unknown): Quote => {
   const lineItems = Array.isArray(attr?.lineItems) ? attr.lineItems : []
   const costs: QuoteCost[] = lineItems.map((li: any) => ({
     name: String(li?.title || li?.name || ''),
-    amount: String(((Number(li?.amount) || 0) / 12).toFixed(2)),
-    frequency: 'monthly',
+    amount: String(Number(li?.amount) || 0),
+    frequency: 'yearly',
     country,
     country_code,
   }))
 
   const annualSalary = Number(attr?.remuneration?.baseSalary) || 0
   const annualTotal = Number(attr?.total) || 0
+  const baseMonthly = annualSalary > 0 ? annualSalary / 12 : 0
+  const normalizedCosts = normalizeAndDeduplicateQuoteCosts(costs, {
+    baseMonthly
+  })
 
   return {
     provider: 'velocity',
@@ -746,7 +796,7 @@ export const transformVelocityResponseToQuote = (resp: unknown): Quote => {
     severance_accural: '0',
     total_costs: String((annualTotal / 12).toFixed(2)),
     employer_costs: String((annualTotal / 12).toFixed(2)),
-    costs,
+    costs: normalizedCosts,
     benefits_data: [],
     additional_data: { additional_notes: [] },
   }
@@ -782,10 +832,14 @@ export const transformPlayrollResponseToQuote = (resp: unknown): Quote => {
     .map((item: any) => ({
       name: String(item?.label || item?.id || ''),
       amount: String(item?.amount ?? '0'),
-      frequency: (item?.frequency || 'monthly') === 'annual' ? 'annual' : 'monthly',
+      frequency: (item?.frequency || 'monthly'),
       country,
       country_code: countryCode,
     }))
+
+  const normalizedCosts = normalizeAndDeduplicateQuoteCosts(costs, {
+    baseMonthly: Number(monthlySalary) || 0
+  })
 
   const totalAmount = Number(totalItem?.amount ?? 0)
   const totalString = Number.isFinite(totalAmount) ? String(totalAmount) : '0'
@@ -800,7 +854,7 @@ export const transformPlayrollResponseToQuote = (resp: unknown): Quote => {
     severance_accural: '0',
     total_costs: totalString,
     employer_costs: totalString,
-    costs,
+    costs: normalizedCosts,
     benefits_data: [],
     additional_data: { additional_notes: [] },
   }
@@ -839,11 +893,15 @@ export const transformOmnipresentResponseToQuote = (resp: unknown): Quote => {
     const amount = pickAmount(item)
     return {
       name: String(item?.name || ''),
-      amount: Number.isFinite(amount) ? amount.toFixed(2) : '0',
+      amount: Number.isFinite(amount) ? String(amount) : '0',
       frequency: 'monthly',
       country,
       country_code: countryCode,
     }
+  })
+
+  const normalizedCosts = normalizeAndDeduplicateQuoteCosts(costs, {
+    baseMonthly: Number(monthlySalary) || 0
   })
 
   return {
@@ -856,7 +914,7 @@ export const transformOmnipresentResponseToQuote = (resp: unknown): Quote => {
     severance_accural: '0',
     total_costs: Number.isFinite(totalCost) ? totalCost.toFixed(2) : '0',
     employer_costs: Number.isFinite(employerSubtotal) ? employerSubtotal.toFixed(2) : '0',
-    costs,
+    costs: normalizedCosts,
     benefits_data: [],
     additional_data: { additional_notes: [] },
   }
@@ -898,6 +956,10 @@ export const transformOysterQuoteToDisplayQuote = (oq: OysterQuote): Quote => {
     country_code: oq.country_code,
   }))
 
+  const normalizedCosts = normalizeAndDeduplicateQuoteCosts(costs, {
+    baseMonthly: Number(oq.salary) || 0
+  })
+
   return {
     provider: 'oyster',
     salary: oq.salary.toString(),
@@ -908,7 +970,7 @@ export const transformOysterQuoteToDisplayQuote = (oq: OysterQuote): Quote => {
     severance_accural: '0',
     total_costs: oq.total.toString(),
     employer_costs: oq.total.toString(),
-    costs,
+    costs: normalizedCosts,
     benefits_data: [],
     additional_data: { additional_notes: [] },
   }

@@ -494,6 +494,66 @@ export class EnhancementEngine {
     const { enhancements, confidence_scores, analysis } = groqResponse
     const isStatutoryOnly = input.quoteType === 'statutory-only'
 
+    const normalizeAmount = (value?: unknown): number => {
+      if (typeof value === 'number') return Number.isFinite(value) ? value : 0
+      if (typeof value !== 'string') return 0
+      const trimmed = value.trim()
+      if (!trimmed) return 0
+      let cleaned = trimmed.replace(/[^0-9,\.\-]/g, '')
+      const hasComma = cleaned.includes(',')
+      const hasDot = cleaned.includes('.')
+      if (hasComma && hasDot) {
+        if (cleaned.lastIndexOf(',') > cleaned.lastIndexOf('.')) {
+          cleaned = cleaned.replace(/\./g, '').replace(/,/g, '.')
+        } else {
+          cleaned = cleaned.replace(/,/g, '')
+        }
+      } else if (hasComma && !hasDot) {
+        cleaned = cleaned.replace(/,/g, '.')
+      }
+      cleaned = cleaned.replace(/[^0-9\.\-]/g, '')
+      const parsed = Number.parseFloat(cleaned)
+      return Number.isFinite(parsed) ? parsed : 0
+    }
+
+    const resolveMonthlyFrom = (monthly?: unknown, yearly?: unknown): number => {
+      const monthlyNum = normalizeAmount(monthly)
+      if (monthlyNum > 0) return monthlyNum
+      const yearlyNum = normalizeAmount(yearly)
+      if (yearlyNum > 0) return yearlyNum / 12
+      return 0
+    }
+
+    const baseSalaryMonthly = Number(baseQuote.baseCost) || 0
+
+    const normalizeStatutoryBonus = (monthly?: number, yearly?: number) => {
+      let monthlyAmount = Number(monthly)
+      if (!Number.isFinite(monthlyAmount) || monthlyAmount <= 0) monthlyAmount = 0
+
+      let yearlyAmount = Number(yearly)
+      if (!Number.isFinite(yearlyAmount) || yearlyAmount < 0) yearlyAmount = 0
+
+      const expectedMonthly = baseSalaryMonthly > 0 ? Number((baseSalaryMonthly / 12).toFixed(2)) : 0
+      if (expectedMonthly > 0 && monthlyAmount > 0) {
+        const tolerance = expectedMonthly * 0.25
+        if (monthlyAmount > expectedMonthly + tolerance) {
+          monthlyAmount = expectedMonthly
+        }
+      }
+
+      if (monthlyAmount > 0 && (yearlyAmount === 0 || Math.abs(yearlyAmount - monthlyAmount * 12) > 1)) {
+        yearlyAmount = Number((monthlyAmount * 12).toFixed(2))
+      }
+
+      monthlyAmount = Number(monthlyAmount.toFixed(2))
+      yearlyAmount = Number(yearlyAmount.toFixed(2))
+
+      return {
+        monthlyAmount,
+        yearlyAmount
+      }
+    }
+
     // Build enhancement objects
     const enhancementData: EnhancedQuote['enhancements'] = {}
 
@@ -527,9 +587,16 @@ export class EnhancementEngine {
     // 13th salary
     if (enhancements.thirteenth_salary) {
       const ts = enhancements.thirteenth_salary
+      const monthlyAmount = resolveMonthlyFrom(ts.monthly_amount, ts.yearly_amount)
+      const yearlyAmount = (() => {
+        const normalizedYearly = normalizeAmount(ts.yearly_amount)
+        if (normalizedYearly > 0) return normalizedYearly
+        return monthlyAmount > 0 ? monthlyAmount * 12 : 0
+      })()
+      const normalized = normalizeStatutoryBonus(monthlyAmount, yearlyAmount)
       enhancementData.thirteenthSalary = {
-        monthlyAmount: ts.monthly_amount || 0,
-        yearlyAmount: ts.yearly_amount || 0,
+        monthlyAmount: normalized.monthlyAmount,
+        yearlyAmount: normalized.yearlyAmount,
         explanation: ts.explanation || '13th month salary as required by law',
         confidence: ts.confidence || 0.5,
         isAlreadyIncluded: ts.already_included || false
@@ -539,9 +606,16 @@ export class EnhancementEngine {
     // 14th salary
     if (enhancements.fourteenth_salary) {
       const fs = enhancements.fourteenth_salary
+      const monthlyAmount = resolveMonthlyFrom(fs.monthly_amount, fs.yearly_amount)
+      const yearlyAmount = (() => {
+        const normalizedYearly = normalizeAmount(fs.yearly_amount)
+        if (normalizedYearly > 0) return normalizedYearly
+        return monthlyAmount > 0 ? monthlyAmount * 12 : 0
+      })()
+      const normalized = normalizeStatutoryBonus(monthlyAmount, yearlyAmount)
       enhancementData.fourteenthSalary = {
-        monthlyAmount: fs.monthly_amount || 0,
-        yearlyAmount: fs.yearly_amount || 0,
+        monthlyAmount: normalized.monthlyAmount,
+        yearlyAmount: normalized.yearlyAmount,
         explanation: fs.explanation || '14th month salary as required by law',
         confidence: fs.confidence || 0.5,
         isAlreadyIncluded: fs.already_included || false
@@ -681,10 +755,11 @@ export class EnhancementEngine {
         // 13th salary
         const hasTh13 = !!enhancementData.thirteenthSalary && ((enhancementData.thirteenthSalary.monthlyAmount || 0) > 0 || (enhancementData.thirteenthSalary.yearlyAmount || 0) > 0)
         if (!hasTh13 && lr.mandatorySalaries?.has13thSalary) {
-          const m = baseSalary // baseSalary is already monthly, 13th salary monthly accrual equals base monthly
+          const monthlyAccrual = baseSalary > 0 ? Number((baseSalary / 12).toFixed(2)) : 0
+          const yearlyTotal = monthlyAccrual > 0 ? Number((monthlyAccrual * 12).toFixed(2)) : 0
           enhancementData.thirteenthSalary = {
-            monthlyAmount: m,
-            yearlyAmount: m * 12,
+            monthlyAmount: monthlyAccrual,
+            yearlyAmount: yearlyTotal,
             explanation: 'Deterministic 13th salary accrual (Papaya indicates mandatory).',
             confidence: 0.8,
             isAlreadyIncluded: false
@@ -694,10 +769,11 @@ export class EnhancementEngine {
         // 14th salary
         const hasTh14 = !!enhancementData.fourteenthSalary && ((enhancementData.fourteenthSalary.monthlyAmount || 0) > 0 || (enhancementData.fourteenthSalary.yearlyAmount || 0) > 0)
         if (!hasTh14 && lr.mandatorySalaries?.has14thSalary) {
-          const m = baseSalary // baseSalary is already monthly, 14th salary monthly accrual equals base monthly
+          const monthlyAccrual = baseSalary > 0 ? Number((baseSalary / 12).toFixed(2)) : 0
+          const yearlyTotal = monthlyAccrual > 0 ? Number((monthlyAccrual * 12).toFixed(2)) : 0
           enhancementData.fourteenthSalary = {
-            monthlyAmount: m,
-            yearlyAmount: m * 12,
+            monthlyAmount: monthlyAccrual,
+            yearlyAmount: yearlyTotal,
             explanation: 'Deterministic 14th salary accrual (Papaya indicates mandatory).',
             confidence: 0.75,
             isAlreadyIncluded: false
@@ -760,6 +836,8 @@ export class EnhancementEngine {
       if (included && typeof n === 'number' && isFinite(n) && n > 0) monthlyEnhancements.push(n)
     }
 
+    const resolveMonthly = (monthly?: unknown, yearly?: unknown): number => resolveMonthlyFrom(monthly, yearly)
+
     let terminationComponentsAdded = false
     if (enhancementData.severanceProvision && !enhancementData.severanceProvision.isAlreadyIncluded) {
       addIf(enhancementData.severanceProvision.monthlyAmount)
@@ -778,14 +856,16 @@ export class EnhancementEngine {
 
     // Thirteenth/fourteenth salary (monthly amounts preferred, otherwise yearly/12)
     if (enhancementData.thirteenthSalary && !enhancementData.thirteenthSalary.isAlreadyIncluded) {
-      const m = enhancementData.thirteenthSalary.monthlyAmount
-      const y = enhancementData.thirteenthSalary.yearlyAmount
-      addIf(m ?? (y ? y / 12 : 0))
+      addIf(resolveMonthly(
+        enhancementData.thirteenthSalary.monthlyAmount,
+        enhancementData.thirteenthSalary.yearlyAmount
+      ))
     }
     if (enhancementData.fourteenthSalary && !enhancementData.fourteenthSalary.isAlreadyIncluded) {
-      const m = enhancementData.fourteenthSalary.monthlyAmount
-      const y = enhancementData.fourteenthSalary.yearlyAmount
-      addIf(m ?? (y ? y / 12 : 0))
+      addIf(resolveMonthly(
+        enhancementData.fourteenthSalary.monthlyAmount,
+        enhancementData.fourteenthSalary.yearlyAmount
+      ))
     }
 
     // Vacation bonus (monthlyize if marked yearly)

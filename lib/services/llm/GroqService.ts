@@ -1597,7 +1597,7 @@ export class GroqService {
       }
 
       const canonicalPatterns: Record<string, string[]> = {
-        thirteenth_salary: ['13th', 'thirteenth', 'aguinaldo'],
+        thirteenth_salary: ['13th', 'thirteenth', 'aguinaldo', 'christmas bonus', 'navidad', 'gratificacao de natal'],
         fourteenth_salary: ['14th', 'fourteenth'],
         vacation_bonus: ['vacation bonus', 'vacation_pay', 'holiday bonus'],
         transportation_allowance: ['transport', 'commute', 'commuting allowance', 'bus', 'metro'],

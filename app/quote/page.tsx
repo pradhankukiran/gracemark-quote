@@ -4256,8 +4256,8 @@ const QuotePageContent = memo(() => {
       const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
       const hasItemLike = (needle: string) => costs.some((c: any) => norm(c?.name).includes(norm(needle)))
       const addExtra = (name: string, amount: number, guardNames: string[] = []) => {
-        const amt = Number(amount)
-        if (!isFinite(amt) || amt <= 0) return
+        const amt = parseNumericValue(amount)
+        if (amt === null || !Number.isFinite(amt) || amt <= 0) return
         const dup = guardNames.some(g => hasItemLike(g))
         if (!dup) extras.push({ name, amount: amt, guards: guardNames })
       }
@@ -4286,14 +4286,20 @@ const QuotePageContent = memo(() => {
         // 13th salary
         const th13 = enh.enhancements.thirteenthSalary
         if (th13 && th13.isAlreadyIncluded !== true) {
-          const m = Number(th13.monthlyAmount || 0) || (Number(th13.yearlyAmount || 0) / 12)
-          addExtra('13th Salary', m, ['13th', 'thirteenth'])
+          const m = parseNumericValue(th13.monthlyAmount) ?? (() => {
+            const yearly = parseNumericValue(th13.yearlyAmount)
+            return yearly !== null ? yearly / 12 : null
+          })()
+          if (m !== null) addExtra('13th Salary', m, ['13th', 'thirteenth'])
         }
         // 14th salary
         const th14 = enh.enhancements.fourteenthSalary
         if (th14 && th14.isAlreadyIncluded !== true) {
-          const m = Number(th14.monthlyAmount || 0) || (Number(th14.yearlyAmount || 0) / 12)
-          addExtra('14th Salary', m, ['14th', 'fourteenth'])
+          const m = parseNumericValue(th14.monthlyAmount) ?? (() => {
+            const yearly = parseNumericValue(th14.yearlyAmount)
+            return yearly !== null ? yearly / 12 : null
+          })()
+          if (m !== null) addExtra('14th Salary', m, ['14th', 'fourteenth'])
         }
         // Allowances
         const ta = enh.enhancements.transportationAllowance

@@ -1,4 +1,5 @@
 import { ProviderType, StandardizedBenefitData, RemoteAPIResponse, RivermateAPIResponse, OysterAPIResponse, GenericProviderResponse } from "@/lib/types/enhancement"
+import { identifyBenefitKey, normalizeBenefitAmount } from "@/lib/shared/utils/benefitNormalization"
 
 // Shape used by EnhancementEngine normalizer
 interface NormalizedQuoteLike {
@@ -23,68 +24,12 @@ const toNumber = (v: unknown): number => {
   return 0
 }
 
-const monthlyize = (amount: number, frequency?: string) => {
-  if (!frequency) return amount
-  const f = frequency.toLowerCase()
-  if (f.includes('year')) return amount / 12
-  if (f.includes('month')) return amount
-  return amount
-}
-
-// Enhanced categorization heuristics for line item names with broader patterns
-const categorize = (nameRaw: string): keyof StandardizedBenefitData["includedBenefits"] | undefined => {
-  const name = (nameRaw || '').toString().toLowerCase()
-  if (!name) return undefined
-  
-  // 13th Salary patterns (multiple languages and variations)
-  if (/(^|\s)13(th)?|thirteenth|aguinaldo|decim[ao]\s*terc|christmas\s*bonus|13.*salary|salary.*13|bonus.*13/.test(name)) {
-    return 'thirteenthSalary'
-  }
-  
-  // 14th Salary patterns
-  if (/(^|\s)14(th)?|fourteenth|14.*salary|salary.*14|bonus.*14/.test(name)) {
-    return 'fourteenthSalary'
-  }
-  
-  // Vacation bonus patterns (multiple variations)
-  if (/vacation|holiday\s*bonus|annual\s*bonus|vacation\s*pay|vacation\s*allowance|prima\s*vacanza/.test(name)) {
-    return 'vacationBonus'
-  }
-  
-  // Transportation patterns (expanded international coverage)
-  if (/transport|commut|bus|metro|transit|car\s*allowance|auto\s*allowance|vehicle|travel\s*allowance|gas\s*allowance|fuel|vale\s*transport/.test(name)) {
-    return 'transportAllowance'
-  }
-  
-  // Remote work patterns (comprehensive coverage)
-  if (/remote|work\s*from\s*home|wfh|telework|home\s*office|telecommut|distance\s*work|home.*allowance|office.*allowance/.test(name)) {
-    return 'remoteWorkAllowance'
-  }
-  
-  // Meal vouchers patterns (international variations)
-  if (/meal|food|voucher|ticket\s*restaurant|lunch|dining|cafeteria|vale\s*refeição|vale\s*aliment|restaurant\s*card|food\s*card/.test(name)) {
-    return 'mealVouchers'
-  }
-  
-  // Social Security patterns (expanded international coverage)
-  if (/social\s*security|social\s*insur|employer\s*contrib|pension|ni\b|inps|ssf|contrib.*social|fica|ssi|unemployment\s*insur|disability\s*insur|workers.*comp|\bfgts\b|indemnity\s*fund|severance\s*indemnity/.test(name)) {
-    return 'socialSecurity'
-  }
-  
-  // Health Insurance patterns (comprehensive)
-  if (/health\s*insur|medical\s*insur|hi\b|health.*care|medical.*care|dental|vision|life\s*insur|disability.*insur/.test(name)) {
-    return 'healthInsurance'
-  }
-  
-  return undefined
-}
-
 type BenefitsMap = StandardizedBenefitData["includedBenefits"]
 
 const addBenefit = (map: BenefitsMap, key: string, amount: number, freq: 'monthly' | 'yearly' = 'monthly', desc?: string) => {
   if (amount <= 0) return
   if (!map[key as keyof BenefitsMap]) {
-    // @ts-expect-error - dynamic key assignment into benefits map; runtime keys are validated by categorize()
+    // @ts-expect-error - dynamic key assignment into benefits map; runtime keys are validated by identifyBenefitKey()
     map[key] = { amount: 0, frequency: freq, description: desc }
   }
   // @ts-expect-error - merging amounts on a dynamically addressed benefit entry
@@ -97,6 +42,7 @@ interface RemoteBreakdownItem { name: string; amount: number }
 export class ProviderInclusionsExtractor {
   static extract(provider: ProviderType, q: NormalizedQuoteLike): StandardizedBenefitData {
     const included: BenefitsMap = {}
+    const baseMonthlyReference = toNumber(q.baseCost)
 
     // Always try to include statutory contributions if we can identify them
     if (q.breakdown?.statutoryContributions) {
@@ -107,22 +53,22 @@ export class ProviderInclusionsExtractor {
     try {
       switch (provider) {
         case 'remote':
-          this.extractRemote(q.originalResponse, included)
+          this.extractRemote(q.originalResponse, included, baseMonthlyReference)
           break
         case 'rivermate':
-          this.extractRivermate(q.originalResponse, included)
+          this.extractRivermate(q.originalResponse, included, baseMonthlyReference)
           break
         case 'oyster':
-          this.extractOyster(q.originalResponse, included)
+          this.extractOyster(q.originalResponse, included, baseMonthlyReference)
           break
         case 'deel':
         case 'rippling':
         case 'skuad':
         case 'velocity':
-          this.extractGenericQuote(q.originalResponse, included)
+          this.extractGenericQuote(q.originalResponse, included, baseMonthlyReference)
           break
         default:
-          this.extractGenericQuote(q.originalResponse, included)
+          this.extractGenericQuote(q.originalResponse, included, baseMonthlyReference)
       }
     } catch {
       // Be resilient: fallback to using available breakdowns only
@@ -150,7 +96,7 @@ export class ProviderInclusionsExtractor {
     return response
   }
 
-  private static extractRemote(original: RemoteAPIResponse, included: BenefitsMap) {
+  private static extractRemote(original: RemoteAPIResponse, included: BenefitsMap, referenceMonthly: number) {
     // Two shapes: RemoteAPIResponse or RemoteQuote
     const costs = original?.employment?.employer_currency_costs
     if (costs) {
@@ -162,14 +108,26 @@ export class ProviderInclusionsExtractor {
         // Distribute benefits breakdown into categories
         const arr: RemoteBreakdownItem[] = Array.isArray(costs.monthly_benefits_breakdown) ? costs.monthly_benefits_breakdown : []
         for (const it of arr) {
-          const key = categorize(it?.name || '')
-          if (key) addBenefit(included, key as string, toNumber(it?.amount || 0), 'monthly', it?.name)
+          const categorizedKey = identifyBenefitKey(it?.name || '')
+          if (!categorizedKey) continue
+          const amount = normalizeBenefitAmount(toNumber(it?.amount || 0), {
+            benefitKey: categorizedKey,
+            rawName: it?.name,
+            referenceMonthly
+          })
+          addBenefit(included, categorizedKey as string, amount, 'monthly', it?.name)
         }
       }
       const contribArr: RemoteBreakdownItem[] = Array.isArray(costs.monthly_contributions_breakdown) ? costs.monthly_contributions_breakdown : []
       for (const it of contribArr) {
-        const key = categorize(it?.name || '') || 'socialSecurity'
-        addBenefit(included, key as string, toNumber(it?.amount || 0), 'monthly', it?.name)
+        const categorizedKey = identifyBenefitKey(it?.name || '')
+        const key = categorizedKey || 'socialSecurity'
+        const amount = normalizeBenefitAmount(toNumber(it?.amount || 0), {
+          benefitKey: categorizedKey,
+          rawName: it?.name,
+          referenceMonthly
+        })
+        addBenefit(included, key as string, amount, 'monthly', it?.name)
       }
       return
     }
@@ -179,29 +137,47 @@ export class ProviderInclusionsExtractor {
     }
   }
 
-  private static extractRivermate(original: RivermateAPIResponse, included: BenefitsMap) {
+  private static extractRivermate(original: RivermateAPIResponse, included: BenefitsMap, referenceMonthly: number) {
     // Optimized RivermateQuote: taxItems[] and accruals/fees
     const taxItems = Array.isArray(original?.taxItems) ? original.taxItems : []
     for (const it of taxItems) {
-      const key = categorize(it?.name || '') || 'socialSecurity'
-      addBenefit(included, key as string, toNumber(it?.amount || 0), 'monthly', it?.name)
+      const categorizedKey = identifyBenefitKey(it?.name || '')
+      const key = categorizedKey || 'socialSecurity'
+      const amount = normalizeBenefitAmount(toNumber(it?.amount || 0), {
+        benefitKey: categorizedKey,
+        rawName: it?.name,
+        referenceMonthly
+      })
+      addBenefit(included, key as string, amount, 'monthly', it?.name)
     }
   }
 
-  private static extractOyster(original: OysterAPIResponse, included: BenefitsMap) {
+  private static extractOyster(original: OysterAPIResponse, included: BenefitsMap, referenceMonthly: number) {
     const contribs = Array.isArray(original?.contributions) ? original.contributions : []
     for (const it of contribs) {
-      const key = categorize(it?.name || '') || 'socialSecurity'
-      addBenefit(included, key as string, toNumber(it?.amount || 0), 'monthly', it?.name)
+      const categorizedKey = identifyBenefitKey(it?.name || '')
+      const key = categorizedKey || 'socialSecurity'
+      const amount = normalizeBenefitAmount(toNumber(it?.amount || 0), {
+        benefitKey: categorizedKey,
+        rawName: it?.name,
+        referenceMonthly
+      })
+      addBenefit(included, key as string, amount, 'monthly', it?.name)
     }
   }
 
-  private static extractGenericQuote(original: GenericProviderResponse, included: BenefitsMap) {
+  private static extractGenericQuote(original: GenericProviderResponse, included: BenefitsMap, referenceMonthly: number) {
     // Generic Quote has costs[] with frequency and amount strings
     const costs = Array.isArray(original?.costs) ? original.costs : []
     for (const c of costs) {
-      const key = categorize(c?.name || '') || 'socialSecurity'
-      const amt = monthlyize(toNumber(c?.amount), c?.frequency)
+      const categorizedKey = identifyBenefitKey(c?.name || '')
+      const key = categorizedKey || 'socialSecurity'
+      const amt = normalizeBenefitAmount(toNumber(c?.amount), {
+        benefitKey: categorizedKey,
+        rawName: c?.name,
+        frequency: c?.frequency,
+        referenceMonthly
+      })
       addBenefit(included, key as string, amt, 'monthly', c?.name)
     }
     // If employer_costs is provided as a total string, add as social security
