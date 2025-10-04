@@ -34,6 +34,7 @@ interface GenericQuoteCardProps {
   // Shimmer placeholders for pending enhanced extras
   enhancementPending?: boolean;
   shimmerExtrasCount?: number;
+  isTotalPending?: boolean;
 }
 
 const providerThemes: { [key in 'deel' | 'remote' | 'rivermate' | 'oyster' | 'rippling' | 'skuad' | 'velocity' | 'playroll' | 'omnipresent']: ProviderTheme } = {
@@ -112,6 +113,7 @@ export const GenericQuoteCard = memo(({
   recalcBaseItems,
   enhancementPending = false,
   shimmerExtrasCount = 0,
+  isTotalPending = false,
 }: GenericQuoteCardProps) => {
   const theme = providerThemes[provider];
 
@@ -421,6 +423,7 @@ export const GenericQuoteCard = memo(({
 
   const hasMerged = typeof mergedTotalMonthly === 'number' && Number.isFinite(mergedTotalMonthly as number)
   const mergedTotal = hasMerged ? (mergedTotalMonthly as number) : undefined
+  const totalPending = Boolean(isTotalPending)
 
   return (
     <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
@@ -578,7 +581,7 @@ export const GenericQuoteCard = memo(({
 
           <Separator className="my-4" />
 
-          <div className={`bg-gradient-to-r ${theme.gradientFrom} ${theme.gradientTo} p-4 border-2 border-primary/20`}>
+          <div className={`bg-gradient-to-r ${theme.gradientFrom} ${theme.gradientTo} p-4 border-2 border-primary/20 ${totalPending ? 'opacity-60' : ''}`}>
             {showMultipleColumns ? (
               <div
                 className={`grid ${
@@ -597,7 +600,7 @@ export const GenericQuoteCard = memo(({
                 
                 {/* Primary total */}
                 <span
-                  className={`${theme.brandColor} ${textSizes.total} font-bold text-right`}
+                  className={`${theme.brandColor} ${textSizes.total} font-bold text-right flex items-center justify-end gap-2`}
                 >
                   {isCalculatingLocal ? (
                     <span className="text-blue-500 animate-pulse">Loading...</span>
@@ -611,6 +614,7 @@ export const GenericQuoteCard = memo(({
                   ) : (
                     <span className="text-slate-400">Pending...</span>
                   )}
+                  {totalPending && <Loader2 className="h-4 w-4 animate-spin text-slate-500" />}
                 </span>
 
                 {/* Secondary total (changed in dual mode, USD in single mode) */}
@@ -677,7 +681,7 @@ export const GenericQuoteCard = memo(({
                 >
                   Total Monthly Cost
                 </span>
-                <span className={`${theme.brandColor} ${textSizes.total} font-bold`}>
+                <span className={`${theme.brandColor} ${textSizes.total} font-bold flex items-center gap-2`}>
                   {hasMerged && mergedTotal !== undefined
                     ? formatCurrency(mergedTotal, mergedCurrency || primaryQuote?.currency || '')
                     : (primaryQuote
@@ -687,6 +691,7 @@ export const GenericQuoteCard = memo(({
                         })()
                       : (<span className="text-slate-400">Pending...</span>)
                     )}
+                  {totalPending && <Loader2 className="h-4 w-4 animate-spin text-slate-500" />}
                 </span>
               </div>
             )}

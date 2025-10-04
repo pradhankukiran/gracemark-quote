@@ -338,7 +338,7 @@ export const QuoteComparison = memo(({
           recalcBaseItems={primaryMerged.recalcItems}
           {...(isDualMode ? { mergedExtras: primaryMerged.extras, mergedCurrency: primaryMerged.currency } : {})}
           enhancementPending={primaryMerged.isPending}
-          totalPending={primaryMerged.isPending}
+          isTotalPending={primaryMerged.isPending}
           shimmerExtrasCount={3}
         />
 
@@ -356,7 +356,7 @@ export const QuoteComparison = memo(({
           recalcBaseItems={comparisonMerged.recalcItems}
           {...(isDualMode ? { mergedExtras: comparisonMerged.extras, mergedCurrency: comparisonMerged.currency } : {})}
           enhancementPending={comparisonMerged.isPending}
-          totalPending={comparisonMerged.isPending}
+          isTotalPending={comparisonMerged.isPending}
           shimmerExtrasCount={3}
         />
       </div>

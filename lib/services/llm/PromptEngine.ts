@@ -193,7 +193,13 @@ FOCUS: Your primary job is gap analysis - finding what's legally required but mi
   // Pass 1: extraction system prompt
   static buildExtractionSystemPrompt(): string {
     return `You are an expert EOR benefit extraction specialist. Extract and standardize ALL salary components and benefits from provider API responses.
-RULES: amounts monthly in quote currency; include benefits found with amount > 0; set amount 0 for not found; only extract (no estimation).`
+RULES: amounts monthly in quote currency; include benefits found with amount > 0; set amount 0 for not found; only extract (no estimation).
+
+CRITICAL: Detect implicit benefit inclusions by analyzing:
+1. TOTAL vs SALARY gap - if monthlyTotal >> baseSalary, the difference likely contains statutory benefits
+2. Generic accrual/provision fields (accrualsProvision, accruals, provisions, salary_accruals, etc.)
+3. Mathematical patterns - if any field ≈ baseSalary/12, it likely contains 13th salary
+4. If any field ≈ baseSalary/14, it likely contains 14th salary`
   }
 
   // Pass 1: extraction user prompt
@@ -201,7 +207,32 @@ RULES: amounts monthly in quote currency; include benefits found with amount > 0
     return `BENEFIT EXTRACTION REQUEST:\n\n` +
       `PROVIDER: ${provider.toUpperCase()}\n` +
       `API RESPONSE TO ANALYZE:\n${JSON.stringify(originalResponse, null, 2)}\n\n` +
-      `Respond with standardized JSON including: baseSalary, currency, country, monthlyTotal, includedBenefits{...}, totalMonthlyBenefits, extractionConfidence, extractedAt.`
+      `═══ DETECTION PATTERNS FOR ANNUAL SALARY BONUSES ═══\n\n` +
+      `CRITICAL: Detect these even when not explicitly named:\n\n` +
+      `13TH SALARY DETECTION:\n` +
+      `• Named fields: "13th month", "13th salary", "thirteenth salary", "aguinaldo", "Christmas bonus", "year-end bonus", "decimo tercero"\n` +
+      `• Implicit patterns:\n` +
+      `  - Any "accrual", "provision", "accruals_provision", "salary_accruals" field ≈ baseSalary/12\n` +
+      `  - If monthlyTotal = baseSalary + other_items + (baseSalary/12), the 13th is included\n` +
+      `  - Calculate: Does any numeric field equal approximately baseSalary ÷ 12? → Mark as 13th salary\n\n` +
+      `14TH SALARY DETECTION:\n` +
+      `• Named fields: "14th month", "14th salary", "fourteenth salary", "school bonus", "decimo cuarto"\n` +
+      `• Implicit patterns: Any field ≈ baseSalary/14\n\n` +
+      `VACATION/CHRISTMAS BONUS:\n` +
+      `• Named fields: "vacation bonus", "holiday bonus", "Christmas bonus", "aguinaldo", "prima vacacional"\n` +
+      `• Implicit patterns: Check if any bonus field matches common percentages (33%, 50%, etc.)\n\n` +
+      `ANALYSIS STEPS:\n` +
+      `1. Extract baseSalary and monthlyTotal from response\n` +
+      `2. Calculate baseSalary/12 and baseSalary/14\n` +
+      `3. Check ALL numeric fields for matches (±2% tolerance)\n` +
+      `4. Check field names for keywords above\n` +
+      `5. If detected implicitly, set benefit amount > 0 and add explanation\n\n` +
+      `EXAMPLES:\n` +
+      `• If accrualsProvision = 416.67 and baseSalary = 5000 → 13th salary detected (5000÷12=416.67)\n` +
+      `• If total = 5916.67, salary = 5000, explicit_items = 500 → Check if 416.67 gap = 13th salary\n` +
+      `• If field "provisiones" = 357.14 and baseSalary = 5000 → 14th salary detected (5000÷14=357.14)\n\n` +
+      `Respond with standardized JSON including: baseSalary, currency, country, monthlyTotal, includedBenefits{...}, totalMonthlyBenefits, extractionConfidence, extractedAt.\n\n` +
+      `⚠️ IMPORTANT: If you detect 13th/14th salary implicitly, set the amount AND add detailed explanation of how it was detected (e.g., "Detected in accrualsProvision field: 416.67 ≈ baseSalary/12").`
   }
 
   // Smart truncation that preserves critical sections
@@ -421,7 +452,7 @@ SUCCESS CRITERIA: Providers with different inclusions get different enhancement 
       thirteenth_salary: monthlyOf(src.thirteenthSalary),
       fourteenth_salary: monthlyOf(src.fourteenthSalary),
       vacation_bonus: monthlyOf(src.vacationBonus),
-      transportation_allowance: monthlyOf(src.transportAllowance),
+      transportation_allowance: monthlyOf(src.transportationAllowance),
       remote_work_allowance: monthlyOf(src.remoteWorkAllowance),
       meal_vouchers: monthlyOf(src.mealVouchers),
       social_security: monthlyOf(src.socialSecurity),

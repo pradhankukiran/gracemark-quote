@@ -249,7 +249,7 @@ export class CerebrasService {
       country: full.country,
       currency: localCurrency,
       base_salary_monthly: Number(formData.baseSalary || 0) || Number((full as any)?.data?.payroll?.base_salary || 0) || 0,
-      contract_months: Math.max(1, parseInt(formData.contractDuration || '12') || 12),
+      contract_months: Math.max(1, (formData.contractDurationUnit === 'years' ? (parseInt(formData.contractDuration || '12') || 12) * 12 : parseInt(formData.contractDuration || '12') || 12)),
       quote_type: (formData.quoteType || 'all-inclusive') as 'all-inclusive' | 'statutory-only'
     }
 

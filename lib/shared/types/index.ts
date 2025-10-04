@@ -48,6 +48,7 @@ export interface EORFormData {
   employmentType: string
   quoteType: "all-inclusive" | "statutory-only"
   contractDuration: string
+  contractDurationUnit: 'months' | 'years'
   enableComparison: boolean
   compareCountry: string
   compareState: string

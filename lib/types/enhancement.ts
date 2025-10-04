@@ -72,7 +72,7 @@ export interface StandardizedBenefitData {
       frequency: 'monthly' | 'yearly'
       description?: string
     }
-    transportAllowance?: {
+    transportationAllowance?: {
       amount: number
       frequency: 'monthly'
       description?: string

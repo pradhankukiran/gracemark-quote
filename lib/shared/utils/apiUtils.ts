@@ -595,8 +595,8 @@ export const transformToRivermateQuote = (response: RivermateAPIResponse): River
   const employerCosts = response?.employer_costs;
   const accruals = response?.accruals;
   const grossSalaryMonthly = response?.gross_salary?.monthly ?? 0;
-  const totalMonthlyCost = response?.total_employment_cost?.monthly ?? response?.total_monthly_cost ?? 0;
   const currency = getRivermateCurrency(response);
+  const managementFee = employerCosts?.management_fee ?? 0;
 
   // Extract tax items
   const taxItems = [];
@@ -609,6 +609,11 @@ export const transformToRivermateQuote = (response: RivermateAPIResponse): River
     });
   }
 
+  // Calculate total EXCLUDING management fee (provider service fee, not employment cost)
+  const taxItemsSum = taxItems.reduce((sum, item) => sum + item.amount, 0);
+  const accrualsProvisionAmount = accruals?.monthly_provision ?? 0;
+  const totalEmploymentCost = grossSalaryMonthly + taxItemsSum + accrualsProvisionAmount;
+
   return {
     provider: 'rivermate',
     salary: grossSalaryMonthly,
@@ -616,9 +621,9 @@ export const transformToRivermateQuote = (response: RivermateAPIResponse): River
     country: countryInfo?.name || '',
     country_code: countryInfo?.iso_code || (getCountryByName(countryInfo?.name || '')?.code || ''),
     taxItems,
-    managementFee: employerCosts?.management_fee ?? 0,
-    accrualsProvision: accruals?.monthly_provision ?? 0,
-    total: totalMonthlyCost,
+    managementFee, // Stored separately for reference, not included in total
+    accrualsProvision: accrualsProvisionAmount,
+    total: totalEmploymentCost, // Employment cost only, excludes management fee
   };
 }
 /**

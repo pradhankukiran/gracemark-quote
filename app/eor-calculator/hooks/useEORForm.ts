@@ -43,6 +43,7 @@ const initialFormData: EORFormData = {
   employmentType: "full-time",
   quoteType: "all-inclusive",
   contractDuration: "12",
+  contractDurationUnit: "months",
   enableComparison: false,
   compareCountry: "",
   compareState: "",

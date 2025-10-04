@@ -23,7 +23,7 @@ const BENEFIT_PATTERNS: Array<{ key: BenefitKey; regex: RegExp }> = [
     regex: /(vacation|holiday)\s*(bonus|allowance|pay)/i
   },
   {
-    key: 'transportAllowance',
+    key: 'transportationAllowance',
     regex: /(transport|commut|bus|metro|transit|car\s*allowance|auto\s*allowance|vehicle|travel\s*allowance|gas\s*allowance|fuel|vale\s*transport)/i
   },
   {

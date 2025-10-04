@@ -19,10 +19,300 @@ import { EnhancementProvider, useEnhancementContext } from "@/hooks/enhancement/
 import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, transformToRemoteQuote, transformOysterQuoteToDisplayQuote } from "@/lib/shared/utils/apiUtils"
 import { identifyBenefitKey } from "@/lib/shared/utils/benefitNormalization"
 import { EORFormData, RemoteAPIResponse, Quote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
-import { ProviderType, EnhancedQuote, TerminationComponentEnhancement, BonusEnhancement, AllowanceEnhancement, SalaryEnhancement } from "@/lib/types/enhancement"
-import { safeNumber } from "@/lib/shared/utils/formatUtils"
+import { ProviderType, EnhancedQuote, TerminationComponentEnhancement } from "@/lib/types/enhancement"
 import { convertCurrency } from "@/lib/currency-converter"
 import { getRawQuote } from "@/lib/shared/utils/rawQuoteStore"
+import {
+  getDeelProviderPrice,
+  getRemoteProviderPrice,
+  getRivermateProviderPrice,
+  getOysterProviderPrice,
+  getRipplingProviderPrice,
+  getSkuadProviderPrice,
+  getVelocityProviderPrice,
+  getPlayrollProviderPrice,
+  getOmnipresentProviderPrice,
+  parseNumericValue,
+  baseQuoteContainsPattern
+} from "./utils/providerprice"
+
+const PROVIDER_LIST: ProviderType[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity', 'playroll', 'omnipresent']
+
+const resolveMonthlyValue = (...candidates: Array<unknown>): number => {
+  for (const candidate of candidates) {
+    if (candidate === undefined || candidate === null) continue
+    if (typeof candidate === 'number' && Number.isFinite(candidate) && candidate !== 0) {
+      return candidate
+    }
+    if (typeof candidate === 'string') {
+      const parsed = parseNumericValue(candidate)
+      if (parsed !== null && parsed !== 0) return parsed
+    }
+  }
+  return 0
+}
+
+const computeProviderPriceFromSource = (
+  provider: ProviderType,
+  quoteData: { quotes?: Record<string, unknown> } | null | undefined,
+  enhancements: Partial<Record<ProviderType, EnhancedQuote>>,
+  contractMonths: number
+): number | null => {
+  if (!quoteData?.quotes) return null
+  const rawQuote = quoteData.quotes[provider]
+  if (!rawQuote) return null
+
+  const enhancement = enhancements[provider]
+
+  switch (provider) {
+    case 'deel':
+      return getDeelProviderPrice(rawQuote, enhancement, contractMonths)
+    case 'remote':
+      return getRemoteProviderPrice(rawQuote, enhancement, contractMonths)
+    case 'rivermate':
+      return getRivermateProviderPrice(rawQuote, enhancement, contractMonths)
+    case 'oyster':
+      return getOysterProviderPrice(rawQuote, enhancement, contractMonths)
+    case 'rippling':
+      return getRipplingProviderPrice(rawQuote, enhancement, contractMonths)
+    case 'skuad':
+      return getSkuadProviderPrice(rawQuote, enhancement, contractMonths)
+    case 'velocity':
+      return getVelocityProviderPrice(rawQuote, enhancement, contractMonths)
+    case 'playroll':
+      return getPlayrollProviderPrice(rawQuote, enhancement, contractMonths)
+    case 'omnipresent':
+      return getOmnipresentProviderPrice(rawQuote, enhancement, contractMonths)
+    default:
+      return null
+  }
+}
+
+const resolveMonthlyAmount = (value: unknown): number => {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string') {
+    const sanitized = value
+      .trim()
+      .replace(/[\s\u00A0]/g, '')
+      .replace(/[^0-9,.-]/g, '')
+
+    if (!sanitized) return 0
+
+    const lastComma = sanitized.lastIndexOf(',')
+    const lastDot = sanitized.lastIndexOf('.')
+
+    let normalised = sanitized
+    if (lastComma > -1 && lastDot > -1) {
+      if (lastComma > lastDot) {
+        normalised = sanitized.replace(/\./g, '').replace(',', '.')
+      } else {
+        normalised = sanitized.replace(/,/g, '')
+      }
+    } else if (lastComma > -1) {
+      if (sanitized.indexOf(',') === lastComma && sanitized.length - lastComma <= 3) {
+        normalised = sanitized.replace(',', '.')
+      } else {
+        normalised = sanitized.replace(/,/g, '')
+      }
+    } else if (lastDot > -1) {
+      if (sanitized.indexOf('.') === lastDot && sanitized.length - lastDot <= 3) {
+        normalised = sanitized
+      } else {
+        normalised = sanitized.replace(/\./g, '')
+      }
+    }
+
+    const parsed = Number(normalised)
+    return Number.isFinite(parsed) ? parsed : 0
+  }
+  if (typeof value === 'bigint') {
+    const asNumber = Number(value)
+    return Number.isFinite(asNumber) ? asNumber : 0
+  }
+  return 0
+}
+
+const formatKeyName = (raw: string) => raw
+  .replace(/([A-Z])/g, ' $1')
+  .replace(/_/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim()
+  .replace(/\b\w/g, letter => letter.toUpperCase())
+
+const canonicalizeKey = (normalizedKeyInput: string, name: string): string => {
+  const normalizedKey = normalizedKeyInput.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')
+  const lowerName = name.toLowerCase()
+
+  if (lowerName.includes('base salary') || normalizedKey.includes('base_salary')) {
+    return 'base_salary'
+  }
+
+  const benefitKey = identifyBenefitKey(name) || identifyBenefitKey(normalizedKey.replace(/_/g, ' '))
+  if (benefitKey === 'socialSecurity') return 'social_security_contributions'
+  if (benefitKey === 'thirteenthSalary') return 'thirteenth_salary'
+  if (benefitKey === 'fourteenthSalary') return 'fourteenth_salary'
+  if (benefitKey === 'vacationBonus') return 'vacation_bonus'
+  if (benefitKey === 'transportationAllowance') return 'transportation_allowance'
+  if (benefitKey === 'remoteWorkAllowance') return 'remote_work_allowance'
+  if (benefitKey === 'mealVouchers') return 'meal_vouchers'
+  if (benefitKey === 'healthInsurance') return 'health_insurance'
+
+  if (normalizedKey.includes('statutory') && normalizedKey.includes('contribution')) {
+    return 'social_security_contributions'
+  }
+  if (normalizedKey.includes('social_security')) {
+    return 'social_security_contributions'
+  }
+  if (normalizedKey.includes('thirteenthsalary')) {
+    return 'thirteenth_salary'
+  }
+  if (normalizedKey.includes('fourteenthsalary')) {
+    return 'fourteenth_salary'
+  }
+
+  return normalizedKey
+}
+
+const shouldDropEmployeeEntry = (item: { key: string; name: string }) => {
+  const lowerName = item.name.toLowerCase()
+  const lowerKey = item.key.toLowerCase()
+  const exclusionPatterns = [
+    'employee contribution',
+    'employee_contribution',
+    'employee tax',
+    'employee_tax',
+    'income tax',
+    'income_tax',
+    'withholding',
+    'net salary',
+    'net pay',
+    'take home',
+    'employee social',
+    'employee pension'
+  ]
+  return exclusionPatterns.some(pattern =>
+    lowerName.includes(pattern) || lowerKey.includes(pattern.replace(/\s+/g, '_'))
+  )
+}
+
+// Build items exactly as displayed in UI: base costs + filtered enhancement extras
+const buildDisplayedItems = (
+  enhancement: EnhancedQuote | undefined,
+  baseQuote: Quote | undefined
+): Array<{ key: string; name: string; monthly_amount: number }> => {
+  if (!baseQuote) return []
+
+  const items: Array<{ key: string; name: string; monthly_amount: number }> = []
+
+  const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+
+  // Check if an item with similar name already exists in base costs
+  const hasItemLike = (needle: string) => {
+    const costs = Array.isArray(baseQuote.costs) ? baseQuote.costs : []
+    return costs.some((c: any) => norm(c?.name).includes(norm(needle)))
+  }
+
+  // Add base salary
+  const baseSalary = parseNumericValue(baseQuote.salary)
+  if (baseSalary !== null && baseSalary > 0) {
+    items.push({ key: 'base_salary', name: 'Base Salary', monthly_amount: baseSalary })
+  }
+
+  // Add all base costs
+  if (Array.isArray(baseQuote.costs)) {
+    baseQuote.costs.forEach((cost, index) => {
+      const amount = parseNumericValue(cost.amount)
+      if (amount !== null && amount > 0) {
+        const name = String(cost.name || '').trim()
+        const key = norm(name).replace(/\s+/g, '_') || `cost_${index}`
+        items.push({ key, name, monthly_amount: amount })
+      }
+    })
+  }
+
+  // Add enhancement extras - same logic as UI (lines 4538-4621)
+  if (enhancement?.enhancements) {
+    const enh = enhancement.enhancements
+
+    // Helper to add extra with duplicate checking (same as UI)
+    const addExtra = (name: string, amount: number, guards: string[] = []) => {
+      const amt = parseNumericValue(amount)
+      if (amt === null || !Number.isFinite(amt) || amt <= 0) return
+
+      // Check if duplicate exists in base costs (same as UI)
+      const isDuplicate = guards.some(g => hasItemLike(g))
+      if (isDuplicate) return
+
+      const key = norm(name).replace(/\s+/g, '_')
+      items.push({ key, name, monthly_amount: amt })
+    }
+
+    // Termination provisions
+    if (enh.severanceProvision && enh.severanceProvision.isAlreadyIncluded !== true) {
+      const monthly = Number(enh.severanceProvision.monthlyAmount || 0)
+      if (monthly > 0) addExtra('Severance Provision', monthly, ['severance provision'])
+    }
+
+    if (enh.probationProvision && enh.probationProvision.isAlreadyIncluded !== true) {
+      const monthly = Number(enh.probationProvision.monthlyAmount || 0)
+      if (monthly > 0) addExtra('Probation Provision', monthly, ['probation provision'])
+    }
+
+    // 13th salary
+    if (enh.thirteenthSalary && enh.thirteenthSalary.isAlreadyIncluded !== true) {
+      const monthly = parseNumericValue(enh.thirteenthSalary.monthlyAmount) ?? (() => {
+        const yearly = parseNumericValue(enh.thirteenthSalary.yearlyAmount)
+        return yearly !== null ? yearly / 12 : null
+      })()
+      if (monthly !== null) addExtra('13th Salary', monthly, ['13th', 'thirteenth'])
+    }
+
+    // 14th salary
+    if (enh.fourteenthSalary && enh.fourteenthSalary.isAlreadyIncluded !== true) {
+      const monthly = parseNumericValue(enh.fourteenthSalary.monthlyAmount) ?? (() => {
+        const yearly = parseNumericValue(enh.fourteenthSalary.yearlyAmount)
+        return yearly !== null ? yearly / 12 : null
+      })()
+      if (monthly !== null) addExtra('14th Salary', monthly, ['14th', 'fourteenth'])
+    }
+
+    // Allowances
+    if (enh.transportationAllowance && enh.transportationAllowance.isAlreadyIncluded !== true) {
+      addExtra('Transportation Allowance', Number(enh.transportationAllowance.monthlyAmount || 0), ['transportation'])
+    }
+
+    if (enh.remoteWorkAllowance && enh.remoteWorkAllowance.isAlreadyIncluded !== true) {
+      addExtra('Remote Work Allowance', Number(enh.remoteWorkAllowance.monthlyAmount || 0), ['remote work', 'wfh'])
+    }
+
+    if (enh.mealVouchers && enh.mealVouchers.isAlreadyIncluded !== true) {
+      addExtra('Meal Vouchers', Number(enh.mealVouchers.monthlyAmount || 0), ['meal voucher'])
+    }
+
+    // Additional contributions
+    const addc = enh.additionalContributions || {}
+    Object.entries(addc).forEach(([k, v]) => {
+      const n = Number(v)
+      if (!isFinite(n) || n <= 0) return
+
+      const key = String(k || '').toLowerCase()
+      // Skip employer contributions (same as UI line 4607)
+      if (key.includes('employer') && key.includes('contribution')) return
+
+      const label = key.includes('local_meal_voucher') ? 'Meal Voucher (Local Office)'
+        : key.includes('local_transportation') ? 'Transportation (Local Office)'
+        : key.includes('local_wfh') ? 'WFH (Local Office)'
+        : key.includes('local_health_insurance') ? 'Health Insurance (Local Office)'
+        : key.includes('local_office_monthly_payments') ? 'Local Office Monthly Payments'
+        : key.includes('local_office_vat') ? 'VAT on Local Office Payments'
+        : String(k).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+
+      addExtra(label, n)
+    })
+  }
+
+  return items
+}
 
 type AcidTestCategoryBuckets = {
   baseSalary: Record<string, number>
@@ -135,174 +425,6 @@ const LoadingSpinner = () => (
   </div>
 )
 
-const parseNumericValue = (value: unknown): number | null => {
-  if (typeof value === 'number') {
-    return Number.isFinite(value) ? value : null
-  }
-
-  if (typeof value === 'string') {
-    const trimmed = value.trim()
-    if (!trimmed) return null
-
-    // Remove currency symbols and whitespace characters
-    let cleaned = trimmed.replace(/[\s$€£¥₱₹₩₦₭₮₰₲₳₴₵₺₽₡₢₣₤₥₧₨₫฿₠₣]+/g, '')
-
-    const hasComma = cleaned.includes(',')
-    const hasDot = cleaned.includes('.')
-
-    if (hasComma && hasDot) {
-      // Assume the character appearing later is the decimal separator
-      if (cleaned.lastIndexOf(',') > cleaned.lastIndexOf('.')) {
-        // Comma is decimal separator -> remove thousands dots, flip comma to dot
-        cleaned = cleaned.replace(/\./g, '').replace(/,/g, '.')
-      } else {
-        // Dot is decimal separator -> remove thousands commas
-        cleaned = cleaned.replace(/,/g, '')
-      }
-    } else if (hasComma && !hasDot) {
-      // Only commas present -> treat as decimal separator
-      cleaned = cleaned.replace(/,/g, '.')
-    }
-
-    // Remove any characters that are not part of a number
-    cleaned = cleaned.replace(/[^0-9eE+\-\.]/g, '')
-
-    const parsed = Number.parseFloat(cleaned)
-    return Number.isFinite(parsed) ? parsed : null
-  }
-
-  return null
-}
-
-const baseQuoteContainsPattern = (enhancement: EnhancedQuote | undefined, pattern: RegExp): boolean => {
-  if (!enhancement?.baseQuote) return false
-
-  const original = enhancement.baseQuote.originalResponse as Record<string, unknown> | undefined
-  if (!original) return false
-
-  const names: string[] = []
-
-  const pushName = (value: unknown) => {
-    if (typeof value === 'string' && value.trim()) {
-      names.push(value.trim())
-    }
-  }
-
-  const extractFromArray = (items: unknown) => {
-    if (!Array.isArray(items)) return
-    items.forEach(entry => {
-      if (entry && typeof entry === 'object') {
-        pushName((entry as Record<string, unknown>).name)
-        pushName((entry as Record<string, unknown>).label)
-        pushName((entry as Record<string, unknown>).title)
-      }
-    })
-  }
-
-  extractFromArray((original as any)?.costs)
-  extractFromArray((original as any)?.taxes?.employer?.contributions)
-  extractFromArray((original as any)?.employerCosts?.costs)
-  extractFromArray((original as any)?.contributions)
-
-  return names.some(name => pattern.test(name))
-}
-
-const resolveEnhancementMonthly = (
-  totalValue: unknown,
-  monthlyValue: unknown,
-  months: number
-): number => {
-  const parsedMonthly = parseNumericValue(monthlyValue)
-  if (parsedMonthly !== null && parsedMonthly > 0) {
-    return parsedMonthly
-  }
-
-  const parsedTotal = parseNumericValue(totalValue)
-  if (parsedTotal !== null && parsedTotal > 0 && months > 0) {
-    return parsedTotal / months
-  }
-
-  return 0
-}
-
-const computeEnhancementAddOns = (
-  provider: ProviderType,
-  enhancement: EnhancedQuote | undefined,
-  contractMonths: number
-): number => {
-  if (!enhancement) return 0
-
-  const months = Math.max(1, Number.isFinite(contractMonths) ? contractMonths : 12)
-
-  let total = 0
-  const add = (value: unknown) => {
-    const parsed = parseNumericValue(value)
-    if (parsed !== null && parsed > 0) {
-      total += parsed
-    }
-  }
-
-  const enh = enhancement.enhancements || {}
-
-  const terminationItems: Array<TerminationComponentEnhancement | undefined> = []
-  if (provider !== 'deel') {
-    terminationItems.push(enh.severanceProvision)
-  }
-  terminationItems.push(enh.probationProvision)
-  terminationItems.forEach(item => {
-    if (!item || item.isAlreadyIncluded) return
-    const amount = resolveEnhancementMonthly(item.totalAmount, item.monthlyAmount, months)
-    add(amount)
-  })
-
-  const salaryEnhancements: Array<SalaryEnhancement | undefined> = [
-    enh.thirteenthSalary,
-    enh.fourteenthSalary,
-  ]
-  const baseIncludesThirteenth = baseQuoteContainsPattern(enhancement, /13(?:th)?|thirteenth|aguinaldo/i)
-  const baseIncludesFourteenth = baseQuoteContainsPattern(enhancement, /14(?:th)?|fourteenth/i)
-  salaryEnhancements.forEach(item => {
-    if (!item || item.isAlreadyIncluded) return
-    if (item === enh.thirteenthSalary && baseIncludesThirteenth) return
-    if (item === enh.fourteenthSalary && baseIncludesFourteenth) return
-    const amount = resolveEnhancementMonthly(item.yearlyAmount, item.monthlyAmount, months)
-    add(amount)
-  })
-
-  const bonusItems: Array<BonusEnhancement | undefined> = [
-    enh.vacationBonus,
-  ]
-  bonusItems.forEach(item => {
-    if (!item || item.isAlreadyIncluded) return
-    const parsed = parseNumericValue(item.amount)
-    if (parsed === null || parsed <= 0) return
-    const amount = item.frequency === 'monthly'
-      ? parsed
-      : parsed / (months > 0 ? months : 1)
-    add(amount)
-  })
-
-  const allowanceItems: Array<AllowanceEnhancement | undefined> = [
-    enh.transportationAllowance,
-    enh.remoteWorkAllowance,
-    enh.mealVouchers,
-  ]
-  allowanceItems.forEach(item => {
-    if (!item || item.isAlreadyIncluded) return
-    add(item.monthlyAmount)
-  })
-
-  if (enh.additionalContributions) {
-    Object.values(enh.additionalContributions).forEach(add)
-  }
-
-  if (enh.medicalExam?.required) {
-    add(enh.medicalExam.estimatedCost)
-  }
-
-  return total
-}
-
 const QuotePageContent = memo(() => {
   const searchParams = useSearchParams()
   const quoteId = searchParams.get('id')
@@ -371,6 +493,8 @@ const QuotePageContent = memo(() => {
   const [acidTestResults, setAcidTestResults] = useState<AcidTestCalculationResult | null>(null)
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
   const [isExportingResults, setIsExportingResults] = useState(false)
+  const [cachedCostItems, setCachedCostItems] = useState<Partial<Record<ProviderType, Array<{ key: string; name: string; monthly_amount: number }>>>>({})
+  const [providerTotals, setProviderTotals] = useState<Partial<Record<ProviderType, { amount: number | null; currency?: string; ready: boolean }>>>({})
 
   // New Bill Rate Calculator state
   const [billRateInput, setBillRateInput] = useState<number>(0)
@@ -389,6 +513,9 @@ const QuotePageContent = memo(() => {
     otherCurrency?: string
   } | null>(null)
   const [isCalculatingProfitability, setIsCalculatingProfitability] = useState(false)
+
+  const allProviders = PROVIDER_LIST
+
   const acidTestHasUSDData = useMemo(() => {
     if (!acidTestResults) return false
     if (acidTestResults.summary.currency === 'USD') return false
@@ -435,6 +562,100 @@ const QuotePageContent = memo(() => {
     return 12
   }, [quoteData?.formData])
 
+  useEffect(() => {
+    setCachedCostItems({})
+  }, [enhancements, quoteData])
+
+  useEffect(() => {
+    if (!quoteData?.quotes) return
+    const defaultCurrency = (quoteData.formData as EORFormData)?.currency || 'USD'
+
+    const totalsByProvider = new Map<ProviderType, { amount: number; currency?: string }>()
+    const itemsByProvider = new Map<ProviderType, Array<{ key: string; name: string; monthly_amount: number }>>()
+
+    allProviders.forEach(provider => {
+      const enhancedQuote = enhancements[provider]
+      const providerState = providerStates[provider]
+
+      // Check if provider failed or is inactive
+      const hasFailed = providerState?.status === 'failed' || providerState?.status === 'inactive' || providerState?.status === 'enhancement-failed'
+
+      if (hasFailed) {
+        // Mark failed providers as ready with null amount so they don't block reconciliation
+        totalsByProvider.set(provider, { amount: null as any, currency: defaultCurrency })
+        return
+      }
+
+      // Get the base quote from the provider's API response
+      let baseQuote: Quote | undefined = undefined
+      const rawQuote = quoteData.quotes[provider]
+
+      if (rawQuote) {
+        // Transform provider-specific responses to Quote format
+        if (provider === 'remote') {
+          baseQuote = transformRemoteResponseToQuote(rawQuote as RemoteAPIResponse)
+        } else if (provider === 'rivermate') {
+          baseQuote = transformRivermateQuoteToDisplayQuote(rawQuote as RivermateQuote)
+        } else if (provider === 'oyster') {
+          baseQuote = transformOysterQuoteToDisplayQuote(rawQuote as OysterQuote)
+        } else {
+          // For other providers (deel, rippling, skuad, velocity, playroll, omnipresent)
+          baseQuote = rawQuote as Quote
+        }
+      }
+
+      // Build items exactly as displayed in UI: base costs + filtered enhancement extras
+      const builtItems = buildDisplayedItems(enhancedQuote, baseQuote)
+
+      if (builtItems.length > 0) {
+        // Sum the items - this matches what's displayed in UI
+        const sum = Number(builtItems.reduce((acc, item) => acc + item.monthly_amount, 0).toFixed(2))
+        const currency = enhancedQuote?.displayCurrency || baseQuote?.currency || defaultCurrency
+
+        totalsByProvider.set(provider, { amount: sum, currency })
+        itemsByProvider.set(provider, builtItems)
+      } else {
+        // No items but provider hasn't failed - mark as ready with 0
+        totalsByProvider.set(provider, { amount: 0, currency: defaultCurrency })
+      }
+    })
+
+    if (itemsByProvider.size > 0) {
+      setCachedCostItems(prev => {
+        let changed = false
+        const next = { ...prev }
+        itemsByProvider.forEach((items, provider) => {
+          const existing = prev[provider]
+          const sameLength = existing?.length === items.length
+          const isSame = sameLength && existing ? existing.every((entry, idx) => {
+            const target = items[idx]
+            return entry.key === target.key && entry.name === target.name && entry.monthly_amount === target.monthly_amount
+          }) : false
+          if (!isSame) {
+            next[provider] = items
+            changed = true
+          }
+        })
+        return changed ? next : prev
+      })
+    }
+
+    if (totalsByProvider.size > 0) {
+      setProviderTotals(prev => {
+        let changed = false
+        const next = { ...prev }
+        totalsByProvider.forEach((info, provider) => {
+          const existing = prev[provider]
+          if (!existing || existing.amount !== info.amount || existing.currency !== info.currency || !existing.ready) {
+            next[provider] = { amount: info.amount, currency: info.currency, ready: true }
+            changed = true
+          }
+        })
+        return changed ? next : prev
+      })
+    }
+  }, [allProviders, enhancements, quoteData?.formData, quoteData?.quotes, contractMonths, providerStates])
+
   const [acidTestValidation, setAcidTestValidation] = useState<{
     billRateError?: string;
     durationError?: string;
@@ -444,6 +665,82 @@ const QuotePageContent = memo(() => {
   const [isComputingAcidTest, setIsComputingAcidTest] = useState(false)
 
   const MIN_PROFIT_THRESHOLD_USD = 1000
+
+  const getProviderPrice = (provider: ProviderType): number | null => {
+    const totalInfo = providerTotals[provider]
+    if (totalInfo?.ready && typeof totalInfo.amount === 'number') {
+      return totalInfo.amount
+    }
+    return computeProviderPriceFromSource(provider, quoteData, enhancements, contractMonths)
+  }
+
+  const updateProviderTotalsFromItems = useCallback((
+    provider: ProviderType,
+    items: Array<{ monthly_amount: number }>,
+    currency?: string
+  ) => {
+    const total = Number(items.reduce((sum, item) => sum + Number(item.monthly_amount || 0), 0).toFixed(2))
+
+    setProviderTotals(prev => {
+      const existing = prev[provider]
+      const displayCurrency = currency || existing?.currency
+      if (existing && existing.ready && existing.amount === total && existing.currency === displayCurrency) {
+        return prev
+      }
+      return {
+        ...prev,
+        [provider]: {
+          amount: total,
+          currency: displayCurrency,
+          ready: true
+        }
+      }
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!quoteData?.quotes) return
+    const defaultCurrency = (quoteData.formData as EORFormData)?.currency || 'USD'
+    setProviderTotals(prev => {
+      const next = { ...prev }
+      let changed = false
+      allProviders.forEach(provider => {
+        if (!next[provider]) {
+          next[provider] = { amount: null, currency: defaultCurrency, ready: false }
+          changed = true
+        }
+      })
+      return changed ? next : prev
+    })
+  }, [allProviders, quoteData?.formData?.currency, quoteData?.quotes])
+
+  useEffect(() => {
+    if (!quoteData?.quotes) return
+    const defaultCurrency = (quoteData.formData as EORFormData)?.currency || 'USD'
+    setProviderTotals(prev => {
+      let changed = false
+      const next = { ...prev }
+      allProviders.forEach(provider => {
+        const existing = next[provider]
+        if (existing?.ready) return
+        const status = providerStates[provider]?.status
+        if (status && ['enhancement-failed', 'failed', 'inactive'].includes(status)) {
+          const fallbackTotal = computeProviderPriceFromSource(provider, quoteData, enhancements, contractMonths)
+          if (fallbackTotal !== null) {
+            const quoteEntry = (quoteData.quotes as Record<string, any>)[provider]
+            const currency = existing?.currency || quoteEntry?.currency || defaultCurrency
+            next[provider] = {
+              amount: fallbackTotal,
+              currency,
+              ready: true
+            }
+            changed = true
+          }
+        }
+      })
+      return changed ? next : prev
+    })
+  }, [allProviders, providerStates, quoteData, enhancements, contractMonths])
 
 
   const buildAcidTestCalculation = useCallback(async (
@@ -1193,174 +1490,6 @@ const QuotePageContent = memo(() => {
   // calculating handled by the unified loading block above
 
   // --- REFRESHED RECONCILIATION LOGIC ---
-  const allProviders: Array<ProviderType> = ['deel','remote','rivermate','oyster','rippling','skuad','velocity','playroll','omnipresent']
-
-  const pickPositive = (...values: unknown[]): number | null => {
-    for (const value of values) {
-      const parsed = parseNumericValue(value)
-      if (parsed !== null && parsed > 0) {
-        return parsed
-      }
-    }
-    return null
-  }
-
-  const getBaseQuoteTotal = (provider: ProviderType): number | null => {
-    if (!quoteData) return null
-
-    const rawQuote = (quoteData.quotes as Record<string, unknown>)[provider]
-    if (!rawQuote) return null
-
-    if (provider === 'deel') {
-      return pickPositive(
-        (rawQuote as any)?.total_costs,
-        (rawQuote as any)?.totalCosts,
-        (rawQuote as any)?.total,
-        (rawQuote as any)?.monthly_total
-      )
-    }
-
-    if (provider === 'remote') {
-      if ((rawQuote as RemoteAPIResponse)?.employment?.employer_currency_costs) {
-        const displayQuote = transformRemoteResponseToQuote(rawQuote as RemoteAPIResponse)
-        return pickPositive(displayQuote?.total_costs)
-      }
-
-      return pickPositive(
-        (rawQuote as any)?.monthly_total,
-        (rawQuote as any)?.total,
-        (rawQuote as any)?.total_costs,
-        (rawQuote as any)?.totalCosts
-      )
-    }
-
-    if (provider === 'rivermate') {
-      const rq = rawQuote as RivermateQuote
-      const directTotal = pickPositive(rq?.total)
-      if (directTotal !== null) {
-        return directTotal
-      }
-
-      const salary = parseNumericValue(rq?.salary) ?? 0
-      const taxSum = (rq?.taxItems || []).reduce((sum, item) => {
-        const amount = parseNumericValue(item?.amount)
-        return sum + (amount ?? 0)
-      }, 0)
-      const accruals = parseNumericValue(rq?.accrualsProvision) ?? 0
-      const combined = salary + taxSum + accruals
-      if (combined > 0) {
-        return combined
-      }
-
-      const displayQuote = transformRivermateQuoteToDisplayQuote(rq)
-      return pickPositive(displayQuote?.total_costs)
-    }
-
-    if (provider === 'oyster') {
-      const directTotal = pickPositive((rawQuote as any)?.total)
-      if (directTotal !== null) {
-        return directTotal
-      }
-      const displayQuote = transformOysterQuoteToDisplayQuote(rawQuote as OysterQuote)
-      return pickPositive(displayQuote?.total_costs)
-    }
-
-    if (provider === 'rippling' || provider === 'skuad' || provider === 'velocity' || provider === 'playroll' || provider === 'omnipresent') {
-      return pickPositive((rawQuote as any)?.total_costs, (rawQuote as any)?.totalCosts, (rawQuote as any)?.total)
-    }
-
-    return null
-  }
-
-  const getProviderPrice = (provider: ProviderType): number | null => {
-    const baseTotal = getBaseQuoteTotal(provider)
-    const enhancement = enhancements[provider]
-
-    if (enhancement) {
-      if (provider === 'oyster') {
-        const baseComponent = safeNumber(
-          enhancement.baseQuote?.monthlyTotal,
-          baseTotal ?? 0
-        )
-        const resolvedBase = baseComponent > 0 ? baseComponent : (baseTotal ?? 0)
-
-        const months = Math.max(1, Number.isFinite(contractMonths) ? contractMonths : 12)
-        let enhancementValue = safeNumber(
-          enhancement.monthlyCostBreakdown?.enhancements,
-          0
-        )
-
-        if (enhancementValue <= 0) {
-          enhancementValue = computeEnhancementAddOns(provider, enhancement, contractMonths)
-        }
-
-        const enhStruct = enhancement.enhancements || {}
-        const baseIncludesThirteenth = baseQuoteContainsPattern(enhancement, /13(?:th)?|thirteenth|aguinaldo/i)
-        if (baseIncludesThirteenth && enhStruct.thirteenthSalary && !enhStruct.thirteenthSalary.isAlreadyIncluded) {
-          const duplicate = resolveEnhancementMonthly(
-            enhStruct.thirteenthSalary.yearlyAmount,
-            enhStruct.thirteenthSalary.monthlyAmount,
-            months
-          )
-          if (duplicate > 0) {
-            enhancementValue -= duplicate
-          }
-        }
-
-        const baseIncludesFourteenth = baseQuoteContainsPattern(enhancement, /14(?:th)?|fourteenth/i)
-        if (baseIncludesFourteenth && enhStruct.fourteenthSalary && !enhStruct.fourteenthSalary.isAlreadyIncluded) {
-          const duplicate = resolveEnhancementMonthly(
-            enhStruct.fourteenthSalary.yearlyAmount,
-            enhStruct.fourteenthSalary.monthlyAmount,
-            months
-          )
-          if (duplicate > 0) {
-            enhancementValue -= duplicate
-          }
-        }
-
-        const combined = Math.max(0, resolvedBase) + Math.max(0, enhancementValue)
-        if (combined > 0) {
-          return combined
-        }
-      }
-      const breakdownTotal = safeNumber(
-        enhancement.monthlyCostBreakdown?.total,
-        safeNumber(enhancement.finalTotal, 0)
-      )
-
-      if (breakdownTotal > 0) {
-        if (baseTotal !== null && baseTotal > 0) {
-          const tolerance = baseTotal * 0.02
-          if (Math.abs(breakdownTotal - baseTotal) <= tolerance) {
-            return baseTotal
-          }
-        }
-        return breakdownTotal
-      }
-
-      const baseComponent = safeNumber(
-        enhancement.monthlyCostBreakdown?.baseCost,
-        safeNumber(enhancement.baseQuote?.monthlyTotal, baseTotal ?? 0)
-      )
-
-      const enhancementComponent = safeNumber(
-        enhancement.monthlyCostBreakdown?.enhancements,
-        safeNumber(
-          enhancement.totalEnhancement,
-          computeEnhancementAddOns(provider, enhancement, contractMonths)
-        )
-      )
-
-      const combined = baseComponent + enhancementComponent
-      if (combined > 0) {
-        return combined
-      }
-    }
-
-    return baseTotal !== null && baseTotal > 0 ? baseTotal : null
-  }
-
   const getReconciliationStatus = () => {
     // Treat 'inactive' as a terminal state when no processing is in-flight,
     // so providers that failed base generation/normalization don't block reconciliation.
@@ -1368,7 +1497,8 @@ const QuotePageContent = memo(() => {
       const s = providerStates[p]?.status
       return s === 'active' || s === 'enhancement-failed' || s === 'failed' || s === 'inactive'
     }).length
-    const isReady = completed >= allProviders.length && !enhancementBatchInfo.isProcessing
+    const totalsReady = allProviders.every(p => providerTotals[p]?.ready)
+    const isReady = completed >= allProviders.length && !enhancementBatchInfo.isProcessing && totalsReady
     const hasCompletedBefore = completedPhases.has('analyzing') || completedPhases.has('complete')
 
     let message = 'Enhancing quotes...'
@@ -3130,6 +3260,7 @@ const QuotePageContent = memo(() => {
     }
 
     const { enhancedQuote } = finalChoice
+    const providerKey = finalChoice.provider as ProviderType
 
     const resolveMonthlyAmount = (value: unknown): number => {
       if (typeof value === 'number' && Number.isFinite(value)) return value
@@ -3173,6 +3304,105 @@ const QuotePageContent = memo(() => {
         return Number.isFinite(asNumber) ? asNumber : 0
       }
       return 0
+    }
+
+    const categorizeSelectedItems = async (
+      selectedItems: Array<{ key: string; name: string; monthly_amount: number }>
+    ) => {
+      if (!selectedItems.length) {
+        return null
+      }
+
+      const buildAggregates = (categories: AcidTestCategoryBuckets) => {
+        const sumBucket = (bucket: Record<string, number>) =>
+          Object.values(bucket || {}).reduce((sum, value) => sum + resolveMonthlyAmount(value), 0)
+
+        return {
+          baseSalaryMonthly: sumBucket(categories.baseSalary),
+          statutoryMonthly: sumBucket(categories.statutoryMandatory),
+          allowancesMonthly: sumBucket(categories.allowancesBenefits),
+          terminationMonthly: sumBucket(categories.terminationCosts),
+          oneTimeTotal: sumBucket(categories.oneTimeFees),
+        }
+      }
+
+      const requestPayload = {
+        provider: providerKey,
+        country: (quoteData?.formData as EORFormData)?.country || 'Unknown',
+        currency: finalChoice.currency,
+        costItems: selectedItems.map(item => ({
+          key: item.key,
+          name: item.name,
+          monthly_amount: item.monthly_amount
+        }))
+      }
+
+      try {
+        const response = await fetch('/api/categorize-costs', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestPayload)
+        })
+
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`)
+        }
+
+        const categorizedData: AcidTestCategoryBuckets = await response.json()
+        const aggregates = buildAggregates(categorizedData)
+        return { categories: categorizedData, aggregates }
+      } catch (error) {
+        console.error('LLM categorization failed, falling back to simple categorization:', error)
+
+        const baseSalary: Record<string, number> = {}
+        const statutoryMandatory: Record<string, number> = {}
+        const allowancesBenefits: Record<string, number> = {}
+        const terminationCosts: Record<string, number> = {}
+        const oneTimeFees: Record<string, number> = {}
+
+        selectedItems.forEach(item => {
+          const key = item.key.toLowerCase()
+          const name = item.name.toLowerCase()
+          const amount = item.monthly_amount || 0
+
+          if (key.includes('base_salary') || name.includes('base salary')) {
+            baseSalary[item.key] = amount
+          } else if (
+            key.includes('severance') ||
+            name.includes('severance') ||
+            key.includes('probation') ||
+            name.includes('probation')
+          ) {
+            terminationCosts[item.key] = amount
+          } else if (key.includes('setup') || key.includes('onboarding') || name.includes('background check')) {
+            oneTimeFees[item.key] = amount
+          } else if (key.includes('allowance') || key.includes('meal') || key.includes('transport')) {
+            allowancesBenefits[item.key] = amount
+          } else {
+            statutoryMandatory[item.key] = amount
+          }
+        })
+
+        const fallbackCategories: AcidTestCategoryBuckets = {
+          baseSalary,
+          statutoryMandatory,
+          allowancesBenefits,
+          terminationCosts,
+          oneTimeFees,
+        }
+
+        return {
+          categories: fallbackCategories,
+          aggregates: buildAggregates(fallbackCategories),
+        }
+      }
+    }
+
+    const cachedItems = cachedCostItems[providerKey]
+    if (cachedItems && cachedItems.length > 0) {
+      return categorizeSelectedItems(cachedItems)
     }
 
     const normaliseItems = (source: any[]): Array<{ key: string; name: string; monthly_amount: number }> => {
@@ -3245,7 +3475,7 @@ const QuotePageContent = memo(() => {
       if (benefitKey === 'thirteenthSalary') return 'thirteenth_salary'
       if (benefitKey === 'fourteenthSalary') return 'fourteenth_salary'
       if (benefitKey === 'vacationBonus') return 'vacation_bonus'
-      if (benefitKey === 'transportAllowance') return 'transportation_allowance'
+      if (benefitKey === 'transportationAllowance') return 'transportation_allowance'
       if (benefitKey === 'remoteWorkAllowance') return 'remote_work_allowance'
       if (benefitKey === 'mealVouchers') return 'meal_vouchers'
       if (benefitKey === 'healthInsurance') return 'health_insurance'
@@ -3280,6 +3510,7 @@ const QuotePageContent = memo(() => {
         (entry as any).value
       )
       if (!Number.isFinite(amount) || amount === 0) return null
+      if ((entry as any).already_included === true || (entry as any).alreadyIncluded === true) return null
 
       const rawKey = typeof entry?.key === 'string' && entry.key.trim().length > 0
         ? entry.key.trim()
@@ -3341,6 +3572,12 @@ const QuotePageContent = memo(() => {
       const entryTypeDedup: Record<string, Set<string>> = {}
       const seenEntryFingerprints = new Set<string>()
       const seenFallbackEntries = new Set<string>()
+      const canonicalDedupeKeys = new Set([
+        'thirteenth_salary',
+        'fourteenth_salary',
+        'vacation_bonus'
+      ])
+      const canonicalDedupeSeen = new Set<string>()
 
       const classifyEntryName = (name: string):
         | 'base_salary'
@@ -3407,6 +3644,10 @@ const QuotePageContent = memo(() => {
         const canonicalKey = canonicalizeKey(sanitizedKey, safeName)
         const fingerprint = `${canonicalKey}:${monthly.toFixed(2)}`
 
+        if (canonicalDedupeKeys.has(canonicalKey) && canonicalDedupeSeen.has(canonicalKey)) {
+          return
+        }
+
         if (seenEntryFingerprints.has(fingerprint)) return
 
         const normalizedNameLower = safeName.toLowerCase()
@@ -3433,6 +3674,9 @@ const QuotePageContent = memo(() => {
         }
 
         seenFallbackEntries.add(hashKey)
+        if (canonicalDedupeKeys.has(canonicalKey)) {
+          canonicalDedupeSeen.add(canonicalKey)
+        }
         items.push({
           key: canonicalKey,
           name: safeName,
@@ -3525,9 +3769,6 @@ const QuotePageContent = memo(() => {
           }
         })
       }
-
-      const providerKey = finalChoice.provider as ProviderType
-
       const resolveDisplayQuote = (): Quote | undefined => {
         if (!quoteData?.quotes) return undefined
         const raw = (quoteData.quotes as Record<string, unknown>)[providerKey]
@@ -3634,6 +3875,9 @@ const QuotePageContent = memo(() => {
             key === 'additionalContributions'
           ) return
           if (!value || typeof value !== 'object') return
+          
+          // Skip if enhancement is already included in base quote
+          if ((value as any).isAlreadyIncluded) return
 
           const monthlyValue = resolveMonthlyAmount(
             (value as any).monthly_amount ??
@@ -3688,17 +3932,6 @@ const QuotePageContent = memo(() => {
 
     const mergedItems = Array.from(mergedItemsMap.values())
 
-    const structuredTotal = sumItems(structuredItemsCandidate)
-    const fallbackTotal = sumItems(mergedItems)
-
-    // console.log('[AcidTest] Provider source comparison', {
-    //   provider: finalChoice.provider,
-    //   structuredCount: structuredItemsCandidate.length,
-    //   structuredTotal,
-    //   fallbackCount: mergedItems.length,
-    //   fallbackTotal,
-    // })
-
     const combinedItemsMap = new Map<string, { key: string; name: string; monthly_amount: number }>()
 
     const normaliseCombinedItem = (item: { key: string; name: string; monthly_amount: number }) => {
@@ -3728,8 +3961,8 @@ const QuotePageContent = memo(() => {
       })
     }
 
-    addItemsToCombined(structuredItemsCandidate, { overwrite: true })
-    addItemsToCombined(mergedItems, { overwrite: false })
+    addItemsToCombined(mergedItems, { overwrite: true })
+    addItemsToCombined(structuredItemsCandidate, { overwrite: false })
 
     if (combinedItemsMap.size === 0) {
       return null
@@ -3737,102 +3970,22 @@ const QuotePageContent = memo(() => {
 
     const selectedItems = Array.from(combinedItemsMap.values())
 
-    const combinedTotal = sumItems(selectedItems)
-
-    // console.log('[AcidTest] Combined selection', {
-    //   provider: finalChoice.provider,
-    //   combinedCount: selectedItems.length,
-    //   combinedTotal,
-    // })
-
-    const buildAggregates = (categories: AcidTestCategoryBuckets) => {
-      const sumBucket = (bucket: Record<string, number>) =>
-        Object.values(bucket || {}).reduce((sum, value) => sum + resolveMonthlyAmount(value), 0)
-
-      return {
-        baseSalaryMonthly: sumBucket(categories.baseSalary),
-        statutoryMonthly: sumBucket(categories.statutoryMandatory),
-        allowancesMonthly: sumBucket(categories.allowancesBenefits),
-        terminationMonthly: sumBucket(categories.terminationCosts),
-        oneTimeTotal: sumBucket(categories.oneTimeFees),
-      }
+    if (selectedItems.length === 0) {
+      return null
     }
 
-    const requestPayload = {
-      provider: finalChoice.provider,
-      country: (quoteData?.formData as EORFormData)?.country || 'Unknown',
-      currency: finalChoice.currency,
-      costItems: selectedItems.map(item => ({
-        key: item.key,
-        name: item.name,
-        monthly_amount: item.monthly_amount
-      }))
-    }
+    setCachedCostItems(prev => ({
+      ...prev,
+      [providerKey]: selectedItems.map(item => ({ ...item }))
+    }))
 
-    try {
-      // console.log('[Cerebras] Request payload:', requestPayload)
+    updateProviderTotalsFromItems(
+      providerKey,
+      selectedItems,
+      quote?.currency || enhancedQuote.baseQuote?.currency || finalChoice.currency
+    )
 
-      const response = await fetch('/api/categorize-costs', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestPayload)
-      })
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`)
-      }
-
-      const categorizedData: AcidTestCategoryBuckets = await response.json()
-      // console.log('[Cerebras] Response payload:', categorizedData)
-      const aggregates = buildAggregates(categorizedData)
-      return { categories: categorizedData, aggregates }
-    } catch (error) {
-      console.error('LLM categorization failed, falling back to simple categorization:', error)
-
-      const baseSalary: Record<string, number> = {}
-      const statutoryMandatory: Record<string, number> = {}
-      const allowancesBenefits: Record<string, number> = {}
-      const terminationCosts: Record<string, number> = {}
-      const oneTimeFees: Record<string, number> = {}
-
-      selectedItems.forEach(item => {
-        const key = item.key.toLowerCase()
-        const name = item.name.toLowerCase()
-        const amount = item.monthly_amount || 0
-
-        if (key.includes('base_salary') || name.includes('base salary')) {
-          baseSalary[item.key] = amount
-        } else if (
-          key.includes('severance') ||
-          name.includes('severance') ||
-          key.includes('probation') ||
-          name.includes('probation')
-        ) {
-          terminationCosts[item.key] = amount
-        } else if (key.includes('setup') || key.includes('onboarding') || name.includes('background check')) {
-          oneTimeFees[item.key] = amount
-        } else if (key.includes('allowance') || key.includes('meal') || key.includes('transport')) {
-          allowancesBenefits[item.key] = amount
-        } else {
-          statutoryMandatory[item.key] = amount
-        }
-      })
-
-      const fallbackCategories: AcidTestCategoryBuckets = {
-        baseSalary,
-        statutoryMandatory,
-        allowancesBenefits,
-        terminationCosts,
-        oneTimeFees,
-      }
-
-      return {
-        categories: fallbackCategories,
-        aggregates: buildAggregates(fallbackCategories),
-      }
-    }
+    return categorizeSelectedItems(selectedItems)
   }
 
   const startReconciliation = async () => {
@@ -4392,6 +4545,11 @@ const QuotePageContent = memo(() => {
       }
     } catch { /* noop */ }
 
+    const totalInfo = providerTotals[currentProvider as ProviderType]
+    const mergedTotalValue = totalInfo?.ready && typeof totalInfo.amount === 'number' ? totalInfo.amount : undefined
+    const mergedTotalCurrency = totalInfo?.currency || quote?.currency
+    const isTotalPending = !totalInfo?.ready
+
     const isEnhPending = (!((enhancements as any)?.[currentProvider as string])) && (providerStates[currentProvider]?.status === 'loading-enhanced')
 
     // Build additional extras (deduped) from deterministic/LLM enhancements
@@ -4497,8 +4655,9 @@ const QuotePageContent = memo(() => {
           selectedCurrency={eorForm.currency}
           recalcBaseItems={(enhancements as any)?.[currentProvider as string]?.recalcBaseItems || []}
           mergedExtras={extras}
-          mergedCurrency={quote?.currency}
-
+          mergedTotalMonthly={mergedTotalValue}
+          mergedCurrency={mergedTotalCurrency}
+          isTotalPending={isTotalPending}
           enhancementPending={isEnhPending}
           shimmerExtrasCount={3}
         />

@@ -5,6 +5,7 @@ import { FormSectionHeader } from "./shared/FormSectionHeader"
 import {
   EmployeeLocationInfo,
   EmployeeSalaryInfo,
+  EmployeeContractDuration,
   OptionalEmployeeDataSection,
 } from "./employee"
 
@@ -15,6 +16,8 @@ interface EmployeeInfoFormProps {
   originalCurrency: string | null
   workVisaRequired: boolean
   baseSalary: string
+  contractDuration: string
+  contractDurationUnit: 'months' | 'years'
   showOptionalEmployeeData: boolean
   hoursPerDay: string
   daysPerWeek: string
@@ -47,8 +50,8 @@ const arePropsEqual = (
   // Compare primitive values
   const primitiveKeys: (keyof EmployeeInfoFormProps)[] = [
     'country', 'currency', 'isCurrencyManuallySet', 'originalCurrency',
-    'workVisaRequired', 'baseSalary', 'showOptionalEmployeeData',
-    'hoursPerDay', 'daysPerWeek', 'holidayDays', 'probationPeriod',
+    'workVisaRequired', 'baseSalary', 'contractDuration', 'contractDurationUnit',
+    'showOptionalEmployeeData', 'hoursPerDay', 'daysPerWeek', 'holidayDays', 'probationPeriod',
     'salaryConversionMessage', 'isLoadingValidations', 'isConvertingValidation',
     'isValidationReady'
   ]
@@ -110,6 +113,8 @@ export const EmployeeInfoForm = memo(({
   originalCurrency,
   workVisaRequired,
   baseSalary,
+  contractDuration,
+  contractDurationUnit,
   showOptionalEmployeeData,
   hoursPerDay,
   daysPerWeek,
@@ -158,6 +163,11 @@ export const EmployeeInfoForm = memo(({
         isValidationReady={isValidationReady}
         onFormUpdate={onFormUpdate}
         onValidationError={onValidationError}
+      />
+      <EmployeeContractDuration
+        contractDuration={contractDuration}
+        contractDurationUnit={contractDurationUnit}
+        onFormUpdate={onFormUpdate}
       />
       <OptionalEmployeeDataSection
         showOptionalEmployeeData={showOptionalEmployeeData}

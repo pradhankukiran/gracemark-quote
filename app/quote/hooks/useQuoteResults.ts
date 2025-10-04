@@ -1339,7 +1339,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     };
 
     processQuote();
-  }, [quoteId, calculateDeelQuote, calculateRemoteQuote, calculateRivermateQuote, calculateOysterQuote, calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote, calculatePlayrollQuote, updateProviderState, hasProviderData, enhancements, scheduleEnhancement]);
+  }, [quoteId, calculateDeelQuote, calculateRemoteQuote, calculateRivermateQuote, calculateOysterQuote, calculateRipplingQuote, calculateSkuadQuote, calculateVelocityQuote, calculatePlayrollQuote, updateProviderState, hasProviderData, scheduleEnhancement]);
   
   // Separate useEffect for sequential loading trigger (prevents circular dependency)
   useEffect(() => {
