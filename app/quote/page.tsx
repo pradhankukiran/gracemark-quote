@@ -1166,6 +1166,96 @@ const QuotePageContent = memo(() => {
     buildAcidTestCalculation
   ])
 
+  // Auto-populate profitability calculator when acid test results are ready
+  useEffect(() => {
+    const populateProfitabilityInputs = async () => {
+      console.log('[Profitability Auto-fill] Starting...', {
+        hasAcidTestCostData: !!acidTestCostData,
+        hasAcidTestResults: !!acidTestResults
+      })
+
+      if (!acidTestCostData || !acidTestResults) {
+        console.log('[Profitability Auto-fill] Missing data, skipping')
+        return
+      }
+
+      // 1. Pre-fill duration from contract duration
+      const contractDuration = Number((quoteData?.formData as EORFormData)?.contractDuration) || 6
+      console.log('[Profitability Auto-fill] Setting duration:', contractDuration)
+      setDurationInput(contractDuration)
+
+      // 2. Calculate minimum bill rate for $1,000 USD profit
+      const localCurrency = acidTestCostData.currency
+
+      // Use the expectedBillRate from the breakdown table (already includes all costs + Gracemark fee)
+      const expectedBillRate = acidTestResults.billRateComposition.expectedBillRate
+
+      console.log('[Profitability Auto-fill] Using expected bill rate', {
+        localCurrency,
+        expectedBillRate,
+        billRateCurrency,
+        contractDuration
+      })
+
+      try {
+        let minMonthlyBillRate = 0
+
+        if (billRateCurrency === 'local') {
+          // Convert $1,000 USD to local currency with 1% buffer to account for conversion volatility
+          const targetProfitUSD = MIN_PROFIT_THRESHOLD_USD * 1.01
+          console.log('[Profitability Auto-fill] Converting $1k USD (with buffer) to', localCurrency)
+          const minProfitInLocal = await convertCurrency(targetProfitUSD, 'USD', localCurrency)
+          const minProfitLocalAmount = extractConvertedAmount(minProfitInLocal)
+
+          console.log('[Profitability Auto-fill] Converted amount:', minProfitLocalAmount)
+
+          if (minProfitLocalAmount === null || minProfitLocalAmount === undefined) {
+            throw new Error('Failed to convert minimum profit to local currency')
+          }
+
+          // Monthly bill rate = Expected Bill Rate + (Min Profit / Duration)
+          minMonthlyBillRate = expectedBillRate + (minProfitLocalAmount / contractDuration)
+        } else {
+          // billRateCurrency === 'USD'
+          // Convert expected bill rate to USD
+          console.log('[Profitability Auto-fill] Converting expected bill rate to USD')
+          const expectedBillRateInUSD = await convertCurrency(expectedBillRate, localCurrency, 'USD')
+          const expectedBillRateUSDAmount = extractConvertedAmount(expectedBillRateInUSD)
+
+          console.log('[Profitability Auto-fill] Converted expected bill rate:', expectedBillRateUSDAmount)
+
+          if (expectedBillRateUSDAmount === null || expectedBillRateUSDAmount === undefined) {
+            throw new Error('Failed to convert expected bill rate to USD')
+          }
+
+          // Monthly bill rate = Expected Bill Rate in USD + (Min Profit / Duration) with 1% buffer
+          const targetProfitUSD = MIN_PROFIT_THRESHOLD_USD * 1.01
+          minMonthlyBillRate = expectedBillRateUSDAmount + (targetProfitUSD / contractDuration)
+        }
+
+        console.log('[Profitability Auto-fill] Calculated min bill rate:', minMonthlyBillRate)
+        const finalBillRate = Number(minMonthlyBillRate.toFixed(2))
+        setBillRateInput(finalBillRate)
+
+        // Automatically trigger profitability calculation
+        console.log('[Profitability Auto-fill] Auto-triggering profitability calculation')
+        await calculateProfitability(finalBillRate, contractDuration)
+      } catch (error) {
+        console.error('[Profitability Auto-fill] Failed to calculate minimum bill rate:', error)
+        // Fallback: just use expected bill rate without profit buffer
+        console.log('[Profitability Auto-fill] Using fallback:', expectedBillRate)
+        const fallbackRate = Number(expectedBillRate.toFixed(2))
+        setBillRateInput(fallbackRate)
+
+        // Automatically trigger profitability calculation with fallback
+        console.log('[Profitability Auto-fill] Auto-triggering profitability calculation (fallback)')
+        await calculateProfitability(fallbackRate, contractDuration)
+      }
+    }
+
+    void populateProfitabilityInputs()
+  }, [acidTestCostData, acidTestResults, billRateCurrency, calculateProfitability, convertCurrency, isAllInclusiveQuote, quoteData?.formData])
+
   // Body scroll lock when modal is open
   useEffect(() => {
     if (isReconModalOpen) {
@@ -1176,6 +1266,20 @@ const QuotePageContent = memo(() => {
       }
     }
   }, [isReconModalOpen])
+
+  // Auto-scroll Phase 1: Scroll to cost breakdown table when ready
+  useEffect(() => {
+    if (acidTestResults && !isComputingAcidTest) {
+      scrollToAcidTestSection('acid-test-categorizing', 500)
+    }
+  }, [acidTestResults, isComputingAcidTest])
+
+  // Auto-scroll Phase 2: Scroll to profitability results when calculated
+  useEffect(() => {
+    if (profitabilityResults && !isCalculatingProfitability) {
+      scrollToAcidTestSection('acid-test-profitability-results', 500)
+    }
+  }, [profitabilityResults, isCalculatingProfitability])
 
   // --- AUTO USD CONVERSIONS (UNCHANGED) ---
   useEffect(() => {
@@ -1572,6 +1676,20 @@ const QuotePageContent = memo(() => {
         }, 500) // Wait for CSS transitions to complete
       })
     })
+  }
+
+  // Auto-scroll for acid test sections
+  const scrollToAcidTestSection = (sectionId: string, delay = 500) => {
+    setTimeout(() => {
+      const element = document.getElementById(sectionId)
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        })
+      }
+    }, delay)
   }
 
   // Simplified phase completion (removed transition delays)
@@ -2249,7 +2367,7 @@ const QuotePageContent = memo(() => {
 
 
                     {(isCategorizingCosts || isComputingAcidTest) ? (
-                      <div className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 shadow-sm p-10">
+                      <div id="acid-test-categorizing" className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 shadow-sm p-10">
                         <div className="flex flex-col items-center justify-center gap-4 text-center">
                           <div className="flex items-center justify-center gap-3">
                             <LoadingSpinner />
@@ -2286,7 +2404,7 @@ const QuotePageContent = memo(() => {
                     ) : null}
 
                     {acidTestCostData && acidTestResults && !isComputingAcidTest && (
-                      <div className="space-y-6">
+                      <div id="acid-test-categorizing" className="space-y-6">
                         {(() => {
                             const { summary, breakdown, billRateComposition, conversionError } = acidTestResults
                             const profitClass = summary.profitLocal >= 0 ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
@@ -2783,7 +2901,7 @@ const QuotePageContent = memo(() => {
                                         </tbody>
                                         <tfoot className="bg-slate-800 text-white">
                                           <tr>
-                                            <td className="py-4 px-6 font-bold text-lg">Expected Bill Rate</td>
+                                            <td className="py-4 px-6 font-bold text-lg">Minimum Bill Rate</td>
                                             <td className="py-4 px-6 text-right font-bold text-xl">
                                               {formatMoney(billRateComposition.expectedBillRate, acidTestCostData?.currency || 'EUR')}
                                             </td>
@@ -2905,7 +3023,7 @@ const QuotePageContent = memo(() => {
 
                                   {/* Profitability Results Display */}
                                   {(isCalculatingProfitability || profitabilityResults) && (
-                                    <div className={`border-2 shadow-lg ${
+                                    <div id="acid-test-profitability-results" className={`border-2 shadow-lg ${
                                       isCalculatingProfitability
                                         ? 'bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200'
                                         : profitabilityResults?.isProfit
