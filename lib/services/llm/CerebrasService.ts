@@ -190,11 +190,43 @@ export class CerebrasService {
             oneTimeFees: parsed.oneTimeFees || {}
           }
 
+          // Validate that all input items are accounted for in the categorization
+          const categorizedKeys = new Set<string>([
+            ...Object.keys(result.baseSalary),
+            ...Object.keys(result.statutoryMandatory),
+            ...Object.keys(result.allowancesBenefits),
+            ...Object.keys(result.terminationCosts),
+            ...Object.keys(result.oneTimeFees)
+          ])
+
+          const missingItems: Array<{key: string, name: string, monthly_amount: number}> = []
+          for (const item of costItems) {
+            if (!categorizedKeys.has(item.key)) {
+              missingItems.push(item)
+            }
+          }
+
+          // If any items are missing, add them to allowancesBenefits as per prompt instruction
+          if (missingItems.length > 0) {
+            console.warn('[CerebrasService] Some items were not categorized by LLM, adding to allowancesBenefits:', {
+              provider,
+              country,
+              missingCount: missingItems.length,
+              missingItems: missingItems.map(i => ({ key: i.key, name: i.name, amount: i.monthly_amount }))
+            })
+
+            for (const item of missingItems) {
+              result.allowancesBenefits[item.key] = item.monthly_amount
+            }
+          }
+
           // console.log('[CerebrasService] Received categorizeCostItems response', {
           //   provider,
           //   country,
           //   currency,
-          //   result
+          //   result,
+          //   totalInputItems: costItems.length,
+          //   totalCategorizedItems: categorizedKeys.size + missingItems.length
           // })
 
           return result
@@ -400,12 +432,24 @@ export class CerebrasService {
       '4. terminationCosts: Severance and probation provisions (monthlyized termination liabilities only)',
       '5. oneTimeFees: One-time setup costs, background checks, medical exams, onboarding fees',
       '',
-      'CRITICAL RULES:',
+      'CRITICAL RULES - READ CAREFULLY:',
+      '- ALL items MUST be categorized - do NOT skip or omit ANY item from the input list',
+      '- Each cost item goes into exactly ONE category',
+      '- If you are uncertain which category an item belongs to, you MUST put it in allowancesBenefits',
+      '- NEVER drop an item because you are unsure - use allowancesBenefits as the default fallback',
+      '- Reuse the item key exactly as provided in costItems for the JSON key; never invent or remove keys',
+      '- Amounts must match the provided monthly_amount values without modification',
       '- 13th salary, 14th salary = statutoryMandatory (legally required in many countries)',
       '- Vacation bonus = statutoryMandatory if legally required, allowancesBenefits if optional',
       '- Use country context to determine if items are legally mandatory vs optional',
-      '- Each cost item goes into exactly ONE category',
       '- Ignore termination notice or generic termination fees; only map severance/probation provisions to terminationCosts',
+      '',
+      'VALIDATION REQUIREMENT:',
+      '- Count of items in your output MUST equal count of items in input',
+      '- Every key from costItems MUST appear in exactly one of the five category objects',
+      '- If unsure about any item, put it in allowancesBenefits rather than omitting it',
+      '',
+      'OUTPUT STRUCTURE:',
       '- Return JSON with exact structure: {baseSalary: {}, statutoryMandatory: {}, allowancesBenefits: {}, terminationCosts: {}, oneTimeFees: {}}',
       '- Use original item keys as keys in each category object',
       '- Values are the monthly amounts',
@@ -430,11 +474,12 @@ export class CerebrasService {
       `Provider: ${input.provider}`,
       `Country: ${input.country}`,
       `Currency: ${input.currency}`,
+      `Total Items to Categorize: ${input.costItems.length}`,
       '',
-      'COST ITEMS TO CATEGORIZE:',
+      `COST ITEMS TO CATEGORIZE (ALL ${input.costItems.length} ITEMS MUST BE INCLUDED IN OUTPUT):`,
       JSON.stringify(input.costItems, null, 2),
       '',
-      'CATEGORIZE into these exact structure:',
+      'CATEGORIZE ALL items above into this exact structure:',
       '{',
       '  "baseSalary": {',
       '    "item_key": amount',
@@ -453,8 +498,12 @@ export class CerebrasService {
       '  }',
       '}',
       '',
-      'Remember: Use country context to determine if 13th salary, vacation bonus etc. are legally mandatory (statutoryMandatory) or optional (allowancesBenefits).',
-      'Return valid JSON only.'
+      'IMPORTANT REMINDERS:',
+      `- You MUST categorize all ${input.costItems.length} items above`,
+      '- Use country context to determine if 13th salary, vacation bonus etc. are legally mandatory (statutoryMandatory) or optional (allowancesBenefits)',
+      '- If unsure about any item, put it in allowancesBenefits',
+      '- Do NOT omit any items',
+      '- Return valid JSON only'
     ].join('\n')
   }
 

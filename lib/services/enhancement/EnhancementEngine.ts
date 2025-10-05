@@ -566,20 +566,43 @@ export class EnhancementEngine {
       }
     }
 
-    const extractedBenefits = input.extractedBenefits
-
     const collectBaseQuoteLabels = (): string[] => {
       const labels = new Set<string>()
+      const visited = new WeakSet<object>()
 
       const push = (value: unknown) => {
         if (typeof value !== 'string') return
         const trimmed = value.trim()
         if (!trimmed) return
-        labels.add(trimmed.toLowerCase())
+        const variations = new Set<string>([
+          trimmed,
+          trimmed.toLowerCase(),
+          trimmed.replace(/([a-z])([A-Z])/g, '$1 $2'),
+          trimmed.replace(/[_-]+/g, ' '),
+          trimmed.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(),
+          trimmed.replace(/[_-]+/g, ' ').toLowerCase()
+        ])
+
+        variations.forEach(entry => {
+          const normalized = entry
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[_-]+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+
+          const lowered = entry.toLowerCase().trim()
+          if (lowered) labels.add(lowered)
+          if (normalized) labels.add(normalized)
+        })
       }
 
       const scanRecord = (record: unknown) => {
         if (!record || typeof record !== 'object') return
+        if (visited.has(record as object)) return
+        visited.add(record as object)
+
         const entry = record as Record<string, unknown>
         push(entry.name)
         push(entry.label)
@@ -587,6 +610,16 @@ export class EnhancementEngine {
         push(entry.description)
         push(entry.category)
         push(entry.type)
+
+        Object.values(entry).forEach(value => {
+          if (typeof value === 'string') {
+            push(value)
+          } else if (Array.isArray(value)) {
+            scanArray(value)
+          } else if (value && typeof value === 'object') {
+            scanRecord(value)
+          }
+        })
       }
 
       const scanArray = (value: unknown) => {
@@ -594,6 +627,8 @@ export class EnhancementEngine {
         value.forEach(item => {
           if (typeof item === 'string') {
             push(item)
+          } else if (Array.isArray(item) && item.length >= 1) {
+            push(item[0])
           } else {
             scanRecord(item)
           }
@@ -627,6 +662,7 @@ export class EnhancementEngine {
         scanArray(originalAny.lineItems)
         scanArray(originalAny.taxItems)
         scanArray(originalAny.employer_costs_breakdown)
+        scanArray(originalAny.outputs)
         scanObjectValues(originalAny.accruals)
         scanObjectValues(originalAny.accruals?.items)
         scanObjectValues(originalAny.breakdown)
@@ -646,18 +682,36 @@ export class EnhancementEngine {
 
     type BenefitKeyName = keyof StandardizedBenefitData['includedBenefits']
 
-    const getMonthlyCoverage = (key: BenefitKeyName): number => {
-      const benefit = extractedBenefits?.includedBenefits?.[key]
-      if (!benefit) return 0
-      const amount = Number(benefit.amount ?? 0)
-      if (!Number.isFinite(amount) || amount <= 0) return 0
-      const frequency = (benefit.frequency || 'monthly').toString().toLowerCase()
-      const monthly = frequency === 'yearly' ? amount / 12 : amount
-      return Number(monthly.toFixed(2))
+    const benefitSynonyms: Partial<Record<BenefitKeyName, string[]>> = {
+      thirteenthSalary: ['christmas bonus', 'christmas salary', '13th salary', '13 month pay', '13 month salary', 'year end bonus'],
+      fourteenthSalary: ['14th salary', '14 month', 'double salary'],
+      vacationBonus: ['vacation bonus', 'holiday bonus', 'annual leave bonus', 'vacation allowance', 'holiday allowance'],
+      transportationAllowance: ['transportation allowance', 'transport allowance', 'commuting allowance', 'travel allowance', 'bus allowance'],
+      remoteWorkAllowance: ['remote work allowance', 'work from home allowance', 'wfh allowance', 'home office allowance'],
+      mealVouchers: ['meal voucher', 'meal allowance', 'food allowance', 'lunch allowance', 'meal tickets'],
+      severanceProvision: ['severance accrual', 'severance provision', 'termination reserve', 'termination provision', 'redundancy reserve', 'end of service', 'eos accrual', 'eos provision', 'gratuity'],
+      probationProvision: ['probation provision', 'probation accrual', 'probation reserve']
     }
 
     const baseQuoteHasBenefit = (benefitKey: BenefitKeyName): boolean => {
-      return baseQuoteLabels.some(label => identifyBenefitKey(label) === benefitKey)
+      const normalizedLabels = baseQuoteLabels.map(label => label.toLowerCase())
+      const synonyms = benefitSynonyms[benefitKey] || []
+
+      return normalizedLabels.some(label => {
+        if (identifyBenefitKey(label) === benefitKey) return true
+        return synonyms.some(phrase => label.includes(phrase))
+      })
+    }
+
+    const baseHas = {
+      thirteenthSalary: baseQuoteHasBenefit('thirteenthSalary'),
+      fourteenthSalary: baseQuoteHasBenefit('fourteenthSalary'),
+      vacationBonus: baseQuoteHasBenefit('vacationBonus'),
+      transportationAllowance: baseQuoteHasBenefit('transportationAllowance'),
+      remoteWorkAllowance: baseQuoteHasBenefit('remoteWorkAllowance'),
+      mealVouchers: baseQuoteHasBenefit('mealVouchers'),
+      severanceProvision: baseQuoteHasBenefit('severanceProvision'),
+      probationProvision: baseQuoteHasBenefit('probationProvision')
     }
 
     const adjustSalaryEnhancement = (
@@ -666,32 +720,15 @@ export class EnhancementEngine {
       source?: { monthly_amount?: number; yearly_amount?: number; already_included?: boolean }
     ) => {
       if (!entry) return
-      const coverage = getMonthlyCoverage(benefitKey)
       const baseHas = baseQuoteHasBenefit(benefitKey)
-      const originalMonthly = resolveMonthlyFrom(entry.monthlyAmount, entry.yearlyAmount)
-      let adjustedMonthly = coverage > 0 ? Math.max(0, originalMonthly - coverage) : originalMonthly
-
-      if ((coverage === 0 && baseHas) || (coverage > 0 && adjustedMonthly === 0)) {
-        adjustedMonthly = 0
-        entry.isAlreadyIncluded = true
-      }
-
-      if (entry.isAlreadyIncluded) {
+      if (baseHas) {
         entry.monthlyAmount = 0
         entry.yearlyAmount = 0
-      } else if (adjustedMonthly !== originalMonthly) {
-        entry.monthlyAmount = Number(adjustedMonthly.toFixed(2))
-        entry.yearlyAmount = Number((adjustedMonthly * 12).toFixed(2))
-      }
-
-      if (source) {
-        if (entry.isAlreadyIncluded) {
+        entry.isAlreadyIncluded = true
+        if (source) {
           source.monthly_amount = 0
           source.yearly_amount = 0
           source.already_included = true
-        } else if (adjustedMonthly !== originalMonthly) {
-          source.monthly_amount = Number(adjustedMonthly.toFixed(2))
-          source.yearly_amount = Number((adjustedMonthly * 12).toFixed(2))
         }
       }
     }
@@ -702,28 +739,32 @@ export class EnhancementEngine {
       source?: { monthly_amount?: number; already_included?: boolean }
     ) => {
       if (!entry) return
-      const coverage = getMonthlyCoverage(benefitKey)
       const baseHas = baseQuoteHasBenefit(benefitKey)
-      const originalMonthly = Number(entry.monthlyAmount || 0)
-      let adjustedMonthly = coverage > 0 ? Math.max(0, originalMonthly - coverage) : originalMonthly
-
-      if ((coverage === 0 && baseHas) || (coverage > 0 && adjustedMonthly === 0)) {
-        adjustedMonthly = 0
-        entry.isAlreadyIncluded = true
-      }
-
-      if (entry.isAlreadyIncluded) {
+      if (baseHas) {
         entry.monthlyAmount = 0
-      } else if (adjustedMonthly !== originalMonthly) {
-        entry.monthlyAmount = Number(adjustedMonthly.toFixed(2))
-      }
-
-      if (source) {
-        if (entry.isAlreadyIncluded) {
+        entry.isAlreadyIncluded = true
+        if (source) {
           source.monthly_amount = 0
           source.already_included = true
-        } else if (adjustedMonthly !== originalMonthly) {
-          source.monthly_amount = Number(adjustedMonthly.toFixed(2))
+        }
+      }
+    }
+
+    const adjustTerminationEnhancement = (
+      benefitKey: BenefitKeyName,
+      entry: TerminationComponentEnhancement | undefined,
+      source?: { monthly_amount?: number; total_amount?: number; already_included?: boolean }
+    ) => {
+      if (!entry) return
+      const baseHas = baseQuoteHasBenefit(benefitKey)
+      if (baseHas) {
+        entry.monthlyAmount = 0
+        entry.totalAmount = 0
+        entry.isAlreadyIncluded = true
+        if (source) {
+          if (typeof source.monthly_amount === 'number') source.monthly_amount = 0
+          if (typeof source.total_amount === 'number') source.total_amount = 0
+          source.already_included = true
         }
       }
     }
@@ -733,27 +774,12 @@ export class EnhancementEngine {
       source?: { amount?: number; already_included?: boolean }
     ) => {
       if (!entry) return
-      const coverage = getMonthlyCoverage('vacationBonus')
       const baseHas = baseQuoteHasBenefit('vacationBonus')
-      const originalMonthly = entry.frequency === 'yearly'
-        ? Number((entry.amount || 0) / 12)
-        : Number(entry.amount || 0)
-      let adjustedMonthly = coverage > 0 ? Math.max(0, originalMonthly - coverage) : originalMonthly
-
-      if ((coverage === 0 && baseHas) || (coverage > 0 && adjustedMonthly === 0)) {
-        adjustedMonthly = 0
+      if (baseHas) {
+        entry.amount = 0
         entry.isAlreadyIncluded = true
-      }
-
-      const finalMonthly = entry.isAlreadyIncluded ? 0 : adjustedMonthly
-      const updatedAmount = entry.frequency === 'yearly'
-        ? Number((finalMonthly * 12).toFixed(2))
-        : Number(finalMonthly.toFixed(2))
-      entry.amount = updatedAmount
-
-      if (source) {
-        source.amount = updatedAmount
-        if (entry.isAlreadyIncluded) {
+        if (source) {
+          source.amount = 0
           source.already_included = true
         }
       }
@@ -775,6 +801,7 @@ export class EnhancementEngine {
         confidence: sp.confidence || 0.5,
         isAlreadyIncluded: sp.already_included || false
       }
+      adjustTerminationEnhancement('severanceProvision', enhancementData.severanceProvision, enhancements.severance_provision)
     }
 
     // Probation provision
@@ -787,6 +814,7 @@ export class EnhancementEngine {
         confidence: pp.confidence || 0.5,
         isAlreadyIncluded: pp.already_included || false
       }
+      adjustTerminationEnhancement('probationProvision', enhancementData.probationProvision, enhancements.probation_provision)
     }
 
     // 13th salary
@@ -938,7 +966,7 @@ export class EnhancementEngine {
           }
 
           const termMonthly = months > 0 ? (termTotal / months) : 0
-          if (!hasLLMTermination && termMonthly > 0) {
+          if (!hasLLMTermination && termMonthly > 0 && (!baseHas.severanceProvision || !baseHas.probationProvision)) {
             enhancementData.terminationCosts = {
               noticePeriodCost: 0,
               severanceCost: Number(severanceTotal.toFixed(2)),
@@ -962,12 +990,16 @@ export class EnhancementEngine {
               }
             }
 
-            const deterministicSeverance = buildComponent(severanceTotal, 'Deterministic severance provision (legal profile).')
+            const deterministicSeverance = !baseHas.severanceProvision
+              ? buildComponent(severanceTotal, 'Deterministic severance provision (legal profile).')
+              : undefined
             if (deterministicSeverance) {
               enhancementData.severanceProvision = deterministicSeverance
             }
 
-            const deterministicProbation = buildComponent(probationTotal, 'Deterministic probation termination provision (legal profile).')
+            const deterministicProbation = !baseHas.probationProvision
+              ? buildComponent(probationTotal, 'Deterministic probation termination provision (legal profile).')
+              : undefined
             if (deterministicProbation) {
               enhancementData.probationProvision = deterministicProbation
             }
@@ -976,7 +1008,7 @@ export class EnhancementEngine {
 
         // 13th salary
         const hasTh13 = !!enhancementData.thirteenthSalary && ((enhancementData.thirteenthSalary.monthlyAmount || 0) > 0 || (enhancementData.thirteenthSalary.yearlyAmount || 0) > 0)
-        if (!hasTh13 && lr.mandatorySalaries?.has13thSalary) {
+        if (!hasTh13 && lr.mandatorySalaries?.has13thSalary && !baseHas.thirteenthSalary) {
           const monthlyAccrual = baseSalary > 0 ? Number((baseSalary / 12).toFixed(2)) : 0
           const yearlyTotal = monthlyAccrual > 0 ? Number((monthlyAccrual * 12).toFixed(2)) : 0
           enhancementData.thirteenthSalary = {
@@ -990,7 +1022,7 @@ export class EnhancementEngine {
 
         // 14th salary
         const hasTh14 = !!enhancementData.fourteenthSalary && ((enhancementData.fourteenthSalary.monthlyAmount || 0) > 0 || (enhancementData.fourteenthSalary.yearlyAmount || 0) > 0)
-        if (!hasTh14 && lr.mandatorySalaries?.has14thSalary) {
+        if (!hasTh14 && lr.mandatorySalaries?.has14thSalary && !baseHas.fourteenthSalary) {
           const monthlyAccrual = baseSalary > 0 ? Number((baseSalary / 12).toFixed(2)) : 0
           const yearlyTotal = monthlyAccrual > 0 ? Number((monthlyAccrual * 12).toFixed(2)) : 0
           enhancementData.fourteenthSalary = {
@@ -1005,7 +1037,7 @@ export class EnhancementEngine {
         // Vacation bonus (as yearly percentage; monthlyized later)
         const hasVac = !!enhancementData.vacationBonus && (enhancementData.vacationBonus.amount || 0) > 0
         const vacPct = Number(lr.bonuses?.vacationBonusPercentage || 0)
-        if (!hasVac && vacPct > 0 && input.quoteType !== 'statutory-only') {
+        if (!hasVac && vacPct > 0 && input.quoteType !== 'statutory-only' && !baseHas.vacationBonus) {
           const yearly = baseSalary * (vacPct / 100)
           enhancementData.vacationBonus = {
             amount: yearly,

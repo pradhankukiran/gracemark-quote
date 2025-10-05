@@ -9,18 +9,97 @@ const YEARLY_BENEFIT_KEYS: ReadonlySet<BenefitKey> = new Set([
   'vacationBonus'
 ])
 
-const BENEFIT_PATTERNS: Array<{ key: BenefitKey; regex: RegExp }> = [
+const normalizeForMatching = (value: string): string => {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+const addMatchingCandidates = (source: string): string[] => {
+  const trimmed = source.trim()
+  if (!trimmed) return []
+
+  const candidates = new Set<string>([
+    trimmed,
+    trimmed.toLowerCase(),
+    trimmed.replace(/([a-z])([A-Z])/g, '$1 $2')
+  ])
+
+  Array.from(candidates).forEach(candidate => {
+    const normalized = normalizeForMatching(candidate)
+    if (normalized) {
+      candidates.add(normalized)
+      candidates.add(normalized.toLowerCase())
+    }
+  })
+
+  return Array.from(candidates)
+}
+
+const BENEFIT_SYNONYMS: Array<{ key: BenefitKey; phrases: string[] }> = [
   {
     key: 'thirteenthSalary',
-    regex: /(?:^|\s)(?:13(?:th)?|13º|13o|thirteenth|trece[a-z]*|d[ée]cim[ao]\s*terc|aguinaldo|christmas\s*bonus|bonus\s*de\s*natal|gratific[aã]?[cç][aã]o\s*de\s*natal|sueldo\s*anual)/i
-  },
-  {
-    key: 'fourteenthSalary',
-    regex: /(?:^|\s)(?:14(?:th)?|14º|14o|fourteenth|d[ée]cim[ao]\s*quart|decim[ao]\s*cuart)/i
+    phrases: [
+      'christmas bonus',
+      'christmas salary',
+      'year end bonus',
+      '13 month pay',
+      '13 month salary',
+      '13th salary',
+      '13th month',
+      'annual bonus'
+    ]
   },
   {
     key: 'vacationBonus',
-    regex: /(vacation|holiday)\s*(bonus|allowance|pay)/i
+    phrases: [
+      'annual leave bonus',
+      'vacation allowance',
+      'holiday allowance'
+    ]
+  },
+  {
+    key: 'severanceProvision',
+    phrases: [
+      'severance accrual',
+      'severance accruals',
+      'severance reserve',
+      'severance provision',
+      'termination reserve',
+      'termination provision',
+      'redundancy reserve',
+      'redundancy provision',
+      'end of service',
+      'eos accrual',
+      'eos provision',
+      'gratuity'
+    ]
+  },
+  {
+    key: 'probationProvision',
+    phrases: [
+      'probation reserve',
+      'probation provision',
+      'probation accrual'
+    ]
+  }
+]
+
+const BENEFIT_PATTERNS: Array<{ key: BenefitKey; regex: RegExp }> = [
+  {
+    key: 'thirteenthSalary',
+    regex: /(?:^|\b)(?:13(?:th)?(?:\s*month)?|13º|13o|thirteenth|trece[a-z]*|d[ée]cim[ao]\s*terc|aguinaldos?|christmas(?:[-\s]*(?:bonus|pay|salary))?|year[-\s]*end\s*(?:bonus|pay)|bonus\s*de\s*natal|gratific[aã]?[cç][aã]o\s*de\s*natal|sueldo\s*anual)/i
+  },
+  {
+    key: 'fourteenthSalary',
+    regex: /(?:^|\b)(?:14(?:th)?(?:\s*month)?|14º|14o|fourteenth|d[ée]cim[ao]\s*quart|decim[ao]\s*cuart)/i
+  },
+  {
+    key: 'vacationBonus',
+    regex: /(vacation|holiday|annual\s*leave)\s*(bonus|allowance|pay)/i
   },
   {
     key: 'transportationAllowance',
@@ -41,6 +120,14 @@ const BENEFIT_PATTERNS: Array<{ key: BenefitKey; regex: RegExp }> = [
   {
     key: 'healthInsurance',
     regex: /(health\s*insur|medical\s*insur|\bhi\b|health.*care|medical.*care|dental|vision|life\s*insur|disability.*insur)/i
+  },
+  {
+    key: 'severanceProvision',
+    regex: /(severance|termination|redundancy|indemnity|gratuity|separation)\s*(?:provisions?|accruals?|costs?|payments?|pay|funds?|reserves?|liabilit(?:y|ies)|obligations?|packages?|charges?|estimates?|benefits?|allowances?)/i
+  },
+  {
+    key: 'probationProvision',
+    regex: /(probation)\s*(?:provisions?|accruals?|costs?|payments?|pay|termination|obligations?)/i
   }
 ]
 
@@ -64,8 +151,24 @@ const parseAmount = (value: unknown): number => {
 
 export const identifyBenefitKey = (name: string | undefined | null): BenefitKey | undefined => {
   if (!name) return undefined
-  for (const { key, regex } of BENEFIT_PATTERNS) {
-    if (regex.test(name)) return key
+  const candidates = addMatchingCandidates(name)
+  for (const candidate of candidates) {
+    const normalizedCandidate = normalizeForMatching(candidate)
+    const compactCandidate = normalizedCandidate.replace(/\s+/g, '')
+
+    for (const { key, regex } of BENEFIT_PATTERNS) {
+      if (regex.test(candidate) || regex.test(normalizedCandidate)) return key
+    }
+
+    for (const { key, phrases } of BENEFIT_SYNONYMS) {
+      if (phrases.some(phrase => {
+        const normalizedPhrase = normalizeForMatching(phrase)
+        const compactPhrase = normalizedPhrase.replace(/\s+/g, '')
+        return normalizedCandidate.includes(normalizedPhrase) || compactCandidate.includes(compactPhrase)
+      })) {
+        return key
+      }
+    }
   }
   return undefined
 }

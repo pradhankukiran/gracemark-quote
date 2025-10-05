@@ -3381,7 +3381,7 @@ const QuotePageContent = memo(() => {
           } else if (key.includes('allowance') || key.includes('meal') || key.includes('transport')) {
             allowancesBenefits[item.key] = amount
           } else {
-            statutoryMandatory[item.key] = amount
+            allowancesBenefits[item.key] = amount
           }
         })
 

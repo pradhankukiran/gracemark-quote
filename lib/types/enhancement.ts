@@ -97,6 +97,21 @@ export interface StandardizedBenefitData {
       frequency: 'monthly'
       description?: string
     }
+    remoteWorkAllowance?: {
+      amount: number
+      frequency: 'monthly'
+      description?: string
+    }
+    severanceProvision?: {
+      amount: number
+      frequency: 'monthly'
+      description?: string
+    }
+    probationProvision?: {
+      amount: number
+      frequency: 'monthly'
+      description?: string
+    }
     [key: string]: {
       amount: number
       frequency: 'monthly' | 'yearly'
