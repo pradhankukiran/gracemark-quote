@@ -22,6 +22,7 @@ import {
 import { EORFormData } from "@/lib/shared/types"
 import { identifyBenefitKey } from "@/lib/shared/utils/benefitNormalization"
 import { getCountryByName } from "@/lib/data"
+import { getLocalOfficeData, hasLocalOfficeData } from "@/lib/shared/utils/localOfficeData"
 import { GroqService } from "../llm/GroqService"
 import { PapayaService } from "../data/PapayaService"
 import { PapayaDataFlattener } from "../data/PapayaDataFlattener"
@@ -182,6 +183,13 @@ export class EnhancementEngine {
       if (quoteType === 'statutory-only') {
         enhancedQuote = this.filterTerminationCosts(enhancedQuote)
       }
+
+      await this.applyFallbackLocalOfficeCost({
+        enhancedQuote,
+        groqResponse: groqLikeResponse,
+        baseQuote: normalizedQuote,
+        formData: params.formData
+      })
 
       // Debug logging for enhanced quote result
       if (typeof window === 'undefined') {
@@ -418,6 +426,13 @@ export class EnhancementEngine {
       if (quoteType === 'statutory-only') {
         enhancedQuote = this.filterTerminationCosts(enhancedQuote)
       }
+
+      await this.applyFallbackLocalOfficeCost({
+        enhancedQuote,
+        groqResponse: groqLikeResponse,
+        baseQuote: normalizedQuote,
+        formData: params.formData
+      })
 
       // Debug logging for enhanced quote result
       if (typeof window === 'undefined') {
@@ -1251,10 +1266,13 @@ export class EnhancementEngine {
 
     // Deterministic inclusion of Local Office benefits (if provided and currency matches)
     try {
-      const targetCurrency = ((groqResponse as any)?.output_currency || fullQuote?.currency || baseQuote.currency || '').toString()
-      const sourceCurrency = input.formData?.currency || ''
+      const targetCurrencyRaw = ((groqResponse as any)?.output_currency || fullQuote?.currency || baseQuote.currency || '').toString()
+      const sourceCurrencyRaw = input.formData?.currency || ''
+      const targetCurrency = targetCurrencyRaw.trim()
+      const sourceCurrency = sourceCurrencyRaw.trim()
+      const normalizedTargetCurrency = targetCurrency.toUpperCase()
+      const normalizedSourceCurrency = sourceCurrency.toUpperCase()
       const local = input.formData?.localOfficeInfo as (EORFormData['localOfficeInfo'] | undefined)
-
       const parseNum = (v?: string) => {
         if (!v) return 0
         const t = v.trim()
@@ -1263,7 +1281,9 @@ export class EnhancementEngine {
         return isFinite(n) && n > 0 ? n : 0
       }
 
-      if (local && targetCurrency && sourceCurrency && targetCurrency === sourceCurrency) {
+      let deterministicLocalSum = 0
+
+      if (local && normalizedTargetCurrency && normalizedSourceCurrency && normalizedTargetCurrency === normalizedSourceCurrency) {
         const mv = parseNum(local.mealVoucher)
         const tr = parseNum(local.transportation)
         const wfh = parseNum(local.wfh)
@@ -1280,16 +1300,16 @@ export class EnhancementEngine {
         if (mpo > 0) additions['local_office_monthly_payments'] = mpo
         if (vatAmt > 0) additions['local_office_vat'] = Number(vatAmt.toFixed(2))
 
-        const localSum = Object.values(additions).reduce((s, n) => s + n, 0)
-        if (localSum > 0) {
+        deterministicLocalSum = Object.values(additions).reduce((s, n) => s + n, 0)
+        if (deterministicLocalSum > 0) {
           enhancementData.additionalContributions = {
             ...(enhancementData.additionalContributions || {}),
             ...additions
           }
-          safeEnhancementMonthly += localSum
-          safeTotalsMonthly += localSum
+          safeEnhancementMonthly += deterministicLocalSum
+          safeTotalsMonthly += deterministicLocalSum
         }
-      } else if (local && targetCurrency && sourceCurrency && targetCurrency !== sourceCurrency) {
+      } else if (local && normalizedTargetCurrency && normalizedSourceCurrency && normalizedTargetCurrency !== normalizedSourceCurrency) {
         // Append a warning if currencies mismatch; we skip adding to avoid mixing currencies
         try {
           (groqResponse as any).warnings = [
@@ -1321,6 +1341,88 @@ export class EnhancementEngine {
       fullQuote: fullQuote && typeof fullQuote === 'object' ? fullQuote : undefined,
       recalcBaseItems: Array.isArray((groqResponse as any)?.recalc_base_items) ? (groqResponse as any)?.recalc_base_items : undefined
     }
+  }
+
+  private async applyFallbackLocalOfficeCost(params: {
+    enhancedQuote: EnhancedQuote
+    groqResponse: GroqEnhancementResponse
+    baseQuote: NormalizedQuote
+    formData?: EORFormData
+  }): Promise<void> {
+    const { enhancedQuote, groqResponse, baseQuote, formData } = params
+    if (!formData) return
+
+    const countryName = formData.country || baseQuote.country || ''
+    const countryCode = getCountryByName(countryName)?.code || ''
+    if (!countryCode || hasLocalOfficeData(countryCode)) return
+
+    const targetCurrencyRaw = ((groqResponse as any)?.output_currency || enhancedQuote.baseCurrency || baseQuote.currency || '').toString()
+    const sourceCurrencyRaw = (formData.currency || '').toString()
+    const targetCurrency = targetCurrencyRaw.trim()
+    const sourceCurrency = sourceCurrencyRaw.trim()
+    if (!targetCurrency || !sourceCurrency) return
+
+    const normalizedTarget = targetCurrency.toUpperCase()
+    const normalizedSource = sourceCurrency.toUpperCase()
+    if (normalizedTarget !== normalizedSource) return
+
+    const contributions = enhancedQuote.enhancements.additionalContributions || {}
+    const originalLocal = getLocalOfficeData(countryCode)
+
+    const baseUsd = (() => {
+      if (originalLocal) {
+        const parsed = Number(originalLocal.monthlyPaymentsToLocalOffice)
+        if (Number.isFinite(parsed) && parsed > 0) return parsed
+      }
+      return 250
+    })()
+
+    if (!(baseUsd > 0)) return
+
+    const existingLocalOffice = Number(contributions.local_office_monthly_payments || 0)
+    if (Number.isFinite(existingLocalOffice) && existingLocalOffice > 0) {
+      return
+    }
+
+    const fallbackAmount = await this.convertUsdToCurrency(baseUsd, normalizedTarget)
+    if (!(fallbackAmount > 0)) return
+
+    const applied = Number(fallbackAmount.toFixed(2))
+
+    enhancedQuote.enhancements.additionalContributions = {
+      ...contributions,
+      local_office_monthly_payments: applied
+    }
+
+    enhancedQuote.totalEnhancement = Number((enhancedQuote.totalEnhancement + applied).toFixed(2))
+    enhancedQuote.finalTotal = Number((enhancedQuote.finalTotal + applied).toFixed(2))
+
+    const breakdown = enhancedQuote.monthlyCostBreakdown
+    if (breakdown) {
+      breakdown.enhancements = Number((breakdown.enhancements + applied).toFixed(2))
+      breakdown.total = Number((breakdown.total + applied).toFixed(2))
+    }
+  }
+
+  private async convertUsdToCurrency(amount: number, targetCurrency: string): Promise<number> {
+    if (!amount || !targetCurrency) return 0
+    const normalizedCurrency = targetCurrency.trim().toUpperCase()
+    if (!normalizedCurrency) return 0
+    if (normalizedCurrency === 'USD') {
+      return Number(amount.toFixed(2))
+    }
+
+    try {
+      const { PapayaCurrencyProvider } = await import('@/lib/providers/papaya-currency-provider')
+      const conv = new PapayaCurrencyProvider()
+      const res = await conv.convertCurrency(amount, 'USD', normalizedCurrency)
+      const converted = Number(res?.data?.conversion_data?.target_amount)
+      if (res?.success && Number.isFinite(converted) && converted > 0) {
+        return Number(converted.toFixed(2))
+      }
+    } catch { /* noop */ }
+
+    return Number(amount.toFixed(2))
   }
 
   // Build a deterministic pre-pass baseline using LegalProfileService and form inputs (provider-agnostic)

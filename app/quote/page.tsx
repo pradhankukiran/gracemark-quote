@@ -359,6 +359,7 @@ type BillRateComposition = {
   statutoryMonthly: number
   terminationMonthly: number
   allowancesMonthly: number
+  oneTimeTotal: number
   gracemarkFeeMonthly: number
   providerFeeMonthly: number
   expectedBillRate: number
@@ -372,6 +373,7 @@ type BillRateComposition = {
   statutoryMonthlyUSD?: number
   terminationMonthlyUSD?: number
   allowancesMonthlyUSD?: number
+  oneTimeTotalUSD?: number
   gracemarkFeeMonthlyUSD?: number
   providerFeeMonthlyUSD?: number
   expectedBillRateUSD?: number
@@ -973,6 +975,7 @@ const QuotePageContent = memo(() => {
         statutoryMonthly: costData.statutoryMonthly,
         terminationMonthly: isAllInclusive ? costData.terminationMonthly : 0,
         allowancesMonthly: costData.allowancesMonthly,
+        oneTimeTotal,
         gracemarkFeeMonthly: actualGracemarkFeeMonthly,
         providerFeeMonthly: providerFeeMonthly,
         expectedBillRate: expectedBillRateMonthly,
@@ -986,6 +989,7 @@ const QuotePageContent = memo(() => {
         statutoryMonthlyUSD,
         terminationMonthlyUSD,
         allowancesMonthlyUSD,
+        oneTimeTotalUSD,
         gracemarkFeeMonthlyUSD,
         providerFeeMonthlyUSD,
         expectedBillRateUSD,
@@ -1022,9 +1026,7 @@ const QuotePageContent = memo(() => {
       throw new Error('Expected bill rate not available from cost structure breakdown')
     }
 
-    // Calculate total costs using expected bill rate (what we charge per month)
-    const totalRecurringCostsLocal = expectedBillRateLocal * duration
-    const totalCostsLocal = totalRecurringCostsLocal + acidTestCostData.oneTimeTotal
+    const totalCostsLocal = expectedBillRateLocal * duration + acidTestCostData.oneTimeTotal
 
     // Calculate total revenue and costs in the same currency for comparison
     let totalRevenue: number
@@ -1198,39 +1200,48 @@ const QuotePageContent = memo(() => {
       })
 
       try {
-        let minMonthlyBillRate = 0
+        const PROFIT_BUFFER_MULTIPLIER = 1.01
+        const targetProfitUSD = MIN_PROFIT_THRESHOLD_USD * PROFIT_BUFFER_MULTIPLIER
 
-        if (billRateCurrency === 'local') {
-          // Convert $1,000 USD to local currency with 1% buffer to account for conversion volatility
-          const targetProfitUSD = MIN_PROFIT_THRESHOLD_USD * 1.01
-          console.log('[Profitability Auto-fill] Converting $1k USD (with buffer) to', localCurrency)
-          const minProfitInLocal = await convertCurrency(targetProfitUSD, 'USD', localCurrency)
-          const minProfitLocalAmount = extractConvertedAmount(minProfitInLocal)
-
-          console.log('[Profitability Auto-fill] Converted amount:', minProfitLocalAmount)
-
-          if (minProfitLocalAmount === null || minProfitLocalAmount === undefined) {
-            throw new Error('Failed to convert minimum profit to local currency')
-          }
-
-          // Monthly bill rate = Expected Bill Rate + (Min Profit / Duration)
-          minMonthlyBillRate = expectedBillRate + (minProfitLocalAmount / contractDuration)
+        let expectedBillRateUSDAmount: number
+        if (localCurrency === 'USD') {
+          expectedBillRateUSDAmount = expectedBillRate
         } else {
-          // billRateCurrency === 'USD'
-          // Convert expected bill rate to USD
-          console.log('[Profitability Auto-fill] Converting expected bill rate to USD')
           const expectedBillRateInUSD = await convertCurrency(expectedBillRate, localCurrency, 'USD')
-          const expectedBillRateUSDAmount = extractConvertedAmount(expectedBillRateInUSD)
-
-          console.log('[Profitability Auto-fill] Converted expected bill rate:', expectedBillRateUSDAmount)
-
-          if (expectedBillRateUSDAmount === null || expectedBillRateUSDAmount === undefined) {
+          const converted = extractConvertedAmount(expectedBillRateInUSD)
+          if (converted === null || converted === undefined) {
             throw new Error('Failed to convert expected bill rate to USD')
           }
+          expectedBillRateUSDAmount = converted
+        }
 
-          // Monthly bill rate = Expected Bill Rate in USD + (Min Profit / Duration) with 1% buffer
-          const targetProfitUSD = MIN_PROFIT_THRESHOLD_USD * 1.01
-          minMonthlyBillRate = expectedBillRateUSDAmount + (targetProfitUSD / contractDuration)
+        let oneTimeTotalUSD = acidTestResults.breakdown.oneTimeTotalUSD
+        if (typeof oneTimeTotalUSD !== 'number') {
+          if (acidTestCostData.oneTimeTotal > 0) {
+            const conversion = await convertCurrency(acidTestCostData.oneTimeTotal, localCurrency, 'USD')
+            const converted = extractConvertedAmount(conversion)
+            oneTimeTotalUSD = converted ?? 0
+          } else {
+            oneTimeTotalUSD = 0
+          }
+        }
+
+        const requiredBillRateUSD = expectedBillRateUSDAmount + ((targetProfitUSD + (oneTimeTotalUSD || 0)) / contractDuration)
+
+        let minMonthlyBillRate: number
+        if (billRateCurrency === 'local') {
+          if (localCurrency === 'USD') {
+            minMonthlyBillRate = requiredBillRateUSD
+          } else {
+            const requiredLocal = await convertCurrency(requiredBillRateUSD, 'USD', localCurrency)
+            const converted = extractConvertedAmount(requiredLocal)
+            if (converted === null || converted === undefined) {
+              throw new Error('Failed to convert required bill rate to local currency')
+            }
+            minMonthlyBillRate = converted
+          }
+        } else {
+          minMonthlyBillRate = requiredBillRateUSD
         }
 
         console.log('[Profitability Auto-fill] Calculated min bill rate:', minMonthlyBillRate)
@@ -1453,7 +1464,7 @@ const QuotePageContent = memo(() => {
         billRateComposition.terminationMonthlyUSD,
       ].filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
 
-      const baseMonthlyUSD = baseMonthlyUSDParts.length === 4
+      const baseMonthlyUSD = baseMonthlyUSDParts.length === 5
         ? Number(baseMonthlyUSDParts.reduce((sum, amount) => sum + amount, 0).toFixed(2))
         : toUSD(baseMonthlyCost)
 
@@ -2844,14 +2855,74 @@ const QuotePageContent = memo(() => {
                                                     <Badge className="bg-yellow-50 text-yellow-600 border-yellow-100 text-xs">Detail</Badge>
                                                   </td>
                                                 </tr>
-                                              ))}
-                                            </>
-                                          )}
-                                          <tr className="hover:bg-slate-50 transition-colors bg-purple-50">
+                                          ))}
+                                        </>
+                                      )}
+                                      {billRateComposition.oneTimeTotal > 0 && (
+                                        <>
+                                          <tr
+                                            className="group hover:bg-amber-50 transition-all duration-200 cursor-pointer"
+                                            onClick={() => toggleCategoryExpansion('oneTimeFees')}
+                                          >
                                             <td className="py-4 px-6">
                                               <div className="flex items-center gap-3">
-                                                <div className="w-3 h-3 bg-purple-600"></div>
-                                                <span className="font-bold text-purple-800">
+                                                <div className="w-3 h-3 bg-amber-500"></div>
+                                                <span className="font-medium text-amber-900">One-Time Onboarding Costs</span>
+                                                {expandedCategories.has('oneTimeFees') ? (
+                                                  <ChevronUp className="h-4 w-4 text-amber-600 transition-colors" />
+                                                ) : (
+                                                  <ChevronDown className="h-4 w-4 text-amber-600 transition-colors" />
+                                                )}
+                                              </div>
+                                            </td>
+                                          <td className="py-4 px-6 text-right font-semibold text-amber-900">
+                                            <div className="space-y-1">
+                                              <div>{formatMoney(billRateComposition.oneTimeTotal, acidTestCostData?.currency || 'EUR')}</div>
+                                              <p className="text-xs text-amber-700">One-time payment (not monthly)</p>
+                                            </div>
+                                          </td>
+                                          {acidTestCostData?.currency !== 'USD' && (
+                                            <td className="py-4 px-6 text-right font-semibold text-amber-800">
+                                              {billRateComposition.oneTimeTotalUSD
+                                                ? formatMoney(billRateComposition.oneTimeTotalUSD, 'USD')
+                                                : '—'
+                                              }
+                                            </td>
+                                          )}
+                                            <td className="py-4 px-6 text-center">
+                                              <Badge className="bg-amber-100 text-amber-800 border-amber-200">One-Time</Badge>
+                                            </td>
+                                          </tr>
+                                          {expandedCategories.has('oneTimeFees') && acidTestCostData && Object.entries(acidTestCostData.categories.oneTimeFees || {})
+                                            .filter(([, amount]) => resolveMonthlyAmount(amount) > 0)
+                                            .map(([itemKey, amount]) => (
+                                              <tr key={`oneTimeFees-${itemKey}`} className="bg-slate-25 border-l-4 border-l-amber-500 hover:bg-amber-25 transition-colors">
+                                                <td className="py-3 px-6 pl-12">
+                                                  <div className="flex items-center gap-2">
+                                                    <div className="w-2 h-2 bg-amber-300 rounded-full"></div>
+                                                    <span className="text-sm text-slate-600">{itemKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                                                  </div>
+                                                </td>
+                                                <td className="py-3 px-6 text-right text-sm font-medium text-slate-700">
+                                                  {formatMoney(amount, acidTestCostData.currency)}
+                                                </td>
+                                                {acidTestCostData?.currency !== 'USD' && (
+                                                  <td className="py-3 px-6 text-right text-sm font-medium text-slate-500">
+                                                    —
+                                                  </td>
+                                                )}
+                                                <td className="py-3 px-6 text-center">
+                                                  <Badge className="bg-amber-50 text-amber-600 border-amber-100 text-xs">Detail</Badge>
+                                                </td>
+                                              </tr>
+                                            ))}
+                                        </>
+                                      )}
+                                      <tr className="hover:bg-slate-50 transition-colors bg-purple-50">
+                                        <td className="py-4 px-6">
+                                          <div className="flex items-center gap-3">
+                                            <div className="w-3 h-3 bg-purple-600"></div>
+                                            <span className="font-bold text-purple-800">
                                                   {(() => {
                                                     const value = Number.isFinite(billRateComposition.gracemarkFeePercentage)
                                                       ? billRateComposition.gracemarkFeePercentage
@@ -3444,6 +3515,110 @@ const QuotePageContent = memo(() => {
         }
       }
 
+      const getLocalOfficeOnboardingFees = async () => {
+        const form = quoteData?.formData as EORFormData | undefined
+        const localOffice = form?.localOfficeInfo
+        const formCurrency = (form?.currency || '').toUpperCase()
+        const targetCurrency = (finalChoice?.currency || '').toUpperCase()
+
+        if (!localOffice) return [] as Array<{ key: string; amount: number }>
+        if (!formCurrency || !targetCurrency || formCurrency !== targetCurrency) {
+          return []
+        }
+
+        const parseFee = (value?: string) => {
+          const parsed = resolveMonthlyAmount(value)
+          return Number.isFinite(parsed) && parsed > 0 ? Number(parsed.toFixed(2)) : 0
+        }
+
+        const localEntries: Array<{ key: string; amount: number }> = []
+        const usdEntries: Array<{ key: string; usdAmount: number }> = []
+
+        const addEntry = (field: keyof LocalOfficeInfo, outputKey: string) => {
+          const rawValue = localOffice[field]
+          const amount = parseFee(rawValue)
+          if (amount <= 0) return
+
+          const original = typeof rawValue === 'string' ? rawValue : ''
+          const indicatesUSD = /\bUSD\b|\$/i.test(original)
+
+          if (indicatesUSD && formCurrency !== 'USD') {
+            usdEntries.push({ key: outputKey, usdAmount: amount })
+          } else {
+            localEntries.push({ key: outputKey, amount })
+          }
+        }
+
+        addEntry('preEmploymentMedicalTest', 'pre_employment_medical_test_fee')
+        addEntry('drugTest', 'drug_test_fee')
+        addEntry('backgroundCheckViaDeel', 'background_check_fee')
+
+        if (usdEntries.length === 0) {
+          return localEntries
+        }
+
+        const convertedEntries: Array<{ key: string; amount: number }> = []
+
+        await Promise.all(
+          usdEntries.map(async ({ key, usdAmount }) => {
+            try {
+              const result = await convertCurrency(usdAmount, 'USD', formCurrency)
+              if (result.success && result.data?.target_amount) {
+                convertedEntries.push({
+                  key,
+                  amount: Number(result.data.target_amount.toFixed(2))
+                })
+              }
+            } catch (err) {
+              console.warn('Local office onboarding conversion failed', key, err)
+            }
+          })
+        )
+
+        return [...localEntries, ...convertedEntries]
+      }
+
+      const applyLocalOfficeOnboardingFees = async (categories: AcidTestCategoryBuckets) => {
+        const extras = await getLocalOfficeOnboardingFees()
+        if (!extras.length) {
+          return {
+            categories,
+            aggregates: buildAggregates(categories)
+          }
+        }
+
+        const enhancedOneTimeFees: Record<string, number> = {
+          ...(categories.oneTimeFees || {})
+        }
+
+        let changed = false
+        extras.forEach(({ key, amount }) => {
+          const existing = resolveMonthlyAmount(enhancedOneTimeFees[key] ?? 0)
+          const combined = Number((existing + amount).toFixed(2))
+          if (combined > 0 && combined !== existing) {
+            enhancedOneTimeFees[key] = combined
+            changed = true
+          }
+        })
+
+        if (!changed) {
+          return {
+            categories,
+            aggregates: buildAggregates(categories)
+          }
+        }
+
+        const updatedCategories: AcidTestCategoryBuckets = {
+          ...categories,
+          oneTimeFees: enhancedOneTimeFees
+        }
+
+        return {
+          categories: updatedCategories,
+          aggregates: buildAggregates(updatedCategories)
+        }
+      }
+
       const requestPayload = {
         provider: providerKey,
         country: (quoteData?.formData as EORFormData)?.country || 'Unknown',
@@ -3469,8 +3644,7 @@ const QuotePageContent = memo(() => {
         }
 
         const categorizedData: AcidTestCategoryBuckets = await response.json()
-        const aggregates = buildAggregates(categorizedData)
-        return { categories: categorizedData, aggregates }
+        return await applyLocalOfficeOnboardingFees(categorizedData)
       } catch (error) {
         console.error('LLM categorization failed, falling back to simple categorization:', error)
 
@@ -3511,10 +3685,7 @@ const QuotePageContent = memo(() => {
           oneTimeFees,
         }
 
-        return {
-          categories: fallbackCategories,
-          aggregates: buildAggregates(fallbackCategories),
-        }
+        return await applyLocalOfficeOnboardingFees(fallbackCategories)
       }
     }
 
