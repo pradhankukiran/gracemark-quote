@@ -1,4 +1,4 @@
-import { useEffect, memo } from "react"
+import { useEffect, memo, useMemo, useRef } from "react"
 import { Building2 } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -26,7 +26,13 @@ export const LocalOfficeInformation = memo(({
   onLocalOfficeUpdate,
   countryCode,
 }: LocalOfficeInformationProps) => {
-  const originalData = countryCode ? getOriginalLocalOfficeData(countryCode) : null
+  // Memoize originalData to prevent recreating the object on every render
+  const originalData = useMemo(() =>
+    countryCode ? getOriginalLocalOfficeData(countryCode) : null,
+    [countryCode]
+  )
+
+  const hasUpdatedRef = useRef(false)
 
   const {
     convertedLocalOffice,
@@ -41,29 +47,47 @@ export const LocalOfficeInformation = memo(({
 
   // Store converted values in form state when conversion is complete
   useEffect(() => {
-    if (!isConvertingLocalOffice && (originalData || Object.keys(convertedLocalOffice).length > 0)) {
-      const updatedLocalOfficeInfo: Partial<LocalOfficeInfo> = {}
-      
-      // Build the local office data with converted values
-      const fields: Array<keyof LocalOfficeInfo> = [
-        'mealVoucher', 'transportation', 'wfh', 'healthInsurance',
-        'monthlyPaymentsToLocalOffice', 'vat', 'preEmploymentMedicalTest',
-        'drugTest', 'backgroundCheckViaDeel'
-      ]
-      
-      fields.forEach(field => {
-        const convertedValue = getConvertedLocalOfficeValue(field, convertedLocalOffice, originalData)
-        if (convertedValue && convertedValue !== 'N/A') {
-          updatedLocalOfficeInfo[field] = convertedValue
-        }
-      })
-      
-      // Only update if we have values to set
-      if (Object.keys(updatedLocalOfficeInfo).length > 0) {
-        onLocalOfficeUpdate(updatedLocalOfficeInfo)
+    // Prevent update loop - only update once per conversion cycle
+    if (isConvertingLocalOffice) {
+      hasUpdatedRef.current = false
+      return
+    }
+
+    if (hasUpdatedRef.current) {
+      return
+    }
+
+    if (!originalData && Object.keys(convertedLocalOffice).length === 0) {
+      return
+    }
+
+    const updatedLocalOfficeInfo: Partial<LocalOfficeInfo> = {}
+
+    // Build the local office data with converted values
+    const fields: Array<keyof LocalOfficeInfo> = [
+      'mealVoucher', 'transportation', 'wfh', 'healthInsurance',
+      'monthlyPaymentsToLocalOffice', 'vat', 'preEmploymentMedicalTest',
+      'drugTest', 'backgroundCheckViaDeel'
+    ]
+
+    fields.forEach(field => {
+      const convertedValue = getConvertedLocalOfficeValue(field, convertedLocalOffice, originalData)
+      if (convertedValue && convertedValue !== 'N/A') {
+        updatedLocalOfficeInfo[field] = convertedValue
       }
+    })
+
+    // Only update if we have values to set
+    if (Object.keys(updatedLocalOfficeInfo).length > 0) {
+      hasUpdatedRef.current = true
+      onLocalOfficeUpdate(updatedLocalOfficeInfo)
     }
   }, [convertedLocalOffice, originalData, isConvertingLocalOffice, onLocalOfficeUpdate])
+
+  // Reset update flag when country changes
+  useEffect(() => {
+    hasUpdatedRef.current = false
+  }, [countryCode])
 
   const getDisplayCurrency = () => {
     return currency

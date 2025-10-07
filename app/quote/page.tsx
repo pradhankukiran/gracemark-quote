@@ -3688,8 +3688,30 @@ const QuotePageContent = memo(() => {
 
         await Promise.all(ONBOARDING_FEE_FIELDS.map(async ({ field, key }) => {
           let parsedAmount = sanitizeLocalOfficeAmount(localOfficeInfo?.[field])
-          let amountSourceCurrency = formCurrency || targetCurrency
+          let amountSourceCurrency: string | null = null
 
+          // Determine the source currency for the value from localOfficeInfo
+          if (parsedAmount > 0 && originalLocalOfficeDefaults) {
+            const originalAmount = sanitizeLocalOfficeAmount(originalLocalOfficeDefaults[field])
+            const fieldCurrency = getFieldCurrency(field, resolvedCountryCode)
+
+            // If this is a USD field, check if the value is still in USD or has been converted
+            if (fieldCurrency === 'usd' && originalAmount > 0) {
+              // If the parsed amount is close to the original USD amount (within 5% tolerance),
+              // it's likely still in USD. Otherwise, it's been converted to form currency.
+              const tolerance = originalAmount * 0.05
+              const isStillUSD = Math.abs(parsedAmount - originalAmount) <= tolerance
+              amountSourceCurrency = isStillUSD ? 'USD' : (formCurrency || targetCurrency)
+            } else {
+              // For local currency fields, the value is in form currency
+              amountSourceCurrency = formCurrency || targetCurrency
+            }
+          } else if (parsedAmount > 0) {
+            // No original defaults available, assume it's in form currency
+            amountSourceCurrency = formCurrency || targetCurrency
+          }
+
+          // Fall back to original defaults if no value from form
           if (parsedAmount <= 0 && originalLocalOfficeDefaults) {
             const fallbackAmount = sanitizeLocalOfficeAmount(originalLocalOfficeDefaults[field])
             if (fallbackAmount > 0) {

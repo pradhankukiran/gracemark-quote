@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { convertCurrency } from "@/lib/currency-converter"
 import { LocalOfficeInfo } from "@/lib/shared/types"
 import { getFieldCurrency } from "@/lib/shared/utils/localOfficeData"
@@ -31,9 +31,21 @@ export const useLocalOfficeConversion = ({
   const [convertedLocalOffice, setConvertedLocalOffice] = useState<ConvertedLocalOfficeData>({})
   const [isConvertingLocalOffice, setIsConvertingLocalOffice] = useState(false)
   const conversionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const lastConversionKeyRef = useRef<string>('')
+
+  // Create stable conversion key from primitive values only
+  const conversionKey = useMemo(() => {
+    if (!countryCode || !formCurrency) return ''
+    return `${countryCode}-${formCurrency}-${isCurrencyManuallySet}`
+  }, [countryCode, formCurrency, isCurrencyManuallySet])
 
   // Convert local office data when currency is overridden or when country changes
   useEffect(() => {
+    // Skip if conversion key hasn't changed
+    if (conversionKey === lastConversionKeyRef.current) {
+      return
+    }
+    lastConversionKeyRef.current = conversionKey
     const convertLocalOfficeData = async () => {
       if (!originalData || !countryCode) {
         setConvertedLocalOffice({})
@@ -114,7 +126,8 @@ export const useLocalOfficeConversion = ({
         clearTimeout(conversionTimeoutRef.current)
       }
     }
-  }, [originalData, countryCode, formCurrency, isCurrencyManuallySet, originalCurrency])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversionKey, originalData, countryCode])
 
   const isLocalOfficeReady = !isConvertingLocalOffice
 

@@ -25,7 +25,6 @@ import { FormActions } from "./components/FormActions"
 import { BenefitsSelection } from "./components/BenefitsSelection"
 import { LocalOfficeInformation } from "./components/LocalOfficeInformation"
 import { FormSectionHeader } from "./components/shared/FormSectionHeader"
-import { isLatamCountry } from "@/lib/shared/utils/validationUtils"
 import { SmoothReveal } from "./components/shared/OptimizedReveal"
 
 
@@ -374,8 +373,8 @@ export default function EORCalculatorPage() {
                   />
                 </SmoothReveal>
 
-                {/* Show Local Office Information for LATAM countries */}
-                {isLatamCountry(selectedCountryData?.code) && (
+                {/* Show Local Office Information for all countries */}
+                {selectedCountryData && (
                   <>
                     <Separator />
                     <LocalOfficeInformation

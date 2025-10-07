@@ -8,18 +8,9 @@ import {
   hasStates
 } from "@/lib/country-data"
 import { convertCurrency } from "@/lib/currency-converter"
+import { getDefaultLocalOfficeInfo, getLocalOfficeData, hasLocalOfficeData } from "@/lib/shared/utils/localOfficeData"
 
-const initialLocalOfficeInfo: LocalOfficeInfo = {
-  mealVoucher: "",
-  transportation: "",
-  wfh: "",
-  healthInsurance: "",
-  monthlyPaymentsToLocalOffice: "",
-  vat: "",
-  preEmploymentMedicalTest: "",
-  drugTest: "",
-  backgroundCheckViaDeel: "",
-}
+const initialLocalOfficeInfo: LocalOfficeInfo = getDefaultLocalOfficeInfo()
 
 const initialFormData: EORFormData = {
   employeeName: "",
@@ -272,7 +263,7 @@ export const useEORForm = () => {
   const clearLocalOfficeInfo = useCallback(() => {
     setFormData((prev) => ({
       ...prev,
-      localOfficeInfo: initialLocalOfficeInfo,
+      localOfficeInfo: getDefaultLocalOfficeInfo(),
     }))
   }, [])
 
@@ -284,9 +275,37 @@ export const useEORForm = () => {
   }, [])
 
   const handleCountryChange = useCallback((country: string) => {
-    updateFormData({ country, state: '' }); // Also reset state when country changes
-    setSalaryConversionMessage(null); // Clear message on country change
-  }, [updateFormData]);
+    const countryData = country ? getCountryByName(country) : null
+    const normalizedCode = countryData?.code || ''
+    const localOfficeDefaults = getLocalOfficeData(normalizedCode)
+
+    setFormData((prev) => ({
+      ...prev,
+      country,
+      state: '',
+      localOfficeInfo: { ...localOfficeDefaults },
+    }))
+    setSalaryConversionMessage(null) // Clear message on country change
+  }, []);
+
+  useEffect(() => {
+    if (!formData.country) return
+    const normalizedCode = selectedCountryData?.code || ''
+    const currentMonthly = formData.localOfficeInfo?.monthlyPaymentsToLocalOffice || ''
+    const needsDefault = !currentMonthly.trim() || currentMonthly.trim().toUpperCase() === 'N/A'
+
+    const isBespoke = !!normalizedCode && hasLocalOfficeData(normalizedCode)
+
+    if (!isBespoke && needsDefault) {
+      const defaults = getLocalOfficeData(normalizedCode)
+      setFormData((prev) => ({
+        ...prev,
+        localOfficeInfo: {
+          ...defaults,
+        },
+      }))
+    }
+  }, [formData.country, formData.localOfficeInfo?.monthlyPaymentsToLocalOffice, selectedCountryData?.code])
 
   
 

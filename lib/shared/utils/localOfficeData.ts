@@ -6,6 +6,20 @@ interface LocalOfficeData {
   [countryCode: string]: LocalOfficeInfo
 }
 
+const FALLBACK_LOCAL_OFFICE_MONTHLY_USD = 250
+
+const createFallbackLocalOfficeInfo = (): LocalOfficeInfo => ({
+  mealVoucher: 'N/A',
+  transportation: 'N/A',
+  wfh: 'N/A',
+  healthInsurance: 'N/A',
+  monthlyPaymentsToLocalOffice: FALLBACK_LOCAL_OFFICE_MONTHLY_USD.toFixed(2),
+  vat: 'N/A',
+  preEmploymentMedicalTest: 'N/A',
+  drugTest: 'N/A',
+  backgroundCheckViaDeel: 'N/A'
+})
+
 // Base data with USD values that need to be converted to local currency
 export const LOCAL_OFFICE_DATA: LocalOfficeData = {
   CO: { // Colombia - USD fields will be converted to COP
@@ -77,12 +91,20 @@ export const LOCAL_OFFICE_DATA: LocalOfficeData = {
 }
 
 export const getLocalOfficeData = (countryCode: string): LocalOfficeInfo | null => {
-  return LOCAL_OFFICE_DATA[countryCode] || null
+  const data = LOCAL_OFFICE_DATA[countryCode]
+  if (data) {
+    return { ...data }
+  }
+  return createFallbackLocalOfficeInfo()
 }
 
 // Get the original USD-based data (before conversion)
 export const getOriginalLocalOfficeData = (countryCode: string): LocalOfficeInfo | null => {
-  return LOCAL_OFFICE_DATA[countryCode] || null
+  const data = LOCAL_OFFICE_DATA[countryCode]
+  if (data) {
+    return { ...data }
+  }
+  return createFallbackLocalOfficeInfo()
 }
 
 export const hasLocalOfficeData = (countryCode: string): boolean => {
@@ -115,4 +137,8 @@ export const needsUSDConversion = (field: keyof LocalOfficeInfo, countryCode: st
   
   // Only convert fields that are marked as USD fields
   return getFieldCurrency(field, countryCode) === 'usd'
+}
+
+export const getDefaultLocalOfficeInfo = (): LocalOfficeInfo => {
+  return createFallbackLocalOfficeInfo()
 }
