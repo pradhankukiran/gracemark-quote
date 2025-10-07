@@ -18,7 +18,7 @@ import { ProviderLogo } from "./components/ProviderLogo"
 import { EnhancementProvider, useEnhancementContext } from "@/hooks/enhancement/EnhancementContext"
 import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, transformToRemoteQuote, transformOysterQuoteToDisplayQuote } from "@/lib/shared/utils/apiUtils"
 import { identifyBenefitKey } from "@/lib/shared/utils/benefitNormalization"
-import { EORFormData, RemoteAPIResponse, Quote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
+import { EORFormData, LocalOfficeInfo, RemoteAPIResponse, Quote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
 import { ProviderType, EnhancedQuote, TerminationComponentEnhancement } from "@/lib/types/enhancement"
 import { convertCurrency } from "@/lib/currency-converter"
 import { getRawQuote } from "@/lib/shared/utils/rawQuoteStore"
@@ -35,6 +35,7 @@ import {
   parseNumericValue,
   baseQuoteContainsPattern
 } from "./utils/providerprice"
+import { hasLocalOfficeData, getOriginalLocalOfficeData, getFieldCurrency } from "@/lib/shared/utils/localOfficeData"
 
 const PROVIDER_LIST: ProviderType[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity', 'playroll', 'omnipresent']
 
@@ -195,6 +196,116 @@ const shouldDropEmployeeEntry = (item: { key: string; name: string }) => {
   )
 }
 
+const ONBOARDING_FEE_FIELDS: Array<{ field: keyof LocalOfficeInfo; key: string }> = [
+  { field: 'preEmploymentMedicalTest', key: 'pre_employment_medical_test' },
+  { field: 'drugTest', key: 'drug_test' },
+  { field: 'backgroundCheckViaDeel', key: 'background_check_via_deel' },
+]
+
+const ISO3_TO_LOCAL_OFFICE_CODE: Record<string, string> = {
+  COL: 'CO',
+  BRA: 'BR',
+  ARG: 'AR',
+  MEX: 'MX',
+  CHL: 'CL',
+  PER: 'PE',
+}
+const COUNTRY_NAME_TO_LOCAL_OFFICE_CODE: Record<string, string> = {
+  COLOMBIA: 'CO',
+  COL: 'CO',
+  BRAZIL: 'BR',
+  BRASIL: 'BR',
+  ARGENTINA: 'AR',
+  MEXICO: 'MX',
+  CHILE: 'CL',
+  PERU: 'PE',
+}
+
+const normalizeCountryIdentifier = (value?: string | null): string | null => {
+  if (!value) return null
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  const withoutDiacritics = trimmed.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const upper = withoutDiacritics.toUpperCase()
+
+  if (hasLocalOfficeData(upper)) {
+    return upper
+  }
+
+  if (upper.length === 3 && ISO3_TO_LOCAL_OFFICE_CODE[upper]) {
+    return ISO3_TO_LOCAL_OFFICE_CODE[upper]
+  }
+
+  const alphaOnly = upper.replace(/[^A-Z]/g, '')
+  if (COUNTRY_NAME_TO_LOCAL_OFFICE_CODE[alphaOnly]) {
+    return COUNTRY_NAME_TO_LOCAL_OFFICE_CODE[alphaOnly]
+  }
+
+  return null
+}
+
+const sanitizeLocalOfficeAmount = (value?: string): number => {
+  if (!value) return 0
+  const trimmed = value.trim()
+  if (!trimmed) return 0
+
+  const normalized = trimmed.toLowerCase()
+  if (normalized === 'n/a' || normalized === 'no' || normalized === 'none') {
+    return 0
+  }
+
+  const parsed = parseNumericValue(trimmed)
+  if (parsed === null || !Number.isFinite(parsed)) {
+    return 0
+  }
+
+  return parsed > 0 ? parsed : 0
+}
+
+const findLocalOfficeCountryCodeInObject = (value: unknown, depth = 0): string | null => {
+  if (depth > 6 || value == null) return null
+
+  if (typeof value === 'string') {
+    return normalizeCountryIdentifier(value)
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = findLocalOfficeCountryCodeInObject(item, depth + 1)
+      if (found) return found
+    }
+    return null
+  }
+
+  if (typeof value === 'object') {
+    const candidateKeys = [
+      'country',
+      'country_code',
+      'countryCode',
+      'countryCodeAlpha2',
+      'countryName',
+      'countryISO',
+      'countryIso',
+      'country_iso',
+      'employment_country',
+      'employmentCountry',
+    ]
+    for (const key of candidateKeys) {
+      if (key in (value as Record<string, unknown>)) {
+        const found = findLocalOfficeCountryCodeInObject((value as Record<string, unknown>)[key], depth + 1)
+        if (found) return found
+      }
+    }
+
+    for (const child of Object.values(value as Record<string, unknown>)) {
+      const found = findLocalOfficeCountryCodeInObject(child, depth + 1)
+      if (found) return found
+    }
+  }
+
+  return null
+}
+
 // Build items exactly as displayed in UI: base costs + filtered enhancement extras
 const buildDisplayedItems = (
   enhancement: EnhancedQuote | undefined,
@@ -320,6 +431,7 @@ type AcidTestCategoryBuckets = {
   allowancesBenefits: Record<string, number>
   terminationCosts: Record<string, number>
   oneTimeFees: Record<string, number>
+  onboardingFees: Record<string, number>
 }
 
 type AcidTestAggregates = {
@@ -328,6 +440,7 @@ type AcidTestAggregates = {
   allowancesMonthly: number
   terminationMonthly: number
   oneTimeTotal: number
+  onboardingTotal: number
 }
 
 type AcidTestCostData = {
@@ -342,6 +455,7 @@ type AcidTestBreakdown = {
   allowancesTotal: number
   terminationTotal: number
   oneTimeTotal: number
+  onboardingTotal: number
   recurringMonthly: number
   recurringTotal: number
   // USD versions
@@ -350,6 +464,7 @@ type AcidTestBreakdown = {
   allowancesTotalUSD?: number
   terminationTotalUSD?: number
   oneTimeTotalUSD?: number
+  onboardingTotalUSD?: number
   recurringMonthlyUSD?: number
   recurringTotalUSD?: number
 }
@@ -756,6 +871,8 @@ const QuotePageContent = memo(() => {
     // Only include termination costs if it's an all-inclusive quote
     const terminationTotal = isAllInclusive ? (costData.terminationMonthly * duration) : 0
     const oneTimeTotal = costData.oneTimeTotal
+    const onboardingTotal = costData.onboardingTotal
+    const nonPassThroughOneTimeLocal = Math.max(0, oneTimeTotal - onboardingTotal)
 
     // For display purposes only - these are not used in the main calculation
     const coreMonthlyCost = costData.baseSalaryMonthly + costData.statutoryMonthly + costData.allowancesMonthly
@@ -783,14 +900,14 @@ const QuotePageContent = memo(() => {
     const totalCostsGracemark = recurringTotal + oneTimeTotal // Everything Gracemark pays out
 
     // Actual values from input
-    const actualRevenueTotal = billRate * duration
+    const actualRevenueTotal = billRate * duration + onboardingTotal
     const rateDiscrepancy = billRate - expectedBillRateMonthly
 
     // Cash flow calculation: Revenue vs what we pay out
     const profitLocal = actualRevenueTotal - totalCostsGracemark
 
     const marginMonthly = actualGracemarkFeeMonthly
-    const marginTotal = marginMonthly * duration - oneTimeTotal
+    const marginTotal = marginMonthly * duration - nonPassThroughOneTimeLocal
 
     // Comprehensive USD conversion
     let revenueUSD: number | undefined
@@ -804,6 +921,7 @@ const QuotePageContent = memo(() => {
     let allowancesTotalUSD: number | undefined
     let terminationTotalUSD: number | undefined
     let oneTimeTotalUSD: number | undefined
+    let onboardingTotalUSD: number | undefined
     let recurringMonthlyUSD: number | undefined
     let recurringTotalUSD: number | undefined
 
@@ -832,6 +950,7 @@ const QuotePageContent = memo(() => {
       allowancesTotalUSD = allowancesTotal
       terminationTotalUSD = terminationTotal
       oneTimeTotalUSD = oneTimeTotal
+      onboardingTotalUSD = onboardingTotal
       recurringMonthlyUSD = recurringMonthly
       recurringTotalUSD = recurringTotal
 
@@ -858,6 +977,7 @@ const QuotePageContent = memo(() => {
           convertCurrency(allowancesTotal, costData.currency, 'USD'),
           convertCurrency(terminationTotal, costData.currency, 'USD'),
           convertCurrency(oneTimeTotal, costData.currency, 'USD'),
+          convertCurrency(onboardingTotal, costData.currency, 'USD'),
           convertCurrency(recurringMonthly, costData.currency, 'USD'),
           convertCurrency(recurringTotal, costData.currency, 'USD'),
           convertCurrency(costData.baseSalaryMonthly, costData.currency, 'USD'),
@@ -873,7 +993,7 @@ const QuotePageContent = memo(() => {
 
         const [
           revenueConv, totalCostConv, salaryTotalConv, statutoryTotalConv, allowancesTotalConv,
-          terminationTotalConv, oneTimeTotalConv, recurringMonthlyConv, recurringTotalConv,
+          terminationTotalConv, oneTimeTotalConv, onboardingTotalConv, recurringMonthlyConv, recurringTotalConv,
           salaryMonthlyConv, statutoryMonthlyConv, allowancesMonthlyConv, terminationMonthlyConv,
           gracemarkFeeMonthlyConv, providerFeeMonthlyConv, expectedBillRateConv, actualBillRateConv,
           rateDiscrepancyConv
@@ -887,6 +1007,7 @@ const QuotePageContent = memo(() => {
         if (allowancesTotalConv.success && allowancesTotalConv.data) allowancesTotalUSD = allowancesTotalConv.data.target_amount
         if (terminationTotalConv.success && terminationTotalConv.data) terminationTotalUSD = terminationTotalConv.data.target_amount
         if (oneTimeTotalConv.success && oneTimeTotalConv.data) oneTimeTotalUSD = oneTimeTotalConv.data.target_amount
+        if (onboardingTotalConv.success && onboardingTotalConv.data) onboardingTotalUSD = onboardingTotalConv.data.target_amount
         if (recurringMonthlyConv.success && recurringMonthlyConv.data) recurringMonthlyUSD = recurringMonthlyConv.data.target_amount
         if (recurringTotalConv.success && recurringTotalConv.data) recurringTotalUSD = recurringTotalConv.data.target_amount
         if (salaryMonthlyConv.success && salaryMonthlyConv.data) salaryMonthlyUSD = salaryMonthlyConv.data.target_amount
@@ -902,8 +1023,9 @@ const QuotePageContent = memo(() => {
         if (typeof actualBillRateUSD === 'number' && typeof recurringMonthlyUSD === 'number') {
           marginMonthlyUSD = actualBillRateUSD - recurringMonthlyUSD
         }
-        if (typeof marginMonthlyUSD === 'number' && typeof oneTimeTotalUSD === 'number') {
-          marginTotalUSD = marginMonthlyUSD * duration - oneTimeTotalUSD
+        if (typeof marginMonthlyUSD === 'number') {
+          const nonPassThroughOneTimeUSD = Math.max(0, (oneTimeTotalUSD ?? 0) - (onboardingTotalUSD ?? 0))
+          marginTotalUSD = marginMonthlyUSD * duration - nonPassThroughOneTimeUSD
         }
 
         // Calculate USD profit if we have both values
@@ -957,6 +1079,7 @@ const QuotePageContent = memo(() => {
         allowancesTotal,
         terminationTotal,
         oneTimeTotal,
+        onboardingTotal,
         recurringMonthly,
         recurringTotal,
         // USD versions
@@ -965,6 +1088,7 @@ const QuotePageContent = memo(() => {
         allowancesTotalUSD,
         terminationTotalUSD,
         oneTimeTotalUSD,
+        onboardingTotalUSD,
         recurringMonthlyUSD,
         recurringTotalUSD,
       },
@@ -1025,6 +1149,7 @@ const QuotePageContent = memo(() => {
     // Calculate total costs using expected bill rate (what we charge per month)
     const totalRecurringCostsLocal = expectedBillRateLocal * duration
     const totalCostsLocal = totalRecurringCostsLocal + acidTestCostData.oneTimeTotal
+    const onboardingTotal = acidTestCostData.onboardingTotal
 
     // Calculate total revenue and costs in the same currency for comparison
     let totalRevenue: number
@@ -1035,7 +1160,7 @@ const QuotePageContent = memo(() => {
     try {
       if (billCurrency === localCurrency) {
         // Both in local currency
-        totalRevenue = billRate * duration
+        totalRevenue = billRate * duration + onboardingTotal
         totalCosts = totalCostsLocal
 
         // Convert to USD for display
@@ -1049,6 +1174,14 @@ const QuotePageContent = memo(() => {
       } else {
         // Bill rate in USD, costs in local currency
         totalRevenue = billRate * duration // in USD
+        const onboardingConversion = await convertCurrency(onboardingTotal, localCurrency, 'USD')
+        const onboardingUSD = extractConvertedAmount(onboardingConversion)
+
+        if (onboardingUSD === null || onboardingUSD === undefined) {
+          throw new Error(`Failed to convert onboarding fees from ${localCurrency} to USD`)
+        }
+
+        totalRevenue += onboardingUSD
         const costsConversion = await convertCurrency(totalCostsLocal, localCurrency, 'USD')
         const convertedCostsUSD = extractConvertedAmount(costsConversion)
 
@@ -2480,7 +2613,10 @@ const QuotePageContent = memo(() => {
                                       <li>Statutory: {formatAmount(breakdown.statutoryTotal, breakdown.statutoryTotalUSD)}</li>
                                       <li>Allowances & benefits: {formatAmount(breakdown.allowancesTotal, breakdown.allowancesTotalUSD)}</li>
                                       <li>Termination provision: {formatAmount(breakdown.terminationTotal, breakdown.terminationTotalUSD)}</li>
-                                      <li>One-time costs: {formatAmount(breakdown.oneTimeTotal, breakdown.oneTimeTotalUSD)}</li>
+                                      {breakdown.onboardingTotal > 0 && (
+                                        <li>Onboarding fees (one time): {formatAmount(breakdown.onboardingTotal, breakdown.onboardingTotalUSD)}</li>
+                                      )}
+                                      <li>Total one-time costs: {formatAmount(breakdown.oneTimeTotal, breakdown.oneTimeTotalUSD)}</li>
                                       <li className="font-semibold">Recurring monthly cost: {formatAmount(breakdown.recurringMonthly, breakdown.recurringMonthlyUSD)}</li>
                                       <li className="font-semibold">Recurring project total: {formatAmount(breakdown.recurringTotal, breakdown.recurringTotalUSD)}</li>
                                     </ul>
@@ -2786,6 +2922,61 @@ const QuotePageContent = memo(() => {
                                                   )}
                                                   <td className="py-3 px-6 text-center">
                                                     <Badge className="bg-green-50 text-green-600 border-green-100 text-xs">Detail</Badge>
+                                                  </td>
+                                                </tr>
+                                              ))}
+                                            </>
+                                          )}
+                                          {acidTestCostData?.onboardingTotal > 0 && (
+                                            <>
+                                              <tr
+                                                className="group hover:bg-rose-50 hover:border-l-4 hover:border-l-rose-500 transition-all duration-200 cursor-pointer"
+                                                onClick={() => toggleCategoryExpansion('onboardingFees')}
+                                              >
+                                                <td className="py-4 px-6">
+                                                  <div className="flex items-center gap-3">
+                                                    <div className="w-3 h-3 bg-rose-500"></div>
+                                                    <span className="font-medium text-slate-800">Onboarding Fees (One Time)</span>
+                                                    {expandedCategories.has('onboardingFees') ? (
+                                                      <ChevronUp className="h-4 w-4 text-slate-500 group-hover:text-rose-600 transition-colors" />
+                                                    ) : (
+                                                      <ChevronDown className="h-4 w-4 text-slate-500 group-hover:text-rose-600 transition-colors" />
+                                                    )}
+                                                  </div>
+                                                </td>
+                                                <td className="py-4 px-6 text-right font-semibold text-slate-900">
+                                                  {formatMoney(acidTestCostData.onboardingTotal, acidTestCostData?.currency || 'EUR')}
+                                                </td>
+                                                {acidTestCostData?.currency !== 'USD' && (
+                                                  <td className="py-4 px-6 text-right font-semibold text-slate-700">
+                                                    {typeof breakdown.onboardingTotalUSD === 'number'
+                                                      ? formatMoney(breakdown.onboardingTotalUSD, 'USD')
+                                                      : '—'
+                                                    }
+                                                  </td>
+                                                )}
+                                                <td className="py-4 px-6 text-center">
+                                                  <Badge className="bg-rose-100 text-rose-800 border-rose-200">One Time</Badge>
+                                                </td>
+                                              </tr>
+                                              {expandedCategories.has('onboardingFees') && acidTestCostData && Object.entries(acidTestCostData.categories.onboardingFees).map(([itemKey, amount]) => (
+                                                <tr key={`onboardingFees-${itemKey}`} className="bg-slate-25 border-l-4 border-l-rose-500 hover:bg-rose-25 transition-colors">
+                                                  <td className="py-3 px-6 pl-12">
+                                                    <div className="flex items-center gap-2">
+                                                      <div className="w-2 h-2 bg-rose-300 rounded-full"></div>
+                                                      <span className="text-sm text-slate-600">{itemKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                                                    </div>
+                                                  </td>
+                                                  <td className="py-3 px-6 text-right text-sm font-medium text-slate-700">
+                                                    {formatMoney(amount, acidTestCostData.currency)}
+                                                  </td>
+                                                  {acidTestCostData?.currency !== 'USD' && (
+                                                    <td className="py-3 px-6 text-right text-sm font-medium text-slate-500">
+                                                      —
+                                                    </td>
+                                                  )}
+                                                  <td className="py-3 px-6 text-center">
+                                                    <Badge className="bg-rose-50 text-rose-600 border-rose-100 text-xs">Detail</Badge>
                                                   </td>
                                                 </tr>
                                               ))}
@@ -3431,16 +3622,123 @@ const QuotePageContent = memo(() => {
         return null
       }
 
+      const normalizeCategories = (input: Partial<AcidTestCategoryBuckets>): AcidTestCategoryBuckets => ({
+        baseSalary: input.baseSalary || {},
+        statutoryMandatory: input.statutoryMandatory || {},
+        allowancesBenefits: input.allowancesBenefits || {},
+        terminationCosts: input.terminationCosts || {},
+        oneTimeFees: input.oneTimeFees || {},
+        onboardingFees: input.onboardingFees || {},
+      })
+
+      const addOnboardingFees = async (categories: AcidTestCategoryBuckets): Promise<AcidTestCategoryBuckets> => {
+        const formData = quoteData?.formData as EORFormData | undefined
+
+        const resolveCountryCode = (): string | null => {
+          const candidates: Array<string | null | undefined> = [
+            formData?.country,
+            (formData as unknown as { countryCode?: string })?.countryCode,
+            (formData as unknown as { country_code?: string })?.country_code,
+            finalChoice.enhancedQuote?.baseQuote?.country,
+          ]
+
+          for (const candidate of candidates) {
+            const normalized = normalizeCountryIdentifier(candidate ?? null)
+            if (normalized) {
+              return normalized
+            }
+          }
+
+          const providerQuotes = quoteData?.quotes as Record<string, unknown> | undefined
+          if (providerQuotes && providerKey && providerQuotes[providerKey]) {
+            const found = findLocalOfficeCountryCodeInObject(providerQuotes[providerKey])
+            const normalized = normalizeCountryIdentifier(found)
+            if (normalized) {
+              return normalized
+            }
+          }
+
+          return null
+        }
+
+        const resolvedCountryCode = resolveCountryCode()
+        if (!resolvedCountryCode || !hasLocalOfficeData(resolvedCountryCode)) {
+          return {
+            ...categories,
+            onboardingFees: { ...categories.onboardingFees }
+          }
+        }
+
+        const localOfficeInfo = formData?.localOfficeInfo as LocalOfficeInfo | undefined
+        const originalLocalOfficeDefaults = getOriginalLocalOfficeData(resolvedCountryCode)
+
+        const formCurrency = formData?.currency || null
+        const targetCurrency = finalChoice.currency
+
+        if (!targetCurrency) {
+          return {
+            ...categories,
+            onboardingFees: { ...categories.onboardingFees }
+          }
+        }
+
+        const updatedOnboardingFees: Record<string, number> = {
+          ...(categories.onboardingFees || {})
+        }
+
+        await Promise.all(ONBOARDING_FEE_FIELDS.map(async ({ field, key }) => {
+          let parsedAmount = sanitizeLocalOfficeAmount(localOfficeInfo?.[field])
+          let amountSourceCurrency = formCurrency || targetCurrency
+
+          if (parsedAmount <= 0 && originalLocalOfficeDefaults) {
+            const fallbackAmount = sanitizeLocalOfficeAmount(originalLocalOfficeDefaults[field])
+            if (fallbackAmount > 0) {
+              parsedAmount = fallbackAmount
+              amountSourceCurrency = getFieldCurrency(field, resolvedCountryCode) === 'usd' ? 'USD' : targetCurrency
+            }
+          }
+
+          if (parsedAmount <= 0) return
+
+          let amount = parsedAmount
+          if (amountSourceCurrency && amountSourceCurrency !== targetCurrency) {
+            try {
+              const conversion = await convertCurrency(parsedAmount, amountSourceCurrency, targetCurrency)
+              if (!conversion.success || !conversion.data) {
+                console.warn(`Failed to convert onboarding fee ${field} from ${amountSourceCurrency} to ${targetCurrency}:`, conversion.error)
+                return
+              }
+              amount = conversion.data.target_amount
+            } catch (err) {
+              console.warn(`Error converting onboarding fee ${field}:`, err)
+              return
+            }
+          }
+
+          if (Number.isFinite(amount) && amount > 0) {
+            updatedOnboardingFees[key] = Number(amount.toFixed(2))
+          }
+        }))
+
+        return {
+          ...categories,
+          onboardingFees: updatedOnboardingFees
+        }
+      }
+
       const buildAggregates = (categories: AcidTestCategoryBuckets) => {
         const sumBucket = (bucket: Record<string, number>) =>
           Object.values(bucket || {}).reduce((sum, value) => sum + resolveMonthlyAmount(value), 0)
+
+        const onboardingTotal = sumBucket(categories.onboardingFees)
 
         return {
           baseSalaryMonthly: sumBucket(categories.baseSalary),
           statutoryMonthly: sumBucket(categories.statutoryMandatory),
           allowancesMonthly: sumBucket(categories.allowancesBenefits),
           terminationMonthly: sumBucket(categories.terminationCosts),
-          oneTimeTotal: sumBucket(categories.oneTimeFees),
+          oneTimeTotal: sumBucket(categories.oneTimeFees) + onboardingTotal,
+          onboardingTotal,
         }
       }
 
@@ -3468,9 +3766,10 @@ const QuotePageContent = memo(() => {
           throw new Error(`API error: ${response.status}`)
         }
 
-        const categorizedData: AcidTestCategoryBuckets = await response.json()
-        const aggregates = buildAggregates(categorizedData)
-        return { categories: categorizedData, aggregates }
+        const categorizedData = normalizeCategories(await response.json() as Partial<AcidTestCategoryBuckets>)
+        const enriched = await addOnboardingFees(categorizedData)
+        const aggregates = buildAggregates(enriched)
+        return { categories: enriched, aggregates }
       } catch (error) {
         console.error('LLM categorization failed, falling back to simple categorization:', error)
 
@@ -3479,6 +3778,7 @@ const QuotePageContent = memo(() => {
         const allowancesBenefits: Record<string, number> = {}
         const terminationCosts: Record<string, number> = {}
         const oneTimeFees: Record<string, number> = {}
+        const onboardingFees: Record<string, number> = {}
 
         selectedItems.forEach(item => {
           const key = item.key.toLowerCase()
@@ -3494,7 +3794,17 @@ const QuotePageContent = memo(() => {
             name.includes('probation')
           ) {
             terminationCosts[item.key] = amount
-          } else if (key.includes('setup') || key.includes('onboarding') || name.includes('background check')) {
+          } else if (
+            key.includes('medical') ||
+            name.includes('medical') ||
+            key.includes('drug') ||
+            name.includes('drug') ||
+            key.includes('background') ||
+            name.includes('background') ||
+            key.includes('onboarding')
+          ) {
+            onboardingFees[item.key] = amount
+          } else if (key.includes('setup')) {
             oneTimeFees[item.key] = amount
           } else if (key.includes('allowance') || key.includes('meal') || key.includes('transport')) {
             allowancesBenefits[item.key] = amount
@@ -3503,17 +3813,20 @@ const QuotePageContent = memo(() => {
           }
         })
 
-        const fallbackCategories: AcidTestCategoryBuckets = {
+        const fallbackCategories = normalizeCategories({
           baseSalary,
           statutoryMandatory,
           allowancesBenefits,
           terminationCosts,
           oneTimeFees,
-        }
+          onboardingFees,
+        })
+
+        const enrichedFallback = await addOnboardingFees(fallbackCategories)
 
         return {
-          categories: fallbackCategories,
-          aggregates: buildAggregates(fallbackCategories),
+          categories: enrichedFallback,
+          aggregates: buildAggregates(enrichedFallback),
         }
       }
     }
