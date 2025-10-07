@@ -1,55 +1,21 @@
 import { NextRequest, NextResponse } from "next/server"
 import { ICFormData, ICQuoteResult, ICQuoteRequest, ICQuoteResponse } from "@/lib/shared/types"
-import { getCountryByName } from "@/lib/country-data"
 
-// Regional adjustments for different countries/regions
-const REGIONAL_ADJUSTMENTS = {
-  // North America
-  'US': 1.0,
-  'CA': 0.95,
-
-  // Europe
-  'GB': 1.1,
-  'DE': 1.05,
-  'FR': 1.05,
-  'NL': 1.0,
-  'IE': 1.0,
-
-  // Asia Pacific
-  'SG': 0.9,
-  'AU': 1.05,
-  'JP': 1.15,
-
-  // Latin America
-  'MX': 0.8,
-  'BR': 0.85,
-  'AR': 0.75,
-
-  // Default for unlisted countries
-  'DEFAULT': 0.9,
-} as const
-
-const SERVICE_TYPE_MULTIPLIERS = {
-  'Software Development': 1.0,
-  'Design & Creative': 0.95,
-  'Marketing & Sales': 0.9,
-  'Writing & Content': 0.85,
-  'Consulting': 1.1,
-  'Data & Analytics': 1.05,
-  'Customer Support': 0.8,
-  'Other': 0.9,
-} as const
+// Constants for IC calculation
+const GMK_MARKUP = 0.40 // 40% markup on pay rate
+const TRANSACTION_COST_USD = 55 // $55 USD per transaction
+const TARGET_NET_MARGIN_USD = 1000 // $1,000 USD target net margin
 
 export async function POST(request: NextRequest) {
   try {
     const body: ICQuoteRequest = await request.json()
-    const { formData, currency } = body
+    const { formData } = body
 
     // Validate required fields
-    if (!formData.rateAmount || !formData.country || !formData.serviceType) {
+    if (!formData.rateAmount || !formData.country) {
       return NextResponse.json({
         success: false,
-        error: "Missing required fields: rateAmount, country, and serviceType are required"
+        error: "Missing required fields: rateAmount and country are required"
       } as ICQuoteResponse, { status: 400 })
     }
 
@@ -61,8 +27,8 @@ export async function POST(request: NextRequest) {
       } as ICQuoteResponse, { status: 400 })
     }
 
-    // Calculate quote using sophisticated business logic
-    const quote = await calculateICQuote(formData, currency)
+    // Calculate quote using simple 40% markup formula
+    const quote = calculateICQuote(formData)
 
     return NextResponse.json({
       success: true,
@@ -78,92 +44,82 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function calculateICQuote(formData: ICFormData, currency: string): Promise<ICQuoteResult> {
+function calculateICQuote(formData: ICFormData): ICQuoteResult {
   const rateAmount = parseFloat(formData.rateAmount)
   const workedHours = 160 // Standard 160 hours per month
-  const targetNetMargin = 1000 // $1,000 USD base target margin
+  const rateBasis = formData.rateBasis === "monthly" ? "monthly" : "hourly"
 
-  // Get country data for regional adjustments
-  const countryData = getCountryByName(formData.country)
-  const countryCode = countryData?.code || 'DEFAULT'
+  // Parse MSP fee (optional)
+  const mspFee = formData.mspFee ? parseFloat(formData.mspFee) : 0
+  const backgroundCheckMonthlyFee = formData.backgroundCheckRequired
+    ? (formData.backgroundCheckMonthlyFee ? parseFloat(formData.backgroundCheckMonthlyFee) : 0)
+    : 0
 
-  // Regional and service type adjustments
-  const regionalMultiplier = REGIONAL_ADJUSTMENTS[countryCode as keyof typeof REGIONAL_ADJUSTMENTS] || REGIONAL_ADJUSTMENTS.DEFAULT
-  const serviceMultiplier = SERVICE_TYPE_MULTIPLIERS[formData.serviceType as keyof typeof SERVICE_TYPE_MULTIPLIERS] || SERVICE_TYPE_MULTIPLIERS['Other']
+  // Determine transactions per month based on payment frequency
+  const transactionsPerMonth = getTransactionsPerMonth(formData.paymentFrequency)
 
-  // Adjusted target margin based on region and service type
-  const adjustedTargetMargin = targetNetMargin * regionalMultiplier * serviceMultiplier
+  // Calculate transaction cost ($55 USD per transaction, converted if provided)
+  const providedTransactionCostMonthly = formData.transactionCostMonthly
+    ? parseFloat(formData.transactionCostMonthly)
+    : null
+  const transactionCost = providedTransactionCostMonthly && !Number.isNaN(providedTransactionCostMonthly)
+    ? providedTransactionCostMonthly
+    : TRANSACTION_COST_USD * transactionsPerMonth
 
-  // Fee rates (adjusted for regional complexity)
-  const platformFeeRate = 0.049 * regionalMultiplier // 4.9% base, adjusted
-  const paymentProcessingRate = 0.029 // 2.9% (consistent globally)
-  const complianceFeeRate = formData.complianceLevel === "premium" ? 0.02 : 0.01
-
-  // Fixed costs (adjusted for region)
-  const systemProviderCost = 150 * regionalMultiplier
-  const backgroundCheckCost = formData.backgroundCheckRequired ? 200 * regionalMultiplier : 0
-  const contractMonths = parseInt(formData.contractDuration) || 12
-  const monthlyBackgroundCheck = backgroundCheckCost / contractMonths
-
-  let payRate: number
-  let billRate: number
+  let payRate: number // hourly
+  let billRate: number // hourly
 
   if (formData.rateType === "pay-rate") {
-    // Calculate bill rate from pay rate
-    payRate = rateAmount
-    const monthlyPayRate = payRate * workedHours
-
-    // Bill Rate = Pay Rate + System Provider + Background Check + Net Margin + Platform Fees
-    const baseCosts = monthlyPayRate + systemProviderCost + monthlyBackgroundCheck + adjustedTargetMargin
-    // Account for platform fees in the bill rate calculation
-    const totalFeeRate = platformFeeRate + paymentProcessingRate + complianceFeeRate
-    billRate = baseCosts / (1 - totalFeeRate) / workedHours
+    // Input provided as pay rate (hourly or monthly)
+    const payRateHourly = rateBasis === "monthly" ? rateAmount / workedHours : rateAmount
+    payRate = payRateHourly
+    billRate = payRate * (1 + GMK_MARKUP)
   } else {
-    // Calculate pay rate from bill rate
-    billRate = rateAmount
-    const monthlyBillRate = billRate * workedHours
-
-    // Calculate all fees first
-    const platformFee = monthlyBillRate * platformFeeRate
-    const paymentProcessing = monthlyBillRate * paymentProcessingRate
-    const complianceFee = monthlyBillRate * complianceFeeRate
-    const totalFees = platformFee + paymentProcessing + complianceFee
-
-    // Pay Rate = Bill Rate - All Costs - Net Margin
-    const availableForPayRate =
-      monthlyBillRate - totalFees - systemProviderCost - monthlyBackgroundCheck - adjustedTargetMargin
-    payRate = Math.max(0, availableForPayRate / workedHours)
+    // Input provided as bill rate (hourly or monthly)
+    const billRateHourly = rateBasis === "monthly" ? rateAmount / workedHours : rateAmount
+    billRate = billRateHourly
+    payRate = billRate / (1 + GMK_MARKUP)
   }
 
-  // Calculate final values based on the determined rates
   const monthlyPayRate = payRate * workedHours
   const monthlyBillRate = billRate * workedHours
 
-  const platformFee = monthlyBillRate * platformFeeRate
-  const paymentProcessing = monthlyBillRate * paymentProcessingRate
-  const complianceFee = monthlyBillRate * complianceFeeRate
+  // Platform Fee calculation to achieve $1,000 net margin
+  // Formula: Bill Rate - (Pay Rate + Transaction Cost + MSP Fee + Platform Fee) = $1,000
+  // Therefore: Platform Fee = Bill Rate - Pay Rate - Transaction Cost - MSP Fee - $1,000
+  const platformFee = monthlyBillRate - monthlyPayRate - transactionCost - mspFee - backgroundCheckMonthlyFee - TARGET_NET_MARGIN_USD
 
-  const netMargin =
-    monthlyBillRate -
-    monthlyPayRate -
-    platformFee -
-    paymentProcessing -
-    complianceFee -
-    systemProviderCost -
-    monthlyBackgroundCheck
+  // Net Margin = Bill Rate - (Pay Rate + Transaction Cost + MSP Fee + Platform Fee)
+  const netMargin = TARGET_NET_MARGIN_USD
 
   return {
-    payRate: Math.round(payRate * 100) / 100, // Round to 2 decimal places
+    payRate: Math.round(payRate * 100) / 100,
     billRate: Math.round(billRate * 100) / 100,
+    monthlyPayRate: Math.round(monthlyPayRate * 100) / 100,
+    monthlyBillRate: Math.round(monthlyBillRate * 100) / 100,
+    transactionCost: Math.round(transactionCost * 100) / 100,
+    mspFee: Math.round(mspFee * 100) / 100,
+    backgroundCheckMonthlyFee: Math.round(backgroundCheckMonthlyFee * 100) / 100,
     platformFee: Math.round(platformFee * 100) / 100,
-    paymentProcessing: Math.round(paymentProcessing * 100) / 100,
-    complianceFee: Math.round(complianceFee * 100) / 100,
-    backgroundCheck: Math.round(monthlyBackgroundCheck * 100) / 100,
-    systemProviderCost: Math.round(systemProviderCost * 100) / 100,
     netMargin: Math.round(netMargin * 100) / 100,
-    totalMonthlyCost: Math.round(monthlyBillRate * 100) / 100,
-    contractorReceives: Math.round(monthlyPayRate * 100) / 100,
     workedHours,
+    transactionsPerMonth,
+  }
+}
+
+// Helper function to determine number of transactions per month
+function getTransactionsPerMonth(paymentFrequency: string): number {
+  switch (paymentFrequency) {
+    case "weekly":
+      return 4
+    case "bi-weekly":
+      return 2
+    case "monthly":
+      return 1
+    case "milestone":
+      return 1
+    default:
+      return 1
   }
 }
 

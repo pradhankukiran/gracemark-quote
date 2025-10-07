@@ -518,27 +518,32 @@ export interface ICFormData {
   country: string
   state: string
   currency: string
+  rateBasis: "hourly" | "monthly"
   rateType: "pay-rate" | "bill-rate"
   rateAmount: string
   paymentFrequency: string
   contractDuration: string
-  complianceLevel: string
+  complianceLevel: string // Kept for backward compatibility with stored data
   backgroundCheckRequired: boolean
+  mspFee: string // MSP fee (optional, for some clients)
+  backgroundCheckMonthlyFee: string // Amortized background check fee in local currency
+  transactionCostPerTransaction: string // Local currency transaction cost per payment
+  transactionCostMonthly: string // Local currency transaction cost per month
 }
 
 // IC Quote Result Interface
 export interface ICQuoteResult {
-  payRate: number
-  billRate: number
-  platformFee: number
-  paymentProcessing: number
-  complianceFee: number
-  backgroundCheck: number
-  systemProviderCost: number
-  netMargin: number
-  totalMonthlyCost: number
-  contractorReceives: number
-  workedHours: number
+  payRate: number // Hourly pay rate
+  billRate: number // Hourly bill rate
+  monthlyPayRate: number // Monthly pay amount (pay rate × hours)
+  monthlyBillRate: number // Monthly bill amount (bill rate × hours)
+  transactionCost: number // $55 × number of transactions per month
+  mspFee: number // MSP fee (optional)
+  backgroundCheckMonthlyFee: number // Amortized background check fee in local currency
+  platformFee: number // Calculated to achieve $1,000 net margin
+  netMargin: number // Target: $1,000 USD
+  workedHours: number // Standard 160 hours/month
+  transactionsPerMonth: number // Based on payment frequency
 }
 
 // IC Validation Errors

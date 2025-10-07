@@ -118,14 +118,13 @@ export const useICQuoteCalculation = ({ formData, currency }: UseICQuoteCalculat
       ...quote,
       formattedPayRate: `${currency} ${quote.payRate.toFixed(2)}`,
       formattedBillRate: `${currency} ${quote.billRate.toFixed(2)}`,
-      formattedContractorReceives: `${currency} ${quote.contractorReceives.toLocaleString()}`,
-      formattedTotalMonthlyCost: `${currency} ${quote.totalMonthlyCost.toLocaleString()}`,
+      formattedMonthlyPayRate: `${currency} ${quote.monthlyPayRate.toLocaleString()}`,
+      formattedMonthlyBillRate: `${currency} ${quote.monthlyBillRate.toLocaleString()}`,
+      formattedTransactionCost: `${currency} ${quote.transactionCost.toLocaleString()}`,
+      formattedMspFee: `${currency} ${quote.mspFee.toLocaleString()}`,
+      formattedBackgroundCheckMonthlyFee: `${currency} ${quote.backgroundCheckMonthlyFee.toLocaleString()}`,
       formattedPlatformFee: `${currency} ${quote.platformFee.toLocaleString()}`,
-      formattedPaymentProcessing: `${currency} ${quote.paymentProcessing.toLocaleString()}`,
-      formattedComplianceFee: `${currency} ${quote.complianceFee.toLocaleString()}`,
-      formattedSystemProviderCost: `${currency} ${quote.systemProviderCost.toLocaleString()}`,
-      formattedBackgroundCheck: `${currency} ${quote.backgroundCheck.toLocaleString()}`,
-      formattedNetMargin: `${currency} ${quote.netMargin.toLocaleString()}`,
+      formattedNetMargin: `USD ${quote.netMargin.toLocaleString()}`,
     }
   }, [quote, currency])
 

@@ -11,8 +11,9 @@ interface QuoteResultsProps {
 }
 
 export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsProps) => {
-  const formatCurrency = (amount: number) => {
-    return `${currency} ${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  const formatCurrency = (amount: number, currencyOverride?: string) => {
+    const displayCurrency = currencyOverride ?? currency
+    return `${displayCurrency} ${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   }
 
   if (!quote) {
@@ -43,6 +44,15 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
     )
   }
 
+  const rateBasis = formData.rateBasis === "monthly" ? "monthly" : "hourly"
+  const isHourlyBasis = rateBasis === "hourly"
+  const primaryUnit = isHourlyBasis ? "/hr" : "/month"
+  const secondaryUnit = isHourlyBasis ? "/month" : "/hr"
+  const payRatePrimary = isHourlyBasis ? quote.payRate : quote.monthlyPayRate
+  const payRateSecondary = isHourlyBasis ? quote.monthlyPayRate : quote.payRate
+  const billRatePrimary = isHourlyBasis ? quote.billRate : quote.monthlyBillRate
+  const billRateSecondary = isHourlyBasis ? quote.monthlyBillRate : quote.billRate
+
   return (
     <div className="space-y-6">
       <div className="text-center space-y-3">
@@ -64,10 +74,10 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
                   Pay Rate (Contractor)
                 </div>
                 <div className="text-2xl font-bold text-primary">
-                  {formatCurrency(quote.payRate)}/hr
+                  {formatCurrency(payRatePrimary)}{primaryUnit}
                 </div>
                 <div className="text-sm text-slate-500 mt-1">
-                  {formatCurrency(quote.contractorReceives)}/month
+                  {formatCurrency(payRateSecondary)}{secondaryUnit}
                 </div>
               </div>
               <div className="bg-secondary/10 p-4 text-center border-2 border-secondary/20 rounded-lg">
@@ -75,63 +85,66 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
                   Bill Rate (Client)
                 </div>
                 <div className="text-2xl font-bold text-secondary">
-                  {formatCurrency(quote.billRate)}/hr
+                  {formatCurrency(billRatePrimary)}{primaryUnit}
                 </div>
                 <div className="text-sm text-slate-500 mt-1">
-                  {formatCurrency(quote.totalMonthlyCost)}/month
+                  {formatCurrency(billRateSecondary)}{secondaryUnit}
                 </div>
               </div>
             </div>
 
             <div className="text-center text-sm text-slate-600 bg-slate-50 p-3 rounded-md">
-              Based on {quote.workedHours} hours per month
+              Bill Rate = Pay Rate × 1.40 (40% GMK markup){' '}
+              | Monthly conversions assume {quote.workedHours} hours per month
             </div>
 
             {/* Cost Breakdown */}
             <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-slate-900 mb-3">Fee Breakdown</h3>
+              <h3 className="text-lg font-semibold text-slate-900 mb-3">Monthly Cost Breakdown</h3>
 
               <div className="space-y-2">
-                <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
-                  <span className="text-slate-600 font-medium">Platform Fee (4.9%)</span>
+                <div className="flex justify-between items-center py-3 px-4 bg-blue-50 rounded-md border border-blue-200">
+                  <span className="text-slate-700 font-semibold">Contractor Pay Rate</span>
                   <span className="font-bold text-lg text-slate-900">
-                    {formatCurrency(quote.platformFee)}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
-                  <span className="text-slate-600 font-medium">Payment Processing (2.9%)</span>
-                  <span className="font-bold text-lg text-slate-900">
-                    {formatCurrency(quote.paymentProcessing)}
+                    {formatCurrency(quote.monthlyPayRate)}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
                   <span className="text-slate-600 font-medium">
-                    Compliance Fee ({formData.complianceLevel === "premium" ? "2%" : "1%"})
+                    Transaction Cost ({quote.transactionsPerMonth} × $55 USD, converted)
                   </span>
                   <span className="font-bold text-lg text-slate-900">
-                    {formatCurrency(quote.complianceFee)}
+                    {formatCurrency(quote.transactionCost)}
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
-                  <span className="text-slate-600 font-medium">System Provider Cost</span>
-                  <span className="font-bold text-lg text-slate-900">
-                    {formatCurrency(quote.systemProviderCost)}
-                  </span>
-                </div>
-
-                {quote.backgroundCheck > 0 && (
+                {quote.mspFee > 0 && (
                   <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
-                    <span className="text-slate-600 font-medium">
-                      Background Check (Amortized over {formData.contractDuration} months)
-                    </span>
+                    <span className="text-slate-600 font-medium">MSP Fee</span>
                     <span className="font-bold text-lg text-slate-900">
-                      {formatCurrency(quote.backgroundCheck)}
+                      {formatCurrency(quote.mspFee)}
                     </span>
                   </div>
                 )}
+
+                {quote.backgroundCheckMonthlyFee > 0 && (
+                  <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
+                    <span className="text-slate-600 font-medium">
+                      Background Check Fee (amortized)
+                    </span>
+                    <span className="font-bold text-lg text-slate-900">
+                      {formatCurrency(quote.backgroundCheckMonthlyFee)}
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
+                  <span className="text-slate-600 font-medium">Platform Fee</span>
+                  <span className="font-bold text-lg text-slate-900">
+                    {formatCurrency(quote.platformFee)}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -142,11 +155,16 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
               <div className="flex justify-between items-center">
                 <span className="text-xl font-bold text-slate-900">Net Monthly Margin</span>
                 <span className="text-green-600 text-3xl font-bold">
-                  {formatCurrency(quote.netMargin)}
+                  {formatCurrency(quote.netMargin, "USD")}
                 </span>
               </div>
               <div className="text-center mt-2 text-sm text-slate-600">
-                Target: $1,000 USD per month (adjusted for region and service type)
+                Target: $1,000 USD per month
+              </div>
+              <div className="mt-3 p-3 bg-white/50 rounded border border-green-300">
+                <p className="text-xs text-slate-700">
+                  <strong>Formula:</strong> Net Margin = Bill Rate - (Pay Rate + Transaction Cost + MSP Fee + Background Check Fee + Platform Fee)
+                </p>
               </div>
             </div>
 
@@ -167,8 +185,18 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
                   <span className="text-blue-800 ml-2 capitalize">{formData.paymentFrequency}</span>
                 </div>
                 <div>
-                  <span className="text-blue-700 font-medium">Compliance Level:</span>
-                  <span className="text-blue-800 ml-2 capitalize">{formData.complianceLevel}</span>
+                  <span className="text-blue-700 font-medium">Transactions/Month:</span>
+                  <span className="text-blue-800 ml-2">{quote.transactionsPerMonth}</span>
+                </div>
+                <div>
+                  <span className="text-blue-700 font-medium">Background Check:</span>
+                  <span className="text-blue-800 ml-2">
+                    {formData.backgroundCheckRequired
+                      ? quote.backgroundCheckMonthlyFee > 0
+                        ? `Yes (${formatCurrency(quote.backgroundCheckMonthlyFee)}/month)`
+                        : "Yes"
+                      : "No"}
+                  </span>
                 </div>
               </div>
             </div>

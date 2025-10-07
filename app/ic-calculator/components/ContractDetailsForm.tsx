@@ -2,6 +2,7 @@ import { useCallback, memo } from "react"
 import { DollarSign } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { ICFormData } from "@/lib/shared/types"
 import { FormSectionHeader } from "../../eor-calculator/components/shared/FormSectionHeader"
 import { FormField } from "../../eor-calculator/components/shared/FormField"
@@ -12,6 +13,9 @@ interface ContractDetailsFormProps {
   paymentFrequency: string
   complianceLevel: string
   backgroundCheckRequired: boolean
+  mspFee: string
+  backgroundCheckMonthlyFee: string
+  currency: string
   contractDurations: Array<{ value: string; label: string }>
   paymentFrequencies: Array<{ value: string; label: string }>
   complianceLevels: Array<{ value: string; label: string }>
@@ -23,6 +27,9 @@ export const ContractDetailsForm = memo(({
   paymentFrequency,
   complianceLevel,
   backgroundCheckRequired,
+  mspFee,
+  backgroundCheckMonthlyFee,
+  currency,
   contractDurations,
   paymentFrequencies,
   complianceLevels,
@@ -44,6 +51,10 @@ export const ContractDetailsForm = memo(({
     onFormUpdate({ backgroundCheckRequired: checked })
   }, [onFormUpdate])
 
+  const handleMspFeeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onFormUpdate({ mspFee: e.target.value })
+  }, [onFormUpdate])
+
   return (
     <div>
       <FormSectionHeader
@@ -51,7 +62,7 @@ export const ContractDetailsForm = memo(({
         title="Contract Details"
         subtitle="Contract terms and additional services"
       />
-      <div className={FORM_STYLES.GRID_3_COL}>
+      <div className={FORM_STYLES.GRID_2_COL}>
         <FormField
           type="select"
           label="Contract Duration"
@@ -70,15 +81,26 @@ export const ContractDetailsForm = memo(({
           options={paymentFrequencies}
           required
         />
-        <FormField
-          type="select"
-          label="Compliance Level"
-          htmlFor="complianceLevel"
-          value={complianceLevel}
-          onChange={handleComplianceLevelChange}
-          options={complianceLevels}
-          required
+      </div>
+
+      <div className="mt-4 space-y-2">
+        <Label
+          htmlFor="msp-fee"
+          className="text-base font-semibold text-slate-700 uppercase tracking-wide"
+        >
+          MSP Fee (Optional)
+        </Label>
+        <Input
+          id="msp-fee"
+          type="number"
+          value={mspFee}
+          onChange={handleMspFeeChange}
+          placeholder="Enter MSP fee amount (if applicable)"
+          className="h-12 border-slate-200 text-slate-700"
         />
+        <p className="text-sm text-slate-500">
+          Monthly Managed Service Provider fee for applicable clients
+        </p>
       </div>
 
       <div className="mt-4">
@@ -99,19 +121,25 @@ export const ContractDetailsForm = memo(({
             <p className="text-sm text-slate-600 mt-1">
               One-time fee of $200 (amortized over contract duration)
             </p>
+            {backgroundCheckRequired && backgroundCheckMonthlyFee && (
+              <p className="text-sm text-slate-600 mt-1">
+                Approx. {currency}{" "}
+                {Number(backgroundCheckMonthlyFee).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+                {" "}per month
+              </p>
+            )}
           </div>
         </Label>
       </div>
 
       <div className="mt-4 space-y-2">
-        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-          <p className="text-sm text-yellow-800">
-            <strong>Compliance Level Details:</strong>
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+          <p className="text-sm text-blue-800">
+            <strong>Note:</strong> Bill Rate is calculated as Pay Rate × 1.40 (40% GMK markup)
           </p>
-          <ul className="text-sm text-yellow-700 mt-1 ml-4 list-disc space-y-1">
-            <li><strong>Standard (1%):</strong> Basic compliance monitoring and documentation</li>
-            <li><strong>Premium (2%):</strong> Enhanced compliance with additional legal support and monitoring</li>
-          </ul>
         </div>
       </div>
     </div>

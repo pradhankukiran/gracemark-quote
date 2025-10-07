@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { ArrowLeft } from "lucide-react"
@@ -35,6 +35,7 @@ export default function ICCalculatorPage() {
     clearAllData,
     clearStoredData,
     isFormValid,
+    rateConversionMessage,
     handleCountryChange,
   } = useICForm()
 
@@ -50,14 +51,31 @@ export default function ICCalculatorPage() {
     currency,
   })
 
+  const resultsRef = useRef<HTMLDivElement | null>(null)
+  const shouldAutoScrollRef = useRef(false)
+
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
+
+  useEffect(() => {
+    if (isCalculating) {
+      shouldAutoScrollRef.current = true
+    }
+  }, [isCalculating])
+
+  useEffect(() => {
+    if (!isCalculating && quote && shouldAutoScrollRef.current) {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+      shouldAutoScrollRef.current = false
+    }
+  }, [isCalculating, quote])
 
   const handleClearAll = () => {
     clearAllData()
     clearQuote()
     clearError()
+    shouldAutoScrollRef.current = false
   }
 
   return (
@@ -102,7 +120,9 @@ export default function ICCalculatorPage() {
 
                 <RateConfigurationForm
                   rateType={formData.rateType}
+                  rateBasis={formData.rateBasis}
                   rateAmount={formData.rateAmount}
+                  rateConversionMessage={rateConversionMessage}
                   onFormUpdate={updateFormData}
                 />
 
@@ -113,6 +133,9 @@ export default function ICCalculatorPage() {
                   paymentFrequency={formData.paymentFrequency}
                   complianceLevel={formData.complianceLevel}
                   backgroundCheckRequired={formData.backgroundCheckRequired}
+                  mspFee={formData.mspFee}
+                  backgroundCheckMonthlyFee={formData.backgroundCheckMonthlyFee}
+                  currency={currency}
                   contractDurations={contractDurations}
                   paymentFrequencies={paymentFrequencies}
                   complianceLevels={complianceLevels}
@@ -131,11 +154,13 @@ export default function ICCalculatorPage() {
           </div>
 
           {/* Quote Results Section */}
-          <QuoteResults
-            quote={quote}
-            formData={formData}
-            currency={currency}
-          />
+          <div ref={resultsRef}>
+            <QuoteResults
+              quote={quote}
+              formData={formData}
+              currency={currency}
+            />
+          </div>
         </div>
       </main>
     </div>

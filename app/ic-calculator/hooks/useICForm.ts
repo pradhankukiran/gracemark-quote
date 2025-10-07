@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react"
+import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { ICFormData, ICValidationErrors } from "@/lib/shared/types"
 import {
   getCountryByName,
@@ -7,6 +7,7 @@ import {
   getStatesForCountry,
   hasStates
 } from "@/lib/country-data"
+import { convertCurrency } from "@/lib/currency-converter"
 
 const initialFormData: ICFormData = {
   contractorName: "",
@@ -14,12 +15,17 @@ const initialFormData: ICFormData = {
   country: "",
   state: "",
   currency: "USD",
+  rateBasis: "hourly",
   rateType: "pay-rate",
   rateAmount: "",
   paymentFrequency: "monthly",
   contractDuration: "12",
   complianceLevel: "standard",
   backgroundCheckRequired: false,
+  mspFee: "", // MSP fee (optional)
+  backgroundCheckMonthlyFee: "",
+  transactionCostPerTransaction: "",
+  transactionCostMonthly: "",
 }
 
 const initialValidationErrors: ICValidationErrors = {
@@ -33,6 +39,8 @@ const initialValidationErrors: ICValidationErrors = {
 
 const IC_FORM_STORAGE_KEY = "ic-calculator-form-data"
 const STORAGE_EXPIRY_HOURS = 24
+const BACKGROUND_CHECK_FEE_USD = 200
+const TRANSACTION_COST_PER_TRANSACTION_USD = 55
 
 export const useICForm = () => {
   // Initialize formData with localStorage
@@ -44,7 +52,10 @@ export const useICForm = () => {
           const parsed = JSON.parse(saved)
           // Basic expiry check (24 hours)
           if (parsed.timestamp && Date.now() - parsed.timestamp < STORAGE_EXPIRY_HOURS * 60 * 60 * 1000) {
-            return parsed.data
+            return {
+              ...initialFormData,
+              ...parsed.data,
+            }
           }
         }
       } catch (error) {
@@ -67,12 +78,13 @@ export const useICForm = () => {
           if (parsed.data && typeof parsed.data === 'object') {
             setFormData((prev) => {
               // Avoid needless rerender if same reference/shape
+              const mergedData = { ...initialFormData, ...parsed.data }
               try {
                 const prevJson = JSON.stringify(prev)
-                const nextJson = JSON.stringify(parsed.data)
-                return prevJson === nextJson ? prev : parsed.data
+                const nextJson = JSON.stringify(mergedData)
+                return prevJson === nextJson ? prev : mergedData
               } catch {
-                return parsed.data
+                return mergedData
               }
             })
           }
@@ -85,14 +97,41 @@ export const useICForm = () => {
 
   const [validationErrors, setValidationErrors] = useState<ICValidationErrors>(initialValidationErrors)
   const [currency, setCurrency] = useState(formData.currency || "USD")
+  const [rateConversionMessage, setRateConversionMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const conversionAbortController = useRef<AbortController | null>(null)
+const backgroundConversionAbortController = useRef<AbortController | null>(null)
+const transactionConversionAbortController = useRef<AbortController | null>(null)
 
   const countries = useMemo(() => getAvailableCountries(), [])
   const selectedCountryData = useMemo(() =>
     formData.country ? getCountryByName(formData.country) : null,
     [formData.country]
   )
-  const availableStates = selectedCountryData ? getStatesForCountry(selectedCountryData.code) : []
-  const showStateDropdown = Boolean(selectedCountryData && hasStates(selectedCountryData.code))
+const availableStates = selectedCountryData ? getStatesForCountry(selectedCountryData.code) : []
+const showStateDropdown = Boolean(selectedCountryData && hasStates(selectedCountryData.code))
+
+const getTransactionsPerMonth = (paymentFrequency: string): number => {
+  switch (paymentFrequency) {
+    case "weekly":
+      return 4
+    case "bi-weekly":
+      return 2
+    case "monthly":
+      return 1
+    case "milestone":
+      return 1
+    default:
+      return 1
+  }
+}
+
+  useEffect(() => {
+    return () => {
+      conversionAbortController.current?.abort()
+      backgroundConversionAbortController.current?.abort()
+      transactionConversionAbortController.current?.abort()
+    }
+  }, [])
 
   // Auto-save to localStorage whenever formData changes
   useEffect(() => {
@@ -109,18 +148,214 @@ export const useICForm = () => {
     }
   }, [formData])
 
-  // Auto-update currency when country changes
   useEffect(() => {
-    if (formData.country && selectedCountryData) {
-      const newCurrency = getCurrencyForCountry(selectedCountryData.code)
-      setCurrency(newCurrency)
-      setFormData((prev) => ({
-        ...prev,
-        currency: newCurrency,
-        state: "", // Reset state when country changes
-      }))
+    if (!formData.currency) {
+      setCurrency("USD")
+      return
     }
-  }, [formData.country, selectedCountryData])
+
+    if (formData.currency !== currency) {
+      setCurrency(formData.currency)
+    }
+  }, [formData.currency, currency])
+
+  useEffect(() => {
+    if (!formData.backgroundCheckRequired) {
+      backgroundConversionAbortController.current?.abort()
+      backgroundConversionAbortController.current = null
+      setFormData((prev) => {
+        if (!prev.backgroundCheckMonthlyFee) {
+          return prev
+        }
+        return {
+          ...prev,
+          backgroundCheckMonthlyFee: "",
+        }
+      })
+      return
+    }
+
+    const durationMonths = parseInt(formData.contractDuration || "", 10)
+    if (!durationMonths || Number.isNaN(durationMonths) || durationMonths <= 0 || !currency) {
+      backgroundConversionAbortController.current?.abort()
+      backgroundConversionAbortController.current = null
+      setFormData((prev) => {
+        if (!prev.backgroundCheckMonthlyFee) {
+          return prev
+        }
+        return {
+          ...prev,
+          backgroundCheckMonthlyFee: "",
+        }
+      })
+      return
+    }
+
+    backgroundConversionAbortController.current?.abort()
+    const controller = new AbortController()
+    backgroundConversionAbortController.current = controller
+
+    ;(async () => {
+      try {
+        const result = await convertCurrency(BACKGROUND_CHECK_FEE_USD, "USD", currency, controller.signal)
+        if (controller.signal.aborted) {
+          return
+        }
+
+        if (result.success && result.data) {
+          const convertedTotal = Number(result.data.target_amount)
+          const monthlyAmount = Number((convertedTotal / durationMonths).toFixed(2))
+          const nextValue = monthlyAmount.toFixed(2)
+
+          setFormData((prev) => {
+            if (prev.backgroundCheckMonthlyFee === nextValue) {
+              return prev
+            }
+            return {
+              ...prev,
+              backgroundCheckMonthlyFee: nextValue,
+            }
+          })
+        } else {
+          setFormData((prev) => {
+            if (!prev.backgroundCheckMonthlyFee) {
+              return prev
+            }
+            return {
+              ...prev,
+              backgroundCheckMonthlyFee: "",
+            }
+          })
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setFormData((prev) => {
+            if (!prev.backgroundCheckMonthlyFee) {
+              return prev
+            }
+            return {
+              ...prev,
+              backgroundCheckMonthlyFee: "",
+            }
+          })
+        }
+      } finally {
+        if (backgroundConversionAbortController.current === controller) {
+          backgroundConversionAbortController.current = null
+        }
+      }
+    })()
+  }, [formData.backgroundCheckRequired, formData.contractDuration, currency, setFormData])
+
+  useEffect(() => {
+    if (!currency) {
+      transactionConversionAbortController.current?.abort()
+      transactionConversionAbortController.current = null
+      setFormData((prev) => {
+        if (!prev.transactionCostPerTransaction && !prev.transactionCostMonthly) {
+          return prev
+        }
+        return {
+          ...prev,
+          transactionCostPerTransaction: "",
+          transactionCostMonthly: "",
+        }
+      })
+      return
+    }
+
+    const transactionsPerMonth = getTransactionsPerMonth(formData.paymentFrequency)
+    if (transactionsPerMonth <= 0) {
+      setFormData((prev) => {
+        if (!prev.transactionCostPerTransaction && !prev.transactionCostMonthly) {
+          return prev
+        }
+        return {
+          ...prev,
+          transactionCostPerTransaction: "",
+          transactionCostMonthly: "",
+        }
+      })
+      return
+    }
+
+    transactionConversionAbortController.current?.abort()
+    const controller = new AbortController()
+    transactionConversionAbortController.current = controller
+
+    const updateTransactionCosts = (perTransactionValue: number) => {
+      const monthlyValue = perTransactionValue * transactionsPerMonth
+      const perTransactionFormatted = perTransactionValue.toFixed(2)
+      const monthlyFormatted = monthlyValue.toFixed(2)
+
+      setFormData((prev) => {
+        if (
+          prev.transactionCostPerTransaction === perTransactionFormatted &&
+          prev.transactionCostMonthly === monthlyFormatted
+        ) {
+          return prev
+        }
+        return {
+          ...prev,
+          transactionCostPerTransaction: perTransactionFormatted,
+          transactionCostMonthly: monthlyFormatted,
+        }
+      })
+    }
+
+    if (currency.toUpperCase() === "USD") {
+      updateTransactionCosts(TRANSACTION_COST_PER_TRANSACTION_USD)
+      transactionConversionAbortController.current = null
+      return
+    }
+
+    ;(async () => {
+      try {
+        const result = await convertCurrency(
+          TRANSACTION_COST_PER_TRANSACTION_USD,
+          "USD",
+          currency,
+          controller.signal
+        )
+        if (controller.signal.aborted) {
+          return
+        }
+
+        if (result.success && result.data) {
+          const perTransactionValue = Number(result.data.target_amount)
+          updateTransactionCosts(perTransactionValue)
+        } else {
+          setFormData((prev) => {
+            if (!prev.transactionCostPerTransaction && !prev.transactionCostMonthly) {
+              return prev
+            }
+            return {
+              ...prev,
+              transactionCostPerTransaction: "",
+              transactionCostMonthly: "",
+            }
+          })
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setFormData((prev) => {
+            if (!prev.transactionCostPerTransaction && !prev.transactionCostMonthly) {
+              return prev
+            }
+            return {
+              ...prev,
+              transactionCostPerTransaction: "",
+              transactionCostMonthly: "",
+            }
+          })
+        }
+      } finally {
+        if (transactionConversionAbortController.current === controller) {
+          transactionConversionAbortController.current = null
+        }
+      }
+    })()
+  }, [currency, formData.paymentFrequency, setFormData])
 
   const updateFormData = useCallback((updates: Partial<ICFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }))
@@ -148,15 +383,183 @@ export const useICForm = () => {
   }, [])
 
   const clearAllData = useCallback(() => {
+    conversionAbortController.current?.abort()
+    conversionAbortController.current = null
+    backgroundConversionAbortController.current?.abort()
+    backgroundConversionAbortController.current = null
     setFormData(initialFormData)
     setValidationErrors(initialValidationErrors)
     setCurrency("USD")
+    setRateConversionMessage(null)
     clearStoredData()
   }, [clearStoredData])
 
   const handleCountryChange = useCallback((country: string) => {
-    updateFormData({ country, state: '' })
-  }, [updateFormData])
+    const previousCurrency = formData.currency || currency || "USD"
+    const currentRateValue = formData.rateAmount
+    const currentMspValue = formData.mspFee
+
+    conversionAbortController.current?.abort()
+    conversionAbortController.current = null
+    setRateConversionMessage(null)
+
+    setFormData((prev) => ({
+      ...prev,
+      country,
+      state: '',
+    }))
+
+    if (!country) {
+      setCurrency("USD")
+      setFormData((prev) => ({
+        ...prev,
+        currency: "USD",
+        transactionCostPerTransaction: "",
+        transactionCostMonthly: "",
+      }))
+      return
+    }
+
+    const countryData = getCountryByName(country)
+    if (!countryData) {
+      return
+    }
+
+    const newCurrency = getCurrencyForCountry(countryData.code)
+    if (!newCurrency) {
+      return
+    }
+
+    setCurrency(newCurrency)
+    setFormData((prev) => ({
+      ...prev,
+      currency: newCurrency,
+      transactionCostPerTransaction: "",
+      transactionCostMonthly: "",
+    }))
+
+    if (!previousCurrency || previousCurrency === newCurrency) {
+      return
+    }
+
+    const convertFieldValue = async (
+      rawValue: string,
+      label: string,
+      field: "rateAmount" | "mspFee"
+    ): Promise<{ success: boolean; message: string | null }> => {
+      if (!rawValue || rawValue.trim() === "") {
+        return { success: false, message: null }
+      }
+
+      const numericValue = parseFloat(rawValue.replace(/[^\d.-]/g, ""))
+      if (Number.isNaN(numericValue) || numericValue <= 0) {
+        return { success: false, message: null }
+      }
+
+      const formattedSource = numericValue.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+
+      conversionAbortController.current?.abort()
+      const controller = new AbortController()
+      conversionAbortController.current = controller
+
+      try {
+        const result = await convertCurrency(numericValue, previousCurrency, newCurrency, controller.signal)
+        if (controller.signal.aborted) {
+          return { success: false, message: null }
+        }
+
+        if (result.success && result.data) {
+          const convertedAmount = Number(result.data.target_amount)
+          const formattedTarget = convertedAmount.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+
+          setFormData((prev) => {
+            // Avoid overwriting if the user changed the value while conversion was running
+            if (prev[field] !== rawValue) {
+              return prev
+            }
+
+            const nextValue = convertedAmount.toFixed(2)
+            if (prev[field] === nextValue) {
+              return prev
+            }
+
+            return {
+              ...prev,
+              [field]: nextValue,
+            }
+          })
+
+          return {
+            success: true,
+            message: `${label} converted from ${previousCurrency} ${formattedSource} to ${newCurrency} ${formattedTarget}`,
+          }
+        }
+
+        return {
+          success: false,
+          message: `Automatic conversion failed for ${label}. Please update it manually.`,
+        }
+      } catch (error) {
+        if (controller.signal.aborted) {
+          return { success: false, message: null }
+        }
+
+        return {
+          success: false,
+          message: `Automatic conversion failed for ${label}. Please update it manually.`,
+        }
+      } finally {
+        if (conversionAbortController.current === controller) {
+          conversionAbortController.current = null
+        }
+      }
+    }
+
+    const processConversions = async () => {
+      const successMessages: string[] = []
+      const errorMessages: string[] = []
+
+      const rateResult = await convertFieldValue(currentRateValue, "Rate", "rateAmount")
+      if (rateResult.message) {
+        if (rateResult.success) {
+          successMessages.push(rateResult.message)
+        } else {
+          errorMessages.push(rateResult.message)
+        }
+      }
+
+      const mspResult = await convertFieldValue(currentMspValue, "MSP fee", "mspFee")
+      if (mspResult.message) {
+        if (mspResult.success) {
+          successMessages.push(mspResult.message)
+        } else {
+          errorMessages.push(mspResult.message)
+        }
+      }
+
+      if (errorMessages.length > 0) {
+        setRateConversionMessage({
+          type: "error",
+          text: errorMessages.join(" • "),
+        })
+      } else if (successMessages.length > 0) {
+        setRateConversionMessage({
+          type: "success",
+          text: successMessages.join(" • "),
+        })
+      } else {
+        setRateConversionMessage(null)
+      }
+    }
+
+    void processConversions()
+  }, [formData.currency, formData.mspFee, formData.rateAmount, currency, setFormData])
 
   const isFormValid = useCallback(() => {
     // Check that required fields have actual content (not just truthy)
@@ -222,6 +625,7 @@ export const useICForm = () => {
     clearAllData,
     clearStoredData,
     isFormValid,
+    rateConversionMessage,
     handleCountryChange,
   }
 }
