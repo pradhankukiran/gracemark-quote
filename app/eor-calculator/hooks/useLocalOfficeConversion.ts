@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react"
 import { convertCurrency } from "@/lib/currency-converter"
 import { LocalOfficeInfo } from "@/lib/shared/types"
 import { getFieldCurrency } from "@/lib/shared/utils/localOfficeData"
+import { getCurrencyForCountry } from "@/lib/country-data"
 
 interface ConvertedLocalOfficeData {
   [key: string]: string
@@ -52,15 +53,9 @@ export const useLocalOfficeConversion = ({
         return
       }
 
-      // If currency is manually set, convert from USD to the form currency
-      // If not manually set, convert from USD to the country's default currency (which should be formCurrency)
+      // If currency is manually set, convert from USD/local to the form currency
+      // If not manually set, convert from original (USD or local) to the country's default currency (which should be formCurrency)
       const targetCurrency = formCurrency
-      
-      // If target currency is USD, no conversion needed for USD fields
-      if (targetCurrency === 'USD') {
-        setConvertedLocalOffice({})
-        return
-      }
 
       setIsConvertingLocalOffice(true)
       
@@ -78,20 +73,60 @@ export const useLocalOfficeConversion = ({
       
       try {
         const conversions: ConvertedLocalOfficeData = {}
+        const convertibleFields: Array<keyof LocalOfficeInfo> = [
+          'mealVoucher',
+          'transportation',
+          'wfh',
+          'healthInsurance',
+          'monthlyPaymentsToLocalOffice',
+          'preEmploymentMedicalTest',
+          'drugTest',
+          'backgroundCheckViaDeel',
+        ]
+
+        const baseLocalCurrency = (() => {
+          if (!countryCode) return null
+          if (originalCurrency && originalCurrency.trim()) {
+            return originalCurrency.trim()
+          }
+          try {
+            return getCurrencyForCountry(countryCode)
+          } catch (error) {
+            console.warn('Failed to determine base local currency:', error)
+            return null
+          }
+        })()
         
-        // Get all fields that need USD conversion for this country
-        const fieldsToConvert = (Object.keys(originalData) as Array<keyof LocalOfficeInfo>).filter(field => {
-          const fieldCurrency = getFieldCurrency(field, countryCode)
+        const fieldsToConvert = convertibleFields.filter(field => {
           const value = originalData[field]
-          return fieldCurrency === 'usd' && value && value !== 'N/A' && value !== 'No' && !isNaN(Number(value))
+          if (!value || value === 'N/A' || value === 'No' || isNaN(Number(value))) {
+            return false
+          }
+
+          const fieldCurrency = getFieldCurrency(field, countryCode)
+          if (fieldCurrency === 'usd') {
+            return targetCurrency !== 'USD'
+          }
+
+          if (fieldCurrency === 'local') {
+            if (!baseLocalCurrency) return false
+            return baseLocalCurrency.toUpperCase() !== targetCurrency.toUpperCase()
+          }
+
+          return false
         })
 
-        // Convert each USD field to target currency
         const conversionPromises = fieldsToConvert.map(async (field) => {
-          const usdValue = Number(originalData[field])
+          const numericValue = Number(originalData[field])
+          const fieldCurrency = getFieldCurrency(field, countryCode)
+          const sourceCurrency = fieldCurrency === 'usd' ? 'USD' : baseLocalCurrency
+
+          if (!sourceCurrency || sourceCurrency.toUpperCase() === targetCurrency.toUpperCase()) {
+            return
+          }
           
           try {
-            const result = await convertCurrency(usdValue, 'USD', targetCurrency)
+            const result = await convertCurrency(numericValue, sourceCurrency, targetCurrency)
             
             if (result.success && result.data) {
               conversions[field] = result.data.target_amount.toFixed(2)
