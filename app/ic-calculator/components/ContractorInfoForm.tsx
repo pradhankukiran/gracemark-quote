@@ -7,10 +7,8 @@ import { FORM_STYLES } from "../../eor-calculator/styles/constants"
 
 interface ContractorInfoFormProps {
   contractorName: string
-  serviceType: string
   country: string
   currency: string
-  serviceTypes: string[]
   countries: string[]
   onFormUpdate: (updates: Partial<ICFormData>) => void
   onCountryChange: (country: string) => void
@@ -18,18 +16,12 @@ interface ContractorInfoFormProps {
 
 export const ContractorInfoForm = memo(({
   contractorName,
-  serviceType,
   country,
   currency,
-  serviceTypes,
   countries,
   onFormUpdate,
   onCountryChange,
 }: ContractorInfoFormProps) => {
-  const serviceTypeOptions = useMemo(() =>
-    serviceTypes.map(type => ({ value: type, label: type })),
-    [serviceTypes]
-  )
 
   const countryOptions = useMemo(() =>
     countries.map(country => ({ value: country, label: country })),
@@ -38,10 +30,6 @@ export const ContractorInfoForm = memo(({
 
   const handleContractorNameChange = useCallback((value: string) => {
     onFormUpdate({ contractorName: value })
-  }, [onFormUpdate])
-
-  const handleServiceTypeChange = useCallback((value: string) => {
-    onFormUpdate({ serviceType: value })
   }, [onFormUpdate])
 
   const handleCountryChange = useCallback((value: string) => {
@@ -55,7 +43,7 @@ export const ContractorInfoForm = memo(({
         title="Contractor Information"
         subtitle="Basic details about the independent contractor"
       />
-      <div className={FORM_STYLES.GRID_2_COL}>
+      <div className={FORM_STYLES.GRID_3_COL}>
         <FormField
           type="input"
           label="Contractor Name"
@@ -63,16 +51,6 @@ export const ContractorInfoForm = memo(({
           value={contractorName}
           onChange={handleContractorNameChange}
           placeholder="Enter contractor name"
-          required
-        />
-        <FormField
-          type="select"
-          label="Service Type"
-          htmlFor="serviceType"
-          value={serviceType}
-          onChange={handleServiceTypeChange}
-          placeholder="Select service type"
-          options={serviceTypeOptions}
           required
         />
         <FormField

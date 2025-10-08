@@ -52,6 +52,29 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
   const payRateSecondary = isHourlyBasis ? quote.monthlyPayRate : quote.payRate
   const billRatePrimary = isHourlyBasis ? quote.billRate : quote.monthlyBillRate
   const billRateSecondary = isHourlyBasis ? quote.monthlyBillRate : quote.billRate
+  const totalEmploymentCost = Math.round(
+    (quote.monthlyPayRate + quote.mspFee + quote.backgroundCheckMonthlyFee + quote.platformFee) * 100
+  ) / 100
+  const netMarginLocal = Math.round((quote.monthlyBillRate - totalEmploymentCost) * 100) / 100
+  const marginFormulaParts: string[] = ["Pay Rate"]
+  if (quote.mspFee > 0) {
+    marginFormulaParts.push("MSP Fee")
+  }
+  if (quote.backgroundCheckMonthlyFee > 0) {
+    marginFormulaParts.push("Background Check Fee")
+  }
+  marginFormulaParts.push("Platform Fee")
+  const marginFormula = marginFormulaParts.join(" + ")
+  const contractDurationDisplay = formData.contractDuration
+    ? (() => {
+        const numericValue = Number(formData.contractDuration)
+        const isSingular = Math.abs(numericValue) === 1
+        if (formData.contractDurationUnit === "years") {
+          return `${formData.contractDuration} ${isSingular ? "year" : "years"}`
+        }
+        return `${formData.contractDuration} ${isSingular ? "month" : "months"}`
+      })()
+    : "Not specified"
 
   return (
     <div className="space-y-6">
@@ -146,6 +169,15 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
                   </span>
                 </div>
               </div>
+
+              <div className="flex justify-between items-center py-3 px-4 bg-green-50 rounded-md border border-green-200">
+                <span className="text-slate-700 font-semibold">
+                  Total Employment Cost
+                </span>
+                <span className="font-bold text-lg text-slate-900">
+                  {formatCurrency(totalEmploymentCost)}
+                </span>
+              </div>
             </div>
 
             <Separator className="my-6" />
@@ -163,7 +195,13 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
               </div>
               <div className="mt-3 p-3 bg-white/50 rounded border border-green-300">
                 <p className="text-xs text-slate-700">
-                  <strong>Formula:</strong> Net Margin = Bill Rate - (Pay Rate + Transaction Cost + MSP Fee + Background Check Fee + Platform Fee)
+                  <strong>Formula:</strong> Net Margin = Bill Rate - ({marginFormula})
+                </p>
+                <p className="text-xs text-slate-600 mt-1">
+                  Local equivalent: {formatCurrency(netMarginLocal)}
+                </p>
+                <p className="text-xs text-slate-500 mt-2">
+                  Transaction costs are handled separately and do not affect the target margin.
                 </p>
               </div>
             </div>
@@ -173,12 +211,8 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
               <h4 className="font-semibold text-blue-900 mb-2">Contract Details</h4>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <span className="text-blue-700 font-medium">Service Type:</span>
-                  <span className="text-blue-800 ml-2">{formData.serviceType}</span>
-                </div>
-                <div>
                   <span className="text-blue-700 font-medium">Contract Duration:</span>
-                  <span className="text-blue-800 ml-2">{formData.contractDuration} months</span>
+                  <span className="text-blue-800 ml-2">{contractDurationDisplay}</span>
                 </div>
                 <div>
                   <span className="text-blue-700 font-medium">Payment Frequency:</span>

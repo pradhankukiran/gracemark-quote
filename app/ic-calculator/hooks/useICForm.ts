@@ -11,15 +11,14 @@ import { convertCurrency } from "@/lib/currency-converter"
 
 const initialFormData: ICFormData = {
   contractorName: "",
-  serviceType: "",
   country: "",
   state: "",
   currency: "USD",
   rateBasis: "hourly",
-  rateType: "pay-rate",
   rateAmount: "",
   paymentFrequency: "monthly",
   contractDuration: "12",
+  contractDurationUnit: "months",
   complianceLevel: "standard",
   backgroundCheckRequired: false,
   mspFee: "", // MSP fee (optional)
@@ -30,7 +29,6 @@ const initialFormData: ICFormData = {
 
 const initialValidationErrors: ICValidationErrors = {
   contractorName: null,
-  serviceType: null,
   country: null,
   rateAmount: null,
   contractDuration: null,
@@ -175,7 +173,12 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
       return
     }
 
-    const durationMonths = parseInt(formData.contractDuration || "", 10)
+    const rawDuration = Number(formData.contractDuration || "")
+    const durationValue = Number.isFinite(rawDuration) ? rawDuration : 0
+    const durationMonths = formData.contractDurationUnit === "years"
+      ? durationValue * 12
+      : durationValue
+
     if (!durationMonths || Number.isNaN(durationMonths) || durationMonths <= 0 || !currency) {
       backgroundConversionAbortController.current?.abort()
       backgroundConversionAbortController.current = null
@@ -245,7 +248,7 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
         }
       }
     })()
-  }, [formData.backgroundCheckRequired, formData.contractDuration, currency, setFormData])
+  }, [formData.backgroundCheckRequired, formData.contractDuration, formData.contractDurationUnit, currency, setFormData])
 
   useEffect(() => {
     if (!currency) {
@@ -395,10 +398,6 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
   }, [clearStoredData])
 
   const handleCountryChange = useCallback((country: string) => {
-    const previousCurrency = formData.currency || currency || "USD"
-    const currentRateValue = formData.rateAmount
-    const currentMspValue = formData.mspFee
-
     conversionAbortController.current?.abort()
     conversionAbortController.current = null
     setRateConversionMessage(null)
@@ -436,169 +435,30 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
       currency: newCurrency,
       transactionCostPerTransaction: "",
       transactionCostMonthly: "",
+      rateAmount: "",
+      mspFee: "",
     }))
 
-    if (!previousCurrency || previousCurrency === newCurrency) {
-      return
-    }
-
-    const convertFieldValue = async (
-      rawValue: string,
-      label: string,
-      field: "rateAmount" | "mspFee"
-    ): Promise<{ success: boolean; message: string | null }> => {
-      if (!rawValue || rawValue.trim() === "") {
-        return { success: false, message: null }
-      }
-
-      const numericValue = parseFloat(rawValue.replace(/[^\d.-]/g, ""))
-      if (Number.isNaN(numericValue) || numericValue <= 0) {
-        return { success: false, message: null }
-      }
-
-      const formattedSource = numericValue.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })
-
-      conversionAbortController.current?.abort()
-      const controller = new AbortController()
-      conversionAbortController.current = controller
-
-      try {
-        const result = await convertCurrency(numericValue, previousCurrency, newCurrency, controller.signal)
-        if (controller.signal.aborted) {
-          return { success: false, message: null }
-        }
-
-        if (result.success && result.data) {
-          const convertedAmount = Number(result.data.target_amount)
-          const formattedTarget = convertedAmount.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-
-          setFormData((prev) => {
-            // Avoid overwriting if the user changed the value while conversion was running
-            if (prev[field] !== rawValue) {
-              return prev
-            }
-
-            const nextValue = convertedAmount.toFixed(2)
-            if (prev[field] === nextValue) {
-              return prev
-            }
-
-            return {
-              ...prev,
-              [field]: nextValue,
-            }
-          })
-
-          return {
-            success: true,
-            message: `${label} converted from ${previousCurrency} ${formattedSource} to ${newCurrency} ${formattedTarget}`,
-          }
-        }
-
-        return {
-          success: false,
-          message: `Automatic conversion failed for ${label}. Please update it manually.`,
-        }
-      } catch (error) {
-        if (controller.signal.aborted) {
-          return { success: false, message: null }
-        }
-
-        return {
-          success: false,
-          message: `Automatic conversion failed for ${label}. Please update it manually.`,
-        }
-      } finally {
-        if (conversionAbortController.current === controller) {
-          conversionAbortController.current = null
-        }
-      }
-    }
-
-    const processConversions = async () => {
-      const successMessages: string[] = []
-      const errorMessages: string[] = []
-
-      const rateResult = await convertFieldValue(currentRateValue, "Rate", "rateAmount")
-      if (rateResult.message) {
-        if (rateResult.success) {
-          successMessages.push(rateResult.message)
-        } else {
-          errorMessages.push(rateResult.message)
-        }
-      }
-
-      const mspResult = await convertFieldValue(currentMspValue, "MSP fee", "mspFee")
-      if (mspResult.message) {
-        if (mspResult.success) {
-          successMessages.push(mspResult.message)
-        } else {
-          errorMessages.push(mspResult.message)
-        }
-      }
-
-      if (errorMessages.length > 0) {
-        setRateConversionMessage({
-          type: "error",
-          text: errorMessages.join(" • "),
-        })
-      } else if (successMessages.length > 0) {
-        setRateConversionMessage({
-          type: "success",
-          text: successMessages.join(" • "),
-        })
-      } else {
-        setRateConversionMessage(null)
-      }
-    }
-
-    void processConversions()
-  }, [formData.currency, formData.mspFee, formData.rateAmount, currency, setFormData])
+    setRateConversionMessage(null)
+  }, [currency, setFormData])
 
   const isFormValid = useCallback(() => {
     // Check that required fields have actual content (not just truthy)
     const hasValidContractorName = formData.contractorName && formData.contractorName.trim() !== ''
-    const hasValidServiceType = formData.serviceType && formData.serviceType.trim() !== ''
     const hasValidCountry = formData.country && formData.country.trim() !== ''
     const hasValidRateAmount = formData.rateAmount && formData.rateAmount.trim() !== '' && parseFloat(formData.rateAmount) > 0
     const hasValidCurrency = currency && currency.trim() !== ''
     const hasNoValidationErrors = !Object.values(validationErrors).some(error => error !== null)
 
-    return Boolean(hasValidContractorName && hasValidServiceType && hasValidCountry && hasValidRateAmount && hasValidCurrency && hasNoValidationErrors)
-  }, [formData.contractorName, formData.serviceType, formData.country, formData.rateAmount, currency, validationErrors])
+    return Boolean(hasValidContractorName && hasValidCountry && hasValidRateAmount && hasValidCurrency && hasNoValidationErrors)
+  }, [formData.contractorName, formData.country, formData.rateAmount, currency, validationErrors])
 
   // Service type options
-  const serviceTypes = useMemo(() => [
-    "Software Development",
-    "Design & Creative",
-    "Marketing & Sales",
-    "Writing & Content",
-    "Consulting",
-    "Data & Analytics",
-    "Customer Support",
-    "Other",
-  ], [])
-
   // Payment frequency options
   const paymentFrequencies = useMemo(() => [
     { value: "weekly", label: "Weekly" },
     { value: "bi-weekly", label: "Bi-weekly" },
     { value: "monthly", label: "Monthly" },
-    { value: "milestone", label: "Milestone-based" },
-  ], [])
-
-  // Contract duration options
-  const contractDurations = useMemo(() => [
-    { value: "3", label: "3 Months" },
-    { value: "6", label: "6 Months" },
-    { value: "12", label: "12 Months" },
-    { value: "24", label: "24 Months" },
   ], [])
 
   // Compliance level options
@@ -615,9 +475,7 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
     selectedCountryData,
     availableStates,
     showStateDropdown,
-    serviceTypes,
     paymentFrequencies,
-    contractDurations,
     complianceLevels,
     updateFormData,
     updateValidationError,

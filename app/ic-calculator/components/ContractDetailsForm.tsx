@@ -1,8 +1,10 @@
 import { useCallback, memo } from "react"
+import type { ChangeEvent } from "react"
 import { DollarSign } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ICFormData } from "@/lib/shared/types"
 import { FormSectionHeader } from "../../eor-calculator/components/shared/FormSectionHeader"
 import { FormField } from "../../eor-calculator/components/shared/FormField"
@@ -10,48 +12,71 @@ import { FORM_STYLES } from "../../eor-calculator/styles/constants"
 
 interface ContractDetailsFormProps {
   contractDuration: string
+  contractDurationUnit: "months" | "years"
   paymentFrequency: string
-  complianceLevel: string
   backgroundCheckRequired: boolean
   mspFee: string
   backgroundCheckMonthlyFee: string
   currency: string
-  contractDurations: Array<{ value: string; label: string }>
   paymentFrequencies: Array<{ value: string; label: string }>
-  complianceLevels: Array<{ value: string; label: string }>
   onFormUpdate: (updates: Partial<ICFormData>) => void
 }
 
 export const ContractDetailsForm = memo(({
   contractDuration,
+  contractDurationUnit,
   paymentFrequency,
-  complianceLevel,
   backgroundCheckRequired,
   mspFee,
   backgroundCheckMonthlyFee,
   currency,
-  contractDurations,
   paymentFrequencies,
-  complianceLevels,
   onFormUpdate,
 }: ContractDetailsFormProps) => {
-  const handleContractDurationChange = useCallback((value: string) => {
-    onFormUpdate({ contractDuration: value })
+  const handleContractDurationChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    onFormUpdate({ contractDuration: event.target.value })
   }, [onFormUpdate])
+
+  const handleContractDurationUnitChange = useCallback((unit: "months" | "years") => {
+    if (unit === contractDurationUnit) {
+      return
+    }
+
+    const numericValue = Number(contractDuration)
+    if (!Number.isFinite(numericValue) || numericValue <= 0) {
+      onFormUpdate({ contractDurationUnit: unit })
+      return
+    }
+
+    if (unit === "years") {
+      const converted = numericValue / 12
+      const formatted = Number.isInteger(converted)
+        ? String(converted)
+        : converted.toFixed(2).replace(/\.?0+$/, "")
+      onFormUpdate({
+        contractDuration: formatted,
+        contractDurationUnit: unit,
+      })
+      return
+    }
+
+    const converted = numericValue * 12
+    const rounded = Math.round(converted)
+    onFormUpdate({
+      contractDuration: String(rounded),
+      contractDurationUnit: unit,
+    })
+  }, [contractDuration, contractDurationUnit, onFormUpdate])
 
   const handlePaymentFrequencyChange = useCallback((value: string) => {
     onFormUpdate({ paymentFrequency: value })
-  }, [onFormUpdate])
-
-  const handleComplianceLevelChange = useCallback((value: string) => {
-    onFormUpdate({ complianceLevel: value })
   }, [onFormUpdate])
 
   const handleBackgroundCheckChange = useCallback((checked: boolean) => {
     onFormUpdate({ backgroundCheckRequired: checked })
   }, [onFormUpdate])
 
-  const handleMspFeeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMspFeeChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     onFormUpdate({ mspFee: e.target.value })
   }, [onFormUpdate])
 
@@ -63,15 +88,41 @@ export const ContractDetailsForm = memo(({
         subtitle="Contract terms and additional services"
       />
       <div className={FORM_STYLES.GRID_2_COL}>
-        <FormField
-          type="select"
-          label="Contract Duration"
-          htmlFor="contractDuration"
-          value={contractDuration}
-          onChange={handleContractDurationChange}
-          options={contractDurations}
-          required
-        />
+        <div className="space-y-2">
+          <Label
+            htmlFor="contractDuration"
+            className="text-base font-semibold text-slate-700 uppercase tracking-wide"
+          >
+            Contract Duration
+          </Label>
+          <div className="flex gap-3">
+            <Input
+              id="contractDuration"
+              type="number"
+              min={contractDurationUnit === "months" ? "1" : "0.25"}
+              step={contractDurationUnit === "months" ? "1" : "0.25"}
+              value={contractDuration}
+              onChange={handleContractDurationChange}
+              placeholder={contractDurationUnit === "months" ? "12" : "1"}
+              className="h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+            />
+            <Select
+              value={contractDurationUnit}
+              onValueChange={(value) => handleContractDurationUnitChange(value as "months" | "years")}
+            >
+              <SelectTrigger className="h-12 w-28 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="months">Months</SelectItem>
+                <SelectItem value="years">Years</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <p className="text-sm text-slate-500">
+            Enter the contract length based on the selected unit.
+          </p>
+        </div>
         <FormField
           type="select"
           label="Payment Frequency"
@@ -83,46 +134,50 @@ export const ContractDetailsForm = memo(({
         />
       </div>
 
-      <div className="mt-4 space-y-2">
-        <Label
-          htmlFor="msp-fee"
-          className="text-base font-semibold text-slate-700 uppercase tracking-wide"
-        >
-          MSP Fee (Optional)
-        </Label>
-        <Input
-          id="msp-fee"
-          type="number"
-          value={mspFee}
-          onChange={handleMspFeeChange}
-          placeholder="Enter MSP fee amount (if applicable)"
-          className="h-12 border-slate-200 text-slate-700"
-        />
-        <p className="text-sm text-slate-500">
-          Monthly Managed Service Provider fee for applicable clients
-        </p>
-      </div>
-
-      <div className="mt-4">
+      <div className="mt-6 grid gap-4 md:grid-cols-2 md:items-start">
+        <div className="space-y-2">
+          <Label
+            htmlFor="msp-fee"
+            className="text-base font-semibold text-slate-700 uppercase tracking-wide"
+          >
+            MSP Fee (Optional)
+          </Label>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-sm font-semibold text-slate-500">
+              {currency}
+            </span>
+            <Input
+              id="msp-fee"
+              type="number"
+              value={mspFee}
+              onChange={handleMspFeeChange}
+              placeholder="Enter MSP fee amount (if applicable)"
+              className="h-12 border-slate-200 text-slate-700 pl-16"
+            />
+          </div>
+          <p className="text-sm text-slate-500">
+            Monthly Managed Service Provider fee for applicable clients
+          </p>
+        </div>
         <Label
           htmlFor="background-check"
-          className="flex items-center space-x-3 p-3 border-2 rounded-md cursor-pointer transition-all duration-200 hover:border-primary/50"
+          className="flex h-full items-start gap-3 p-3 border-2 rounded-md cursor-pointer transition-all duration-200 hover:border-primary/50"
         >
           <Checkbox
             id="background-check"
             checked={backgroundCheckRequired}
             onCheckedChange={handleBackgroundCheckChange}
-            className="h-5 w-5"
+            className="mt-1 h-5 w-5"
           />
-          <div>
-            <span className="text-base font-medium text-slate-800">
+          <div className="space-y-1">
+            <span className="block text-base font-medium text-slate-800">
               Background Check Required
             </span>
-            <p className="text-sm text-slate-600 mt-1">
+            <p className="text-sm text-slate-600">
               One-time fee of $200 (amortized over contract duration)
             </p>
             {backgroundCheckRequired && backgroundCheckMonthlyFee && (
-              <p className="text-sm text-slate-600 mt-1">
+              <p className="text-sm text-slate-600">
                 Approx. {currency}{" "}
                 {Number(backgroundCheckMonthlyFee).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
@@ -135,13 +190,7 @@ export const ContractDetailsForm = memo(({
         </Label>
       </div>
 
-      <div className="mt-4 space-y-2">
-        <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-          <p className="text-sm text-blue-800">
-            <strong>Note:</strong> Bill Rate is calculated as Pay Rate × 1.40 (40% GMK markup)
-          </p>
-        </div>
-      </div>
+      
     </div>
   )
 })

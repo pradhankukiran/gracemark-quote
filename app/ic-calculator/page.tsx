@@ -25,10 +25,7 @@ export default function ICCalculatorPage() {
     selectedCountryData,
     availableStates,
     showStateDropdown,
-    serviceTypes,
     paymentFrequencies,
-    contractDurations,
-    complianceLevels,
     updateFormData,
     updateValidationError,
     clearValidationErrors,
@@ -53,6 +50,8 @@ export default function ICCalculatorPage() {
 
   const resultsRef = useRef<HTMLDivElement | null>(null)
   const shouldAutoScrollRef = useRef(false)
+  const formInitializedRef = useRef(false)
+  const lastFormDataRef = useRef(formData)
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -70,6 +69,25 @@ export default function ICCalculatorPage() {
       shouldAutoScrollRef.current = false
     }
   }, [isCalculating, quote])
+
+  useEffect(() => {
+    if (!formInitializedRef.current) {
+      formInitializedRef.current = true
+      lastFormDataRef.current = formData
+      return
+    }
+
+    if (lastFormDataRef.current === formData) {
+      return
+    }
+
+    lastFormDataRef.current = formData
+
+    if (quote || error) {
+      clearQuote()
+      clearError()
+    }
+  }, [formData, quote, error, clearQuote, clearError])
 
   const handleClearAll = () => {
     clearAllData()
@@ -107,10 +125,8 @@ export default function ICCalculatorPage() {
               <CardContent className="p-6 space-y-6">
                 <ContractorInfoForm
                   contractorName={formData.contractorName}
-                  serviceType={formData.serviceType}
                   country={formData.country}
                   currency={currency}
-                  serviceTypes={serviceTypes}
                   countries={countries}
                   onFormUpdate={updateFormData}
                   onCountryChange={handleCountryChange}
@@ -119,10 +135,10 @@ export default function ICCalculatorPage() {
                 <Separator />
 
                 <RateConfigurationForm
-                  rateType={formData.rateType}
                   rateBasis={formData.rateBasis}
                   rateAmount={formData.rateAmount}
                   rateConversionMessage={rateConversionMessage}
+                  currency={currency}
                   onFormUpdate={updateFormData}
                 />
 
@@ -130,15 +146,13 @@ export default function ICCalculatorPage() {
 
                 <ContractDetailsForm
                   contractDuration={formData.contractDuration}
+                  contractDurationUnit={formData.contractDurationUnit}
                   paymentFrequency={formData.paymentFrequency}
-                  complianceLevel={formData.complianceLevel}
                   backgroundCheckRequired={formData.backgroundCheckRequired}
                   mspFee={formData.mspFee}
                   backgroundCheckMonthlyFee={formData.backgroundCheckMonthlyFee}
                   currency={currency}
-                  contractDurations={contractDurations}
                   paymentFrequencies={paymentFrequencies}
-                  complianceLevels={complianceLevels}
                   onFormUpdate={updateFormData}
                 />
 

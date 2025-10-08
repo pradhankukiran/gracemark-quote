@@ -3,38 +3,30 @@ import { Calculator } from "lucide-react"
 import { ICFormData } from "@/lib/shared/types"
 import { FormSectionHeader } from "../../eor-calculator/components/shared/FormSectionHeader"
 import { FormField } from "../../eor-calculator/components/shared/FormField"
+import { Label } from "@/components/ui/label"
 import { FORM_STYLES } from "../../eor-calculator/styles/constants"
 
 type RateConversionMessage = { type: "success" | "error"; text: string } | null
 
 interface RateConfigurationFormProps {
-  rateType: "pay-rate" | "bill-rate"
   rateBasis: "hourly" | "monthly"
   rateAmount: string
   rateConversionMessage: RateConversionMessage
   onFormUpdate: (updates: Partial<ICFormData>) => void
+  currency: string
 }
 
 export const RateConfigurationForm = memo(({
-  rateType,
   rateBasis,
   rateAmount,
   rateConversionMessage,
   onFormUpdate,
+  currency,
 }: RateConfigurationFormProps) => {
-  const rateTypeOptions = useMemo(() => [
-    { value: "pay-rate", label: "Pay Rate (What contractor receives)" },
-    { value: "bill-rate", label: "Bill Rate (What client pays)" }
-  ], [])
-
   const rateBasisOptions = useMemo(() => [
     { value: "hourly", label: "Hourly" },
     { value: "monthly", label: "Monthly" },
   ], [])
-
-  const handleRateTypeChange = useCallback((value: string) => {
-    onFormUpdate({ rateType: value as "pay-rate" | "bill-rate" })
-  }, [onFormUpdate])
 
   const handleRateBasisChange = useCallback((value: string) => {
     onFormUpdate({ rateBasis: value as "hourly" | "monthly" })
@@ -46,16 +38,14 @@ export const RateConfigurationForm = memo(({
 
   const getRateLabel = () => {
     const unit = rateBasis === "hourly" ? "hour" : "month"
-    return rateType === "pay-rate"
-      ? `Pay Rate (per ${unit})`
-      : `Bill Rate (per ${unit})`
+    return `Pay Rate (per ${unit})`
   }
 
   const getRatePlaceholder = () => {
     if (rateBasis === "monthly") {
-      return rateType === "pay-rate" ? "8000" : "11000"
+      return "8000"
     }
-    return rateType === "pay-rate" ? "50" : "75"
+    return "50"
   }
 
   return (
@@ -68,15 +58,6 @@ export const RateConfigurationForm = memo(({
       <div className={FORM_STYLES.GRID_2_COL}>
         <FormField
           type="select"
-          label="Rate Type"
-          htmlFor="rateType"
-          value={rateType}
-          onChange={handleRateTypeChange}
-          options={rateTypeOptions}
-          required
-        />
-        <FormField
-          type="select"
           label="Rate Basis"
           htmlFor="rateBasis"
           value={rateBasis}
@@ -84,26 +65,27 @@ export const RateConfigurationForm = memo(({
           options={rateBasisOptions}
           required
         />
-        <FormField
-          type="input"
-          label={getRateLabel()}
-          htmlFor="rateAmount"
-          value={rateAmount}
-          onChange={handleRateAmountChange}
-          placeholder={getRatePlaceholder()}
-          required
-          className="md:col-span-2"
-        />
+        <div className="space-y-2">
+          <Label className={FORM_STYLES.LABEL_BASE} htmlFor="rateAmount">
+            {getRateLabel()}
+          </Label>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-sm font-semibold text-slate-500">
+              {currency}
+            </span>
+            <input
+              id="rateAmount"
+              value={rateAmount}
+              onChange={(event) => handleRateAmountChange(event.target.value)}
+              placeholder={getRatePlaceholder()}
+              required
+              type="number"
+              className="h-12 w-full rounded-md border-2 border-slate-200 bg-white pl-16 pr-4 text-slate-700 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+            />
+          </div>
+        </div>
       </div>
-      <div className="mt-3 p-3 bg-slate-50 border border-slate-200 rounded-md">
-        <p className="text-sm text-slate-600">
-          <strong>Rate Type Explanation:</strong>
-        </p>
-        <ul className="text-sm text-slate-600 mt-1 ml-4 list-disc space-y-1">
-          <li><strong>Pay Rate:</strong> The amount the contractor receives before fees (per hour or per month, based on the selected basis)</li>
-          <li><strong>Bill Rate:</strong> The total amount charged to the client (per hour or per month, matching the selected basis)</li>
-        </ul>
-      </div>
+      
       {rateConversionMessage && (
         <div
           className={`mt-3 p-3 rounded-md border text-sm ${

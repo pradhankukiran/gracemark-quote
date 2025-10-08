@@ -514,15 +514,14 @@ export interface ContributionOption {
 // IC (Independent Contractor) Form Data Interface
 export interface ICFormData {
   contractorName: string
-  serviceType: string
   country: string
   state: string
   currency: string
   rateBasis: "hourly" | "monthly"
-  rateType: "pay-rate" | "bill-rate"
   rateAmount: string
   paymentFrequency: string
   contractDuration: string
+  contractDurationUnit: "months" | "years"
   complianceLevel: string // Kept for backward compatibility with stored data
   backgroundCheckRequired: boolean
   mspFee: string // MSP fee (optional, for some clients)
@@ -549,7 +548,6 @@ export interface ICQuoteResult {
 // IC Validation Errors
 export interface ICValidationErrors {
   contractorName: string | null
-  serviceType: string | null
   country: string | null
   rateAmount: string | null
   contractDuration: string | null
