@@ -1,6 +1,6 @@
 import { memo } from "react"
 import { Button } from "@/components/ui/button"
-import { Calculator, RotateCcw, AlertCircle } from "lucide-react"
+import { Calculator, RotateCcw, AlertCircle, Loader2 } from "lucide-react"
 
 interface FormActionsProps {
   isCalculating: boolean
@@ -44,23 +44,21 @@ export const FormActions = memo(({
       )}
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 pt-4">
-        <div className="hidden sm:block"></div>
-
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 pt-4">
         <Button
           onClick={onCalculate}
           disabled={!isFormValid || isCalculating}
           size="lg"
-          className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-8 text-base shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none cursor-pointer"
+          className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 px-10 text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none cursor-pointer"
         >
           {isCalculating ? (
             <div className="flex items-center gap-2">
-              <div className="animate-spin h-4 w-4 border-b-2 border-white"></div>
+              <Loader2 className="h-5 w-5 animate-spin" />
               Calculating Quote...
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Calculator className="h-4 w-4" />
+              <Calculator className="h-5 w-5" />
               Calculate Quote
             </div>
           )}
@@ -71,9 +69,9 @@ export const FormActions = memo(({
           variant="outline"
           size="lg"
           disabled={isCalculating}
-          className="w-full sm:w-auto border-2 border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold py-3 px-8 text-base shadow-lg hover:shadow-xl transition-all duration-200 bg-transparent cursor-pointer"
+          className="w-full sm:w-auto border-2 border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold py-4 px-10 text-lg shadow-lg hover:shadow-xl transition-all duration-200 bg-transparent cursor-pointer"
         >
-          <RotateCcw className="h-4 w-4 mr-2" />
+          <RotateCcw className="h-5 w-5 mr-2" />
           Clear Form
         </Button>
       </div>

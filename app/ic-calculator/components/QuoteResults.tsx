@@ -52,16 +52,14 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
   const payRateSecondary = isHourlyBasis ? quote.monthlyPayRate : quote.payRate
   const billRatePrimary = isHourlyBasis ? quote.billRate : quote.monthlyBillRate
   const billRateSecondary = isHourlyBasis ? quote.monthlyBillRate : quote.billRate
-  const totalEmploymentCost = Math.round(
-    (quote.monthlyPayRate + quote.mspFee + quote.backgroundCheckMonthlyFee + quote.platformFee) * 100
-  ) / 100
-  const netMarginLocal = Math.round((quote.monthlyBillRate - totalEmploymentCost) * 100) / 100
+
+  // Calculate net margin (Bill Rate - Pay Rate - MSP Fee - Platform Fee)
+  const netMarginLocal = Math.round((quote.monthlyBillRate - quote.monthlyPayRate - quote.mspFee - quote.platformFee) * 100) / 100
+
+  // Build formula for display
   const marginFormulaParts: string[] = ["Pay Rate"]
   if (quote.mspFee > 0) {
     marginFormulaParts.push("MSP Fee")
-  }
-  if (quote.backgroundCheckMonthlyFee > 0) {
-    marginFormulaParts.push("Background Check Fee")
   }
   marginFormulaParts.push("Platform Fee")
   const marginFormula = marginFormulaParts.join(" + ")
@@ -103,11 +101,11 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
                   {formatCurrency(payRateSecondary)}{secondaryUnit}
                 </div>
               </div>
-              <div className="bg-secondary/10 p-4 text-center border-2 border-secondary/20 rounded-lg">
+              <div className="bg-blue-50 p-4 text-center border-2 border-blue-200 rounded-lg">
                 <div className="text-sm text-slate-600 font-semibold mb-2 uppercase tracking-wide">
                   Bill Rate (Client)
                 </div>
-                <div className="text-2xl font-bold text-secondary">
+                <div className="text-2xl font-bold text-blue-600">
                   {formatCurrency(billRatePrimary)}{primaryUnit}
                 </div>
                 <div className="text-sm text-slate-500 mt-1">
@@ -133,31 +131,11 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
-                  <span className="text-slate-600 font-medium">
-                    Transaction Cost ({quote.transactionsPerMonth} × $55 USD, converted)
-                  </span>
-                  <span className="font-bold text-lg text-slate-900">
-                    {formatCurrency(quote.transactionCost)}
-                  </span>
-                </div>
-
                 {quote.mspFee > 0 && (
                   <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
                     <span className="text-slate-600 font-medium">MSP Fee</span>
                     <span className="font-bold text-lg text-slate-900">
                       {formatCurrency(quote.mspFee)}
-                    </span>
-                  </div>
-                )}
-
-                {quote.backgroundCheckMonthlyFee > 0 && (
-                  <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
-                    <span className="text-slate-600 font-medium">
-                      Background Check Fee (amortized)
-                    </span>
-                    <span className="font-bold text-lg text-slate-900">
-                      {formatCurrency(quote.backgroundCheckMonthlyFee)}
                     </span>
                   </div>
                 )}
@@ -170,12 +148,46 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
                 </div>
               </div>
 
-              <div className="flex justify-between items-center py-3 px-4 bg-green-50 rounded-md border border-green-200">
-                <span className="text-slate-700 font-semibold">
-                  Total Employment Cost
+              <div className="flex justify-between items-center py-3 px-4 bg-primary/10 rounded-md border-2 border-primary/30">
+                <span className="text-slate-800 font-bold">
+                  Monthly Bill Rate
                 </span>
-                <span className="font-bold text-lg text-slate-900">
-                  {formatCurrency(totalEmploymentCost)}
+                <span className="font-bold text-xl text-primary">
+                  {formatCurrency(quote.monthlyBillRate)}
+                </span>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-slate-200">
+                <h4 className="text-sm font-semibold text-slate-700 mb-2">Additional Pass-Through Costs</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center py-2 px-4 bg-amber-50 rounded-md border border-amber-200">
+                    <span className="text-slate-600 text-sm font-medium">
+                      Transaction Cost ({quote.transactionsPerMonth} × $55 USD)
+                    </span>
+                    <span className="font-semibold text-slate-900">
+                      {formatCurrency(quote.transactionCost)}
+                    </span>
+                  </div>
+
+                  {quote.backgroundCheckMonthlyFee > 0 && (
+                    <div className="flex justify-between items-center py-2 px-4 bg-amber-50 rounded-md border border-amber-200">
+                      <span className="text-slate-600 text-sm font-medium">
+                        Background Check Fee (amortized)
+                      </span>
+                      <span className="font-semibold text-slate-900">
+                        {formatCurrency(quote.backgroundCheckMonthlyFee)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center py-3 px-4 bg-gradient-to-r from-slate-700 to-slate-600 text-white rounded-md border-2 border-slate-800">
+                <span className="font-bold text-lg">
+                  Total Client Cost per Month
+                </span>
+                <span className="font-bold text-2xl">
+                  {formatCurrency(quote.monthlyBillRate + quote.transactionCost + quote.backgroundCheckMonthlyFee)}
                 </span>
               </div>
             </div>
@@ -201,7 +213,7 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
                   Local equivalent: {formatCurrency(netMarginLocal)}
                 </p>
                 <p className="text-xs text-slate-500 mt-2">
-                  Transaction costs are handled separately and do not affect the target margin.
+                  Note: Transaction costs and background check fees are pass-through costs and do not affect the target margin.
                 </p>
               </div>
             </div>

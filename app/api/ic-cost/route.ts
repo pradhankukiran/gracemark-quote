@@ -73,7 +73,9 @@ async function calculateICQuote(formData: ICFormData, currency?: string): Promis
   const monthlyBillRate = billRate * workedHours
 
   const targetNetMarginLocal = await resolveTargetNetMargin(activeCurrency)
-  const platformFeeRaw = monthlyBillRate - monthlyPayRate - mspFeeValue - backgroundCheckMonthlyFee - targetNetMarginLocal
+  // Platform Fee calculation: Bill Rate - Pay Rate - MSP Fee - Target Net Margin
+  // Background check and transaction costs are pass-through costs and don't affect the net margin
+  const platformFeeRaw = monthlyBillRate - monthlyPayRate - mspFeeValue - targetNetMarginLocal
   const platformFee = Math.round(platformFeeRaw * 100) / 100
 
   const netMarginDisplayUsd = TARGET_NET_MARGIN_USD
