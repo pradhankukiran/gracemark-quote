@@ -79,8 +79,11 @@ const BENEFIT_SYNONYMS: Array<{ key: BenefitKey; phrases: string[] }> = [
     ]
   },
   {
-    key: 'probationProvision',
+    key: 'noticePeriodCost',
     phrases: [
+      'notice period',
+      'notice provision',
+      'notice payout',
       'probation reserve',
       'probation provision',
       'probation accrual'
@@ -126,8 +129,8 @@ const BENEFIT_PATTERNS: Array<{ key: BenefitKey; regex: RegExp }> = [
     regex: /(severance|termination|redundancy|indemnity|gratuity|separation)\s*(?:provisions?|accruals?|costs?|payments?|pay|funds?|reserves?|liabilit(?:y|ies)|obligations?|packages?|charges?|estimates?|benefits?|allowances?)/i
   },
   {
-    key: 'probationProvision',
-    regex: /(probation)\s*(?:provisions?|accruals?|costs?|payments?|pay|termination|obligations?)/i
+    key: 'noticePeriodCost',
+    regex: /(?:notice(?:\s*period)?|probation)\s*(?:provisions?|accruals?|costs?|payments?|pay|termination|obligations?)/i
   }
 ]
 

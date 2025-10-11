@@ -16,7 +16,7 @@ export const useSkuadQuote = () => {
       const request = createQuoteRequestData(withDefaults)
       const response = await fetchSkuadCost(request)
       setRawQuote('skuad', response)
-      const display: Quote = transformSkuadResponseToQuote(response)
+      let display: Quote = transformSkuadResponseToQuote(response)
       // Fill context
       display.currency = withDefaults.currency
       display.country = withDefaults.country
@@ -28,7 +28,7 @@ export const useSkuadQuote = () => {
           const compareReq = createQuoteRequestData(withDefaults, true)
           const compResp = await fetchSkuadCost(compareReq)
           setRawQuote('skuad', compResp, 'comparison')
-          const compDisplay = transformSkuadResponseToQuote(compResp)
+          let compDisplay = transformSkuadResponseToQuote(compResp)
           compDisplay.currency = withDefaults.compareCurrency
           compDisplay.country = withDefaults.compareCountry
           comparisonQuote = compDisplay
@@ -49,7 +49,7 @@ export const useSkuadQuote = () => {
                   currency: withDefaults.currency,
                 } as QuoteRequestData
                 const compSelectedResp = await fetchSkuadCost(compareChangedReq)
-                const compSelectedDisplay = transformSkuadResponseToQuote(compSelectedResp)
+                let compSelectedDisplay = transformSkuadResponseToQuote(compSelectedResp)
                 compSelectedDisplay.currency = withDefaults.currency
                 compSelectedDisplay.country = withDefaults.compareCountry
                 compareSelectedCurrencyQuote = compSelectedDisplay
@@ -71,7 +71,7 @@ export const useSkuadQuote = () => {
           const conv = await convertCurrency(base, withDefaults.currency, withDefaults.originalCurrency)
           const localReq = { ...request, currency: withDefaults.originalCurrency, salary: conv.success && conv.data ? conv.data.target_amount.toString() : withDefaults.baseSalary }
           const localResp = await fetchSkuadCost(localReq as QuoteRequestData)
-          const localDisplay = transformSkuadResponseToQuote(localResp)
+          let localDisplay = transformSkuadResponseToQuote(localResp)
           localDisplay.country = withDefaults.country
           localDisplay.currency = withDefaults.originalCurrency
           localCurrencyQuote = localDisplay

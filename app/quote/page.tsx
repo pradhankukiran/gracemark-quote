@@ -361,12 +361,12 @@ const buildDisplayedItems = (
     // Termination provisions
     if (enh.severanceProvision && enh.severanceProvision.isAlreadyIncluded !== true) {
       const monthly = Number(enh.severanceProvision.monthlyAmount || 0)
-      if (monthly > 0) addExtra('Severance Provision', monthly, ['severance provision'])
+      if (monthly > 0) addExtra('Severance Cost', monthly, ['severance cost', 'severance provision'])
     }
 
-    if (enh.probationProvision && enh.probationProvision.isAlreadyIncluded !== true) {
-      const monthly = Number(enh.probationProvision.monthlyAmount || 0)
-      if (monthly > 0) addExtra('Probation Provision', monthly, ['probation provision'])
+    if (enh.noticePeriodCost && enh.noticePeriodCost.isAlreadyIncluded !== true) {
+      const monthly = Number(enh.noticePeriodCost.monthlyAmount || 0)
+      if (monthly > 0) addExtra('Notice Period Cost', monthly, ['notice period', 'probation provision'])
     }
 
     // 13th salary
@@ -1302,19 +1302,19 @@ const QuotePageContent = memo(() => {
   // Auto-populate profitability calculator when acid test results are ready
   useEffect(() => {
     const populateProfitabilityInputs = async () => {
-      console.log('[Profitability Auto-fill] Starting...', {
-        hasAcidTestCostData: !!acidTestCostData,
-        hasAcidTestResults: !!acidTestResults
-      })
+      // console.log('[Profitability Auto-fill] Starting...', {
+      //   hasAcidTestCostData: !!acidTestCostData,
+      //   hasAcidTestResults: !!acidTestResults
+      // })
 
       if (!acidTestCostData || !acidTestResults) {
-        console.log('[Profitability Auto-fill] Missing data, skipping')
+        // console.log('[Profitability Auto-fill] Missing data, skipping')
         return
       }
 
       // 1. Pre-fill duration from contract duration
       const contractDuration = Number((quoteData?.formData as EORFormData)?.contractDuration) || 6
-      console.log('[Profitability Auto-fill] Setting duration:', contractDuration)
+      // console.log('[Profitability Auto-fill] Setting duration:', contractDuration)
       setDurationInput(contractDuration)
 
       // 2. Calculate minimum bill rate for $1,000 USD profit
@@ -1323,12 +1323,12 @@ const QuotePageContent = memo(() => {
       // Use the expectedBillRate from the breakdown table (already includes all costs + Gracemark fee)
       const expectedBillRate = acidTestResults.billRateComposition.expectedBillRate
 
-      console.log('[Profitability Auto-fill] Using expected bill rate', {
-        localCurrency,
-        expectedBillRate,
-        billRateCurrency,
-        contractDuration
-      })
+      // console.log('[Profitability Auto-fill] Using expected bill rate', {
+      //   localCurrency,
+      //   expectedBillRate,
+      //   billRateCurrency,
+      //   contractDuration
+      // })
 
       try {
         let minMonthlyBillRate = 0
@@ -1336,11 +1336,11 @@ const QuotePageContent = memo(() => {
         if (billRateCurrency === 'local') {
           // Convert $1,000 USD to local currency with 1% buffer to account for conversion volatility
           const targetProfitUSD = MIN_PROFIT_THRESHOLD_USD * 1.01
-          console.log('[Profitability Auto-fill] Converting $1k USD (with buffer) to', localCurrency)
+          // console.log('[Profitability Auto-fill] Converting $1k USD (with buffer) to', localCurrency)
           const minProfitInLocal = await convertCurrency(targetProfitUSD, 'USD', localCurrency)
           const minProfitLocalAmount = extractConvertedAmount(minProfitInLocal)
 
-          console.log('[Profitability Auto-fill] Converted amount:', minProfitLocalAmount)
+          // console.log('[Profitability Auto-fill] Converted amount:', minProfitLocalAmount)
 
           if (minProfitLocalAmount === null || minProfitLocalAmount === undefined) {
             throw new Error('Failed to convert minimum profit to local currency')
@@ -1351,11 +1351,11 @@ const QuotePageContent = memo(() => {
         } else {
           // billRateCurrency === 'USD'
           // Convert expected bill rate to USD
-          console.log('[Profitability Auto-fill] Converting expected bill rate to USD')
+          // console.log('[Profitability Auto-fill] Converting expected bill rate to USD')
           const expectedBillRateInUSD = await convertCurrency(expectedBillRate, localCurrency, 'USD')
           const expectedBillRateUSDAmount = extractConvertedAmount(expectedBillRateInUSD)
 
-          console.log('[Profitability Auto-fill] Converted expected bill rate:', expectedBillRateUSDAmount)
+          // console.log('[Profitability Auto-fill] Converted expected bill rate:', expectedBillRateUSDAmount)
 
           if (expectedBillRateUSDAmount === null || expectedBillRateUSDAmount === undefined) {
             throw new Error('Failed to convert expected bill rate to USD')
@@ -1366,22 +1366,22 @@ const QuotePageContent = memo(() => {
           minMonthlyBillRate = expectedBillRateUSDAmount + (targetProfitUSD / contractDuration)
         }
 
-        console.log('[Profitability Auto-fill] Calculated min bill rate:', minMonthlyBillRate)
+        // console.log('[Profitability Auto-fill] Calculated min bill rate:', minMonthlyBillRate)
         const finalBillRate = Number(minMonthlyBillRate.toFixed(2))
         setBillRateInput(finalBillRate)
 
         // Automatically trigger profitability calculation
-        console.log('[Profitability Auto-fill] Auto-triggering profitability calculation')
+        // console.log('[Profitability Auto-fill] Auto-triggering profitability calculation')
         await calculateProfitability(finalBillRate, contractDuration)
       } catch (error) {
         console.error('[Profitability Auto-fill] Failed to calculate minimum bill rate:', error)
         // Fallback: just use expected bill rate without profit buffer
-        console.log('[Profitability Auto-fill] Using fallback:', expectedBillRate)
+        // console.log('[Profitability Auto-fill] Using fallback:', expectedBillRate)
         const fallbackRate = Number(expectedBillRate.toFixed(2))
         setBillRateInput(fallbackRate)
 
         // Automatically trigger profitability calculation with fallback
-        console.log('[Profitability Auto-fill] Auto-triggering profitability calculation (fallback)')
+        // console.log('[Profitability Auto-fill] Auto-triggering profitability calculation (fallback)')
         await calculateProfitability(fallbackRate, contractDuration)
       }
     }
@@ -4110,7 +4110,7 @@ const QuotePageContent = memo(() => {
         if (normalizedNameLower.includes('total') && !/allowance|benefit|termination|gracemark|provider/.test(normalizedNameLower)) return
 
         const entryType = classifyEntryName(safeName)
-        const dedupeSensitiveTypes: Record<typeof entryType, true | undefined> = {
+        const dedupeSensitiveTypes: Partial<Record<ReturnType<typeof classifyEntryName>, true>> = {
           base_salary: true,
           gracemark: true,
           provider_fee: true,
@@ -4293,7 +4293,7 @@ const QuotePageContent = memo(() => {
       }
 
       if (enhancedQuote.enhancements) {
-        const { severanceProvision, probationProvision } = enhancedQuote.enhancements
+        const { severanceProvision, noticePeriodCost } = enhancedQuote.enhancements
 
         const addTerminationComponentEntry = (
           key: string,
@@ -4307,8 +4307,8 @@ const QuotePageContent = memo(() => {
           addCostEntry(key, label, monthly)
         }
 
-        addTerminationComponentEntry('severance_provision', 'Severance Provision', severanceProvision)
-        addTerminationComponentEntry('probation_provision', 'Probation Provision', probationProvision)
+        addTerminationComponentEntry('severance_cost', 'Severance Cost', severanceProvision)
+        addTerminationComponentEntry('notice_period_cost', 'Notice Period Cost', noticePeriodCost)
 
         if (enhancedQuote.enhancements.additionalContributions) {
           Object.entries(enhancedQuote.enhancements.additionalContributions).forEach(([key, value]) => {
@@ -4324,7 +4324,7 @@ const QuotePageContent = memo(() => {
             key === 'terminationCosts' ||
             key === 'terminationNotice' ||
             key === 'severanceProvision' ||
-            key === 'probationProvision' ||
+            key === 'noticePeriodCost' ||
             key === 'additionalContributions'
           ) return
           if (!value || typeof value !== 'object') return
@@ -4360,8 +4360,8 @@ const QuotePageContent = memo(() => {
       const normalizedName = item.name.toLowerCase()
       const isTerminationEntry = normalizedKey.includes('termination') || normalizedName.includes('termination')
       const isSeveranceEntry = normalizedKey.includes('severance') || normalizedName.includes('severance')
-      const isProbationEntry = normalizedKey.includes('probation') || normalizedName.includes('probation')
-      if (isTerminationEntry && !isSeveranceEntry && !isProbationEntry) {
+      const isNoticeEntry = normalizedKey.includes('notice') || normalizedName.includes('notice') || normalizedKey.includes('probation') || normalizedName.includes('probation')
+      if (isTerminationEntry && !isSeveranceEntry && !isNoticeEntry) {
         return
       }
       const amount = Number(resolveMonthlyAmount(item.monthly_amount))
@@ -5034,8 +5034,8 @@ const QuotePageContent = memo(() => {
           terminationComponentExtras.push({ label, amount: monthly, guards })
         }
 
-        pushTerminationComponent('Severance Provision', enh.enhancements.severanceProvision, ['severance provision'])
-        pushTerminationComponent('Probation Provision', enh.enhancements.probationProvision, ['probation provision'])
+        pushTerminationComponent('Severance Cost', enh.enhancements.severanceProvision, ['severance cost', 'severance provision'])
+        pushTerminationComponent('Notice Period Cost', enh.enhancements.noticePeriodCost, ['notice period', 'probation provision'])
 
         if (terminationComponentExtras.length > 0) {
           terminationComponentExtras.forEach(entry => addExtra(entry.label, entry.amount, entry.guards))

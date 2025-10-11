@@ -31,7 +31,7 @@ export const useRivermateQuote = () => {
 
       const primaryResponse = await fetchRivermateCost(requestData);
       setRawQuote('rivermate', primaryResponse);
-      const rivermateQuote = transformToRivermateQuote(primaryResponse); // For USD conversion
+      let rivermateQuote = transformToRivermateQuote(primaryResponse); // For USD conversion
       const primaryQuote: Quote = transformRivermateResponseToQuote(primaryResponse); // For display
 
       let comparisonQuote: Quote | undefined;
@@ -42,8 +42,7 @@ export const useRivermateQuote = () => {
           const compareRequest = createQuoteRequestData(formDataWithDefaults, true);
           const compResp = await fetchRivermateCost(compareRequest);
           setRawQuote('rivermate', compResp, 'comparison');
-          const comparisonRivermateQuoteOptimized = transformToRivermateQuote(compResp); // For USD conversion
-          comparisonRivermateQuote = comparisonRivermateQuoteOptimized;
+          comparisonRivermateQuote = transformToRivermateQuote(compResp); // For USD conversion
           comparisonQuote = transformRivermateResponseToQuote(compResp); // For display
 
           if (

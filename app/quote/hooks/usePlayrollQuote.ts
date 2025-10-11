@@ -30,7 +30,7 @@ export const usePlayrollQuote = () => {
 
       const display = transformPlayrollResponseToQuote(response)
       const countryInfo = getCountryByName(withDefaults.country)
-      const primaryQuote: Quote = applyContextFallbacks(
+      let primaryQuote: Quote = applyContextFallbacks(
         display,
         withDefaults.country,
         countryInfo?.code || '',
@@ -48,12 +48,13 @@ export const usePlayrollQuote = () => {
 
           const compareDisplay = transformPlayrollResponseToQuote(compareResp)
           const compareCountryInfo = getCountryByName(withDefaults.compareCountry)
-          comparisonQuote = applyContextFallbacks(
+          let compQuote = applyContextFallbacks(
             compareDisplay,
             withDefaults.compareCountry,
             compareCountryInfo?.code || '',
             withDefaults.compareCurrency
           )
+          comparisonQuote = compQuote
 
           if (
             withDefaults.isCurrencyManuallySet &&
@@ -72,12 +73,13 @@ export const usePlayrollQuote = () => {
                 }
                 const compareSelectedResp = await fetchPlayrollCost(compareSelectedReq)
                 const compareSelectedDisplay = transformPlayrollResponseToQuote(compareSelectedResp)
-                compareSelectedCurrencyQuote = applyContextFallbacks(
+                let compSelectedQuote = applyContextFallbacks(
                   compareSelectedDisplay,
                   withDefaults.compareCountry,
                   compareCountryInfo?.code || '',
                   withDefaults.currency
                 )
+                compareSelectedCurrencyQuote = compSelectedQuote
               } catch (err) {
                 console.warn('Playroll comparison (selected currency) fetch failed', err)
               }
@@ -102,12 +104,13 @@ export const usePlayrollQuote = () => {
             const localResp = await fetchPlayrollCost(localReq)
             const localDisplay = transformPlayrollResponseToQuote(localResp)
             const countryInfoLocal = getCountryByName(withDefaults.country)
-            localCurrencyQuote = applyContextFallbacks(
+            let localQuote = applyContextFallbacks(
               localDisplay,
               withDefaults.country,
               countryInfoLocal?.code || '',
               withDefaults.originalCurrency
             )
+            localCurrencyQuote = localQuote
           }
         } catch (err) {
           console.warn('Playroll local currency fetch failed', err)

@@ -18,7 +18,7 @@ export const useRipplingQuote = () => {
 
       const response = await fetchRipplingCost(request);
       setRawQuote('rippling', response);
-      const display: Quote = transformRipplingResponseToQuote(response);
+      let display: Quote = transformRipplingResponseToQuote(response);
       // Patch missing context fields (country, currency) from form
       display.country = withDefaults.country;
       display.country_code = getCountryByName(withDefaults.country)?.code || '';
@@ -32,7 +32,7 @@ export const useRipplingQuote = () => {
           const compareReq = createQuoteRequestData(withDefaults, true);
           const compResp = await fetchRipplingCost(compareReq);
           setRawQuote('rippling', compResp, 'comparison');
-          const compDisplay: Quote = transformRipplingResponseToQuote(compResp);
+          let compDisplay: Quote = transformRipplingResponseToQuote(compResp);
           compDisplay.country = withDefaults.compareCountry;
           compDisplay.country_code = getCountryByName(withDefaults.compareCountry)?.code || '';
           compDisplay.currency = withDefaults.compareCurrency;
@@ -59,7 +59,7 @@ export const useRipplingQuote = () => {
                   currency: withDefaults.currency,
                 } as QuoteRequestData;
                 const compSelectedResp = await fetchRipplingCost(compareChangedReq);
-                const compSelectedDisplay = transformRipplingResponseToQuote(compSelectedResp);
+                let compSelectedDisplay = transformRipplingResponseToQuote(compSelectedResp);
                 compSelectedDisplay.country = withDefaults.compareCountry;
                 compSelectedDisplay.country_code = getCountryByName(withDefaults.compareCountry)?.code || '';
                 compSelectedDisplay.currency = withDefaults.currency;
@@ -82,7 +82,7 @@ export const useRipplingQuote = () => {
           const conv = await convertCurrency(base, withDefaults.currency, withDefaults.originalCurrency)
           const localReq = { ...request, currency: withDefaults.originalCurrency, salary: conv.success && conv.data ? conv.data.target_amount.toString() : withDefaults.baseSalary }
           const localResp = await fetchRipplingCost(localReq as QuoteRequestData)
-          const localDisplay = transformRipplingResponseToQuote(localResp)
+          let localDisplay = transformRipplingResponseToQuote(localResp)
           localDisplay.country = withDefaults.country;
           localDisplay.country_code = getCountryByName(withDefaults.country)?.code || '';
           localDisplay.currency = withDefaults.originalCurrency;

@@ -86,16 +86,20 @@ export const useLocalOfficeConversion = ({
 
         const baseLocalCurrency = (() => {
           if (!countryCode) return null
-          if (originalCurrency && originalCurrency.trim()) {
-            return originalCurrency.trim()
-          }
           try {
-            return getCurrencyForCountry(countryCode)
+            const derived = getCurrencyForCountry(countryCode)
+            if (derived?.trim()) {
+              return derived.trim().toUpperCase()
+            }
           } catch (error) {
-            console.warn('Failed to determine base local currency:', error)
-            return null
+            console.warn('Failed to determine primary local currency:', error)
           }
+          if (originalCurrency && originalCurrency.trim()) {
+            return originalCurrency.trim().toUpperCase()
+          }
+          return null
         })()
+        const normalizedTargetCurrency = targetCurrency.trim().toUpperCase()
         
         const fieldsToConvert = convertibleFields.filter(field => {
           const value = originalData[field]
@@ -105,12 +109,12 @@ export const useLocalOfficeConversion = ({
 
           const fieldCurrency = getFieldCurrency(field, countryCode)
           if (fieldCurrency === 'usd') {
-            return targetCurrency !== 'USD'
+            return normalizedTargetCurrency !== 'USD'
           }
 
           if (fieldCurrency === 'local') {
             if (!baseLocalCurrency) return false
-            return baseLocalCurrency.toUpperCase() !== targetCurrency.toUpperCase()
+            return baseLocalCurrency !== normalizedTargetCurrency
           }
 
           return false
@@ -121,13 +125,17 @@ export const useLocalOfficeConversion = ({
           const fieldCurrency = getFieldCurrency(field, countryCode)
           const sourceCurrency = fieldCurrency === 'usd' ? 'USD' : baseLocalCurrency
 
-          if (!sourceCurrency || sourceCurrency.toUpperCase() === targetCurrency.toUpperCase()) {
+          if (!sourceCurrency || sourceCurrency === normalizedTargetCurrency) {
             return
           }
-          
+
           try {
-            const result = await convertCurrency(numericValue, sourceCurrency, targetCurrency)
-            
+            const result = await convertCurrency(
+              numericValue,
+              sourceCurrency,
+              normalizedTargetCurrency
+            )
+
             if (result.success && result.data) {
               conversions[field] = result.data.target_amount.toFixed(2)
             } else {
@@ -141,7 +149,7 @@ export const useLocalOfficeConversion = ({
         })
 
         await Promise.all(conversionPromises)
-        
+
         setConvertedLocalOffice(conversions)
       } catch (error) {
         console.warn('Failed to convert local office data:', error)
@@ -161,8 +169,7 @@ export const useLocalOfficeConversion = ({
         clearTimeout(conversionTimeoutRef.current)
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversionKey, originalData, countryCode])
+  }, [conversionKey, originalData, countryCode, originalCurrency, formCurrency])
 
   const isLocalOfficeReady = !isConvertingLocalOffice
 

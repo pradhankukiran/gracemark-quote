@@ -17,7 +17,7 @@ export const useVelocityQuote = () => {
 
       const response = await fetchVelocityGlobalCost(request)
       setRawQuote('velocity', response)
-      const display: Quote = transformVelocityResponseToQuote(response)
+      let display: Quote = transformVelocityResponseToQuote(response)
 
       // Set context for UI consistency
       display.currency = withDefaults.currency
@@ -30,7 +30,7 @@ export const useVelocityQuote = () => {
           const compareReq = createQuoteRequestData(withDefaults, true)
           const compResp = await fetchVelocityGlobalCost(compareReq)
           setRawQuote('velocity', compResp, 'comparison')
-          const compDisplay = transformVelocityResponseToQuote(compResp)
+          let compDisplay = transformVelocityResponseToQuote(compResp)
           compDisplay.currency = withDefaults.compareCurrency
           compDisplay.country = withDefaults.compareCountry || compDisplay.country
           comparisonQuote = compDisplay
@@ -52,7 +52,7 @@ export const useVelocityQuote = () => {
                   currency: withDefaults.currency,
                 } as QuoteRequestData
                 const compSelectedResp = await fetchVelocityGlobalCost(compareChangedReq)
-                const compSelectedDisplay = transformVelocityResponseToQuote(compSelectedResp)
+                let compSelectedDisplay = transformVelocityResponseToQuote(compSelectedResp)
                 compSelectedDisplay.currency = withDefaults.currency
                 compSelectedDisplay.country = withDefaults.compareCountry || compSelectedDisplay.country
                 compareSelectedCurrencyQuote = compSelectedDisplay
@@ -74,7 +74,7 @@ export const useVelocityQuote = () => {
           const conv = await convertCurrency(base, withDefaults.currency, withDefaults.originalCurrency)
           const localReq = { ...request, currency: withDefaults.originalCurrency, salary: conv.success && conv.data ? conv.data.target_amount.toString() : withDefaults.baseSalary }
           const localResp = await fetchVelocityGlobalCost(localReq as QuoteRequestData)
-          const localDisplay = transformVelocityResponseToQuote(localResp)
+          let localDisplay = transformVelocityResponseToQuote(localResp)
           localDisplay.country = withDefaults.country || localDisplay.country
           localDisplay.currency = withDefaults.originalCurrency
           localCurrencyQuote = localDisplay

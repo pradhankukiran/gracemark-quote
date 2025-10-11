@@ -17,7 +17,7 @@ export const useOysterQuote = () => {
       const response = await fetchOysterCost(request)
       setRawQuote('oyster', response)
 
-      const optimized: OysterQuote = transformToOysterQuote(response)
+      let optimized: OysterQuote = transformToOysterQuote(response)
       const display: Quote = transformOysterResponseToQuote(response)
 
       // Dual currency handling

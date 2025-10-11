@@ -64,7 +64,9 @@ export class PapayaCurrencyProvider implements CurrencyProvider {
 
       const response = await fetch(url, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
+          // Papaya now blocks requests without a site referrer; spoof their marketing site to keep the endpoint accessible.
+          'Referer': 'https://www.papayaglobal.com/',
         },
         // Add timeout to prevent hanging requests
         signal: AbortSignal.timeout(10000) // 10 second timeout

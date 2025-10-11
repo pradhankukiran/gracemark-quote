@@ -89,9 +89,9 @@ export const useRemoteQuote = () => {
       const prev = data.dualCurrencyQuotes?.remote;
 
       // Transform responses to quotes for consistency
-      const localDisplayQuote = localRemoteQuoteResponse ? transformRemoteResponseToQuote(localRemoteQuoteResponse) : null;
-      const compareSelectedDisplayQuote = compareSelectedCurrencyQuoteResponse ? transformRemoteResponseToQuote(compareSelectedCurrencyQuoteResponse) : null;
-      const compareLocalDisplayQuote = comparisonQuoteResponse ? transformRemoteResponseToQuote(comparisonQuoteResponse) : null;
+      let localDisplayQuote = localRemoteQuoteResponse ? transformRemoteResponseToQuote(localRemoteQuoteResponse) : null;
+      let compareSelectedDisplayQuote = compareSelectedCurrencyQuoteResponse ? transformRemoteResponseToQuote(compareSelectedCurrencyQuoteResponse) : null;
+      let compareLocalDisplayQuote = comparisonQuoteResponse ? transformRemoteResponseToQuote(comparisonQuoteResponse) : null;
 
       // Build dual currency state in a coordinated way to prevent intermediate renders
       const hasSelectedQuote = !!(remoteDisplayQuote || prev?.selectedCurrencyQuote);

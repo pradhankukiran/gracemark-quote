@@ -107,7 +107,7 @@ export interface StandardizedBenefitData {
       frequency: 'monthly'
       description?: string
     }
-    probationProvision?: {
+    noticePeriodCost?: {
       amount: number
       frequency: 'monthly'
       description?: string
@@ -278,7 +278,7 @@ export interface EnhancedQuote {
   // Enhancements
   enhancements: {
     severanceProvision?: TerminationComponentEnhancement
-    probationProvision?: TerminationComponentEnhancement
+    noticePeriodCost?: TerminationComponentEnhancement
     thirteenthSalary?: SalaryEnhancement
     fourteenthSalary?: SalaryEnhancement
     vacationBonus?: BonusEnhancement
@@ -383,14 +383,14 @@ export interface GroqEnhancementResponse {
     double_counting_risks: string[]
   }
   enhancements: {
-    severance_provision?: {
+    severance_cost?: {
       monthly_amount: number
       total_amount: number
       explanation: string
       confidence: number
       already_included: boolean
     }
-    probation_provision?: {
+    notice_period_cost?: {
       monthly_amount: number
       total_amount: number
       explanation: string

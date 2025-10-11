@@ -20,7 +20,7 @@ export interface PrepassLegalItem {
   max?: number
   source?: string
   notes?: string
-  component?: 'severance' | 'probation' | 'notice' | 'other'
+  component?: 'severance' | 'notice' | 'other'
 }
 
 export interface PrepassLegalProfile {
@@ -57,7 +57,7 @@ const PrepassSchema = z.object({
     payroll_13th_and_14th: z.boolean(),
     payroll_cycle: z.boolean(),
     termination_severance_pay: z.boolean(),
-    termination_probation_period: z.boolean(),
+    termination_notice_period: z.boolean(),
     common_benefits: z.boolean(),
     remote_work: z.boolean(),
     authority_payments: z.boolean(),
@@ -75,7 +75,7 @@ const PrepassSchema = z.object({
     max: z.number().optional(),
     source: z.string().optional(),
     notes: z.string().optional(),
-    component: z.enum(['severance','probation','notice','other']).optional()
+    component: z.enum(['severance','notice','other']).optional()
   })),
   subtotals: z.object({ contributions: z.number(), bonuses: z.number(), allowances: z.number(), termination: z.number() }),
   total_monthly_local: z.number(),
@@ -295,10 +295,10 @@ export class CerebrasService {
       if (availability.payroll_14th_salary && d.payroll['14th_salary']) snippets.push(`14th Salary: ${d.payroll['14th_salary']}`)
       snippets.push('')
     }
-    if ((availability.termination_severance_pay || availability.termination_probation_period) && d?.termination) {
+    if ((availability.termination_severance_pay || availability.termination_notice_period) && d?.termination) {
       snippets.push('TERMINATION:')
       if (availability.termination_severance_pay && d.termination.severance_pay) snippets.push(`Severance Pay: ${d.termination.severance_pay}`)
-      if (availability.termination_probation_period && d.termination.probation_period) snippets.push(`Probation Period: ${d.termination.probation_period}`)
+      if (availability.termination_notice_period && d.termination.notice_period) snippets.push(`Notice Period: ${d.termination.notice_period}`)
       snippets.push('')
     }
     if (availability.common_benefits && Array.isArray(d?.common_benefits)) {
@@ -429,7 +429,7 @@ export class CerebrasService {
       '1. baseSalary: Base salary, gross salary components (NOT bonuses or statutory extras)',
       '2. statutoryMandatory: Legally required statutory taxes, social security, pension requirements, mandatory insurance',
       '3. allowancesBenefits: Optional allowances like meal vouchers, transportation, remote work stipends, health benefits',
-      '4. terminationCosts: Severance and probation provisions (monthlyized termination liabilities only)',
+      '4. terminationCosts: Severance and notice provisions (monthlyized termination liabilities only)',
       '5. oneTimeFees: One-time setup costs, background checks, medical exams, onboarding fees',
       '',
       'CRITICAL RULES - READ CAREFULLY:',
@@ -442,7 +442,7 @@ export class CerebrasService {
       '- 13th salary, 14th salary = statutoryMandatory (legally required in many countries)',
       '- Vacation bonus = statutoryMandatory if legally required, allowancesBenefits if optional',
       '- Use country context to determine if items are legally mandatory vs optional',
-      '- Ignore termination notice or generic termination fees; only map severance/probation provisions to terminationCosts',
+      '- Ignore termination notice or generic termination fees; only map severance/notice provisions to terminationCosts',
       '',
       'VALIDATION REQUIREMENT:',
       '- Count of items in your output MUST equal count of items in input',
@@ -525,8 +525,8 @@ export class CerebrasService {
       'TERMINATION:',
       '- Produce distinct termination items for SEVERANCE and PROBATION when data is available.',
       '- termination_severance monthly_amount_local = severance_months × meta.base_salary_monthly / meta.contract_months.',
-      '- termination_probation monthly_amount_local = (probation_days / 30) × meta.base_salary_monthly / meta.contract_months (0 if unknown).',
-      '- Set item.component to one of: "severance" or "probation" to indicate the sub-type.',
+      '- termination_notice monthly_amount_local = (notice_days / 30) × meta.base_salary_monthly / meta.contract_months (0 if unknown).',
+      '- Set item.component to one of: "severance" or "notice" to indicate the sub-type.',
       '- Sum of these components is the termination subtotal; avoid creating an extra aggregate row.',
       '- If tenure/years_of_service unknown: choose a conservative severance_months (e.g., 3) and add a warning.',
       '',
@@ -540,8 +540,8 @@ export class CerebrasService {
       '- COMMON_BENEFITS items → category: "allowances" (meal vouchers, transport, wellness, etc.)',
       '- EMPLOYER_CONTRIBUTIONS items → EXCLUDE from output (note any statutory context in warnings instead).',
       '- 13th/14th salary, aguinaldo → category: "bonuses"',
-      '- Severance or probation provisions → category: "termination"',
-      '- When emitting termination components, set category="termination" and component=severance|probation.',
+      '- Severance or notice provisions → category: "termination"',
+      '- When emitting termination components, set category="termination" and component=severance|notice.',
       '- NEVER use "common_benefits" as a category value.',
       '',
       'DATA USE:',
@@ -575,7 +575,7 @@ export class CerebrasService {
       '    "payroll_14th_salary": true,',
       '    "payroll_cycle": true,',
       '    "termination_severance_pay": true,',
-      '    "termination_probation_period": true,',
+      '    "termination_notice_period": true,',
       '    "common_benefits": true',
       '  },',
       '  "items": [',
@@ -592,22 +592,22 @@ export class CerebrasService {
       '    },',
       '    {',
       '      "key": "termination_severance",',
-      '      "name": "Severance Provision",',
+      '      "name": "Severance Cost",',
       '      "category": "termination",',
       '      "component": "severance",',
       '      "mandatory": true,',
-      '      "formula": "severance_months * base_salary_monthly / contract_months",',
-      '      "variables": { "severance_months": 1, "base_salary_monthly": 0.0, "contract_months": 12 },',
+      '      "formula": "base_salary_monthly / 12",',
+      '      "variables": { "base_salary_monthly": 0.0, "contract_months": 12 },',
       '      "monthly_amount_local": 0.0',
       '    },',
       '    {',
-      '      "key": "termination_probation",',
-      '      "name": "Probation Termination Provision",',
+      '      "key": "termination_notice",',
+      '      "name": "Notice Period Cost",',
       '      "category": "termination",',
-      '      "component": "probation",',
-      '      "mandatory": false,',
-      '      "formula": "(probation_days/30) * base_salary_monthly / contract_months",',
-      '      "variables": { "probation_days": 0, "base_salary_monthly": 0.0, "contract_months": 12 },',
+      '      "component": "notice",',
+      '      "mandatory": true,',
+      '      "formula": "base_salary_monthly / contract_months",',
+      '      "variables": { "base_salary_monthly": 0.0, "contract_months": 12 },',
       '      "monthly_amount_local": 0.0',
       '    }',
       '  ],',
@@ -852,7 +852,7 @@ export class CerebrasService {
 
         if ('component' in item && item.component) {
           const componentValue = String(item.component).toLowerCase()
-          const validComponents = ['severance', 'probation', 'other'] as const
+          const validComponents = ['severance', 'notice', 'other'] as const
           item.component = (validComponents.includes(componentValue as typeof validComponents[number])
             ? componentValue
             : 'other') as typeof item.component
@@ -887,8 +887,8 @@ export class CerebrasService {
           guessedCategory = 'bonuses'
         } else {
           const isSeverance = itemName.includes('severance') || itemKey.includes('severance')
-          const isProbation = itemName.includes('probation') || itemKey.includes('probation')
-          if (isSeverance || isProbation) {
+          const isNotice = itemName.includes('notice') || itemKey.includes('notice')
+          if (isSeverance || isNotice) {
             guessedCategory = 'termination'
           }
         }
@@ -1005,7 +1005,7 @@ export class CerebrasService {
       payroll_13th_and_14th: b('payroll_13th_and_14th') || b('payroll{13th_&_14th_salaries}'),
       payroll_cycle: b('payroll_cycle') || b('payroll{payroll_cycle}') || b('payroll{payroll_frequency}'),
       termination_severance_pay: b('termination_severance_pay') || b('termination{severance_pay}') || b('termination{severance}') ,
-      termination_probation_period: b('termination_probation_period') || b('termination{probation_period}') || b('termination{probation}'),
+      termination_notice_period: b('termination_notice_period') || b('termination{notice_period}') || b('termination{notice}'),
       common_benefits: b('common_benefits'),
       remote_work: b('remote_work'),
       authority_payments: b('authority_payments'),

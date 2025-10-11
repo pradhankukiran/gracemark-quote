@@ -30,7 +30,7 @@ export const useOmnipresentQuote = () => {
 
       const display = transformOmnipresentResponseToQuote(response)
       const countryInfo = getCountryByName(withDefaults.country)
-      const primaryQuote: Quote = applyContextFallbacks(
+      let primaryQuote: Quote = applyContextFallbacks(
         display,
         withDefaults.country,
         countryInfo?.code || '',
@@ -48,12 +48,13 @@ export const useOmnipresentQuote = () => {
 
           const compareDisplay = transformOmnipresentResponseToQuote(compareResp)
           const compareCountryInfo = getCountryByName(withDefaults.compareCountry)
-          comparisonQuote = applyContextFallbacks(
+          let compQuote = applyContextFallbacks(
             compareDisplay,
             withDefaults.compareCountry,
             compareCountryInfo?.code || '',
             withDefaults.compareCurrency
           )
+          comparisonQuote = compQuote
 
           if (
             withDefaults.isCurrencyManuallySet &&
@@ -72,12 +73,13 @@ export const useOmnipresentQuote = () => {
                 }
                 const compareSelectedResp = await fetchOmnipresentCost(compareSelectedReq)
                 const compareSelectedDisplay = transformOmnipresentResponseToQuote(compareSelectedResp)
-                compareSelectedCurrencyQuote = applyContextFallbacks(
+                let compSelectedQuote = applyContextFallbacks(
                   compareSelectedDisplay,
                   withDefaults.compareCountry,
                   compareCountryInfo?.code || '',
                   withDefaults.currency
                 )
+                compareSelectedCurrencyQuote = compSelectedQuote
               } catch (err) {
                 console.warn('Omnipresent comparison (selected currency) fetch failed', err)
               }
@@ -102,12 +104,13 @@ export const useOmnipresentQuote = () => {
             const localResp = await fetchOmnipresentCost(localReq)
             const localDisplay = transformOmnipresentResponseToQuote(localResp)
             const countryInfoLocal = getCountryByName(withDefaults.country)
-            localCurrencyQuote = applyContextFallbacks(
+            let localQuote = applyContextFallbacks(
               localDisplay,
               withDefaults.country,
               countryInfoLocal?.code || '',
               withDefaults.originalCurrency
             )
+            localCurrencyQuote = localQuote
           }
         } catch (err) {
           console.warn('Omnipresent local currency fetch failed', err)

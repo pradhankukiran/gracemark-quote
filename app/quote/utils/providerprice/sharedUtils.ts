@@ -154,7 +154,7 @@ export const computeEnhancementAddOns = (
   if (provider !== 'deel') {
     terminationItems.push(enh.severanceProvision)
   }
-  terminationItems.push(enh.probationProvision)
+  terminationItems.push(enh.noticePeriodCost)
   terminationItems.forEach(item => {
     if (!item || item.isAlreadyIncluded) return
     const amount = resolveEnhancementMonthly(item.totalAmount, item.monthlyAmount, months)
