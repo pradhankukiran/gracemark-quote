@@ -262,6 +262,54 @@ const sanitizeLocalOfficeAmount = (value?: string): number => {
   return parsed > 0 ? parsed : 0
 }
 
+const LOCAL_OFFICE_DUPLICATE_LABELS: Record<keyof LocalOfficeInfo, string[]> = {
+  mealVoucher: ['Meal Voucher (Local Office)', 'Meal Vouchers (Local Office)'],
+  transportation: ['Transportation (Local Office)', 'Transportation Allowance (Local Office)'],
+  wfh: ['WFH (Local Office)', 'Remote Work Allowance (Local Office)'],
+  healthInsurance: ['Health Insurance (Local Office)'],
+  monthlyPaymentsToLocalOffice: ['Local Office Monthly Payments'],
+  vat: ['VAT on Local Office Payments', 'Local Office VAT', 'VAT'],
+  preEmploymentMedicalTest: ['Pre-employment Medical Test (Local Office)'],
+  drugTest: ['Drug Test (Local Office)'],
+  backgroundCheckViaDeel: ['Background Check (Local Office)']
+}
+
+const buildLocalOfficeDuplicateChecker = (
+  localOfficeInfo: LocalOfficeInfo | undefined | null,
+  normalize: (value: string) => string
+): ((needle: string) => boolean) => {
+  if (!localOfficeInfo) return () => false
+
+  const normalizedLabels: string[] = []
+
+  for (const fieldKey of Object.keys(LOCAL_OFFICE_DUPLICATE_LABELS) as (keyof LocalOfficeInfo)[]) {
+    const amount = sanitizeLocalOfficeAmount(localOfficeInfo[fieldKey])
+    if (amount <= 0) continue
+
+    const labels = LOCAL_OFFICE_DUPLICATE_LABELS[fieldKey]
+    if (!labels || labels.length === 0) continue
+
+    for (const label of labels) {
+      const normalized = normalize(label)
+      if (!normalized) continue
+      normalizedLabels.push(normalized)
+
+      const trimmed = normalized.replace(/\blocal office\b/g, '').trim()
+      if (trimmed && trimmed !== normalized) {
+        normalizedLabels.push(trimmed)
+      }
+    }
+  }
+
+  if (normalizedLabels.length === 0) return () => false
+
+  return (needle: string) => {
+    const candidate = normalize(needle)
+    if (!candidate) return false
+    return normalizedLabels.some(label => label && (label.includes(candidate) || candidate.includes(label)))
+  }
+}
+
 const findLocalOfficeCountryCodeInObject = (value: unknown, depth = 0): string | null => {
   if (depth > 6 || value == null) return null
 
@@ -309,13 +357,15 @@ const findLocalOfficeCountryCodeInObject = (value: unknown, depth = 0): string |
 // Build items exactly as displayed in UI: base costs + filtered enhancement extras
 const buildDisplayedItems = (
   enhancement: EnhancedQuote | undefined,
-  baseQuote: Quote | undefined
+  baseQuote: Quote | undefined,
+  localOfficeInfo?: LocalOfficeInfo | null
 ): Array<{ key: string; name: string; monthly_amount: number }> => {
   if (!baseQuote) return []
 
   const items: Array<{ key: string; name: string; monthly_amount: number }> = []
 
   const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+  const hasLocalOfficeItemLike = buildLocalOfficeDuplicateChecker(localOfficeInfo, norm)
 
   // Check if an item with similar name already exists in base costs
   const hasItemLike = (needle: string) => {
@@ -346,13 +396,34 @@ const buildDisplayedItems = (
     const enh = enhancement.enhancements
 
     // Helper to add extra with duplicate checking (same as UI)
-    const addExtra = (name: string, amount: number, guards: string[] = []) => {
+    const addExtra = (
+      name: string,
+      amount: number,
+      guards: string[] = [],
+      options?: { skipLocalOfficeCheck?: boolean; preferLocalOffice?: boolean }
+    ) => {
       const amt = parseNumericValue(amount)
       if (amt === null || !Number.isFinite(amt) || amt <= 0) return
 
       // Check if duplicate exists in base costs (same as UI)
-      const isDuplicate = guards.some(g => hasItemLike(g))
-      if (isDuplicate) return
+      const guardList = Array.isArray(guards) ? guards : []
+      const duplicateFromBase = !options?.preferLocalOffice && guardList.some(g => hasItemLike(g))
+      const duplicateFromLocalOffice = options?.skipLocalOfficeCheck
+        ? false
+        : hasLocalOfficeItemLike(name) || guardList.some(g => hasLocalOfficeItemLike(g))
+      if (duplicateFromBase || duplicateFromLocalOffice) return
+
+      if (options?.preferLocalOffice) {
+        for (let i = items.length - 1; i >= 0; i--) {
+          const existing = items[i]
+          const existingNorm = norm(existing?.name)
+          const matchesGuard = guardList.some(g => existingNorm.includes(norm(g)))
+          const matchesName = existingNorm === norm(name)
+          if (matchesGuard || matchesName) {
+            items.splice(i, 1)
+          }
+        }
+      }
 
       const key = norm(name).replace(/\s+/g, '_')
       items.push({ key, name, monthly_amount: amt })
@@ -410,19 +481,152 @@ const buildDisplayedItems = (
       // Skip employer contributions (same as UI line 4607)
       if (key.includes('employer') && key.includes('contribution')) return
 
-      const label = key.includes('local_meal_voucher') ? 'Meal Voucher (Local Office)'
-        : key.includes('local_transportation') ? 'Transportation (Local Office)'
-        : key.includes('local_wfh') ? 'WFH (Local Office)'
-        : key.includes('local_health_insurance') ? 'Health Insurance (Local Office)'
-        : key.includes('local_office_monthly_payments') ? 'Local Office Monthly Payments'
-        : key.includes('local_office_vat') ? 'VAT on Local Office Payments'
-        : String(k).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-
-      addExtra(label, n)
+      // Map labels with appropriate guards for duplicate checking
+      if (key.includes('local_meal_voucher')) {
+        addExtra('Meal Voucher (Local Office)', n, ['meal voucher', 'meal'], { skipLocalOfficeCheck: true, preferLocalOffice: true })
+      } else if (key.includes('local_transportation')) {
+        addExtra('Transportation (Local Office)', n, ['transportation'], { skipLocalOfficeCheck: true, preferLocalOffice: true })
+      } else if (key.includes('local_wfh')) {
+        addExtra('WFH (Local Office)', n, ['wfh', 'remote work', 'work from home'], { skipLocalOfficeCheck: true, preferLocalOffice: true })
+      } else if (key.includes('local_health_insurance')) {
+        addExtra('Health Insurance (Local Office)', n, ['health insurance'], { skipLocalOfficeCheck: true, preferLocalOffice: true })
+      } else if (key.includes('local_office_monthly_payments')) {
+        addExtra('Local Office Monthly Payments', n, ['local office'], { skipLocalOfficeCheck: true, preferLocalOffice: true })
+      } else if (key.includes('local_office_vat')) {
+        addExtra('VAT on Local Office Payments', n, ['vat'], { skipLocalOfficeCheck: true, preferLocalOffice: true })
+      } else {
+        const label = String(k).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+        addExtra(label, n)
+      }
     })
   }
 
   return items
+}
+
+type QuoteExtra = { name: string; amount: number; guards?: string[]; replaceBaseGuards?: string[] }
+
+const mergeExtrasIntoQuote = (
+  quote: Quote | undefined,
+  extras: QuoteExtra[],
+  usdConversions: any
+): { quote: Quote | undefined; usdConversions: any } => {
+  if (!quote || !Array.isArray(extras) || extras.length === 0) {
+    return { quote, usdConversions }
+  }
+
+  const toAmountStr = (value: number) => {
+    const n = Number(value)
+    return Number.isFinite(n) ? n.toFixed(2) : '0'
+  }
+  const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+  const parseNum = (value?: string | number) => {
+    if (typeof value === 'number') return value
+    const parsed = Number.parseFloat((value || '0') as string)
+    return Number.isFinite(parsed) ? parsed : 0
+  }
+
+  const baseCosts = Array.isArray(quote.costs) ? quote.costs.map(cost => ({ ...cost })) : []
+  let costs = [...baseCosts]
+  let conversions = usdConversions ? { ...usdConversions } : undefined
+  let conversionCosts = conversions && Array.isArray(conversions.costs) ? [...conversions.costs] : undefined
+
+  const existingContains = (needle: string) => {
+    const needleNorm = norm(needle)
+    return costs.some(cost => norm(cost?.name).includes(needleNorm))
+  }
+
+  const removeMatchingBaseCosts = (guards: string[] | undefined): number => {
+    if (!guards || guards.length === 0 || costs.length === 0) return 0
+    const guardNorms = guards.map(norm).filter(Boolean)
+    if (guardNorms.length === 0) return 0
+
+    const indicesToRemove = new Set<number>()
+    let removedTotal = 0
+
+    costs.forEach((cost, index) => {
+      if (indicesToRemove.has(index)) return
+      const costName = norm(cost?.name)
+      const isMatch = guardNorms.some(guard => guard && costName.includes(guard))
+      if (isMatch) {
+        removedTotal += parseNum(cost?.amount)
+        indicesToRemove.add(index)
+      }
+    })
+
+    if (indicesToRemove.size > 0) {
+      costs = costs.filter((_, index) => !indicesToRemove.has(index))
+      if (conversionCosts) {
+        conversionCosts = conversionCosts.filter((_, index) => !indicesToRemove.has(index))
+      }
+    }
+
+    return removedTotal
+  }
+
+  const removedTotal = extras.reduce((sum, extra) => {
+    const guards = Array.isArray(extra.replaceBaseGuards) ? extra.replaceBaseGuards : []
+    return sum + removeMatchingBaseCosts(guards)
+  }, 0)
+
+  const deriveExchangeRate = () => {
+    if (!conversionCosts || !Array.isArray(conversionCosts) || conversionCosts.length === 0) return null
+    for (let i = 0; i < Math.min(costs.length, conversionCosts.length); i++) {
+      const localAmount = parseNum(costs[i]?.amount)
+      const usdAmount = parseNum(conversionCosts[i])
+      if (localAmount > 0 && usdAmount > 0) {
+        const rate = usdAmount / localAmount
+        if (Number.isFinite(rate) && rate > 0) return rate
+      }
+    }
+    return null
+  }
+
+  const exchangeRate = deriveExchangeRate()
+  let addedTotal = 0
+
+  extras.forEach(extra => {
+    const amount = Number(extra.amount)
+    if (!Number.isFinite(amount) || amount <= 0) return
+    const guards = Array.isArray(extra.guards) ? extra.guards : []
+    const isDuplicate = guards.some(guard => existingContains(guard))
+    if (isDuplicate) return
+
+    costs.push({
+      name: extra.name,
+      amount: toAmountStr(amount),
+      frequency: 'monthly',
+      country: quote.country,
+      country_code: quote.country_code
+    })
+    if (conversionCosts && exchangeRate !== null) {
+      conversionCosts.push(Number((amount * exchangeRate).toFixed(2)))
+    }
+    addedTotal += amount
+  })
+
+  const baseTotal = parseNum(quote.total_costs)
+  const updatedTotal = Number((baseTotal - removedTotal + addedTotal).toFixed(2))
+
+  const updatedQuote: Quote = {
+    ...quote,
+    costs,
+    total_costs: toAmountStr(updatedTotal),
+    employer_costs: toAmountStr(updatedTotal)
+  }
+
+  const updatedConversions =
+    conversionCosts && conversions
+      ? {
+        ...conversions,
+        costs: conversionCosts
+      }
+      : conversions
+
+  return {
+    quote: updatedQuote,
+    usdConversions: updatedConversions
+  }
 }
 
 type AcidTestCategoryBuckets = {
@@ -683,7 +887,9 @@ const QuotePageContent = memo(() => {
 
   useEffect(() => {
     if (!quoteData?.quotes) return
-    const defaultCurrency = (quoteData.formData as EORFormData)?.currency || 'USD'
+    const formData = quoteData.formData as EORFormData | undefined
+    const defaultCurrency = formData?.currency || 'USD'
+    const localOfficeInfo = formData?.localOfficeInfo
 
     const totalsByProvider = new Map<ProviderType, { amount: number; currency?: string }>()
     const itemsByProvider = new Map<ProviderType, Array<{ key: string; name: string; monthly_amount: number }>>()
@@ -720,7 +926,7 @@ const QuotePageContent = memo(() => {
       }
 
       // Build items exactly as displayed in UI: base costs + filtered enhancement extras
-      const builtItems = buildDisplayedItems(enhancedQuote, baseQuote)
+      const builtItems = buildDisplayedItems(enhancedQuote, baseQuote, localOfficeInfo)
 
       if (builtItems.length > 0) {
         // Sum the items - this matches what's displayed in UI
@@ -5006,17 +5212,35 @@ const QuotePageContent = memo(() => {
     const isEnhPending = (!((enhancements as any)?.[currentProvider as string])) && (providerStates[currentProvider]?.status === 'loading-enhanced')
 
     // Build additional extras (deduped) from deterministic/LLM enhancements
-    const extras: Array<{ name: string; amount: number; guards?: string[] }> = []
+    const extras: Array<{ name: string; amount: number; guards?: string[]; replaceBaseGuards?: string[] }> = []
     try {
       const enh = (enhancements as any)?.[currentProvider as string]
       const costs = Array.isArray(mergedQuote?.costs) ? mergedQuote.costs : []
       const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+      const formDataForLocalOffice = quoteData?.formData as EORFormData | undefined
+      const hasLocalOfficeItemLike = buildLocalOfficeDuplicateChecker(formDataForLocalOffice?.localOfficeInfo, norm)
       const hasItemLike = (needle: string) => costs.some((c: any) => norm(c?.name).includes(norm(needle)))
-      const addExtra = (name: string, amount: number, guardNames: string[] = []) => {
+      const addExtra = (
+        name: string,
+        amount: number,
+        guardNames: string[] = [],
+        options?: { skipLocalOfficeCheck?: boolean; preferLocalOffice?: boolean }
+      ) => {
         const amt = parseNumericValue(amount)
         if (amt === null || !Number.isFinite(amt) || amt <= 0) return
-        const dup = guardNames.some(g => hasItemLike(g))
-        if (!dup) extras.push({ name, amount: amt, guards: guardNames })
+        const guardList = Array.isArray(guardNames) ? guardNames : []
+        const duplicateFromBase = !options?.preferLocalOffice && guardList.some(g => hasItemLike(g))
+        const duplicateFromLocalOffice = options?.skipLocalOfficeCheck
+          ? false
+          : hasLocalOfficeItemLike(name) || guardList.some(g => hasLocalOfficeItemLike(g))
+        if (duplicateFromBase || duplicateFromLocalOffice) return
+
+        extras.push({
+          name,
+          amount: amt,
+          guards: guardList,
+          replaceBaseGuards: options?.preferLocalOffice ? guardList : undefined
+        })
       }
 
       if (enh && enh.enhancements) {
@@ -5084,31 +5308,56 @@ const QuotePageContent = memo(() => {
             : key.includes('local_office_monthly_payments') ? 'Local Office Monthly Payments'
             : key.includes('local_office_vat') ? 'VAT on Local Office Payments'
             : String(k).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-          localExtras.push({ name: label, amount: n })
+          const guards =
+            key.includes('local_meal_voucher') ? ['meal voucher', 'meal']
+              : key.includes('local_transportation') ? ['transportation']
+              : key.includes('local_wfh') ? ['wfh', 'remote work', 'work from home']
+              : key.includes('local_health_insurance') ? ['health insurance']
+              : key.includes('local_office_monthly_payments') ? ['local office']
+              : key.includes('local_office_vat') ? ['vat']
+              : []
+          localExtras.push({ name: label, amount: n, guards })
         })
 
-        localExtras.forEach(le => addExtra(le.name, le.amount))
+        localExtras.forEach(le =>
+          addExtra(le.name, le.amount, le.guards || [], { skipLocalOfficeCheck: true, preferLocalOffice: true })
+        )
       }
     } catch { /* noop */ }
 
     // Do not inject extras here to avoid double-counting.
     // Extras are passed to GenericQuoteCard via mergedExtras for inline injection.
 
+    const isDualMode = Boolean(dualCurrencyQuotes?.isDualCurrencyMode)
+    const mergedForSingle = !isDualMode
+      ? mergeExtrasIntoQuote(mergedQuote, extras, extendedConversions)
+      : { quote: mergedQuote, usdConversions: extendedConversions }
+
+    const quoteForCard = mergedForSingle.quote
+    const usdForCard = mergedForSingle.usdConversions
+    const extrasForCard = isDualMode ? extras : []
+    const resolvedTotalValue = !isDualMode && quoteForCard
+      ? (() => {
+        const parsed = parseFloat(String((quoteForCard as Quote).total_costs ?? 0))
+        return Number.isFinite(parsed) ? parsed : mergedTotalValue
+      })()
+      : mergedTotalValue
+
     return (
       <div className="space-y-6">
         <GenericQuoteCard
-          quote={dualCurrencyQuotes?.isDualCurrencyMode ? undefined : mergedQuote}
+          quote={isDualMode ? undefined : quoteForCard}
           title={`${quote?.country || eorForm.country}`}
           provider={currentProvider}
-          usdConversions={extendedConversions}
+          usdConversions={usdForCard}
           isConvertingToUSD={isConvertingToUSD}
           usdConversionError={usdConversionError}
           dualCurrencyQuotes={dualCurrencyQuotes}
           originalCurrency={eorForm.originalCurrency || undefined}
           selectedCurrency={eorForm.currency}
           recalcBaseItems={(enhancements as any)?.[currentProvider as string]?.recalcBaseItems || []}
-          mergedExtras={extras}
-          mergedTotalMonthly={mergedTotalValue}
+          mergedExtras={extrasForCard}
+          mergedTotalMonthly={resolvedTotalValue}
           mergedCurrency={mergedTotalCurrency}
           isTotalPending={isTotalPending}
           enhancementPending={isEnhPending}

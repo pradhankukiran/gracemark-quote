@@ -136,7 +136,9 @@ export const GenericQuoteCard = memo(({
 
   // Inject merged extras into quote rows (inline) and update totals/US conversions
   try {
-    const extras = Array.isArray(mergedExtras) ? mergedExtras.filter(e => (e && typeof e.amount === 'number' && e.amount > 0)) : []
+    const extras = Array.isArray(mergedExtras)
+      ? mergedExtras.filter(e => (e && typeof e.amount === 'number' && e.amount > 0))
+      : []
     if (extras.length > 0 && originalQuote) {
       const toAmountStr = (n: number) => {
         const v = Number(n)
@@ -144,7 +146,7 @@ export const GenericQuoteCard = memo(({
       }
       const cloneWithExtras = (src: any, scale: number = 1) => {
         const q = { ...(src || {}) }
-        const costs = Array.isArray(q.costs) ? [...q.costs] : []
+        let costs = Array.isArray(q.costs) ? [...q.costs] : []
         const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
         const hasItemLike = (needle: string) => {
           const needleNorm = norm(needle)
@@ -168,10 +170,12 @@ export const GenericQuoteCard = memo(({
           if (n.includes('employer') && n.includes('contrib')) return ['employer contributions', 'employer contribution', 'statutory contributions', 'statutory contribution']
           return [name]
         }
+        const parseNum = (v?: string | number) => typeof v === 'number' ? v : Number.parseFloat((v || '0') as string)
         // Derive USD exchange rate from existing conversions if available
         let exchangeRate: number | null = null
         const conv = usdConversions as any
-        if (conv?.costs && Array.isArray(conv.costs) && costs.length > 0) {
+        let convCosts = Array.isArray(conv?.costs) ? [...conv.costs] : undefined
+        if (convCosts && costs.length > 0) {
           for (let i = 0; i < Math.min(costs.length, conv.costs.length); i++) {
             const localAmount = Number.parseFloat(costs[i].amount)
             const usdAmount = conv.costs[i]
@@ -181,7 +185,54 @@ export const GenericQuoteCard = memo(({
             }
           }
         }
+
+        // Handle replacements where local office extras should supersede base rows
+        let baseTotal = parseNum(q.total_costs)
+        const replacements = extras
+          .map(ex => ({
+            ...ex,
+            replaceBaseGuards: Array.isArray((ex as any)?.replaceBaseGuards)
+              ? (ex as any).replaceBaseGuards as string[]
+              : undefined
+          }))
+          .filter(ex => ex.replaceBaseGuards && ex.replaceBaseGuards.length > 0)
+
+        if (replacements.length > 0 && costs.length > 0) {
+          const indicesToRemove = new Set<number>()
+          let removedTotal = 0
+
+          replacements.forEach(rep => {
+            const guardNorms = (rep.replaceBaseGuards || []).map(g => norm(g))
+            if (guardNorms.length === 0) return
+            for (let i = 0; i < costs.length; i++) {
+              if (indicesToRemove.has(i)) continue
+              const costNameNorm = norm(costs[i]?.name)
+              const matches = guardNorms.some(guard => guard && costNameNorm.includes(guard))
+              if (!matches) continue
+              const amountNum = Number.parseFloat(costs[i]?.amount)
+              if (Number.isFinite(amountNum)) {
+                removedTotal += amountNum
+              }
+              indicesToRemove.add(i)
+              break
+            }
+          })
+
+          if (indicesToRemove.size > 0) {
+            costs = costs.filter((_, idx) => !indicesToRemove.has(idx))
+            if (convCosts) {
+              convCosts = convCosts.filter((_, idx) => !indicesToRemove.has(idx))
+            }
+            baseTotal = Math.max(0, baseTotal - removedTotal)
+          }
+        }
+
+        if (conv && convCosts) {
+          conv.costs = convCosts
+        }
+
         const newUsd: number[] = []
+        let totalDelta = -removedTotal
         extras.forEach(ex => {
           const amt = Math.max(0, Number(ex.amount) * (Number.isFinite(scale) && scale > 0 ? scale : 1))
           // Skip if a similar item already exists (avoid duplicates)
@@ -195,17 +246,15 @@ export const GenericQuoteCard = memo(({
             country: q.country,
             country_code: q.country_code,
           })
+          totalDelta += amt
           if (exchangeRate !== null) newUsd.push(amt * exchangeRate)
         })
         // Extend conversions if possible
-        if (conv?.costs && newUsd.length > 0) {
-          conv.costs = [...conv.costs, ...newUsd]
+        if (convCosts && newUsd.length > 0) {
+          conv.costs = [...convCosts, ...newUsd]
         }
         // Update totals
-        const parseNum = (v?: string | number) => typeof v === 'number' ? v : Number.parseFloat((v || '0') as string)
-        const baseTotal = parseNum(q.total_costs)
-        const sumExtras = extras.reduce((s, it) => s + (Number(it.amount) || 0) * (Number.isFinite(scale) && scale > 0 ? scale : 1), 0)
-        const newTotal = baseTotal + sumExtras
+        const newTotal = baseTotal + totalDelta
         q.costs = costs
         q.total_costs = toAmountStr(newTotal)
         q.employer_costs = q.total_costs
@@ -230,7 +279,7 @@ export const GenericQuoteCard = memo(({
   const hasUSDData = usdConversions && Object.keys(usdConversions).length > 0;
   
   // Single currency mode: show currency + USD (if not USD)
-  const showUSDInSingleMode = !isDualCurrencyMode && quote && quote.currency !== "USD";
+  const showUSDInSingleMode = !isDualCurrencyMode && originalQuote && originalQuote.currency !== "USD";
   
   // Dual currency mode: show original + changed + USD (if neither is USD)
   // Show USD column in dual mode if either local or selected currency is non-USD
@@ -247,7 +296,7 @@ export const GenericQuoteCard = memo(({
     ? (2 + (showUSDInDualMode ? 1 : 0))  // Original + Changed + USD?
     : (1 + (showUSDInSingleMode ? 1 : 0)); // Currency + USD?
 
-  const primaryQuote = isDualCurrencyMode ? originalQuote : quote;
+  const primaryQuote = originalQuote || quote;
 
   const textSizes = compact
     ? { title: "text-2xl", amount: "text-base", total: "text-xl" }
@@ -410,20 +459,34 @@ export const GenericQuoteCard = memo(({
     return Number.isFinite(n) ? n : 0;
   }
 
-  const computeDisplayTotal = (q?: Quote | null) => {
+  const computeRenderedTotal = (q?: Quote | null) => {
     if (!q) return undefined;
-    const total = parseNumber(q.total_costs);
-    if (provider === 'deel') {
-      const fee = parseNumber(q.deel_fee);
-      const accrual = parseNumber(q.severance_accural);
-      return total - fee - accrual;
-    }
-    return total;
+    const salary = parseNumber(q.salary);
+    const costsTotal = Array.isArray(q.costs)
+      ? q.costs.reduce((acc, cost) => acc + parseNumber(cost?.amount), 0)
+      : 0;
+    const gross = salary + costsTotal;
+    if (!Number.isFinite(gross) || gross <= 0) return undefined;
+    return Number(gross.toFixed(2));
   }
 
   const hasMerged = typeof mergedTotalMonthly === 'number' && Number.isFinite(mergedTotalMonthly as number)
   const mergedTotal = hasMerged ? (mergedTotalMonthly as number) : undefined
   const totalPending = Boolean(isTotalPending)
+
+  const computedPrimaryTotal = primaryQuote ? computeRenderedTotal(primaryQuote) : undefined
+  const resolvedPrimaryTotal = (() => {
+    if (typeof computedPrimaryTotal === 'number' && Number.isFinite(computedPrimaryTotal)) {
+      if (typeof mergedTotal === 'number' && Number.isFinite(mergedTotal)) {
+        return Math.abs(mergedTotal - computedPrimaryTotal) <= 0.01 ? mergedTotal : computedPrimaryTotal
+      }
+      return computedPrimaryTotal
+    }
+    return mergedTotal
+  })()
+
+  const computedSecondaryTotal =
+    isDualCurrencyMode && changedQuote ? computeRenderedTotal(changedQuote) : undefined
 
   return (
     <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
@@ -497,7 +560,7 @@ export const GenericQuoteCard = memo(({
                     : `Local (${originalQuote?.currency || originalCurrency || "Local"})`
                 ) : (
                   compact
-                    ? `${quote?.currency || "Currency"}`
+                    ? `${primaryQuote?.currency || "Currency"}`
                     : `Local Currency`
                 )}
               </span>
@@ -604,13 +667,10 @@ export const GenericQuoteCard = memo(({
                 >
                   {isCalculatingLocal ? (
                     <span className="text-blue-500 animate-pulse">Loading...</span>
-                  ) : hasMerged && mergedTotal !== undefined ? (
-                    formatCurrency(mergedTotal, mergedCurrency || primaryQuote?.currency || '')
+                  ) : typeof resolvedPrimaryTotal === 'number' && Number.isFinite(resolvedPrimaryTotal) ? (
+                    formatCurrency(resolvedPrimaryTotal, mergedCurrency || primaryQuote?.currency || '')
                   ) : primaryQuote ? (
-                    (() => {
-                      const val = computeDisplayTotal(primaryQuote)
-                      return formatCurrency(val || 0, primaryQuote.currency)
-                    })()
+                    formatCurrency(computeRenderedTotal(primaryQuote) || 0, primaryQuote.currency)
                   ) : (
                     <span className="text-slate-400">Pending...</span>
                   )}
@@ -626,11 +686,10 @@ export const GenericQuoteCard = memo(({
                   {isDualCurrencyMode ? (
                     isCalculatingSelected ? (
                       <span className="text-blue-500 animate-pulse">Loading...</span>
+                    ) : typeof computedSecondaryTotal === 'number' && Number.isFinite(computedSecondaryTotal) && changedQuote ? (
+                      formatCurrency(computedSecondaryTotal, changedQuote.currency)
                     ) : changedQuote ? (
-                      (() => {
-                        const val = computeDisplayTotal(changedQuote)
-                        return formatCurrency(val || 0, changedQuote.currency)
-                      })()
+                      formatCurrency(computeRenderedTotal(changedQuote) || 0, changedQuote.currency)
                     ) : (
                       <span className="text-slate-400">Pending...</span>
                     )
@@ -686,7 +745,7 @@ export const GenericQuoteCard = memo(({
                     ? formatCurrency(mergedTotal, mergedCurrency || primaryQuote?.currency || '')
                     : (primaryQuote
                       ? (() => {
-                          const val = computeDisplayTotal(primaryQuote)
+                          const val = computeRenderedTotal(primaryQuote)
                           return formatCurrency(val || 0, primaryQuote.currency)
                         })()
                       : (<span className="text-slate-400">Pending...</span>)
