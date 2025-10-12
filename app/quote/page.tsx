@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Brain, Target, Zap, BarChart3, TrendingUp, Crown, Activity, FileText, Info, ChevronDown, ChevronUp } from "lucide-react"
+import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Brain, Target, Zap, BarChart3, TrendingUp, TrendingDown, Crown, Activity, FileText, Info, ChevronDown, ChevronUp } from "lucide-react"
 import Link from "next/link"
 import { useQuoteResults } from "./hooks/useQuoteResults"
 import { useUSDConversion } from "../eor-calculator/hooks/useUSDConversion"
@@ -15,6 +15,9 @@ import { QuoteComparison } from "../eor-calculator/components/QuoteComparison"
 import { ErrorBoundary } from "@/lib/shared/components/ErrorBoundary"
 import { ProviderSelector } from "./components/ProviderSelector"
 import { ProviderLogo } from "./components/ProviderLogo"
+import { VarianceSummaryCards } from "./components/VarianceSummaryCards"
+import { ProviderComparisonCard } from "./components/ProviderComparisonCard"
+import { VarianceChart } from "./components/VarianceChart"
 import { EnhancementProvider, useEnhancementContext } from "@/hooks/enhancement/EnhancementContext"
 import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, transformToRemoteQuote, transformOysterQuoteToDisplayQuote } from "@/lib/shared/utils/apiUtils"
 import { identifyBenefitKey } from "@/lib/shared/utils/benefitNormalization"
@@ -38,6 +41,21 @@ import {
 import { hasLocalOfficeData, getOriginalLocalOfficeData, getFieldCurrency } from "@/lib/shared/utils/localOfficeData"
 
 const PROVIDER_LIST: ProviderType[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity', 'playroll', 'omnipresent']
+
+const splitIntoBalancedRows = <T,>(items: T[]) => {
+  if (items.length === 0) {
+    return {
+      firstRow: [] as T[],
+      secondRow: [] as T[]
+    }
+  }
+
+  const firstRowCount = Math.min(5, Math.ceil(items.length / 2))
+  return {
+    firstRow: items.slice(0, firstRowCount),
+    secondRow: items.slice(firstRowCount)
+  }
+}
 
 const resolveMonthlyValue = (...candidates: Array<unknown>): number => {
   for (const candidate of candidates) {
@@ -1946,7 +1964,14 @@ const QuotePageContent = memo(() => {
       const s = providerStates[p]?.status
       return s === 'active' || s === 'enhancement-failed' || s === 'failed' || s === 'inactive'
     }).length
-    const costItemsReady = allProviders.every(providerHasCostItems)
+
+    // Only check cost items for providers that have data (active or enhancement-failed)
+    const providersWithData = allProviders.filter(p => {
+      const s = providerStates[p]?.status
+      return s === 'active' || s === 'enhancement-failed'
+    })
+    const costItemsReady = providersWithData.length > 0 && providersWithData.every(providerHasCostItems)
+
     const isReady = completed >= allProviders.length && !enhancementBatchInfo.isProcessing && costItemsReady
     const hasCompletedBefore = completedPhases.has('analyzing') || completedPhases.has('complete')
 
@@ -2093,37 +2118,72 @@ const QuotePageContent = memo(() => {
           </div>
 
           {isPhaseStarted('gathering') && (
-            <div className={`grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 transition-opacity duration-500 ${
-              isPhaseStarted('gathering') ? 'opacity-100 stagger-children' : 'opacity-0'
-            }`}>
-              {providerData.map((provider, idx) => (
-                <div
-                  key={provider.provider}
-                  className="bg-white border border-slate-200 p-3 text-center transition-all duration-300 hover:shadow-md"
-                >
-                  <div className="w-24 h-6 mx-auto mb-2 border border-slate-200 flex items-center justify-center bg-white">
-                    <ProviderLogo provider={provider.provider as ProviderType} maxWidth={120} maxHeight={24} />
-                  </div>
-                  <div className="text-xs font-semibold text-slate-700 capitalize mb-1">
-                    {provider.provider}
-                  </div>
-                  <div className="text-sm font-bold text-slate-900">
-                    {formatMoney(provider.price, currency)}
-                  </div>
-                </div>
-              ))}
-              
-              {/* Enhanced placeholder cards */}
-              {isPhaseActive('gathering') && Array.from({ length: Math.max(0, 7 - providerData.length) }).map((_, idx) => (
-                <div 
-                  key={`placeholder-${idx}`}
-                  className="bg-slate-100 border border-slate-200 p-3 text-center animate-pulse"
-                >
-                  <div className="w-10 h-10 mx-auto mb-2 bg-slate-200" />
-                  <div className="h-3 bg-slate-200 rounded mb-1" />
-                  <div className="h-4 bg-slate-200 rounded" />
-                </div>
-              ))}
+            <div className="space-y-6">
+
+              {/* Provider Grid */}
+              <div className="bg-white border border-slate-200 shadow-md p-6">
+                {/* <h5 className="text-lg font-bold text-slate-800 mb-4">Provider Quotes</h5> */}
+                {(() => {
+                  const placeholdersNeeded = isPhaseActive('gathering') && providerData.length < allProviders.length
+                    ? Math.min(3, allProviders.length - providerData.length)
+                    : 0
+
+                  const items = [
+                    ...providerData.map((provider) => ({ type: 'provider' as const, provider })),
+                    ...Array.from({ length: placeholdersNeeded }, (_, idx) => ({ type: 'placeholder' as const, id: idx }))
+                  ]
+
+                  const { firstRow, secondRow } = splitIntoBalancedRows(items)
+                  const rows = [firstRow, secondRow].filter(row => row.length > 0)
+
+                  return (
+                    <div className={`flex flex-col items-center gap-4 transition-opacity duration-500 ${isPhaseStarted('gathering') ? 'opacity-100' : 'opacity-0'}`}>
+                      {rows.map((row, rowIdx) => (
+                        <div
+                          key={`provider-row-${rowIdx}`}
+                          className="flex flex-wrap justify-center gap-4"
+                        >
+                          {row.map((entry, entryIdx) => {
+                            if (entry.type === 'provider') {
+                              const { provider } = entry
+                              return (
+                                <div
+                                  key={provider.provider}
+                                  className="w-48 sm:w-56 md:w-60 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 px-6 py-5 text-center transition-all duration-300 hover:shadow-lg hover:border-blue-400 hover:scale-105"
+                                >
+                                  <div className="w-28 h-8 mx-auto mb-3 border-2 border-slate-200 flex items-center justify-center bg-white">
+                                    <ProviderLogo provider={provider.provider as ProviderType} maxWidth={140} maxHeight={28} />
+                                  </div>
+                                  <div className="text-sm font-bold text-slate-800 capitalize mb-1 tracking-wide">
+                                    {provider.provider}
+                                  </div>
+                                  <div className="text-base font-bold text-blue-900">
+                                    {formatMoney(provider.price, currency)}
+                                  </div>
+                                  <Badge className="mt-2 bg-blue-100 text-blue-700 border-blue-200 text-[11px] px-3 py-1">
+                                    Collected
+                                  </Badge>
+                                </div>
+                              )
+                            }
+
+                            return (
+                              <div
+                                key={`placeholder-${entry.id}-${rowIdx}-${entryIdx}`}
+                                className="w-48 sm:w-56 md:w-60 bg-slate-50 border-2 border-slate-200 border-dashed px-6 py-5 text-center animate-pulse"
+                              >
+                                <div className="w-12 h-12 mx-auto mb-3 bg-slate-200 rounded" />
+                                <div className="h-3 bg-slate-200 rounded mb-2 mx-auto w-20" />
+                                <div className="h-4 bg-slate-200 rounded mx-auto w-24" />
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })()}
+              </div>
             </div>
           )}
         </div>
@@ -2165,307 +2225,37 @@ const QuotePageContent = memo(() => {
 
           {isPhaseStarted('analyzing') && providerData.length > 0 && (
             <div id="analyzing-results" className="bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 border border-slate-200 shadow-lg p-8">
-              {/* <div className="mb-8">
-                <div className="text-center bg-white shadow-sm border border-slate-200 p-6 mb-8">
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="flex h-16 w-16 items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg">
-                      <BarChart3 className="h-8 w-8 text-white" />
-                    </div>
-                    <div>
-                      <h4 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                        4% Variance Analysis
-                      </h4>
-                      <p className="text-slate-600 mt-2 text-base">
-                        Comprehensive price compliance validation against Deel baseline standards
-                      </p>
-                    </div>
+              {/* Modern Header */}
+              {/* <div className="text-center bg-white shadow-sm border border-slate-200 p-8 mb-8">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="flex h-16 w-16 items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg">
+                    <BarChart3 className="h-8 w-8 text-white" />
                   </div>
-                </div>
-
-                <div className="bg-white border border-slate-200 shadow-sm p-6">
-                  <h5 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-3">
-                    <div className="p-2 bg-blue-100">
-                      <Target className="h-5 w-5 text-blue-600" />
-                    </div>
-                    Provider Compliance Assessment
-                  </h5>
-                  <p className="text-slate-600 mb-2">
-                    Each provider quote is evaluated against our standard ±4% variance tolerance from the Deel baseline price.
-                    This ensures pricing consistency and helps identify potential outliers in the market.
-                  </p>
-                  <div className="flex items-center gap-6 text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-gradient-to-r from-green-500 to-green-600"></div>
-                      <span className="font-medium">Compliant (Within ±4%)</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-gradient-to-r from-red-500 to-red-600"></div>
-                      <span className="font-medium">Non-Compliant (Outside ±4%)</span>
-                    </div>
+                  <div>
+                    <h4 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                      4% Variance Analysis
+                    </h4>
+                    <p className="text-slate-600 mt-2 text-base max-w-2xl mx-auto">
+                      Comprehensive price compliance validation against Deel baseline standards with detailed provider comparison
+                    </p>
                   </div>
                 </div>
               </div> */}
 
-              {/* Provider Variance Analysis Table */}
-              <div className="bg-white border border-slate-200 shadow-lg mb-8">
-                <div className="bg-slate-800 text-white p-4">
-                  <h5 className="text-xl font-bold">Provider Quote Analysis</h5>
-                  <p className="text-slate-300 text-sm mt-1">Detailed comparison against Deel baseline with 4% tolerance</p>
-                </div>
+              {/* Visual Chart */}
+              {(() => {
+                const deelProvider = providerData.find(p => p.provider === 'deel')
+                const deelPrice = deelProvider?.price || 0
 
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-slate-100 border-b border-slate-200">
-                      <tr>
-                        <th className="text-left py-4 px-6 font-semibold text-slate-800">Provider</th>
-                        <th className="text-right py-4 px-6 font-semibold text-slate-800">Quote Price</th>
-                        <th className="text-center py-4 px-6 font-semibold text-slate-800">Variance from Deel</th>
-                        <th className="text-center py-4 px-6 font-semibold text-slate-800">Compliance</th>
-                        <th className="text-center py-4 px-6 font-semibold text-slate-800">Price Range</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200">
-                      {(() => {
-                        const deelProvider = providerData.find(p => p.provider === 'deel')
-                        const deelPrice = deelProvider?.price || 0
-                        const maxPrice = Math.max(...providerData.map(p => p.price))
+                return (
+                  <VarianceChart
+                    providers={providerData}
+                    deelPrice={deelPrice}
+                    currency={currency}
+                  />
+                )
+              })()}
 
-                        return providerData.map((provider, index) => {
-                          const percentage = deelPrice > 0 ? ((provider.price - deelPrice) / deelPrice * 100) : 0
-                          const isDeelBaseline = provider.provider === 'deel'
-                          const barWidth = Math.min(100, Math.max(10, (provider.price / maxPrice) * 100))
-
-                          return (
-                            <tr key={provider.provider} className={`hover:bg-slate-50 transition-colors ${
-                              isDeelBaseline ? 'bg-blue-50' : ''
-                            }`}>
-                              <td className="py-4 px-6">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 flex items-center justify-center bg-slate-100 border border-slate-200 shadow-sm">
-                                    <ProviderLogo provider={provider.provider as ProviderType} maxWidth={40} maxHeight={40} />
-                                  </div>
-                                  <div>
-                                    <h6 className="font-semibold text-slate-800 capitalize">
-                                      {provider.provider}
-                                      {isDeelBaseline && (
-                                        <span className="ml-2 inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                                          Baseline
-                                        </span>
-                                      )}
-                                    </h6>
-                                    <p className="text-sm text-slate-500">EOR Provider</p>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="py-4 px-6 text-right">
-                                <div className="text-lg font-bold text-slate-900">
-                                  {formatMoney(provider.price, currency)}
-                                </div>
-                              </td>
-                              <td className="py-4 px-6">
-                                <div className="flex flex-col items-center">
-                                  <div className={`text-lg font-bold ${
-                                    isDeelBaseline ? 'text-blue-600' :
-                                    provider.inRange ? 'text-green-600' : 'text-red-600'
-                                  }`}>
-                                    {isDeelBaseline ? '0.0%' : `${percentage >= 0 ? '+' : ''}${percentage.toFixed(1)}%`}
-                                  </div>
-                                  <div className="w-32 h-2 bg-slate-200 mt-2 overflow-hidden">
-                                    <div
-                                      className={`h-full transition-all duration-1000 ease-out ${
-                                        isDeelBaseline ? 'bg-blue-600' :
-                                        provider.inRange ? 'bg-gradient-to-r from-green-500 to-green-600' :
-                                        'bg-gradient-to-r from-red-500 to-red-600'
-                                      }`}
-                                      style={{
-                                        width: `${barWidth}%`,
-                                        transitionDelay: `${index * 200}ms`
-                                      }}
-                                    />
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="py-4 px-6 text-center">
-                                <div className="flex flex-col items-center gap-2">
-                                  <div className="flex items-center gap-1">
-                                    {isDeelBaseline ? (
-                                      <div className="flex items-center gap-1 text-blue-600">
-                                        <Target className="h-4 w-4" />
-                                        <span className="text-sm font-medium">Reference</span>
-                                      </div>
-                                    ) : provider.inRange ? (
-                                      <div className="flex items-center gap-1 text-green-600">
-                                        <CheckCircle className="h-4 w-4" />
-                                        <span className="text-sm font-medium">Pass</span>
-                                      </div>
-                                    ) : (
-                                      <div className="flex items-center gap-1 text-red-600">
-                                        <XCircle className="h-4 w-4" />
-                                        <span className="text-sm font-medium">Fail</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                  <Badge className={
-                                    isDeelBaseline
-                                      ? 'bg-blue-100 text-blue-800 border-blue-200'
-                                      : provider.inRange
-                                        ? 'bg-green-100 text-green-800 border-green-200'
-                                        : 'bg-red-100 text-red-800 border-red-200'
-                                  }>
-                                    {isDeelBaseline ? 'Baseline' : provider.inRange ? 'Compliant' : 'Non-Compliant'}
-                                  </Badge>
-                                </div>
-                              </td>
-                              <td className="py-4 px-6 text-center">
-                                <div className="text-xs text-slate-600">
-                                  <div className="font-medium">
-                                    {formatMoney(deelPrice * 0.96, currency)} - {formatMoney(deelPrice * 1.04, currency)}
-                                  </div>
-                                  <div className="text-slate-500 mt-1">Acceptable Range</div>
-                                </div>
-                              </td>
-                            </tr>
-                          )
-                        })
-                      })()}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Enhanced Analysis Summary */}
-              {/* <div className="grid gap-8 lg:grid-cols-2">
-                <div className="bg-white border border-slate-200 shadow-sm p-6">
-                  <div className="mb-6">
-                    <h5 className="text-xl font-bold text-slate-800 mb-2 flex items-center gap-3">
-                      <div className="p-2 bg-green-100">
-                        <CheckCircle className="h-5 w-5 text-green-600" />
-                      </div>
-                      Compliance Summary
-                    </h5>
-                    <p className="text-slate-600">Overall variance analysis results</p>
-                  </div>
-
-                  <div className="space-y-4">
-                    {(() => {
-                      const compliantCount = providerData.filter(p => p.inRange).length
-                      const totalCount = providerData.length
-                      const complianceRate = (compliantCount / totalCount) * 100
-
-                      return (
-                        <>
-                          <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200">
-                            <span className="font-medium text-slate-700">Total Providers Analyzed</span>
-                            <span className="text-2xl font-bold text-slate-900">{totalCount}</span>
-                          </div>
-
-                          <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200">
-                            <span className="font-medium text-green-700">Compliant Providers</span>
-                            <span className="text-2xl font-bold text-green-800">{compliantCount}</span>
-                          </div>
-
-                          <div className="flex items-center justify-between p-4 bg-red-50 border border-red-200">
-                            <span className="font-medium text-red-700">Non-Compliant Providers</span>
-                            <span className="text-2xl font-bold text-red-800">{totalCount - compliantCount}</span>
-                          </div>
-
-                          <div className={`p-4 border-l-4 ${
-                            complianceRate >= 80 ? 'bg-green-50 border-green-400' :
-                            complianceRate >= 60 ? 'bg-yellow-50 border-yellow-400' :
-                            'bg-red-50 border-red-400'
-                          }`}>
-                            <div className="flex items-center justify-between">
-                              <span className="font-bold text-slate-800">Compliance Rate</span>
-                              <span className={`text-3xl font-bold ${
-                                complianceRate >= 80 ? 'text-green-700' :
-                                complianceRate >= 60 ? 'text-yellow-700' :
-                                'text-red-700'
-                              }`}>
-                                {complianceRate.toFixed(0)}%
-                              </span>
-                            </div>
-                          </div>
-                        </>
-                      )
-                    })()}
-                  </div>
-                </div>
-
-                <div className="bg-white border border-slate-200 shadow-sm p-6">
-                  <div className="mb-6">
-                    <h5 className="text-xl font-bold text-slate-800 mb-2 flex items-center gap-3">
-                      <div className="p-2 bg-indigo-100">
-                        <TrendingUp className="h-5 w-5 text-indigo-600" />
-                      </div>
-                      Market Insights
-                    </h5>
-                    <p className="text-slate-600">Price distribution and variance patterns</p>
-                  </div>
-
-                  <div className="space-y-4">
-                    {(() => {
-                      const deelProvider = providerData.find(p => p.provider === 'deel')
-                      const deelPrice = deelProvider?.price || 0
-                      const prices = providerData.map(p => p.price)
-                      const minPrice = Math.min(...prices)
-                      const maxPrice = Math.max(...prices)
-                      const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length
-
-                      const highestVariance = providerData
-                        .filter(p => p.provider !== 'deel')
-                        .reduce((max, provider) => {
-                          const percentage = Math.abs(deelPrice > 0 ? ((provider.price - deelPrice) / deelPrice * 100) : 0)
-                          return percentage > max.percentage ? { provider: provider.provider, percentage } : max
-                        }, { provider: '', percentage: 0 })
-
-                      return (
-                        <>
-                          <div className="bg-slate-50 border border-slate-200 p-4 space-y-3">
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-slate-600">Market Range</span>
-                              <span className="font-semibold text-slate-800">
-                                {formatMoney(minPrice, currency)} - {formatMoney(maxPrice, currency)}
-                              </span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-slate-600">Average Price</span>
-                              <span className="font-semibold text-slate-800">{formatMoney(avgPrice, currency)}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-slate-600">Deel Baseline</span>
-                              <span className="font-semibold text-blue-600">{formatMoney(deelPrice, currency)}</span>
-                            </div>
-                          </div>
-
-                          <div className="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 p-4">
-                            <div className="font-semibold text-orange-900 mb-2">Highest Variance</div>
-                            <div className="text-sm text-orange-700">
-                              <span className="font-medium capitalize">{highestVariance.provider}</span> deviates by{' '}
-                              <span className="font-bold">{highestVariance.percentage.toFixed(1)}%</span> from baseline
-                            </div>
-                          </div>
-
-                          <div className="bg-blue-50 border border-blue-200 p-4">
-                            <div className="font-medium text-blue-900 mb-1">Quality Assessment</div>
-                            <p className="text-sm text-blue-800">
-                              {(() => {
-                                const complianceRate = (providerData.filter(p => p.inRange).length / providerData.length) * 100
-                                if (complianceRate >= 80) {
-                                  return 'Market shows excellent price consistency with high compliance rates.'
-                                } else if (complianceRate >= 60) {
-                                  return 'Market shows moderate variance. Review outliers for potential issues.'
-                                } else {
-                                  return 'High market variance detected. Consider additional price validation.'
-                                }
-                              })()}
-                            </p>
-                          </div>
-                        </>
-                      )
-                    })()}
-                  </div>
-                </div>
-              </div> */}
             </div>
           )}
         </div>
@@ -2506,39 +2296,69 @@ const QuotePageContent = memo(() => {
           </div>
 
           {isPhaseStarted('selecting') && (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-              {providerData.map((provider) => (
-                <div
-                  key={provider.provider}
-                  className={`
-                    bg-white border p-3 text-center transition-all duration-300
-                    ${provider.isWinner ? 'border-slate-900 shadow-md' :
-                      provider.inRange ? 'border-green-500' :
-                      'border-slate-200 opacity-50'}
-                  `}
-                >
-                  {provider.isWinner && (
-                    <Crown className="h-4 w-4 text-slate-900 mx-auto mb-1" />
-                  )}
-                  <div className="w-24 h-6 mx-auto mb-2 border flex items-center justify-center bg-white">
-                    <ProviderLogo provider={provider.provider as ProviderType} maxWidth={120} maxHeight={24} />
-                  </div>
-                  <div className="text-xs font-medium text-slate-800 capitalize mb-1">
-                    {provider.provider}
-                  </div>
-                  <div className={`text-sm font-bold ${
-                    provider.isWinner ? 'text-slate-900' :
-                    provider.inRange ? 'text-green-600' : 'text-slate-600'
-                  }`}>
-                    {formatMoney(provider.price, currency)}
-                  </div>
-                  {provider.isWinner && (
-                    <Badge className="bg-slate-100 text-slate-800 border-slate-200 text-xs mt-1">
-                      Selected
-                    </Badge>
-                  )}
-                </div>
-              ))}
+            <div>
+              {/* Provider Grid */}
+              <div className="bg-white border border-slate-200 shadow-md p-6">
+                {/* <h5 className="text-lg font-bold text-slate-800 mb-4">Provider Selection Pool</h5> */}
+                {(() => {
+                  const { firstRow, secondRow } = splitIntoBalancedRows(providerData)
+                  const rows = [firstRow, secondRow].filter(row => row.length > 0)
+
+                  return (
+                    <div className="flex flex-col items-center gap-4">
+                      {rows.map((row, rowIdx) => (
+                        <div
+                          key={`selection-row-${rowIdx}`}
+                          className="flex flex-wrap justify-center gap-4"
+                        >
+                          {row.map((provider) => (
+                            <div
+                              key={provider.provider}
+                              className={`
+                                w-48 sm:w-56 md:w-60 border-2 px-6 py-5 text-center transition-all duration-300
+                                ${provider.isWinner ? 'bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-400 shadow-lg scale-105' :
+                                  provider.inRange ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-300 shadow-sm hover:shadow-md hover:border-green-400' :
+                                  'bg-slate-50 border-slate-200 opacity-50'}
+                              `}
+                            >
+                              {provider.isWinner && (
+                                <Crown className="h-5 w-5 text-yellow-600 mx-auto mb-2" />
+                              )}
+                              <div className="w-28 h-8 mx-auto mb-3 border-2 border-slate-200 flex items-center justify-center bg-white">
+                                <ProviderLogo provider={provider.provider as ProviderType} maxWidth={140} maxHeight={28} />
+                              </div>
+                              <div className="text-sm font-bold text-slate-800 capitalize mb-1 tracking-wide">
+                                {provider.provider}
+                              </div>
+                              <div className={`text-base font-bold ${
+                                provider.isWinner ? 'text-yellow-900' :
+                                provider.inRange ? 'text-green-700' : 'text-slate-600'
+                              }`}>
+                                {formatMoney(provider.price, currency)}
+                              </div>
+                              {provider.isWinner && (
+                                <Badge className="mt-2 bg-yellow-400 text-yellow-900 border-yellow-500 text-[11px] font-bold px-3 py-1">
+                                  WINNER
+                                </Badge>
+                              )}
+                              {!provider.isWinner && provider.inRange && (
+                                <Badge className="mt-2 bg-green-100 text-green-700 border-green-200 text-[11px] px-3 py-1">
+                                  Qualified
+                                </Badge>
+                              )}
+                              {!provider.inRange && (
+                                <Badge className="mt-2 bg-slate-100 text-slate-500 border-slate-200 text-[11px] px-3 py-1">
+                                  Out of Range
+                                </Badge>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })()}
+              </div>
             </div>
           )}
         </div>
@@ -2574,54 +2394,56 @@ const QuotePageContent = memo(() => {
           {isPhaseStarted('complete') && finalChoice && (
             <>
               {!showAcidTestForm ? (
-                <div className="bg-green-50 p-8 border border-green-200 shadow-sm transition-all duration-300">
-                  <div className="text-center mb-8">
-                    <div className="w-24 h-24 mx-auto mb-6 border border-green-300 flex items-center justify-center bg-white shadow-sm transition-transform duration-300 hover:scale-105">
-                      <ProviderLogo provider={finalChoice.provider as ProviderType} />
-                    </div>
-                    <div className="text-3xl font-bold text-slate-900 capitalize mb-3 tracking-tight">
-                      {finalChoice.provider}
-                    </div>
-                    <div className="text-5xl font-bold text-green-600 mb-6 tracking-tight">
-                      {formatMoney(finalChoice.price, finalChoice.currency)}
-                    </div>
-                    <Badge className="bg-green-100 text-green-800 border-green-200 px-4 py-2 text-sm font-semibold">
-                      Recommended Provider
-                    </Badge>
-                  </div>
-
-                  <div className="flex justify-center">
-                    <Button
-                      onClick={handleStartAcidTest}
-                      disabled={!finalChoice || !providerData.length}
-                      size="lg"
-                      className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200 px-8 py-3 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <Zap className="h-5 w-5 mr-3" />
-                      Start Acid Test
-                    </Button>
-                  </div>
-
-                  {/* Acid Test Error Display */}
-                  {acidTestError && (
-                    <div className="mt-4 bg-red-50 border border-red-200 p-4">
-                      <div className="flex items-start gap-2">
-                        <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="font-medium text-red-800">Acid Test Failed</p>
-                          <p className="text-sm text-red-600 mt-1">{acidTestError}</p>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setAcidTestError(null)}
-                            className="mt-2 text-red-600 border-red-300 hover:bg-red-50"
-                          >
-                            Dismiss
-                          </Button>
+                <div className="space-y-6">
+                  {/* Winner Announcement Card */}
+                  <div className="bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 border-2 border-green-300 shadow-xl p-8 transition-all duration-300">
+                    <div className="text-center">
+                      <h4 className="text-2xl font-bold text-slate-800 mb-2">Recommended Provider</h4>
+                      <div className="flex items-center justify-center gap-4 mb-4">
+                        <div className="w-32 h-16 flex items-center justify-center bg-white border-2 border-green-300 shadow-md p-3">
+                          <ProviderLogo provider={finalChoice.provider as ProviderType} />
                         </div>
                       </div>
+                      <div className="text-6xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-6 tracking-tight">
+                        {formatMoney(finalChoice.price, finalChoice.currency)}
+                      </div>
+                      <div className="text-center">
+                      <Button
+                        onClick={handleStartAcidTest}
+                        disabled={!finalChoice || !providerData.length}
+                        size="lg"
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-10 py-4 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Zap className="h-6 w-6 mr-3" />
+                        Start Acid Test
+                      </Button>
                     </div>
-                  )}
+                    </div>
+                  </div>
+
+                  {/* CTA Button */}
+                  <div className="bg-white border-2 border-slate-200 shadow-md p-8">
+                    {/* Acid Test Error Display */}
+                    {acidTestError && (
+                      <div className="mt-6 bg-red-50 border-2 border-red-200 shadow-sm p-4">
+                        <div className="flex items-start gap-2">
+                          <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                          <div className="flex-1">
+                            <p className="font-bold text-red-800">Acid Test Failed</p>
+                            <p className="text-sm text-red-600 mt-1">{acidTestError}</p>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setAcidTestError(null)}
+                              className="mt-3 text-red-600 border-red-300 hover:bg-red-50 font-semibold"
+                            >
+                              Dismiss
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="bg-gradient-to-br from-white via-purple-50/30 to-blue-50/30 border border-slate-200 shadow-lg p-6 md:p-8">
@@ -4232,6 +4054,7 @@ const QuotePageContent = memo(() => {
     const items: Array<{ key: string; name: string; monthly_amount: number }> = []
 
     const useFallbackAggregation = true
+    let displayQuoteCurrency: string | undefined
 
     if (useFallbackAggregation) {
       const entryTypeDedup: Record<string, Set<string>> = {}
@@ -4471,6 +4294,7 @@ const QuotePageContent = memo(() => {
       }
 
       const displayQuote = resolveDisplayQuote()
+      displayQuoteCurrency = displayQuote?.currency
       if (displayQuote) {
         if (Array.isArray(displayQuote.costs)) {
           pushCostArray(displayQuote.costs, `${finalChoice.provider} Cost`)
@@ -4647,7 +4471,7 @@ const QuotePageContent = memo(() => {
     updateProviderTotalsFromItems(
       providerKey,
       selectedItems,
-      quote?.currency || enhancedQuote.baseQuote?.currency || finalChoice.currency
+      displayQuoteCurrency || enhancedQuote.baseQuote?.currency || finalChoice.currency
     )
 
     return categorizeSelectedItems(selectedItems)
@@ -4879,10 +4703,7 @@ const QuotePageContent = memo(() => {
       await sleep(500); // Reduced from 1000ms
 
       // Find enhanced quote if available
-      const selectedEnhancement = enhancements.find(
-        e => e.provider === winner.provider && e.status === 'active'
-      );
-
+      const selectedEnhancement = enhancements[winner.provider as ProviderType];
       const finalChoiceData = {
         ...winner,
         currency,
@@ -5661,7 +5482,7 @@ const QuotePageContent = memo(() => {
             </div>
           </div>
 
-          <div className="flex justify-center mb-8">
+          <div className="mb-10 -mx-4 sm:-mx-6 lg:-mx-10">
             <ProviderSelector
               currentProvider={currentProvider}
               onProviderChange={switchProvider}

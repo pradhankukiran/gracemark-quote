@@ -1,26 +1,11 @@
 import { memo } from "react";
-import { Loader2, AlertCircle, Brain, AlertTriangle, CheckCircle, X } from "lucide-react";
+import { Loader2, Brain, CheckCircle, XCircle } from "lucide-react";
 import { ProviderState } from "../hooks/useQuoteResults";
 
 interface ProviderStatusIconProps {
   status: ProviderState;
   className?: string;
 }
-
-export const BrainErrorIcon = memo(({ className = "h-4 w-4" }: { className?: string }) => (
-  <div className="relative inline-block">
-    <Brain className={`${className} text-red-500`} />
-    <X className="h-2 w-2 absolute -top-1 -right-1 text-red-600 bg-white rounded-full" strokeWidth={3} />
-  </div>
-));
-BrainErrorIcon.displayName = "BrainErrorIcon";
-
-export const WarningBadge = memo(({ className = "h-3 w-3" }: { className?: string }) => (
-  <div className="relative">
-    <AlertTriangle className={`${className} text-amber-500`} fill="currentColor" />
-  </div>
-));
-WarningBadge.displayName = "WarningBadge";
 
 export const ProviderStatusIcon = memo(({ status, className = "h-4 w-4" }: ProviderStatusIconProps) => {
   switch (status) {
@@ -31,10 +16,10 @@ export const ProviderStatusIcon = memo(({ status, className = "h-4 w-4" }: Provi
       return <Brain className={`${className} animate-pulse text-purple-500`} />;
     
     case 'enhancement-failed':
-      return <BrainErrorIcon className={className} />;
+      return <XCircle className={`${className} text-red-500`} />;
     
     case 'failed':
-      return <AlertCircle className={`${className} text-red-500`} />;
+      return <XCircle className={`${className} text-red-500`} />;
     
     case 'active':
       return <CheckCircle className={`${className} text-green-500`} />;
