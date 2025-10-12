@@ -491,7 +491,7 @@ const buildDisplayedItems = (
       } else if (key.includes('local_health_insurance')) {
         addExtra('Health Insurance (Local Office)', n, ['health insurance'], { skipLocalOfficeCheck: true, preferLocalOffice: true })
       } else if (key.includes('local_office_monthly_payments')) {
-        addExtra('Local Office Monthly Payments', n, ['local office'], { skipLocalOfficeCheck: true, preferLocalOffice: true })
+        addExtra('Local Office Monthly Payments', n, ['local office monthly payments'], { skipLocalOfficeCheck: true, preferLocalOffice: true })
       } else if (key.includes('local_office_vat')) {
         addExtra('VAT on Local Office Payments', n, ['vat'], { skipLocalOfficeCheck: true, preferLocalOffice: true })
       } else {
@@ -987,12 +987,18 @@ const QuotePageContent = memo(() => {
 
   const MIN_PROFIT_THRESHOLD_USD = 1000
 
+  const providerHasCostItems = useCallback((provider: ProviderType) => {
+    const items = cachedCostItems[provider]
+    return Array.isArray(items) && items.length > 0
+  }, [cachedCostItems])
+
   const getProviderPrice = (provider: ProviderType): number | null => {
-    const totalInfo = providerTotals[provider]
-    if (totalInfo?.ready && typeof totalInfo.amount === 'number') {
-      return totalInfo.amount
+    const items = cachedCostItems[provider]
+    if (!Array.isArray(items) || items.length === 0) {
+      return null
     }
-    return computeProviderPriceFromSource(provider, quoteData, enhancements, contractMonths)
+    const sum = items.reduce((acc, item) => acc + Number(item.monthly_amount || 0), 0)
+    return Number(sum.toFixed(2))
   }
 
   const updateProviderTotalsFromItems = useCallback((
@@ -1940,8 +1946,8 @@ const QuotePageContent = memo(() => {
       const s = providerStates[p]?.status
       return s === 'active' || s === 'enhancement-failed' || s === 'failed' || s === 'inactive'
     }).length
-    const totalsReady = allProviders.every(p => providerTotals[p]?.ready)
-    const isReady = completed >= allProviders.length && !enhancementBatchInfo.isProcessing && totalsReady
+    const costItemsReady = allProviders.every(providerHasCostItems)
+    const isReady = completed >= allProviders.length && !enhancementBatchInfo.isProcessing && costItemsReady
     const hasCompletedBefore = completedPhases.has('analyzing') || completedPhases.has('complete')
 
     let message = 'Enhancing quotes...'
@@ -5313,7 +5319,7 @@ const QuotePageContent = memo(() => {
               : key.includes('local_transportation') ? ['transportation']
               : key.includes('local_wfh') ? ['wfh', 'remote work', 'work from home']
               : key.includes('local_health_insurance') ? ['health insurance']
-              : key.includes('local_office_monthly_payments') ? ['local office']
+              : key.includes('local_office_monthly_payments') ? ['local office monthly payments']
               : key.includes('local_office_vat') ? ['vat']
               : []
           localExtras.push({ name: label, amount: n, guards })

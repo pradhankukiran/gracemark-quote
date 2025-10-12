@@ -11,6 +11,8 @@ interface FormActionsProps {
   onClear: () => void
   onClearStorage?: () => void
   enableComparison: boolean
+  isConvertingLocalOffice?: boolean
+  isConvertingValidation?: boolean
 }
 
 export const FormActions = memo(({
@@ -22,7 +24,12 @@ export const FormActions = memo(({
   onClear,
   onClearStorage,
   enableComparison,
+  isConvertingLocalOffice = false,
+  isConvertingValidation = false,
 }: FormActionsProps) => {
+  const isConverting = isConvertingLocalOffice || isConvertingValidation
+  const canCalculate = isFormValid && !isConverting
+
   return (
     <div className="space-y-4">
       {error && (
@@ -45,6 +52,15 @@ export const FormActions = memo(({
         </div>
       )}
 
+      {isConverting && isFormValid && (
+        <div className="bg-blue-50 border border-blue-200 p-3 flex items-start gap-3">
+          <Loader2 className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0 animate-spin" />
+          <div>
+            <p className="text-blue-700 text-sm">Converting currency values, please wait...</p>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 pt-4">
         <div className="flex items-center gap-2">
           {onClearStorage && (
@@ -61,13 +77,18 @@ export const FormActions = memo(({
         </div>
         <Button
           onClick={onCalculate}
-          disabled={isCalculating || !isFormValid}
+          disabled={isCalculating || !canCalculate}
           className="w-full sm:w-auto h-12 text-xl font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8 cursor-pointer"
         >
           {isCalculating ? (
             <>
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               Calculating Quote...
+            </>
+          ) : isConverting ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Converting...
             </>
           ) : (
             <>

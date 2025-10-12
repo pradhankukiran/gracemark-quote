@@ -1,4 +1,4 @@
-import { useEffect, memo, useMemo, useRef } from "react"
+import { memo, useMemo, useEffect, useRef } from "react"
 import { Building2 } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -15,6 +15,7 @@ interface LocalOfficeInformationProps {
   originalCurrency: string | null
   currency: string
   onLocalOfficeUpdate: (updates: Partial<LocalOfficeInfo>) => void
+  onConversionStatusChange?: (isConverting: boolean) => void
   countryCode?: string
 }
 
@@ -24,6 +25,7 @@ export const LocalOfficeInformation = memo(({
   originalCurrency,
   currency,
   onLocalOfficeUpdate,
+  onConversionStatusChange,
   countryCode,
 }: LocalOfficeInformationProps) => {
   // Memoize originalData to prevent recreating the object on every render
@@ -32,11 +34,10 @@ export const LocalOfficeInformation = memo(({
     [countryCode]
   )
 
-  const hasUpdatedRef = useRef(false)
-
   const {
     convertedLocalOffice,
     isConvertingLocalOffice,
+    conversionKey,
   } = useLocalOfficeConversion({
     originalData,
     countryCode: countryCode || null,
@@ -45,59 +46,62 @@ export const LocalOfficeInformation = memo(({
     originalCurrency: originalCurrency,
   })
 
-  // Store converted values in form state when conversion is complete
+  // Notify parent of conversion status changes
   useEffect(() => {
-    // Prevent update loop - only update once per conversion cycle
+    if (onConversionStatusChange) {
+      onConversionStatusChange(isConvertingLocalOffice)
+    }
+  }, [isConvertingLocalOffice, onConversionStatusChange])
+
+  // Track the last conversion key to prevent duplicate updates
+  const lastAppliedConversionKeyRef = useRef<string>('')
+
+  // Apply converted values to form state when conversion completes
+  useEffect(() => {
+    // Don't update if still converting
     if (isConvertingLocalOffice) {
-      hasUpdatedRef.current = false
       return
     }
 
-    if (hasUpdatedRef.current) {
+    // Don't update if we've already applied this conversion
+    if (conversionKey === lastAppliedConversionKeyRef.current) {
       return
     }
 
-    if (!originalData && Object.keys(convertedLocalOffice).length === 0) {
+    // Don't update if no converted values
+    if (Object.keys(convertedLocalOffice).length === 0) {
       return
     }
 
-    const updatedLocalOfficeInfo: Partial<LocalOfficeInfo> = {}
-
-    // Build the local office data with converted values
-    const fields: Array<keyof LocalOfficeInfo> = [
-      'mealVoucher', 'transportation', 'wfh', 'healthInsurance',
-      'monthlyPaymentsToLocalOffice', 'vat', 'preEmploymentMedicalTest',
-      'drugTest', 'backgroundCheckViaDeel'
-    ]
-
-    fields.forEach(field => {
-      const convertedValue = getConvertedLocalOfficeValue(field, convertedLocalOffice, originalData)
-      if (convertedValue && convertedValue !== 'N/A') {
-        updatedLocalOfficeInfo[field] = convertedValue
+    // Update form state with converted values
+    const updates: Partial<LocalOfficeInfo> = {}
+    Object.keys(convertedLocalOffice).forEach(key => {
+      const field = key as keyof LocalOfficeInfo
+      const convertedValue = convertedLocalOffice[field]
+      if (convertedValue && convertedValue !== 'N/A' && convertedValue !== '') {
+        updates[field] = convertedValue
       }
     })
 
-    // Only update if we have values to set
-    if (Object.keys(updatedLocalOfficeInfo).length > 0) {
-      hasUpdatedRef.current = true
-      onLocalOfficeUpdate(updatedLocalOfficeInfo)
+    if (Object.keys(updates).length > 0) {
+      onLocalOfficeUpdate(updates)
+      lastAppliedConversionKeyRef.current = conversionKey
     }
-  }, [convertedLocalOffice, originalData, isConvertingLocalOffice, onLocalOfficeUpdate])
-
-  // Reset update flag when country changes
-  useEffect(() => {
-    hasUpdatedRef.current = false
-  }, [countryCode])
+  }, [convertedLocalOffice, isConvertingLocalOffice, conversionKey, onLocalOfficeUpdate])
 
   const getDisplayCurrency = () => {
     return currency
   }
 
   const getDisplayValue = (field: keyof LocalOfficeInfo) => {
-    if (isConvertingLocalOffice) {
-      return localOfficeInfo[field] || ''
+    // Show form state value (which includes converted values after update)
+    const formValue = localOfficeInfo[field]
+    if (formValue && formValue !== 'N/A' && formValue !== '') {
+      return formValue
     }
-    return getConvertedLocalOfficeValue(field, convertedLocalOffice, originalData) || localOfficeInfo[field] || ''
+
+    // Fall back to original data while converting or if no form value
+    return originalData?.[field] || ''
   }
 
   const getPlaceholder = (field: keyof LocalOfficeInfo) => {
@@ -112,6 +116,7 @@ export const LocalOfficeInformation = memo(({
   }
 
   const handleFieldUpdate = (field: keyof LocalOfficeInfo, value: string) => {
+    // When user manually edits, update form state
     onLocalOfficeUpdate({ [field]: value })
   }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useMemo } from "react"
+import { useEffect, useRef, useMemo, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
@@ -72,6 +72,9 @@ export default function EORCalculatorPage() {
     formData.originalCurrency
   )
 
+  // Track local office conversion status
+  const [isConvertingLocalOffice, setIsConvertingLocalOffice] = useState(false)
+
   const {
     isConverting,
     conversionInfo,
@@ -136,8 +139,8 @@ export default function EORCalculatorPage() {
       clearValidationErrors();
       clearQuotes();
       clearUSDConversions();
-      clearLocalOfficeInfo();
-      
+      // Note: Don't clear local office info here - handleCountryChange already loads the correct data
+
       updateFormData({
         baseSalary: "",
         holidayDays: "",
@@ -383,6 +386,7 @@ export default function EORCalculatorPage() {
                       originalCurrency={formData.originalCurrency}
                       currency={currency}
                       onLocalOfficeUpdate={updateLocalOfficeInfo}
+                      onConversionStatusChange={setIsConvertingLocalOffice}
                       countryCode={selectedCountryData?.code}
                     />
                   </>
@@ -415,6 +419,8 @@ export default function EORCalculatorPage() {
                   onClear={handleClearAll}
                   onClearStorage={clearStoredData}
                   enableComparison={formData.enableComparison}
+                  isConvertingLocalOffice={isConvertingLocalOffice}
+                  isConvertingValidation={isConvertingValidation}
                 />
               </CardContent>
             </Card>

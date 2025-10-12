@@ -12,6 +12,7 @@ interface UseLocalOfficeConversionResult {
   convertedLocalOffice: ConvertedLocalOfficeData
   isConvertingLocalOffice: boolean
   isLocalOfficeReady: boolean
+  conversionKey: string
 }
 
 interface UseLocalOfficeConversionProps {
@@ -47,9 +48,14 @@ export const useLocalOfficeConversion = ({
       return
     }
     lastConversionKeyRef.current = conversionKey
+
+    // Create AbortController for this conversion cycle
+    const abortController = new AbortController()
+
     const convertLocalOfficeData = async () => {
       if (!originalData || !countryCode) {
         setConvertedLocalOffice({})
+        setIsConvertingLocalOffice(false)
         return
       }
 
@@ -58,7 +64,7 @@ export const useLocalOfficeConversion = ({
       const targetCurrency = formCurrency
 
       setIsConvertingLocalOffice(true)
-      
+
       // Clear any existing timeout
       if (conversionTimeoutRef.current) {
         clearTimeout(conversionTimeoutRef.current)
@@ -66,11 +72,13 @@ export const useLocalOfficeConversion = ({
 
       // Set a timeout to prevent indefinite waiting
       conversionTimeoutRef.current = setTimeout(() => {
-        console.warn('Local office conversion timeout - falling back to original data')
-        setIsConvertingLocalOffice(false)
-        setConvertedLocalOffice({})
+        if (!abortController.signal.aborted) {
+          console.warn('Local office conversion timeout - falling back to original data')
+          setIsConvertingLocalOffice(false)
+          setConvertedLocalOffice({})
+        }
       }, 10000) // 10 second timeout
-      
+
       try {
         const conversions: ConvertedLocalOfficeData = {}
         const convertibleFields: Array<keyof LocalOfficeInfo> = [
@@ -100,71 +108,103 @@ export const useLocalOfficeConversion = ({
           return null
         })()
         const normalizedTargetCurrency = targetCurrency.trim().toUpperCase()
-        
-        const fieldsToConvert = convertibleFields.filter(field => {
-          const value = originalData[field]
-          if (!value || value === 'N/A' || value === 'No' || isNaN(Number(value))) {
-            return false
-          }
 
-          const fieldCurrency = getFieldCurrency(field, countryCode)
-          if (fieldCurrency === 'usd') {
-            return normalizedTargetCurrency !== 'USD'
-          }
+        const conversionPromises: Promise<void>[] = []
 
-          if (fieldCurrency === 'local') {
-            if (!baseLocalCurrency) return false
-            return baseLocalCurrency !== normalizedTargetCurrency
-          }
-
-          return false
-        })
-
-        const conversionPromises = fieldsToConvert.map(async (field) => {
-          const numericValue = Number(originalData[field])
-          const fieldCurrency = getFieldCurrency(field, countryCode)
-          const sourceCurrency = fieldCurrency === 'usd' ? 'USD' : baseLocalCurrency
-
-          if (!sourceCurrency || sourceCurrency === normalizedTargetCurrency) {
+        convertibleFields.forEach((field) => {
+          const rawValue = originalData[field]
+          if (!rawValue || rawValue === 'N/A' || rawValue === 'No') {
             return
           }
 
-          try {
-            const result = await convertCurrency(
-              numericValue,
-              sourceCurrency,
-              normalizedTargetCurrency
-            )
+          const numericValue = Number(rawValue)
+          if (!Number.isFinite(numericValue) || numericValue <= 0) {
+            return
+          }
 
-            if (result.success && result.data) {
-              conversions[field] = result.data.target_amount.toFixed(2)
-            } else {
-              console.warn(`Failed to convert ${field}:`, result.error)
-              // Don't include in conversions - will fall back to original
+          const fieldCurrency = getFieldCurrency(field, countryCode)
+
+          const assignValue = (value: number) => {
+            conversions[field] = value.toFixed(2)
+          }
+
+          if (fieldCurrency === 'usd') {
+            if (normalizedTargetCurrency === 'USD') {
+              assignValue(numericValue)
+              return
             }
-          } catch (error) {
-            console.warn(`Error converting ${field}:`, error)
-            // Don't include in conversions - will fall back to original
+
+            conversionPromises.push((async () => {
+              try {
+                const result = await convertCurrency(numericValue, 'USD', normalizedTargetCurrency, abortController.signal)
+                if (!abortController.signal.aborted && result.success && result.data) {
+                  assignValue(result.data.target_amount)
+                } else if (!abortController.signal.aborted) {
+                  console.warn(`Failed to convert ${field}:`, result.error)
+                }
+              } catch (error) {
+                if (!abortController.signal.aborted) {
+                  console.warn(`Error converting ${field}:`, error)
+                }
+              }
+            })())
+
+            return
+          }
+
+          if (fieldCurrency === 'local') {
+            if (!baseLocalCurrency) {
+              return
+            }
+
+            if (baseLocalCurrency === normalizedTargetCurrency) {
+              assignValue(numericValue)
+              return
+            }
+
+            conversionPromises.push((async () => {
+              try {
+                const result = await convertCurrency(numericValue, baseLocalCurrency, normalizedTargetCurrency, abortController.signal)
+                if (!abortController.signal.aborted && result.success && result.data) {
+                  assignValue(result.data.target_amount)
+                } else if (!abortController.signal.aborted) {
+                  console.warn(`Failed to convert ${field}:`, result.error)
+                }
+              } catch (error) {
+                if (!abortController.signal.aborted) {
+                  console.warn(`Error converting ${field}:`, error)
+                }
+              }
+            })())
           }
         })
 
         await Promise.all(conversionPromises)
 
-        setConvertedLocalOffice(conversions)
+        // Only update state if not aborted
+        if (!abortController.signal.aborted) {
+          setConvertedLocalOffice(conversions)
+        }
       } catch (error) {
-        console.warn('Failed to convert local office data:', error)
-        setConvertedLocalOffice({})
+        if (!abortController.signal.aborted) {
+          console.warn('Failed to convert local office data:', error)
+          setConvertedLocalOffice({})
+        }
       } finally {
         if (conversionTimeoutRef.current) {
           clearTimeout(conversionTimeoutRef.current)
         }
-        setIsConvertingLocalOffice(false)
+        if (!abortController.signal.aborted) {
+          setIsConvertingLocalOffice(false)
+        }
       }
     }
 
     convertLocalOfficeData()
-    
+
     return () => {
+      // Abort any in-flight conversions
+      abortController.abort()
       if (conversionTimeoutRef.current) {
         clearTimeout(conversionTimeoutRef.current)
       }
@@ -177,14 +217,15 @@ export const useLocalOfficeConversion = ({
     convertedLocalOffice,
     isConvertingLocalOffice,
     isLocalOfficeReady,
+    conversionKey,
   }
 }
 
-// Helper function to get converted value or fall back to original
+// Helper to read converted values without overriding existing form input
 export const getConvertedLocalOfficeValue = (
   field: keyof LocalOfficeInfo,
   convertedData: ConvertedLocalOfficeData,
   originalData: LocalOfficeInfo | null
 ): string => {
-  return convertedData[field] || originalData?.[field] || ""
+  return convertedData[field] || ""
 }
