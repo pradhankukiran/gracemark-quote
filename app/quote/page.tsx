@@ -1024,15 +1024,26 @@ const QuotePageContent = memo(() => {
     const onboardingLocal = roundToCents(readNumericValue(acidTestCostData.onboardingTotal))
     const gracemarkLocal = roundToCents(readNumericValue(billRateComposition.gracemarkFeeMonthly))
 
-    const totalAssignmentLocal = roundToCents(
-      baseLocal + statutoryLocal + allowancesLocal + terminationLocal
-    )
-    const billRateLocal = roundToCents(totalAssignmentLocal + onboardingLocal + gracemarkLocal)
-    const totalProfitLocal = roundToCents(billRateLocal - totalAssignmentLocal)
-
     const resolvedDuration = projectDuration > 0
       ? projectDuration
       : (summary?.durationMonths && summary.durationMonths > 0 ? summary.durationMonths : 0)
+
+    // Monthly costs
+    const monthlyAssignmentCost = roundToCents(
+      baseLocal + statutoryLocal + allowancesLocal + terminationLocal
+    )
+    const monthlyBillRate = roundToCents(monthlyAssignmentCost + gracemarkLocal)
+
+    // Total costs over contract duration
+    const totalAssignmentLocal = resolvedDuration > 0
+      ? roundToCents(monthlyAssignmentCost * resolvedDuration)
+      : monthlyAssignmentCost
+
+    const billRateLocal = resolvedDuration > 0
+      ? roundToCents((monthlyAssignmentCost + gracemarkLocal) * resolvedDuration + onboardingLocal)
+      : roundToCents(monthlyAssignmentCost + onboardingLocal + gracemarkLocal)
+
+    const totalProfitLocal = roundToCents(billRateLocal - totalAssignmentLocal)
 
     const monthlyMarkupLocal = resolvedDuration > 0
       ? roundToCents(totalProfitLocal / resolvedDuration)
@@ -1052,9 +1063,12 @@ const QuotePageContent = memo(() => {
       allowancesUSD !== null &&
       terminationUSD !== null
     ) {
-      totalAssignmentUSD = roundToCents(
+      const monthlyAssignmentUSD = roundToCents(
         baseUSD + statutoryUSD + allowancesUSD + terminationUSD
       )
+      totalAssignmentUSD = resolvedDuration > 0
+        ? roundToCents(monthlyAssignmentUSD * resolvedDuration)
+        : monthlyAssignmentUSD
     } else if (localCurrency === 'USD') {
       totalAssignmentUSD = totalAssignmentLocal
     }
@@ -1068,14 +1082,12 @@ const QuotePageContent = memo(() => {
       onboardingUSD !== null &&
       gracemarkUSD !== null
     ) {
-      billRateUSD = roundToCents(
-        baseUSD +
-        statutoryUSD +
-        allowancesUSD +
-        terminationUSD +
-        onboardingUSD +
-        gracemarkUSD
+      const monthlyBillRateUSD = roundToCents(
+        baseUSD + statutoryUSD + allowancesUSD + terminationUSD + gracemarkUSD
       )
+      billRateUSD = resolvedDuration > 0
+        ? roundToCents(monthlyBillRateUSD * resolvedDuration + onboardingUSD)
+        : roundToCents(monthlyBillRateUSD + onboardingUSD)
     } else if (localCurrency === 'USD') {
       billRateUSD = billRateLocal
     }
@@ -2759,115 +2771,6 @@ const QuotePageContent = memo(() => {
 
                             return (
                               <div className="space-y-6">
-                                {acidTestKpiMetrics && (
-                                  <div className="space-y-4">
-                                    <div className="grid gap-4 md:grid-cols-2">
-                                      <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6">
-                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Assignment Costs</p>
-                                        <div className="mt-2">
-                                          <div className="text-3xl font-bold text-slate-900">
-                                            {formatMoney(acidTestKpiMetrics.totals.assignment.local, acidTestKpiMetrics.localCurrency)}
-                                          </div>
-                                          <p className="text-xs text-slate-500 mt-1">
-                                            Local currency ({acidTestKpiMetrics.localCurrency})
-                                          </p>
-                                        </div>
-                                        <div className="mt-4 text-sm text-slate-600">
-                                          <span className="font-medium text-slate-700">USD:</span>{' '}
-                                          {acidTestKpiMetrics.totals.assignment.usd !== null
-                                            ? formatMoney(acidTestKpiMetrics.totals.assignment.usd, 'USD')
-                                            : '—'}
-                                        </div>
-                                        <p className="mt-3 text-xs text-slate-500">
-                                          Sum of recurring cost components excluding Gracemark & onboarding.
-                                        </p>
-                                      </div>
-
-                                      <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6">
-                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Bill Rate (All-In)</p>
-                                        <div className="mt-2">
-                                          <div className="text-3xl font-bold text-slate-900">
-                                            {formatMoney(acidTestKpiMetrics.totals.billRate.local, acidTestKpiMetrics.localCurrency)}
-                                          </div>
-                                          <p className="text-xs text-slate-500 mt-1">
-                                            Includes onboarding and Gracemark fee.
-                                          </p>
-                                        </div>
-                                        <div className="mt-4 text-sm text-slate-600">
-                                          <span className="font-medium text-slate-700">USD:</span>{' '}
-                                          {acidTestKpiMetrics.totals.billRate.usd !== null
-                                            ? formatMoney(acidTestKpiMetrics.totals.billRate.usd, 'USD')
-                                            : '—'}
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="flex justify-center">
-                                      {(() => {
-                                        const profitPositive = acidTestKpiMetrics.totals.profit.local >= 0
-                                        const valueClass = profitPositive ? 'text-emerald-600' : 'text-red-600'
-                                        const badgeClass = profitPositive
-                                          ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                                          : 'bg-red-100 text-red-800 border-red-200'
-                                        return (
-                                          <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6 w-full max-w-md">
-                                            <div className="flex items-center justify-between">
-                                              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Profit</p>
-                                              <span className={`px-2 py-0.5 text-xs font-semibold border ${badgeClass}`}>
-                                                {profitPositive ? 'Positive' : 'Negative'}
-                                              </span>
-                                            </div>
-                                            <div className="mt-3">
-                                              <div className={`text-3xl font-bold ${valueClass}`}>
-                                                {formatMoney(acidTestKpiMetrics.totals.profit.local, acidTestKpiMetrics.localCurrency)}
-                                              </div>
-                                              <p className="text-xs text-slate-500 mt-1">Bill rate minus assignment costs.</p>
-                                            </div>
-                                            <div className="mt-4 text-sm text-slate-600">
-                                              <span className="font-medium text-slate-700">USD:</span>{' '}
-                                              {acidTestKpiMetrics.totals.profit.usd !== null
-                                                ? formatMoney(acidTestKpiMetrics.totals.profit.usd, 'USD')
-                                                : '—'}
-                                            </div>
-                                          </div>
-                                        )
-                                      })()}
-                                    </div>
-
-                                    <div className="flex justify-center">
-                                      <div
-                                        className={`border shadow-sm rounded-lg p-6 w-full max-w-md ${acidTestKpiMetrics.markupStyle.container}`}
-                                      >
-                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
-                                          Monthly Markup Fee
-                                        </p>
-                                        <div className="mt-3">
-                                          <div className={`text-3xl font-bold ${acidTestKpiMetrics.markupStyle.value}`}>
-                                            {acidTestKpiMetrics.totals.markup.local !== null
-                                              ? formatMoney(acidTestKpiMetrics.totals.markup.local, acidTestKpiMetrics.localCurrency)
-                                              : '—'}
-                                          </div>
-                                          <p className={`text-xs mt-1 ${acidTestKpiMetrics.markupStyle.accent}`}>
-                                            {(() => {
-                                              const durationValue = acidTestKpiMetrics.duration && acidTestKpiMetrics.duration > 0
-                                                ? acidTestKpiMetrics.duration
-                                                : null
-                                              const durationLabel = durationValue ?? '—'
-                                              const plural = durationValue === 1 ? '' : 's'
-                                              return `Based on ${durationLabel} month${plural} contract.`
-                                            })()}
-                                          </p>
-                                        </div>
-                                        <div className="mt-4 text-sm text-slate-700">
-                                          <span className="font-medium">USD:</span>{' '}
-                                          {acidTestKpiMetrics.totals.markup.usd !== null
-                                            ? formatMoney(acidTestKpiMetrics.totals.markup.usd, 'USD')
-                                            : '—'}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
                                 {/* <div className="grid gap-4 lg:grid-cols-3">
                                   <div className="flex h-full flex-col gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
                                     <div className="flex items-center gap-2 text-slate-700">
@@ -3355,6 +3258,123 @@ const QuotePageContent = memo(() => {
                                       </table>
                                     </div>
                                   </div>
+
+                                  {/* KPI Metrics Section - Moved Below Cost Breakdown */}
+                                  {acidTestKpiMetrics && (
+                                    <div className="space-y-4 mt-8">
+                                      <div className="grid gap-4 md:grid-cols-2">
+                                        <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6">
+                                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Assignment Costs</p>
+                                          <div className="mt-2">
+                                            <div className="text-3xl font-bold text-slate-900">
+                                              {formatMoney(acidTestKpiMetrics.totals.assignment.local, acidTestKpiMetrics.localCurrency)}
+                                            </div>
+                                            <p className="text-xs text-slate-500 mt-1">
+                                              Over {acidTestKpiMetrics.duration} month{acidTestKpiMetrics.duration === 1 ? '' : 's'} contract
+                                            </p>
+                                          </div>
+                                          <div className="mt-4 text-sm text-slate-600">
+                                            <span className="font-medium text-slate-700">USD:</span>{' '}
+                                            {acidTestKpiMetrics.totals.assignment.usd !== null
+                                              ? formatMoney(acidTestKpiMetrics.totals.assignment.usd, 'USD')
+                                              : '—'}
+                                          </div>
+                                          <p className="mt-3 text-xs text-slate-500">
+                                            Recurring costs excluding Gracemark fee & onboarding.
+                                          </p>
+                                        </div>
+
+                                        <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6">
+                                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Bill Rate (All-In)</p>
+                                          <div className="mt-2">
+                                            <div className="text-3xl font-bold text-slate-900">
+                                              {formatMoney(acidTestKpiMetrics.totals.billRate.local, acidTestKpiMetrics.localCurrency)}
+                                            </div>
+                                            <p className="text-xs text-slate-500 mt-1">
+                                              Over {acidTestKpiMetrics.duration} month{acidTestKpiMetrics.duration === 1 ? '' : 's'} contract
+                                            </p>
+                                          </div>
+                                          <div className="mt-4 text-sm text-slate-600">
+                                            <span className="font-medium text-slate-700">USD:</span>{' '}
+                                            {acidTestKpiMetrics.totals.billRate.usd !== null
+                                              ? formatMoney(acidTestKpiMetrics.totals.billRate.usd, 'USD')
+                                              : '—'}
+                                          </div>
+                                          <p className="mt-3 text-xs text-slate-500">
+                                            All costs including Gracemark fee & onboarding.
+                                          </p>
+                                        </div>
+                                      </div>
+
+                                      <div className="grid gap-4 md:grid-cols-2">
+                                        {(() => {
+                                          const profitPositive = acidTestKpiMetrics.totals.profit.local >= 0
+                                          const valueClass = profitPositive ? 'text-emerald-600' : 'text-red-600'
+                                          const badgeClass = profitPositive
+                                            ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                                            : 'bg-red-100 text-red-800 border-red-200'
+                                          return (
+                                            <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6">
+                                              <div className="flex items-center justify-between">
+                                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Profit</p>
+                                                <span className={`px-2 py-0.5 text-xs font-semibold border ${badgeClass}`}>
+                                                  {profitPositive ? 'Positive' : 'Negative'}
+                                                </span>
+                                              </div>
+                                              <div className="mt-3">
+                                                <div className={`text-3xl font-bold ${valueClass}`}>
+                                                  {formatMoney(acidTestKpiMetrics.totals.profit.local, acidTestKpiMetrics.localCurrency)}
+                                                </div>
+                                                <p className="text-xs text-slate-500 mt-1">
+                                                  Over {acidTestKpiMetrics.duration} month{acidTestKpiMetrics.duration === 1 ? '' : 's'} contract
+                                                </p>
+                                              </div>
+                                              <div className="mt-4 text-sm text-slate-600">
+                                                <span className="font-medium text-slate-700">USD:</span>{' '}
+                                                {acidTestKpiMetrics.totals.profit.usd !== null
+                                                  ? formatMoney(acidTestKpiMetrics.totals.profit.usd, 'USD')
+                                                  : '—'}
+                                              </div>
+                                              <p className="mt-3 text-xs text-slate-500">
+                                                Bill rate minus assignment costs.
+                                              </p>
+                                            </div>
+                                          )
+                                        })()}
+
+                                        <div
+                                          className={`border shadow-sm rounded-lg p-6 ${acidTestKpiMetrics.markupStyle.container}`}
+                                        >
+                                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+                                            Monthly Markup Fee
+                                          </p>
+                                          <div className="mt-3">
+                                            <div className={`text-3xl font-bold ${acidTestKpiMetrics.markupStyle.value}`}>
+                                              {acidTestKpiMetrics.totals.markup.local !== null
+                                                ? formatMoney(acidTestKpiMetrics.totals.markup.local, acidTestKpiMetrics.localCurrency)
+                                                : '—'}
+                                            </div>
+                                            <p className={`text-xs mt-1 ${acidTestKpiMetrics.markupStyle.accent}`}>
+                                              {(() => {
+                                                const durationValue = acidTestKpiMetrics.duration && acidTestKpiMetrics.duration > 0
+                                                  ? acidTestKpiMetrics.duration
+                                                  : null
+                                                const durationLabel = durationValue ?? '—'
+                                                const plural = durationValue === 1 ? '' : 's'
+                                                return `Based on ${durationLabel} month${plural} contract.`
+                                              })()}
+                                            </p>
+                                          </div>
+                                          <div className="mt-4 text-sm text-slate-700">
+                                            <span className="font-medium">USD:</span>{' '}
+                                            {acidTestKpiMetrics.totals.markup.usd !== null
+                                              ? formatMoney(acidTestKpiMetrics.totals.markup.usd, 'USD')
+                                              : '—'}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
 
                                   {/* Rate Comparison Section */}
                                   {/* <div className="grid gap-6 lg:grid-cols-2">
