@@ -10,9 +10,9 @@ import {
 import { convertCurrency } from "@/lib/currency-converter"
 import { getDefaultLocalOfficeInfo, getLocalOfficeData, hasLocalOfficeData } from "@/lib/shared/utils/localOfficeData"
 
-const initialLocalOfficeInfo: LocalOfficeInfo = getDefaultLocalOfficeInfo()
+const createInitialLocalOfficeInfo = (): LocalOfficeInfo => getDefaultLocalOfficeInfo()
 
-const initialFormData: EORFormData = {
+const initialFormDataBase = {
   employeeName: "",
   jobTitle: "",
   workVisaRequired: false,
@@ -22,7 +22,7 @@ const initialFormData: EORFormData = {
   isCurrencyManuallySet: false,
   originalCurrency: null,
   clientName: "",
-  clientType: "new",
+  clientType: "new" as const,
   clientCountry: "",
   clientCurrency: "",
   baseSalary: "",
@@ -31,16 +31,16 @@ const initialFormData: EORFormData = {
   hoursPerDay: "",
   daysPerWeek: "",
   startDate: "",
-  employmentType: "full-time",
-  quoteType: "all-inclusive",
+  employmentType: "full-time" as const,
+  quoteType: "all-inclusive" as const,
   contractDuration: "12",
-  contractDurationUnit: "months",
+  contractDurationUnit: "months" as const,
   enableComparison: false,
   compareCountry: "",
   compareState: "",
   compareCurrency: "",
   compareSalary: "",
-  currentStep: "form",
+  currentStep: "form" as const,
   showProviderComparison: false,
   showOptionalEmployeeData: false,
   showBenefits: false,
@@ -48,8 +48,39 @@ const initialFormData: EORFormData = {
     healthcare: undefined,
     pension: undefined,
     life_insurance: undefined,
-  },
-  localOfficeInfo: initialLocalOfficeInfo,
+  } as EORFormData['selectedBenefits'],
+}
+
+const initialFormData: EORFormData = {
+  ...initialFormDataBase,
+  localOfficeInfo: createInitialLocalOfficeInfo(),
+  compareLocalOfficeInfo: createInitialLocalOfficeInfo(),
+}
+
+const normalizeLocalOfficeInfo = (info?: LocalOfficeInfo | null): LocalOfficeInfo => {
+  const defaults = getDefaultLocalOfficeInfo()
+  if (!info) return defaults
+  return {
+    ...defaults,
+    ...info,
+  }
+}
+
+const normalizeFormData = (data: Partial<EORFormData> | null | undefined): EORFormData => {
+  if (!data) {
+    return {
+      ...initialFormData,
+      localOfficeInfo: createInitialLocalOfficeInfo(),
+      compareLocalOfficeInfo: createInitialLocalOfficeInfo(),
+    }
+  }
+
+  return {
+    ...initialFormData,
+    ...data,
+    localOfficeInfo: normalizeLocalOfficeInfo(data.localOfficeInfo as LocalOfficeInfo | undefined),
+    compareLocalOfficeInfo: normalizeLocalOfficeInfo((data as EORFormData).compareLocalOfficeInfo),
+  }
 }
 
 const initialValidationErrors: ValidationErrors = {
@@ -73,7 +104,7 @@ export const useEORForm = () => {
           const parsed = JSON.parse(saved)
           // Basic expiry check (24 hours)
           if (parsed.timestamp && Date.now() - parsed.timestamp < STORAGE_EXPIRY_HOURS * 60 * 60 * 1000) {
-            return parsed.data
+            return normalizeFormData(parsed.data as Partial<EORFormData>)
           }
         }
       } catch (error) {
@@ -97,11 +128,12 @@ export const useEORForm = () => {
             setFormData((prev) => {
               // Avoid needless rerender if same reference/shape
               try {
+                const nextData = normalizeFormData(parsed.data as Partial<EORFormData>)
                 const prevJson = JSON.stringify(prev)
-                const nextJson = JSON.stringify(parsed.data)
-                return prevJson === nextJson ? prev : parsed.data
+                const nextJson = JSON.stringify(nextData)
+                return prevJson === nextJson ? prev : nextData
               } catch {
-                return parsed.data
+                return normalizeFormData(parsed.data as Partial<EORFormData>)
               }
             })
           }
@@ -230,6 +262,9 @@ export const useEORForm = () => {
   const clearAllData = useCallback(() => {
     setFormData(initialFormData)
     setValidationErrors(initialValidationErrors)
+    setCurrency("")
+    setClientCurrency("")
+    setCompareCurrency("")
     clearStoredData()
   }, [clearStoredData])
 
@@ -250,7 +285,7 @@ export const useEORForm = () => {
     }))
   }, [])
 
-  const updateLocalOfficeInfo = useCallback((updates: Partial<LocalOfficeInfo>) => {
+  const updatePrimaryLocalOfficeInfo = useCallback((updates: Partial<LocalOfficeInfo>) => {
     setFormData((prev) => ({
       ...prev,
       localOfficeInfo: {
@@ -260,18 +295,41 @@ export const useEORForm = () => {
     }))
   }, [])
 
-  const clearLocalOfficeInfo = useCallback(() => {
+  const updateComparisonLocalOfficeInfo = useCallback((updates: Partial<LocalOfficeInfo>) => {
     setFormData((prev) => ({
       ...prev,
-      localOfficeInfo: getDefaultLocalOfficeInfo(),
+      compareLocalOfficeInfo: {
+        ...prev.compareLocalOfficeInfo,
+        ...updates,
+      },
     }))
   }, [])
 
+  const clearComparisonLocalOfficeInfo = useCallback(() => {
+    setFormData((prev) => ({
+      ...prev,
+      compareLocalOfficeInfo: getDefaultLocalOfficeInfo(),
+      compareCurrency: '',
+      compareSalary: '',
+    }))
+    setCompareCurrency('')
+  }, [])
+
   const handleCompareCountryChange = useCallback((value: string) => {
+    const countryData = value ? getCountryByName(value) : null
+    const normalizedCode = countryData?.code || ''
+    const localOfficeDefaults = getLocalOfficeData(normalizedCode)
+    const defaultCurrency = value ? getCurrencyForCountry(normalizedCode) : ''
+
     setFormData((prev) => ({
       ...prev,
       compareCountry: value,
+      compareState: '',
+      compareCurrency: defaultCurrency,
+      compareSalary: '',
+      compareLocalOfficeInfo: localOfficeDefaults ? { ...localOfficeDefaults } : getDefaultLocalOfficeInfo(),
     }))
+    setCompareCurrency(defaultCurrency)
   }, [])
 
   const handleCountryChange = useCallback((country: string) => {
@@ -296,16 +354,35 @@ export const useEORForm = () => {
 
     const isBespoke = !!normalizedCode && hasLocalOfficeData(normalizedCode)
 
+  if (!isBespoke && needsDefault) {
+    const defaults = getLocalOfficeData(normalizedCode)
+    setFormData((prev) => ({
+      ...prev,
+      localOfficeInfo: {
+        ...defaults,
+      },
+    }))
+  }
+}, [formData.country, formData.localOfficeInfo?.monthlyPaymentsToLocalOffice, selectedCountryData?.code])
+
+  useEffect(() => {
+    if (!formData.compareCountry) return
+    const normalizedCode = compareCountryData?.code || ''
+    const currentMonthly = formData.compareLocalOfficeInfo?.monthlyPaymentsToLocalOffice || ''
+    const needsDefault = !currentMonthly.trim() || currentMonthly.trim().toUpperCase() === 'N/A'
+
+    const isBespoke = !!normalizedCode && hasLocalOfficeData(normalizedCode)
+
     if (!isBespoke && needsDefault) {
       const defaults = getLocalOfficeData(normalizedCode)
       setFormData((prev) => ({
         ...prev,
-        localOfficeInfo: {
+        compareLocalOfficeInfo: {
           ...defaults,
         },
       }))
     }
-  }, [formData.country, formData.localOfficeInfo?.monthlyPaymentsToLocalOffice, selectedCountryData?.code])
+  }, [formData.compareCountry, formData.compareLocalOfficeInfo?.monthlyPaymentsToLocalOffice, compareCountryData?.code])
 
   
 
@@ -446,8 +523,9 @@ export const useEORForm = () => {
     isFormValid,
     updateBenefitSelection,
     clearBenefitsSelection,
-    updateLocalOfficeInfo,
-    clearLocalOfficeInfo,
+    updatePrimaryLocalOfficeInfo,
+    updateComparisonLocalOfficeInfo,
+    clearComparisonLocalOfficeInfo,
     overrideCurrency,
     resetToDefaultCurrency,
     handleCompareCountryChange,

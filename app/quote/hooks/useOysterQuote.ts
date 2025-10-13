@@ -14,17 +14,25 @@ export const useOysterQuote = () => {
     try {
       const withDefaults = ensureFormDefaults(formData)
       const request = createQuoteRequestData(withDefaults)
-      const response = await fetchOysterCost(request)
-      setRawQuote('oyster', response)
-
-      let optimized: OysterQuote = transformToOysterQuote(response)
-      const display: Quote = transformOysterResponseToQuote(response)
+      let optimized: OysterQuote | null = null
+      let display: Quote | null = null
+      let primaryError: Error | null = null
+      try {
+        const response = await fetchOysterCost(request)
+        setRawQuote('oyster', response)
+        optimized = transformToOysterQuote(response)
+        display = transformOysterResponseToQuote(response)
+      } catch (err) {
+        primaryError = err instanceof Error ? err : new Error(String(err))
+        console.error('Oyster primary quote failed:', primaryError)
+      }
 
       // Dual currency handling
       let localCurrencyQuote: Quote | null = null
       let compareSelectedCurrencyQuote: Quote | null = null
       let comparisonQuote: Quote | null = null
       let comparisonOptimized: OysterQuote | null = null
+      let comparisonError: Error | null = null
 
       if (withDefaults.enableComparison && withDefaults.compareCountry) {
         try {
@@ -62,7 +70,8 @@ export const useOysterQuote = () => {
             }
           }
         } catch (e) {
-          console.warn('Oyster comparison fetch failed', e)
+          comparisonError = e instanceof Error ? e : new Error(String(e))
+          console.warn('Oyster comparison fetch failed', comparisonError)
         }
       }
 
@@ -78,7 +87,7 @@ export const useOysterQuote = () => {
         }
       }
 
-      const dualCurrencyQuotes = localCurrencyQuote ? {
+      const dualCurrencyQuotes = localCurrencyQuote && display ? {
         ...data.dualCurrencyQuotes,
         oyster: {
           selectedCurrencyQuote: display,
@@ -94,10 +103,30 @@ export const useOysterQuote = () => {
         }
       } : data.dualCurrencyQuotes
 
+      if (!optimized && !comparisonOptimized && !localCurrencyQuote && !(data.dualCurrencyQuotes?.oyster)) {
+        const fatalError = primaryError || comparisonError || new Error('Oyster quote unavailable')
+        setError(fatalError.message)
+        throw fatalError
+      }
+
+      if (comparisonOptimized) {
+        setError(null)
+      } else if (primaryError && !optimized) {
+        setError(primaryError.message)
+      } else if (comparisonError && !comparisonOptimized) {
+        setError(comparisonError.message)
+      } else {
+        setError(null)
+      }
+
       return {
         ...data,
         formData: withDefaults,
-        quotes: { ...data.quotes, oyster: optimized, comparisonOyster: comparisonOptimized || undefined },
+        quotes: {
+          ...data.quotes,
+          ...(optimized ? { oyster: optimized } : {}),
+          ...(comparisonOptimized ? { comparisonOyster: comparisonOptimized } : {}),
+        },
         dualCurrencyQuotes,
         status: 'completed',
       }

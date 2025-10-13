@@ -16,17 +16,25 @@ export const useRipplingQuote = () => {
       const withDefaults = ensureFormDefaults(formData);
       const request = createQuoteRequestData(withDefaults);
 
-      const response = await fetchRipplingCost(request);
-      setRawQuote('rippling', response);
-      let display: Quote = transformRipplingResponseToQuote(response);
-      // Patch missing context fields (country, currency) from form
-      display.country = withDefaults.country;
-      display.country_code = getCountryByName(withDefaults.country)?.code || '';
-      display.currency = withDefaults.currency;
+      let display: Quote | null = null;
+      let primaryError: Error | null = null;
+      try {
+        const response = await fetchRipplingCost(request);
+        setRawQuote('rippling', response);
+        display = transformRipplingResponseToQuote(response);
+        // Patch missing context fields (country, currency) from form
+        display.country = withDefaults.country;
+        display.country_code = getCountryByName(withDefaults.country)?.code || '';
+        display.currency = withDefaults.currency;
+      } catch (err) {
+        primaryError = err instanceof Error ? err : new Error(String(err));
+        console.error('Rippling primary quote failed:', primaryError);
+      }
 
       // Comparison support
       let comparisonQuote: Quote | undefined;
       let compareSelectedCurrencyQuote: Quote | null = null;
+      let comparisonError: Error | null = null;
       if (withDefaults.enableComparison && withDefaults.compareCountry) {
         try {
           const compareReq = createQuoteRequestData(withDefaults, true);
@@ -70,7 +78,8 @@ export const useRipplingQuote = () => {
             }
           }
         } catch (e) {
-          console.warn('Rippling comparison fetch failed', e);
+          comparisonError = e instanceof Error ? e : new Error(String(e));
+          console.warn('Rippling comparison fetch failed', comparisonError);
         }
       }
 
@@ -92,7 +101,7 @@ export const useRipplingQuote = () => {
         }
       }
 
-      const dualCurrencyQuotes = localCurrencyQuote ? {
+      const dualCurrencyQuotes = localCurrencyQuote && display ? {
         ...data.dualCurrencyQuotes,
         rippling: {
           selectedCurrencyQuote: display,
@@ -108,10 +117,30 @@ export const useRipplingQuote = () => {
         }
       } : data.dualCurrencyQuotes
 
+      if (!display && !comparisonQuote && !localCurrencyQuote && !(data.dualCurrencyQuotes?.rippling)) {
+        const fatalError = primaryError || comparisonError || new Error('Rippling quote unavailable');
+        setError(fatalError.message);
+        throw fatalError;
+      }
+
+      if (comparisonQuote) {
+        setError(null);
+      } else if (primaryError && !display) {
+        setError(primaryError.message);
+      } else if (comparisonError && !comparisonQuote) {
+        setError(comparisonError.message);
+      } else {
+        setError(null);
+      }
+
       return {
         ...data,
         formData: withDefaults,
-        quotes: { ...data.quotes, rippling: display, comparisonRippling: comparisonQuote },
+        quotes: {
+          ...data.quotes,
+          ...(display ? { rippling: display } : {}),
+          ...(comparisonQuote ? { comparisonRippling: comparisonQuote } : {}),
+        },
         dualCurrencyQuotes,
         status: 'completed',
       }

@@ -23,6 +23,7 @@ interface CountryComparisonFormProps {
   onMarkAsManuallyEdited: () => void
   onClearConversionData: () => void
   onCompareCountryChange: (value: string) => void
+  onClearComparisonLocalOffice: () => void
 }
 
 export const CountryComparisonForm = memo(({
@@ -39,6 +40,7 @@ export const CountryComparisonForm = memo(({
   onMarkAsManuallyEdited,
   onClearConversionData,
   onCompareCountryChange,
+  onClearComparisonLocalOffice,
 }: CountryComparisonFormProps) => {
   const comparisonCountryOptions = useMemo(() => 
     countries
@@ -83,6 +85,7 @@ export const CountryComparisonForm = memo(({
                 compareSalary: "",
               })
               onClearConversionData()
+              onClearComparisonLocalOffice()
             }}
             className="h-5 w-5"
           />

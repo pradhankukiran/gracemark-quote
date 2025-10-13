@@ -22,6 +22,7 @@ interface UseLocalOfficeConversionProps {
   formCurrency: string
   isCurrencyManuallySet: boolean
   originalCurrency?: string | null
+  scopeId?: string
 }
 
 export const useLocalOfficeConversion = ({
@@ -30,6 +31,7 @@ export const useLocalOfficeConversion = ({
   formCurrency,
   isCurrencyManuallySet,
   originalCurrency,
+  scopeId = 'primary',
 }: UseLocalOfficeConversionProps): UseLocalOfficeConversionResult => {
   const [convertedLocalOffice, setConvertedLocalOffice] = useState<ConvertedLocalOfficeData>({})
   const [isConvertingLocalOffice, setIsConvertingLocalOffice] = useState(false)
@@ -40,8 +42,8 @@ export const useLocalOfficeConversion = ({
   // Create stable conversion key from primitive values only
   const conversionKey = useMemo(() => {
     if (!countryCode || !formCurrency) return ''
-    return `${countryCode}-${formCurrency}-${isCurrencyManuallySet}`
-  }, [countryCode, formCurrency, isCurrencyManuallySet])
+    return `${scopeId}:${countryCode}-${formCurrency}-${isCurrencyManuallySet}`
+  }, [countryCode, formCurrency, isCurrencyManuallySet, scopeId])
 
   // Convert local office data when currency is overridden or when country changes
   useEffect(() => {
@@ -218,7 +220,7 @@ export const useLocalOfficeConversion = ({
         clearTimeout(conversionTimeoutRef.current)
       }
     }
-  }, [conversionKey, originalData, countryCode, originalCurrency, formCurrency])
+  }, [conversionKey, originalData, countryCode, originalCurrency, formCurrency, scopeId])
 
   const isLocalOfficeReady = !isConvertingLocalOffice
 
@@ -229,13 +231,4 @@ export const useLocalOfficeConversion = ({
     conversionKey,
     convertedForKey,
   }
-}
-
-// Helper to read converted values without overriding existing form input
-export const getConvertedLocalOfficeValue = (
-  field: keyof LocalOfficeInfo,
-  convertedData: ConvertedLocalOfficeData,
-  originalData: LocalOfficeInfo | null
-): string => {
-  return convertedData[field] || ""
 }

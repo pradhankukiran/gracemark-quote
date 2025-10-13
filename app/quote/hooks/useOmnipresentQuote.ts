@@ -25,21 +25,29 @@ export const useOmnipresentQuote = () => {
       const withDefaults = ensureFormDefaults(formData)
       const request = createQuoteRequestData(withDefaults)
 
-      const response = await fetchOmnipresentCost(request)
-      setRawQuote('omnipresent', response)
+      let primaryQuote: Quote | null = null
+      let primaryError: Error | null = null
+      try {
+        const response = await fetchOmnipresentCost(request)
+        setRawQuote('omnipresent', response)
 
-      const display = transformOmnipresentResponseToQuote(response)
-      const countryInfo = getCountryByName(withDefaults.country)
-      let primaryQuote: Quote = applyContextFallbacks(
-        display,
-        withDefaults.country,
-        countryInfo?.code || '',
-        withDefaults.currency
-      )
+        const display = transformOmnipresentResponseToQuote(response)
+        const countryInfo = getCountryByName(withDefaults.country)
+        primaryQuote = applyContextFallbacks(
+          display,
+          withDefaults.country,
+          countryInfo?.code || '',
+          withDefaults.currency
+        )
+      } catch (err) {
+        primaryError = err instanceof Error ? err : new Error(String(err))
+        console.error('Omnipresent primary quote failed:', primaryError)
+      }
 
       let comparisonQuote: Quote | undefined
       let compareSelectedCurrencyQuote: Quote | null = null
 
+      let comparisonError: Error | null = null
       if (withDefaults.enableComparison && withDefaults.compareCountry) {
         try {
           const compareReq = createQuoteRequestData(withDefaults, true)
@@ -86,7 +94,8 @@ export const useOmnipresentQuote = () => {
             }
           }
         } catch (err) {
-          console.warn('Omnipresent comparison fetch failed', err)
+          comparisonError = err instanceof Error ? err : new Error(String(err))
+          console.warn('Omnipresent comparison fetch failed', comparisonError)
         }
       }
 
@@ -117,7 +126,7 @@ export const useOmnipresentQuote = () => {
         }
       }
 
-      const dualCurrencyQuotes = localCurrencyQuote ? {
+      const dualCurrencyQuotes = localCurrencyQuote && primaryQuote ? {
         ...data.dualCurrencyQuotes,
         omnipresent: {
           selectedCurrencyQuote: primaryQuote,
@@ -133,10 +142,30 @@ export const useOmnipresentQuote = () => {
         }
       } : data.dualCurrencyQuotes
 
+      if (!primaryQuote && !comparisonQuote && !localCurrencyQuote && !(data.dualCurrencyQuotes?.omnipresent)) {
+        const fatalError = primaryError || comparisonError || new Error('Omnipresent quote unavailable')
+        setError(fatalError.message)
+        throw fatalError
+      }
+
+      if (comparisonQuote) {
+        setError(null)
+      } else if (primaryError && !primaryQuote) {
+        setError(primaryError.message)
+      } else if (comparisonError && !comparisonQuote) {
+        setError(comparisonError.message)
+      } else {
+        setError(null)
+      }
+
       return {
         ...data,
         formData: withDefaults,
-        quotes: { ...data.quotes, omnipresent: primaryQuote, comparisonOmnipresent: comparisonQuote },
+        quotes: {
+          ...data.quotes,
+          ...(primaryQuote ? { omnipresent: primaryQuote } : {}),
+          ...(comparisonQuote ? { comparisonOmnipresent: comparisonQuote } : {}),
+        },
         dualCurrencyQuotes,
         status: 'completed',
       }

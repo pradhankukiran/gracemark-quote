@@ -15,16 +15,24 @@ export const useVelocityQuote = () => {
       const withDefaults = ensureFormDefaults(formData)
       const request = createQuoteRequestData(withDefaults)
 
-      const response = await fetchVelocityGlobalCost(request)
-      setRawQuote('velocity', response)
-      let display: Quote = transformVelocityResponseToQuote(response)
+      let display: Quote | null = null
+      let primaryError: Error | null = null
+      try {
+        const response = await fetchVelocityGlobalCost(request)
+        setRawQuote('velocity', response)
+        display = transformVelocityResponseToQuote(response)
 
-      // Set context for UI consistency
-      display.currency = withDefaults.currency
-      display.country = withDefaults.country || display.country
+        // Set context for UI consistency
+        display.currency = withDefaults.currency
+        display.country = withDefaults.country || display.country
+      } catch (err) {
+        primaryError = err instanceof Error ? err : new Error(String(err))
+        console.error('Velocity Global primary quote failed:', primaryError)
+      }
 
       let comparisonQuote: Quote | undefined
       let compareSelectedCurrencyQuote: Quote | null = null
+      let comparisonError: Error | null = null
       if (withDefaults.enableComparison && withDefaults.compareCountry) {
         try {
           const compareReq = createQuoteRequestData(withDefaults, true)
@@ -62,7 +70,8 @@ export const useVelocityQuote = () => {
             }
           }
         } catch (e) {
-          console.warn('Velocity Global comparison fetch failed', e)
+          comparisonError = e instanceof Error ? e : new Error(String(e))
+          console.warn('Velocity Global comparison fetch failed', comparisonError)
         }
       }
 
@@ -83,7 +92,7 @@ export const useVelocityQuote = () => {
         }
       }
 
-      const dualCurrencyQuotes = localCurrencyQuote ? {
+      const dualCurrencyQuotes = localCurrencyQuote && display ? {
         ...data.dualCurrencyQuotes,
         velocity: {
           selectedCurrencyQuote: display,
@@ -98,10 +107,30 @@ export const useVelocityQuote = () => {
           hasComparison: Boolean(comparisonQuote && compareSelectedCurrencyQuote),
         }
       } : data.dualCurrencyQuotes
+      if (!display && !comparisonQuote && !localCurrencyQuote && !(data.dualCurrencyQuotes?.velocity)) {
+        const fatalError = primaryError || comparisonError || new Error('Velocity quote unavailable')
+        setError(fatalError.message)
+        throw fatalError
+      }
+
+      if (comparisonQuote) {
+        setError(null)
+      } else if (primaryError && !display) {
+        setError(primaryError.message)
+      } else if (comparisonError && !comparisonQuote) {
+        setError(comparisonError.message)
+      } else {
+        setError(null)
+      }
+
       return {
         ...data,
         formData: withDefaults,
-        quotes: { ...data.quotes, velocity: display, comparisonVelocity: comparisonQuote },
+        quotes: {
+          ...data.quotes,
+          ...(display ? { velocity: display } : {}),
+          ...(comparisonQuote ? { comparisonVelocity: comparisonQuote } : {}),
+        },
         dualCurrencyQuotes,
         status: 'completed',
       }

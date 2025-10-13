@@ -178,22 +178,31 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     }
 
     // First check: does quote data exist at all?
-    if (!providerQuote) {
-      return false;
+    if (providerQuote) {
+      if (isValidProviderQuote(provider, providerQuote)) {
+        return true;
+      }
     }
 
-    // Second check: is the quote structure valid for this provider? (flexible validation)
-    const isValid = isValidProviderQuote(provider, providerQuote);
-    if (!isValid) {
-      console.warn(`❌ ${provider} quote structure invalid:`, {
-        quote: providerQuote,
-        keys: typeof providerQuote === 'object' ? Object.keys(providerQuote) : 'N/A'
-      });
-      return false;
+    // Fall back to comparison quote when primary is unavailable but comparison exists
+    const comparisonMap: Partial<Record<Provider, unknown>> = {
+      deel: data.quotes.comparisonDeel,
+      remote: data.quotes.comparisonRemote,
+      rivermate: data.quotes.comparisonRivermate,
+      oyster: data.quotes.comparisonOyster,
+      rippling: (data.quotes as any).comparisonRippling,
+      skuad: (data.quotes as any).comparisonSkuad,
+      velocity: (data.quotes as any).comparisonVelocity,
+      playroll: (data.quotes as any).comparisonPlayroll,
+      omnipresent: (data.quotes as any).comparisonOmnipresent,
     }
 
-    // console.log(`✅ ${provider} has valid base quote data`);
-    return true;
+    const comparisonQuote = comparisonMap[provider]
+    if (comparisonQuote && isValidProviderQuote(provider, comparisonQuote)) {
+      return true
+    }
+
+    return false;
   }, [isValidProviderQuote]);
 
   // Helper: check if provider has VALID comparison quote data
@@ -1106,21 +1115,21 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
               let result: QuoteData | undefined
               switch (provider) {
                 case 'remote':
-                  result = await calculateRemoteQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                  result = await calculateRemoteQuote(form, baseData); break
                 case 'rivermate':
-                  result = await calculateRivermateQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                  result = await calculateRivermateQuote(form, baseData); break
                 case 'oyster':
-                  result = await calculateOysterQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                  result = await calculateOysterQuote(form, baseData); break
                 case 'rippling':
-                  result = await calculateRipplingQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                  result = await calculateRipplingQuote(form, baseData); break
                 case 'skuad':
-                  result = await calculateSkuadQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                  result = await calculateSkuadQuote(form, baseData); break
                 case 'velocity':
-                  result = await calculateVelocityQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                  result = await calculateVelocityQuote(form, baseData); break
                 case 'playroll':
-                  result = await calculatePlayrollQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                  result = await calculatePlayrollQuote(form, baseData); break
                 case 'omnipresent':
-                  result = await calculateOmnipresentQuote({ ...form, enableComparison: false } as EORFormData, baseData); break
+                  result = await calculateOmnipresentQuote(form, baseData); break
                 default:
                   return
               }
@@ -1129,46 +1138,57 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
                 const providerQuoteData = (result.quotes as Record<string, unknown>)[provider]
                 const isValid = isValidProviderQuote(provider, providerQuoteData)
 
-                if (isValid) {
+                const comparisonAvailable = hasComparisonData(provider, result)
+
+                if (isValid || comparisonAvailable) {
                   mergeAndPersist(result)
 
-                  if (!enhancementEnqueuedRef.current[provider] && !enhancementInFlightRef.current[provider]) {
-                    void scheduleEnhancement(provider, providerQuoteData, result.formData as EORFormData)
+                  if (isValid) {
+                    if (!enhancementEnqueuedRef.current[provider] && !enhancementInFlightRef.current[provider]) {
+                      void scheduleEnhancement(provider, providerQuoteData, result.formData as EORFormData)
+                    }
+                  } else {
+                    updateProviderState(provider, { status: 'active', hasData: true })
                   }
 
-                  compareInFlightRef.current[provider] = true
-                  ;(async () => {
-                    try {
-                      let compRes: QuoteData | undefined
-                      switch (provider) {
-                        case 'remote': compRes = await calculateRemoteQuote(form, (quoteData || data) as QuoteData); break
-                        case 'rivermate': compRes = await calculateRivermateQuote(form, (quoteData || data) as QuoteData); break
-                        case 'oyster': compRes = await calculateOysterQuote(form, (quoteData || data) as QuoteData); break
-                        case 'rippling': compRes = await calculateRipplingQuote(form, (quoteData || data) as QuoteData); break
-                        case 'skuad': compRes = await calculateSkuadQuote(form, (quoteData || data) as QuoteData); break
-                        case 'velocity': compRes = await calculateVelocityQuote(form, (quoteData || data) as QuoteData); break
-                        case 'playroll': compRes = await calculatePlayrollQuote(form, (quoteData || data) as QuoteData); break
-                        case 'omnipresent': compRes = await calculateOmnipresentQuote(form, (quoteData || data) as QuoteData); break
+                  if (!comparisonAvailable && form.enableComparison && form.compareCountry) {
+                    compareInFlightRef.current[provider] = true
+                    ;(async () => {
+                      try {
+                        let compRes: QuoteData | undefined
+                        switch (provider) {
+                          case 'remote': compRes = await calculateRemoteQuote(form, (quoteData || data) as QuoteData); break
+                          case 'rivermate': compRes = await calculateRivermateQuote(form, (quoteData || data) as QuoteData); break
+                          case 'oyster': compRes = await calculateOysterQuote(form, (quoteData || data) as QuoteData); break
+                          case 'rippling': compRes = await calculateRipplingQuote(form, (quoteData || data) as QuoteData); break
+                          case 'skuad': compRes = await calculateSkuadQuote(form, (quoteData || data) as QuoteData); break
+                          case 'velocity': compRes = await calculateVelocityQuote(form, (quoteData || data) as QuoteData); break
+                          case 'playroll': compRes = await calculatePlayrollQuote(form, (quoteData || data) as QuoteData); break
+                          case 'omnipresent': compRes = await calculateOmnipresentQuote(form, (quoteData || data) as QuoteData); break
+                        }
+                        if (compRes) {
+                          mergeAndPersist(compRes)
+                          setQuoteData(currentData => {
+                            if (!currentData || !compRes) return currentData
+                            const isReady = isComparisonReady(provider, compRes)
+                            const isDualReady = isDualCurrencyComparisonReady(provider, compRes)
+                            if (isReady && isDualReady) {
+                              comparisonCompleteRef.current[provider] = true
+                              dualCurrencyCompleteRef.current[provider] = true
+                              updateProviderState(provider, { status: 'loading-enhanced', hasData: true })
+                            }
+                            return currentData
+                          })
+                        }
+                      } catch { /* noop */ }
+                      finally {
+                        compareInFlightRef.current[provider] = false
                       }
-                      if (compRes) {
-                        mergeAndPersist(compRes)
-                        setQuoteData(currentData => {
-                          if (!currentData || !compRes) return currentData
-                          const isReady = isComparisonReady(provider, compRes)
-                          const isDualReady = isDualCurrencyComparisonReady(provider, compRes)
-                          if (isReady && isDualReady) {
-                            comparisonCompleteRef.current[provider] = true
-                            dualCurrencyCompleteRef.current[provider] = true
-                            updateProviderState(provider, { status: 'loading-enhanced', hasData: true })
-                          }
-                          return currentData
-                        })
-                      }
-                    } catch { /* noop */ }
-                    finally {
-                      compareInFlightRef.current[provider] = false
-                    }
-                  })()
+                    })()
+                  } else if (comparisonAvailable) {
+                    comparisonCompleteRef.current[provider] = true
+                    updateProviderState(provider, { status: 'active', hasData: true })
+                  }
                 } else {
                   console.warn(`❌ ${provider} parallel quote validation failed - invalid structure`)
                   updateProviderState(provider, {
@@ -1583,7 +1603,13 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         if (!compareQuote) return;
 
         // Trigger comparison enhancement using comparison country
-        const compareForm: EORFormData = { ...form, country: form.compareCountry || form.country } as EORFormData;
+        const compareForm: EORFormData = {
+          ...form,
+          country: form.compareCountry || form.country,
+          state: form.compareState || form.state,
+          currency: form.compareCurrency || form.currency,
+          localOfficeInfo: (form as EORFormData).compareLocalOfficeInfo || form.localOfficeInfo,
+        } as EORFormData;
         void enhanceQuote(provider as any, compareQuote, compareForm, (form.quoteType as any) || 'all-inclusive', { key: compareKey });
       } catch { /* noop */ }
     });

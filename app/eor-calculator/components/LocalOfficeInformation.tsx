@@ -6,7 +6,7 @@ import { LocalOfficeInfo } from "@/lib/shared/types"
 import { FormSectionHeader } from "./shared/FormSectionHeader"
 import { FORM_STYLES } from "../styles/constants"
 import { getOriginalLocalOfficeData } from "@/lib/shared/utils/localOfficeData"
-import { useLocalOfficeConversion, getConvertedLocalOfficeValue } from "../hooks/useLocalOfficeConversion"
+import { useLocalOfficeConversion } from "../hooks/useLocalOfficeConversion"
 // import { LoadingSpinner } from "./shared/LoadingSpinner" // Unused
 
 interface LocalOfficeInformationProps {
@@ -17,6 +17,8 @@ interface LocalOfficeInformationProps {
   onLocalOfficeUpdate: (updates: Partial<LocalOfficeInfo>) => void
   onConversionStatusChange?: (isConverting: boolean) => void
   countryCode?: string
+  title?: string
+  scopeId?: string
 }
 
 export const LocalOfficeInformation = memo(({
@@ -27,6 +29,8 @@ export const LocalOfficeInformation = memo(({
   onLocalOfficeUpdate,
   onConversionStatusChange,
   countryCode,
+  title,
+  scopeId = 'primary',
 }: LocalOfficeInformationProps) => {
   // Memoize originalData to prevent recreating the object on every render
   const originalData = useMemo(() =>
@@ -45,6 +49,7 @@ export const LocalOfficeInformation = memo(({
     formCurrency: currency,
     isCurrencyManuallySet: isCurrencyManuallySet,
     originalCurrency: originalCurrency,
+    scopeId,
   })
 
   // Notify parent of conversion status changes
@@ -98,6 +103,8 @@ export const LocalOfficeInformation = memo(({
     return currency
   }
 
+  const domId = (field: keyof LocalOfficeInfo) => `${scopeId}-${field}`
+
   const getDisplayValue = (field: keyof LocalOfficeInfo) => {
     // Show form state value (which includes converted values after update)
     const formValue = localOfficeInfo[field]
@@ -127,17 +134,17 @@ export const LocalOfficeInformation = memo(({
 
   return (
     <div>
-      <FormSectionHeader icon={Building2} title="Local Office Information" />
+      <FormSectionHeader icon={Building2} title={title || "Local Office Information"} />
       <div className={FORM_STYLES.GRID_3_COL}>
         <div className="space-y-2">
           <Label
-            htmlFor="mealVoucher"
+            htmlFor={domId('mealVoucher')}
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
             Meal Voucher ({getDisplayCurrency()})
           </Label>
           <Input
-            id="mealVoucher"
+            id={domId('mealVoucher')}
             value={getDisplayValue('mealVoucher')}
             onChange={(e) => handleFieldUpdate('mealVoucher', e.target.value)}
             placeholder={getPlaceholder('mealVoucher')}
@@ -152,13 +159,13 @@ export const LocalOfficeInformation = memo(({
 
         <div className="space-y-2">
           <Label
-            htmlFor="transportation"
+            htmlFor={domId('transportation')}
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
             Transportation ({getDisplayCurrency()})
           </Label>
           <Input
-            id="transportation"
+            id={domId('transportation')}
             value={getDisplayValue('transportation')}
             onChange={(e) => handleFieldUpdate('transportation', e.target.value)}
             placeholder={getPlaceholder('transportation')}
@@ -173,13 +180,13 @@ export const LocalOfficeInformation = memo(({
 
         <div className="space-y-2">
           <Label
-            htmlFor="wfh"
+            htmlFor={domId('wfh')}
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
             WFH ({getDisplayCurrency()})
           </Label>
           <Input
-            id="wfh"
+            id={domId('wfh')}
             value={getDisplayValue('wfh')}
             onChange={(e) => handleFieldUpdate('wfh', e.target.value)}
             placeholder={getPlaceholder('wfh')}
@@ -196,13 +203,13 @@ export const LocalOfficeInformation = memo(({
       <div className="grid md:grid-cols-3 gap-4 mb-6">
         <div className="space-y-2">
           <Label
-            htmlFor="healthInsurance"
+            htmlFor={domId('healthInsurance')}
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
             Health Insurance ({getDisplayCurrency()})
           </Label>
           <Input
-            id="healthInsurance"
+            id={domId('healthInsurance')}
             value={getDisplayValue('healthInsurance')}
             onChange={(e) => handleFieldUpdate('healthInsurance', e.target.value)}
             placeholder={getPlaceholder('healthInsurance')}
@@ -217,13 +224,13 @@ export const LocalOfficeInformation = memo(({
 
         <div className="space-y-2">
           <Label
-            htmlFor="monthlyPaymentsToLocalOffice"
+            htmlFor={domId('monthlyPaymentsToLocalOffice')}
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
             Monthly Payments to Local Office ({getDisplayCurrency()})
           </Label>
           <Input
-            id="monthlyPaymentsToLocalOffice"
+            id={domId('monthlyPaymentsToLocalOffice')}
             value={getDisplayValue('monthlyPaymentsToLocalOffice')}
             onChange={(e) => handleFieldUpdate('monthlyPaymentsToLocalOffice', e.target.value)}
             placeholder={getPlaceholder('monthlyPaymentsToLocalOffice')}
@@ -238,13 +245,13 @@ export const LocalOfficeInformation = memo(({
 
         <div className="space-y-2">
           <Label
-            htmlFor="vat"
+            htmlFor={domId('vat')}
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
             VAT (%)
           </Label>
           <Input
-            id="vat"
+            id={domId('vat')}
             value={getDisplayValue('vat')}
             onChange={(e) => handleFieldUpdate('vat', e.target.value)}
             placeholder={getPlaceholder('vat')}
@@ -261,13 +268,13 @@ export const LocalOfficeInformation = memo(({
       <div className="grid md:grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label
-            htmlFor="preEmploymentMedicalTest"
+            htmlFor={domId('preEmploymentMedicalTest')}
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
             Pre-Employment Medical Test ({getDisplayCurrency()})
           </Label>
           <Input
-            id="preEmploymentMedicalTest"
+            id={domId('preEmploymentMedicalTest')}
             value={getDisplayValue('preEmploymentMedicalTest')}
             onChange={(e) => handleFieldUpdate('preEmploymentMedicalTest', e.target.value)}
             placeholder={getPlaceholder('preEmploymentMedicalTest')}
@@ -282,13 +289,13 @@ export const LocalOfficeInformation = memo(({
 
         <div className="space-y-2">
           <Label
-            htmlFor="drugTest"
+            htmlFor={domId('drugTest')}
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
             Drug Test ({getDisplayCurrency()})
           </Label>
           <Input
-            id="drugTest"
+            id={domId('drugTest')}
             value={getDisplayValue('drugTest')}
             onChange={(e) => handleFieldUpdate('drugTest', e.target.value)}
             placeholder={getPlaceholder('drugTest')}
@@ -303,13 +310,13 @@ export const LocalOfficeInformation = memo(({
 
         <div className="space-y-2">
           <Label
-            htmlFor="backgroundCheckViaDeel"
+            htmlFor={domId('backgroundCheckViaDeel')}
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
             Background Check via Deel ({getDisplayCurrency()})
           </Label>
           <Input
-            id="backgroundCheckViaDeel"
+            id={domId('backgroundCheckViaDeel')}
             value={getDisplayValue('backgroundCheckViaDeel')}
             onChange={(e) => handleFieldUpdate('backgroundCheckViaDeel', e.target.value)}
             placeholder={getPlaceholder('backgroundCheckViaDeel')}

@@ -62,6 +62,7 @@ export interface EORFormData {
     [key: string]: SelectedBenefit | undefined
   }
   localOfficeInfo: LocalOfficeInfo
+  compareLocalOfficeInfo: LocalOfficeInfo
 }
 
 // Quote Cost Interface

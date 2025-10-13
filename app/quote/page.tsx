@@ -5293,18 +5293,20 @@ const QuotePageContent = memo(() => {
     if (currentProvider === 'remote') {
       const comparisonReady = quoteData ? isComparisonReady('remote', quoteData) : false;
       const dualCurrencyReady = quoteData ? isDualCurrencyComparisonReady('remote', quoteData) : false;
-      const isLoadingComparison = providerLoading.remote ||
-        (eorForm.enableComparison && (!quoteData.quotes.remote || !quoteData.quotes.comparisonRemote));
-
       const providerDual = quoteData.dualCurrencyQuotes?.remote;
       const hasDualCompare = providerDual?.isDualCurrencyMode && providerDual?.hasComparison;
+      const primaryRemoteResponse = quoteData.quotes.remote as RemoteAPIResponse | undefined;
+      const comparisonRemoteResponse = quoteData.quotes.comparisonRemote as RemoteAPIResponse | undefined;
+      const primaryRemoteQuote = primaryRemoteResponse ? transformRemoteResponseToQuote(primaryRemoteResponse) : undefined;
+      const comparisonRemoteQuote = comparisonRemoteResponse ? transformRemoteResponseToQuote(comparisonRemoteResponse) : undefined;
+      const isLoadingComparison = providerLoading.remote;
 
       return (
         <div className="space-y-6">
           <QuoteComparison
             provider="remote"
-            primaryQuote={hasDualCompare ? undefined : transformRemoteResponseToQuote(quoteData.quotes.remote as RemoteAPIResponse)}
-            comparisonQuote={hasDualCompare ? undefined : transformRemoteResponseToQuote(quoteData.quotes.comparisonRemote as RemoteAPIResponse)}
+            primaryQuote={hasDualCompare ? undefined : primaryRemoteQuote}
+            comparisonQuote={hasDualCompare ? undefined : comparisonRemoteQuote}
             primaryTitle={(quoteData.formData as EORFormData).country}
             comparisonTitle={eorForm.compareCountry}
             usdConversions={usdConversions}
@@ -5323,15 +5325,16 @@ const QuotePageContent = memo(() => {
     if (currentProvider === 'rippling') {
       const comparisonReady = quoteData ? isComparisonReady('rippling', quoteData) : false;
       const dualCurrencyReady = quoteData ? isDualCurrencyComparisonReady('rippling', quoteData) : false;
-      const isLoadingComparison = providerLoading.rippling ||
-        (eorForm.enableComparison && (!quoteData.quotes.rippling || !(quoteData.quotes as any).comparisonRippling));
+      const primaryRippling = quoteData.quotes.rippling as Quote | undefined;
+      const comparisonRippling = (quoteData.quotes as any).comparisonRippling as Quote | undefined;
+      const isLoadingComparison = providerLoading.rippling;
 
       return (
         <div className="space-y-6">
           <QuoteComparison
             provider="rippling"
-            primaryQuote={quoteData.quotes.rippling as any}
-            comparisonQuote={(quoteData.quotes as any).comparisonRippling as any}
+            primaryQuote={primaryRippling as any}
+            comparisonQuote={comparisonRippling as any}
             primaryTitle={eorForm.country}
             comparisonTitle={eorForm.compareCountry}
             usdConversions={usdConversions}
@@ -5350,15 +5353,16 @@ const QuotePageContent = memo(() => {
     if (currentProvider === 'skuad') {
       const comparisonReady = quoteData ? isComparisonReady('skuad', quoteData) : false;
       const dualCurrencyReady = quoteData ? isDualCurrencyComparisonReady('skuad', quoteData) : false;
-      const isLoadingComparison = providerLoading.skuad ||
-        (eorForm.enableComparison && (!((quoteData.quotes as any).skuad) || !((quoteData.quotes as any).comparisonSkuad)));
+      const primarySkuad = (quoteData.quotes as any).skuad as Quote | undefined;
+      const comparisonSkuad = (quoteData.quotes as any).comparisonSkuad as Quote | undefined;
+      const isLoadingComparison = providerLoading.skuad;
 
       return (
         <div className="space-y-6">
           <QuoteComparison
             provider="skuad"
-            primaryQuote={(quoteData.quotes as any).skuad as any}
-            comparisonQuote={(quoteData.quotes as any).comparisonSkuad as any}
+            primaryQuote={primarySkuad as any}
+            comparisonQuote={comparisonSkuad as any}
             primaryTitle={eorForm.country}
             comparisonTitle={eorForm.compareCountry}
             usdConversions={usdConversions}
@@ -5377,15 +5381,16 @@ const QuotePageContent = memo(() => {
     if (currentProvider === 'velocity') {
       const comparisonReady = quoteData ? isComparisonReady('velocity', quoteData) : false;
       const dualCurrencyReady = quoteData ? isDualCurrencyComparisonReady('velocity', quoteData) : false;
-      const isLoadingComparison = providerLoading.velocity ||
-        (eorForm.enableComparison && (!((quoteData.quotes as any).velocity) || !((quoteData.quotes as any).comparisonVelocity)));
+      const primaryVelocity = (quoteData.quotes as any).velocity as Quote | undefined;
+      const comparisonVelocity = (quoteData.quotes as any).comparisonVelocity as Quote | undefined;
+      const isLoadingComparison = providerLoading.velocity;
 
       return (
         <div className="space-y-6">
           <QuoteComparison
             provider="velocity"
-            primaryQuote={(quoteData.quotes as any).velocity as any}
-            comparisonQuote={(quoteData.quotes as any).comparisonVelocity as any}
+            primaryQuote={primaryVelocity as any}
+            comparisonQuote={comparisonVelocity as any}
             primaryTitle={eorForm.country}
             comparisonTitle={eorForm.compareCountry}
             usdConversions={usdConversions}
@@ -5404,15 +5409,16 @@ const QuotePageContent = memo(() => {
     if (currentProvider === 'playroll') {
       const comparisonReady = quoteData ? isComparisonReady('playroll', quoteData) : false;
       const dualCurrencyReady = quoteData ? isDualCurrencyComparisonReady('playroll', quoteData) : false;
-      const isLoadingComparison = providerLoading.playroll ||
-        (eorForm.enableComparison && (!((quoteData.quotes as any).playroll) || !((quoteData.quotes as any).comparisonPlayroll)));
+      const primaryPlayroll = (quoteData.quotes as any).playroll as Quote | undefined;
+      const comparisonPlayroll = (quoteData.quotes as any).comparisonPlayroll as Quote | undefined;
+      const isLoadingComparison = providerLoading.playroll;
 
       return (
         <div className="space-y-6">
           <QuoteComparison
             provider="playroll"
-            primaryQuote={(quoteData.quotes as any).playroll as any}
-            comparisonQuote={(quoteData.quotes as any).comparisonPlayroll as any}
+            primaryQuote={primaryPlayroll as any}
+            comparisonQuote={comparisonPlayroll as any}
             primaryTitle={eorForm.country}
             comparisonTitle={eorForm.compareCountry}
             usdConversions={usdConversions}
@@ -5431,15 +5437,16 @@ const QuotePageContent = memo(() => {
     if (currentProvider === 'omnipresent') {
       const comparisonReady = quoteData ? isComparisonReady('omnipresent', quoteData) : false;
       const dualCurrencyReady = quoteData ? isDualCurrencyComparisonReady('omnipresent', quoteData) : false;
-      const isLoadingComparison = providerLoading.omnipresent ||
-        (eorForm.enableComparison && (!((quoteData.quotes as any).omnipresent) || !((quoteData.quotes as any).comparisonOmnipresent)));
+      const primaryOmnipresent = (quoteData.quotes as any).omnipresent as Quote | undefined;
+      const comparisonOmnipresent = (quoteData.quotes as any).comparisonOmnipresent as Quote | undefined;
+      const isLoadingComparison = providerLoading.omnipresent;
 
       return (
         <div className="space-y-6">
           <QuoteComparison
             provider="omnipresent"
-            primaryQuote={(quoteData.quotes as any).omnipresent as any}
-            comparisonQuote={(quoteData.quotes as any).comparisonOmnipresent as any}
+            primaryQuote={primaryOmnipresent as any}
+            comparisonQuote={comparisonOmnipresent as any}
             primaryTitle={eorForm.country}
             comparisonTitle={eorForm.compareCountry}
             usdConversions={usdConversions}

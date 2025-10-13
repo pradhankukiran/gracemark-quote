@@ -19,10 +19,16 @@ export const useDeelQuote = () => {
       const fetchComparison = options?.fetchComparison !== false;
 
       let deelQuote: DeelQuote | undefined;
+      let primaryError: Error | null = null;
       if (fetchPrimary) {
-        const rawDeelResponse = await fetchEORCost(requestData);
-        setRawQuote('deel', rawDeelResponse);
-        deelQuote = transformToDeelQuote(rawDeelResponse);
+        try {
+          const rawDeelResponse = await fetchEORCost(requestData);
+          setRawQuote('deel', rawDeelResponse);
+          deelQuote = transformToDeelQuote(rawDeelResponse);
+        } catch (err) {
+          primaryError = err instanceof Error ? err : new Error(String(err));
+          console.error('Failed to fetch Deel primary quote:', primaryError);
+        }
       }
 
       // If user changed currency, also compute a local currency quote
@@ -45,6 +51,7 @@ export const useDeelQuote = () => {
 
       let comparisonQuote: DeelQuote | undefined;
       let comparisonSelectedCurrencyQuote: DeelQuote | null = null;
+      let comparisonError: Error | null = null;
       if (fetchComparison && formData.enableComparison && formData.compareCountry) {
         try {
           const compareRequestData = createQuoteRequestData(formDataWithDefaults, true);
@@ -82,7 +89,8 @@ export const useDeelQuote = () => {
             }
           }
         } catch (compareError) {
-          console.error('Failed to fetch Deel comparison quote:', compareError);
+          comparisonError = compareError instanceof Error ? compareError : new Error(String(compareError));
+          console.error('Failed to fetch Deel comparison quote:', comparisonError);
         }
       }
 
@@ -126,6 +134,22 @@ export const useDeelQuote = () => {
         ...(deelQuote ? { deel: deelQuote } : {}),
         ...(comparisonQuote ? { comparisonDeel: comparisonQuote } : {}),
       };
+
+      if (!deelQuote && !comparisonQuote && !localCurrencyQuote && !prev) {
+        const fatalError = primaryError || comparisonError || new Error('Deel quote unavailable');
+        setError(fatalError.message);
+        throw fatalError;
+      }
+
+      if (comparisonQuote) {
+        setError(null);
+      } else if (primaryError && !deelQuote) {
+        setError(primaryError.message);
+      } else if (comparisonError && !comparisonQuote) {
+        setError(comparisonError.message);
+      } else {
+        setError(null);
+      }
 
       return {
         ...data,

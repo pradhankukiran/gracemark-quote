@@ -14,15 +14,23 @@ export const useSkuadQuote = () => {
     try {
       const withDefaults = ensureFormDefaults(formData)
       const request = createQuoteRequestData(withDefaults)
-      const response = await fetchSkuadCost(request)
-      setRawQuote('skuad', response)
-      let display: Quote = transformSkuadResponseToQuote(response)
-      // Fill context
-      display.currency = withDefaults.currency
-      display.country = withDefaults.country
+      let display: Quote | null = null
+      let primaryError: Error | null = null
+      try {
+        const response = await fetchSkuadCost(request)
+        setRawQuote('skuad', response)
+        display = transformSkuadResponseToQuote(response)
+        // Fill context
+        display.currency = withDefaults.currency
+        display.country = withDefaults.country
+      } catch (err) {
+        primaryError = err instanceof Error ? err : new Error(String(err))
+        console.error('Skuad primary quote failed:', primaryError)
+      }
 
       let comparisonQuote: Quote | undefined
       let compareSelectedCurrencyQuote: Quote | null = null
+      let comparisonError: Error | null = null
       if (withDefaults.enableComparison && withDefaults.compareCountry) {
         try {
           const compareReq = createQuoteRequestData(withDefaults, true)
@@ -59,7 +67,8 @@ export const useSkuadQuote = () => {
             }
           }
         } catch (e) {
-          console.warn('Skuad comparison fetch failed', e)
+          comparisonError = e instanceof Error ? e : new Error(String(e))
+          console.warn('Skuad comparison fetch failed', comparisonError)
         }
       }
 
@@ -80,7 +89,7 @@ export const useSkuadQuote = () => {
         }
       }
 
-      const dualCurrencyQuotes = localCurrencyQuote ? {
+      const dualCurrencyQuotes = localCurrencyQuote && display ? {
         ...data.dualCurrencyQuotes,
         skuad: {
           selectedCurrencyQuote: display,
@@ -96,10 +105,30 @@ export const useSkuadQuote = () => {
         }
       } : data.dualCurrencyQuotes
 
+      if (!display && !comparisonQuote && !localCurrencyQuote && !(data.dualCurrencyQuotes?.skuad)) {
+        const fatalError = primaryError || comparisonError || new Error('Skuad quote unavailable')
+        setError(fatalError.message)
+        throw fatalError
+      }
+
+      if (comparisonQuote) {
+        setError(null)
+      } else if (primaryError && !display) {
+        setError(primaryError.message)
+      } else if (comparisonError && !comparisonQuote) {
+        setError(comparisonError.message)
+      } else {
+        setError(null)
+      }
+
       return {
         ...data,
         formData: withDefaults,
-        quotes: { ...data.quotes, skuad: display, comparisonSkuad: comparisonQuote },
+        quotes: {
+          ...data.quotes,
+          ...(display ? { skuad: display } : {}),
+          ...(comparisonQuote ? { comparisonSkuad: comparisonQuote } : {}),
+        },
         dualCurrencyQuotes,
         status: 'completed',
       }

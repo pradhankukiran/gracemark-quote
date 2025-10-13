@@ -97,8 +97,20 @@ export const useCurrencyConversion = ({
     if (compareCountry) {
       setConversionInfo(null)
       setIsComparisonManuallyEdited(false)
+      if (baseSalary && currency && compareCurrency) {
+        const amount = Number.parseFloat(baseSalary)
+        if (!isNaN(amount) && amount > 0 && currency !== compareCurrency) {
+          handleCurrencyConversion(amount, currency, compareCurrency)
+        } else {
+          onFormUpdate({ compareSalary: baseSalary })
+        }
+      } else {
+        onFormUpdate({ compareSalary: "" })
+      }
+    } else {
+      onFormUpdate({ compareSalary: "" })
     }
-  }, [compareCountry])
+  }, [compareCountry, baseSalary, currency, compareCurrency, handleCurrencyConversion, onFormUpdate])
 
   // Cleanup timeout on unmount
   useEffect(() => {

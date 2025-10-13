@@ -25,21 +25,29 @@ export const usePlayrollQuote = () => {
       const withDefaults = ensureFormDefaults(formData)
       const request = createQuoteRequestData(withDefaults)
 
-      const response = await fetchPlayrollCost(request)
-      setRawQuote('playroll', response)
+      let primaryQuote: Quote | null = null
+      let primaryError: Error | null = null
+      try {
+        const response = await fetchPlayrollCost(request)
+        setRawQuote('playroll', response)
 
-      const display = transformPlayrollResponseToQuote(response)
-      const countryInfo = getCountryByName(withDefaults.country)
-      let primaryQuote: Quote = applyContextFallbacks(
-        display,
-        withDefaults.country,
-        countryInfo?.code || '',
-        withDefaults.currency
-      )
+        const display = transformPlayrollResponseToQuote(response)
+        const countryInfo = getCountryByName(withDefaults.country)
+        primaryQuote = applyContextFallbacks(
+          display,
+          withDefaults.country,
+          countryInfo?.code || '',
+          withDefaults.currency
+        )
+      } catch (err) {
+        primaryError = err instanceof Error ? err : new Error(String(err))
+        console.error('Playroll primary quote failed:', primaryError)
+      }
 
       let comparisonQuote: Quote | undefined
       let compareSelectedCurrencyQuote: Quote | null = null
 
+      let comparisonError: Error | null = null
       if (withDefaults.enableComparison && withDefaults.compareCountry) {
         try {
           const compareReq = createQuoteRequestData(withDefaults, true)
@@ -86,7 +94,8 @@ export const usePlayrollQuote = () => {
             }
           }
         } catch (err) {
-          console.warn('Playroll comparison fetch failed', err)
+          comparisonError = err instanceof Error ? err : new Error(String(err))
+          console.warn('Playroll comparison fetch failed', comparisonError)
         }
       }
 
@@ -117,7 +126,7 @@ export const usePlayrollQuote = () => {
         }
       }
 
-      const dualCurrencyQuotes = localCurrencyQuote ? {
+      const dualCurrencyQuotes = localCurrencyQuote && primaryQuote ? {
         ...data.dualCurrencyQuotes,
         playroll: {
           selectedCurrencyQuote: primaryQuote,
@@ -133,10 +142,30 @@ export const usePlayrollQuote = () => {
         }
       } : data.dualCurrencyQuotes
 
+      if (!primaryQuote && !comparisonQuote && !localCurrencyQuote && !(data.dualCurrencyQuotes?.playroll)) {
+        const fatalError = primaryError || comparisonError || new Error('Playroll quote unavailable')
+        setError(fatalError.message)
+        throw fatalError
+      }
+
+      if (comparisonQuote) {
+        setError(null)
+      } else if (primaryError && !primaryQuote) {
+        setError(primaryError.message)
+      } else if (comparisonError && !comparisonQuote) {
+        setError(comparisonError.message)
+      } else {
+        setError(null)
+      }
+
       return {
         ...data,
         formData: withDefaults,
-        quotes: { ...data.quotes, playroll: primaryQuote, comparisonPlayroll: comparisonQuote },
+        quotes: {
+          ...data.quotes,
+          ...(primaryQuote ? { playroll: primaryQuote } : {}),
+          ...(comparisonQuote ? { comparisonPlayroll: comparisonQuote } : {}),
+        },
         dualCurrencyQuotes,
         status: 'completed',
       }

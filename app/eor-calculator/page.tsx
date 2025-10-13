@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useMemo, useState } from "react"
+import { useEffect, useRef, useMemo, useState, useCallback } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
@@ -39,6 +39,7 @@ export default function EORCalculatorPage() {
     validationErrors,
     countries,
     selectedCountryData,
+    compareCountryData,
     updateFormData,
     updateValidationError,
     clearAllData,
@@ -47,8 +48,9 @@ export default function EORCalculatorPage() {
     isFormValid,
     updateBenefitSelection,
     clearBenefitsSelection,
-    updateLocalOfficeInfo,
-    clearLocalOfficeInfo,
+    updatePrimaryLocalOfficeInfo,
+    updateComparisonLocalOfficeInfo,
+    clearComparisonLocalOfficeInfo,
     overrideCurrency,
     resetToDefaultCurrency,
     handleCompareCountryChange,
@@ -73,7 +75,26 @@ export default function EORCalculatorPage() {
   )
 
   // Track local office conversion status
-  const [isConvertingLocalOffice, setIsConvertingLocalOffice] = useState(false)
+  const [localOfficeConversionStatus, setLocalOfficeConversionStatus] = useState<{ primary: boolean; comparison: boolean }>({
+    primary: false,
+    comparison: false,
+  })
+
+  const handlePrimaryLocalOfficeConversionStatus = useCallback((status: boolean) => {
+    setLocalOfficeConversionStatus(prev => ({
+      ...prev,
+      primary: status,
+    }))
+  }, [])
+
+  const handleComparisonLocalOfficeConversionStatus = useCallback((status: boolean) => {
+    setLocalOfficeConversionStatus(prev => ({
+      ...prev,
+      comparison: status,
+    }))
+  }, [])
+
+  const isConvertingAnyLocalOffice = localOfficeConversionStatus.primary || localOfficeConversionStatus.comparison
 
   const {
     isConverting,
@@ -385,9 +406,10 @@ export default function EORCalculatorPage() {
                       isCurrencyManuallySet={formData.isCurrencyManuallySet}
                       originalCurrency={formData.originalCurrency}
                       currency={currency}
-                      onLocalOfficeUpdate={updateLocalOfficeInfo}
-                      onConversionStatusChange={setIsConvertingLocalOffice}
+                      onLocalOfficeUpdate={updatePrimaryLocalOfficeInfo}
+                      onConversionStatusChange={handlePrimaryLocalOfficeConversionStatus}
                       countryCode={selectedCountryData?.code}
+                      scopeId="primary"
                     />
                   </>
                 )}
@@ -408,7 +430,25 @@ export default function EORCalculatorPage() {
                   onMarkAsManuallyEdited={markAsManuallyEdited}
                   onClearConversionData={clearConversionData}
                   onCompareCountryChange={handleCompareCountryChange}
+                  onClearComparisonLocalOffice={clearComparisonLocalOfficeInfo}
                 />
+
+                {formData.enableComparison && compareCountryData && (
+                  <>
+                    <Separator />
+                    <LocalOfficeInformation
+                      localOfficeInfo={formData.compareLocalOfficeInfo}
+                      isCurrencyManuallySet={false}
+                      originalCurrency={formData.compareCurrency || compareCurrency}
+                      currency={compareCurrency}
+                      onLocalOfficeUpdate={updateComparisonLocalOfficeInfo}
+                      onConversionStatusChange={handleComparisonLocalOfficeConversionStatus}
+                      countryCode={compareCountryData?.code}
+                      title={`Local Office Information (${formData.compareCountry || 'Comparison'})`}
+                      scopeId="comparison"
+                    />
+                  </>
+                )}
 
                 <FormActions
                   isCalculating={false}
@@ -419,7 +459,7 @@ export default function EORCalculatorPage() {
                   onClear={handleClearAll}
                   onClearStorage={clearStoredData}
                   enableComparison={formData.enableComparison}
-                  isConvertingLocalOffice={isConvertingLocalOffice}
+                  isConvertingLocalOffice={isConvertingAnyLocalOffice}
                   isConvertingValidation={isConvertingValidation}
                 />
               </CardContent>

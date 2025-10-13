@@ -257,6 +257,72 @@ export const QuoteComparison = memo(({
     isDualMode
   ), [comparisonQuote, enhancements, provider, usdConversions, isDualMode])
 
+  const hasPrimaryContent = Boolean(
+    primaryMerged.mergedQuote ||
+    (isDualMode && primaryCardDualQuotes?.localCurrencyQuote) ||
+    (!isDualMode && primaryQuote)
+  )
+
+  const hasComparisonContent = Boolean(
+    comparisonMerged.mergedQuote ||
+    (isDualMode && comparisonCardDualQuotes?.localCurrencyQuote) ||
+    (!isDualMode && comparisonQuote)
+  )
+
+  if (!hasPrimaryContent && hasComparisonContent) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded">
+          Primary quote is unavailable, but we captured the comparison quote below.
+        </div>
+        <GenericQuoteCard
+          provider={provider}
+          quote={isDualMode ? undefined : comparisonMerged.mergedQuote}
+          title={comparisonTitle}
+          badgeText="Compare Quote"
+          badgeColor="bg-blue-100 text-blue-800"
+          usdConversions={comparisonMerged.extendedConversions}
+          isConvertingToUSD={isConvertingComparisonToUSD}
+          usdConversionError={usdConversionError}
+          compact={true}
+          dualCurrencyQuotes={comparisonCardDualQuotes}
+          recalcBaseItems={comparisonMerged.recalcItems}
+          {...(isDualMode ? { mergedExtras: comparisonMerged.extras, mergedCurrency: comparisonMerged.currency } : {})}
+          enhancementPending={comparisonMerged.isPending}
+          isTotalPending={comparisonMerged.isPending}
+          shimmerExtrasCount={3}
+        />
+      </div>
+    )
+  }
+
+  if (hasPrimaryContent && !hasComparisonContent && isComparisonReady && !isLoadingComparison) {
+    return (
+      <div className="space-y-6">
+        <GenericQuoteCard
+          provider={provider}
+          quote={isDualMode ? undefined : primaryMerged.mergedQuote}
+          title={primaryTitle}
+          badgeText="Main Quote"
+          badgeColor="bg-green-100 text-green-800"
+          usdConversions={primaryMerged.extendedConversions}
+          isConvertingToUSD={isConvertingPrimaryToUSD}
+          usdConversionError={usdConversionError}
+          compact={true}
+          dualCurrencyQuotes={primaryCardDualQuotes}
+          recalcBaseItems={primaryMerged.recalcItems}
+          {...(isDualMode ? { mergedExtras: primaryMerged.extras, mergedCurrency: primaryMerged.currency } : {})}
+          enhancementPending={primaryMerged.isPending}
+          isTotalPending={primaryMerged.isPending}
+          shimmerExtrasCount={3}
+        />
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded">
+          Comparison quote is unavailable for this provider.
+        </div>
+      </div>
+    )
+  }
+
   if (shouldShowLoading) {
     return (
       <div className="space-y-6">

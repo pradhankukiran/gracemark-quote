@@ -29,14 +29,23 @@ export const useRivermateQuote = () => {
       const formDataWithDefaults = ensureFormDefaults(formData);
       const requestData = createQuoteRequestData(formDataWithDefaults);
 
-      const primaryResponse = await fetchRivermateCost(requestData);
-      setRawQuote('rivermate', primaryResponse);
-      let rivermateQuote = transformToRivermateQuote(primaryResponse); // For USD conversion
-      const primaryQuote: Quote = transformRivermateResponseToQuote(primaryResponse); // For display
+      let rivermateQuote: RivermateQuote | undefined;
+      let primaryQuote: Quote | undefined;
+      let primaryError: Error | null = null;
+      try {
+        const primaryResponse = await fetchRivermateCost(requestData);
+        setRawQuote('rivermate', primaryResponse);
+        rivermateQuote = transformToRivermateQuote(primaryResponse); // For USD conversion
+        primaryQuote = transformRivermateResponseToQuote(primaryResponse); // For display
+      } catch (err) {
+        primaryError = err instanceof Error ? err : new Error(String(err));
+        console.error('Failed to fetch Rivermate primary quote:', primaryError);
+      }
 
       let comparisonQuote: Quote | undefined;
       let comparisonRivermateQuote: RivermateQuote | undefined;
       let compareSelectedCurrencyQuote: Quote | null = null;
+      let comparisonError: Error | null = null;
       if (formData.enableComparison && formData.compareCountry) {
         try {
           const compareRequest = createQuoteRequestData(formDataWithDefaults, true);
@@ -70,7 +79,8 @@ export const useRivermateQuote = () => {
             }
           }
         } catch (err) {
-          console.error('Failed to fetch Rivermate comparison quote:', err);
+          comparisonError = err instanceof Error ? err : new Error(String(err));
+          console.error('Failed to fetch Rivermate comparison quote:', comparisonError);
         }
       }
 
@@ -96,7 +106,7 @@ export const useRivermateQuote = () => {
         }
       }
 
-      const dualCurrencyQuotes = localCurrencyQuote ? {
+      const dualCurrencyQuotes = localCurrencyQuote && primaryQuote ? {
         ...data.dualCurrencyQuotes,
         rivermate: {
           selectedCurrencyQuote: primaryQuote,
@@ -112,11 +122,31 @@ export const useRivermateQuote = () => {
         }
       } : data.dualCurrencyQuotes;
 
+      if (!rivermateQuote && !comparisonRivermateQuote && !localCurrencyQuote && !(data.dualCurrencyQuotes?.rivermate)) {
+        const fatalError = primaryError || comparisonError || new Error('Rivermate quote unavailable');
+        setError(fatalError.message);
+        throw fatalError;
+      }
+
+      if (comparisonRivermateQuote) {
+        setError(null);
+      } else if (primaryError && !rivermateQuote) {
+        setError(primaryError.message);
+      } else if (comparisonError && !comparisonRivermateQuote) {
+        setError(comparisonError.message);
+      } else {
+        setError(null);
+      }
+
       return {
         ...data,
         formData: formDataWithDefaults,
-        quotes: { ...data.quotes, rivermate: rivermateQuote, comparisonRivermate: comparisonRivermateQuote },
-        metadata: { ...data.metadata, currency: rivermateQuote.currency },
+        quotes: {
+          ...data.quotes,
+          ...(rivermateQuote ? { rivermate: rivermateQuote } : {}),
+          ...(comparisonRivermateQuote ? { comparisonRivermate: comparisonRivermateQuote } : {}),
+        },
+        metadata: { ...data.metadata, currency: rivermateQuote?.currency || data.metadata.currency },
         dualCurrencyQuotes,
         status: 'completed',
       }

@@ -21,11 +21,17 @@ export const useRemoteQuote = () => {
       let remoteQuoteResponse: RemoteAPIResponse | undefined;
       let remoteQuote: any | undefined;
       let remoteDisplayQuote: any | undefined;
+      let primaryError: Error | null = null;
       if (fetchPrimary) {
-        remoteQuoteResponse = await fetchRemoteCost(requestData);
-        setRawQuote('remote', remoteQuoteResponse);
-        remoteQuote = transformToRemoteQuote(remoteQuoteResponse);
-        remoteDisplayQuote = transformRemoteResponseToQuote(remoteQuoteResponse);
+        try {
+          remoteQuoteResponse = await fetchRemoteCost(requestData);
+          setRawQuote('remote', remoteQuoteResponse);
+          remoteQuote = transformToRemoteQuote(remoteQuoteResponse);
+          remoteDisplayQuote = transformRemoteResponseToQuote(remoteQuoteResponse);
+        } catch (err) {
+          primaryError = err instanceof Error ? err : new Error(String(err));
+          console.error('Failed to fetch Remote primary quote:', primaryError);
+        }
       }
 
       // If user changed currency, also compute a local currency quote
@@ -47,6 +53,7 @@ export const useRemoteQuote = () => {
 
       let comparisonQuoteResponse: RemoteAPIResponse | undefined;
       let compareSelectedCurrencyQuoteResponse: RemoteAPIResponse | null = null;
+      let comparisonError: Error | null = null;
       if (fetchComparison && formData.enableComparison && formData.compareCountry) {
         try {
           const compareRequestData = createQuoteRequestData(formDataWithDefaults, true);
@@ -82,7 +89,8 @@ export const useRemoteQuote = () => {
             }
           }
         } catch (compareError) {
-          console.error('Failed to fetch Remote comparison quote:', compareError);
+          comparisonError = compareError instanceof Error ? compareError : new Error(String(compareError));
+          console.error('Failed to fetch Remote comparison quote:', comparisonError);
         }
       }
 
@@ -131,6 +139,22 @@ export const useRemoteQuote = () => {
         ...(remoteQuoteResponse ? { remote: remoteQuoteResponse } : {}),
         ...(comparisonQuoteResponse ? { comparisonRemote: comparisonQuoteResponse } : {}),
       };
+
+      if (!remoteQuoteResponse && !comparisonQuoteResponse && !localRemoteQuoteResponse && !prev) {
+        const fatalError = primaryError || comparisonError || new Error('Remote quote unavailable');
+        setError(fatalError.message);
+        throw fatalError;
+      }
+
+      if (comparisonQuoteResponse) {
+        setError(null);
+      } else if (primaryError && !remoteQuoteResponse) {
+        setError(primaryError.message);
+      } else if (comparisonError && !comparisonQuoteResponse) {
+        setError(comparisonError.message);
+      } else {
+        setError(null);
+      }
 
       return {
         ...data,
