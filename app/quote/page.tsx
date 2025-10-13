@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, Suspense, memo, useState, useCallback, useMemo } from "react"
+import { useEffect, Suspense, memo, useState, useCallback, useMemo, startTransition } from "react"
 import { useSearchParams } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -213,6 +213,12 @@ const shouldDropEmployeeEntry = (item: { key: string; name: string }) => {
     lowerName.includes(pattern) || lowerKey.includes(pattern.replace(/\s+/g, '_'))
   )
 }
+
+const roundToCents = (value: number) => Math.round(value * 100) / 100
+const readNumericValue = (value: unknown, fallback = 0) =>
+  typeof value === 'number' && Number.isFinite(value) ? value : fallback
+const readOptionalNumericValue = (value: unknown): number | null =>
+  typeof value === 'number' && Number.isFinite(value) ? value : null
 
 const ONBOARDING_FEE_FIELDS: Array<{ field: keyof LocalOfficeInfo; key: string }> = [
   { field: 'preEmploymentMedicalTest', key: 'pre_employment_medical_test' },
@@ -1004,6 +1010,141 @@ const QuotePageContent = memo(() => {
   const [isComputingAcidTest, setIsComputingAcidTest] = useState(false)
 
   const MIN_PROFIT_THRESHOLD_USD = 1000
+
+  const acidTestKpiMetrics = useMemo(() => {
+    if (!acidTestResults || !acidTestCostData) return null
+
+    const localCurrency = acidTestCostData.currency || acidTestResults.summary.currency || 'USD'
+    const { billRateComposition, breakdown, summary } = acidTestResults
+
+    const baseLocal = roundToCents(readNumericValue(billRateComposition.salaryMonthly))
+    const statutoryLocal = roundToCents(readNumericValue(billRateComposition.statutoryMonthly))
+    const allowancesLocal = roundToCents(readNumericValue(billRateComposition.allowancesMonthly))
+    const terminationLocal = roundToCents(readNumericValue(billRateComposition.terminationMonthly))
+    const onboardingLocal = roundToCents(readNumericValue(acidTestCostData.onboardingTotal))
+    const gracemarkLocal = roundToCents(readNumericValue(billRateComposition.gracemarkFeeMonthly))
+
+    const totalAssignmentLocal = roundToCents(
+      baseLocal + statutoryLocal + allowancesLocal + terminationLocal
+    )
+    const billRateLocal = roundToCents(totalAssignmentLocal + onboardingLocal + gracemarkLocal)
+    const totalProfitLocal = roundToCents(billRateLocal - totalAssignmentLocal)
+
+    const resolvedDuration = projectDuration > 0
+      ? projectDuration
+      : (summary?.durationMonths && summary.durationMonths > 0 ? summary.durationMonths : 0)
+
+    const monthlyMarkupLocal = resolvedDuration > 0
+      ? roundToCents(totalProfitLocal / resolvedDuration)
+      : null
+
+    const baseUSD = readOptionalNumericValue(billRateComposition.salaryMonthlyUSD)
+    const statutoryUSD = readOptionalNumericValue(billRateComposition.statutoryMonthlyUSD)
+    const allowancesUSD = readOptionalNumericValue(billRateComposition.allowancesMonthlyUSD)
+    const terminationUSD = readOptionalNumericValue(billRateComposition.terminationMonthlyUSD)
+    const onboardingUSD = readOptionalNumericValue(breakdown.onboardingTotalUSD)
+    const gracemarkUSD = readOptionalNumericValue(billRateComposition.gracemarkFeeMonthlyUSD)
+
+    let totalAssignmentUSD: number | null = null
+    if (
+      baseUSD !== null &&
+      statutoryUSD !== null &&
+      allowancesUSD !== null &&
+      terminationUSD !== null
+    ) {
+      totalAssignmentUSD = roundToCents(
+        baseUSD + statutoryUSD + allowancesUSD + terminationUSD
+      )
+    } else if (localCurrency === 'USD') {
+      totalAssignmentUSD = totalAssignmentLocal
+    }
+
+    let billRateUSD: number | null = null
+    if (
+      baseUSD !== null &&
+      statutoryUSD !== null &&
+      allowancesUSD !== null &&
+      terminationUSD !== null &&
+      onboardingUSD !== null &&
+      gracemarkUSD !== null
+    ) {
+      billRateUSD = roundToCents(
+        baseUSD +
+        statutoryUSD +
+        allowancesUSD +
+        terminationUSD +
+        onboardingUSD +
+        gracemarkUSD
+      )
+    } else if (localCurrency === 'USD') {
+      billRateUSD = billRateLocal
+    }
+
+    const totalProfitUSD =
+      billRateUSD !== null && totalAssignmentUSD !== null
+        ? roundToCents(billRateUSD - totalAssignmentUSD)
+        : (localCurrency === 'USD' ? totalProfitLocal : null)
+
+    const monthlyMarkupUSD =
+      totalProfitUSD !== null && resolvedDuration > 0
+        ? roundToCents(totalProfitUSD / resolvedDuration)
+        : null
+
+    const markupStyle = (() => {
+      if (monthlyMarkupUSD === null) {
+        return {
+          container: 'bg-slate-50 border-slate-200',
+          value: 'text-slate-800',
+          accent: 'text-slate-600'
+        }
+      }
+      if (monthlyMarkupUSD >= 1000) {
+        return {
+          container: 'bg-emerald-50 border-emerald-200',
+          value: 'text-emerald-700',
+          accent: 'text-emerald-600'
+        }
+      }
+      if (monthlyMarkupUSD >= 900) {
+        return {
+          container: 'bg-lime-50 border-lime-200',
+          value: 'text-lime-700',
+          accent: 'text-lime-600'
+        }
+      }
+      if (monthlyMarkupUSD >= 800) {
+        return {
+          container: 'bg-amber-50 border-amber-200',
+          value: 'text-amber-700',
+          accent: 'text-amber-600'
+        }
+      }
+      if (monthlyMarkupUSD >= 600) {
+        return {
+          container: 'bg-orange-50 border-orange-200',
+          value: 'text-orange-700',
+          accent: 'text-orange-600'
+        }
+      }
+      return {
+        container: 'bg-rose-50 border-rose-200',
+        value: 'text-rose-700',
+        accent: 'text-rose-600'
+      }
+    })()
+
+    return {
+      localCurrency,
+      duration: resolvedDuration,
+      totals: {
+        assignment: { local: totalAssignmentLocal, usd: totalAssignmentUSD },
+        billRate: { local: billRateLocal, usd: billRateUSD },
+        profit: { local: totalProfitLocal, usd: totalProfitUSD },
+        markup: { local: monthlyMarkupLocal, usd: monthlyMarkupUSD }
+      },
+      markupStyle
+    }
+  }, [acidTestResults, acidTestCostData, projectDuration])
 
   const providerHasCostItems = useCallback((provider: ProviderType) => {
     const items = cachedCostItems[provider]
@@ -2422,7 +2563,7 @@ const QuotePageContent = memo(() => {
                   </div>
 
                   {/* CTA Button */}
-                  <div className="bg-white border-2 border-slate-200 shadow-md p-8">
+                  <div>
                     {/* Acid Test Error Display */}
                     {acidTestError && (
                       <div className="mt-6 bg-red-50 border-2 border-red-200 shadow-sm p-4">
@@ -2618,6 +2759,115 @@ const QuotePageContent = memo(() => {
 
                             return (
                               <div className="space-y-6">
+                                {acidTestKpiMetrics && (
+                                  <div className="space-y-4">
+                                    <div className="grid gap-4 md:grid-cols-2">
+                                      <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6">
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Assignment Costs</p>
+                                        <div className="mt-2">
+                                          <div className="text-3xl font-bold text-slate-900">
+                                            {formatMoney(acidTestKpiMetrics.totals.assignment.local, acidTestKpiMetrics.localCurrency)}
+                                          </div>
+                                          <p className="text-xs text-slate-500 mt-1">
+                                            Local currency ({acidTestKpiMetrics.localCurrency})
+                                          </p>
+                                        </div>
+                                        <div className="mt-4 text-sm text-slate-600">
+                                          <span className="font-medium text-slate-700">USD:</span>{' '}
+                                          {acidTestKpiMetrics.totals.assignment.usd !== null
+                                            ? formatMoney(acidTestKpiMetrics.totals.assignment.usd, 'USD')
+                                            : '—'}
+                                        </div>
+                                        <p className="mt-3 text-xs text-slate-500">
+                                          Sum of recurring cost components excluding Gracemark & onboarding.
+                                        </p>
+                                      </div>
+
+                                      <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6">
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Bill Rate (All-In)</p>
+                                        <div className="mt-2">
+                                          <div className="text-3xl font-bold text-slate-900">
+                                            {formatMoney(acidTestKpiMetrics.totals.billRate.local, acidTestKpiMetrics.localCurrency)}
+                                          </div>
+                                          <p className="text-xs text-slate-500 mt-1">
+                                            Includes onboarding and Gracemark fee.
+                                          </p>
+                                        </div>
+                                        <div className="mt-4 text-sm text-slate-600">
+                                          <span className="font-medium text-slate-700">USD:</span>{' '}
+                                          {acidTestKpiMetrics.totals.billRate.usd !== null
+                                            ? formatMoney(acidTestKpiMetrics.totals.billRate.usd, 'USD')
+                                            : '—'}
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div className="flex justify-center">
+                                      {(() => {
+                                        const profitPositive = acidTestKpiMetrics.totals.profit.local >= 0
+                                        const valueClass = profitPositive ? 'text-emerald-600' : 'text-red-600'
+                                        const badgeClass = profitPositive
+                                          ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                                          : 'bg-red-100 text-red-800 border-red-200'
+                                        return (
+                                          <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6 w-full max-w-md">
+                                            <div className="flex items-center justify-between">
+                                              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Profit</p>
+                                              <span className={`px-2 py-0.5 text-xs font-semibold border ${badgeClass}`}>
+                                                {profitPositive ? 'Positive' : 'Negative'}
+                                              </span>
+                                            </div>
+                                            <div className="mt-3">
+                                              <div className={`text-3xl font-bold ${valueClass}`}>
+                                                {formatMoney(acidTestKpiMetrics.totals.profit.local, acidTestKpiMetrics.localCurrency)}
+                                              </div>
+                                              <p className="text-xs text-slate-500 mt-1">Bill rate minus assignment costs.</p>
+                                            </div>
+                                            <div className="mt-4 text-sm text-slate-600">
+                                              <span className="font-medium text-slate-700">USD:</span>{' '}
+                                              {acidTestKpiMetrics.totals.profit.usd !== null
+                                                ? formatMoney(acidTestKpiMetrics.totals.profit.usd, 'USD')
+                                                : '—'}
+                                            </div>
+                                          </div>
+                                        )
+                                      })()}
+                                    </div>
+
+                                    <div className="flex justify-center">
+                                      <div
+                                        className={`border shadow-sm rounded-lg p-6 w-full max-w-md ${acidTestKpiMetrics.markupStyle.container}`}
+                                      >
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+                                          Monthly Markup Fee
+                                        </p>
+                                        <div className="mt-3">
+                                          <div className={`text-3xl font-bold ${acidTestKpiMetrics.markupStyle.value}`}>
+                                            {acidTestKpiMetrics.totals.markup.local !== null
+                                              ? formatMoney(acidTestKpiMetrics.totals.markup.local, acidTestKpiMetrics.localCurrency)
+                                              : '—'}
+                                          </div>
+                                          <p className={`text-xs mt-1 ${acidTestKpiMetrics.markupStyle.accent}`}>
+                                            {(() => {
+                                              const durationValue = acidTestKpiMetrics.duration && acidTestKpiMetrics.duration > 0
+                                                ? acidTestKpiMetrics.duration
+                                                : null
+                                              const durationLabel = durationValue ?? '—'
+                                              const plural = durationValue === 1 ? '' : 's'
+                                              return `Based on ${durationLabel} month${plural} contract.`
+                                            })()}
+                                          </p>
+                                        </div>
+                                        <div className="mt-4 text-sm text-slate-700">
+                                          <span className="font-medium">USD:</span>{' '}
+                                          {acidTestKpiMetrics.totals.markup.usd !== null
+                                            ? formatMoney(acidTestKpiMetrics.totals.markup.usd, 'USD')
+                                            : '—'}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
                                 {/* <div className="grid gap-4 lg:grid-cols-3">
                                   <div className="flex h-full flex-col gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
                                     <div className="flex items-center gap-2 text-slate-700">
@@ -3101,363 +3351,10 @@ const QuotePageContent = memo(() => {
                                               <Badge className="bg-purple-100 text-purple-800 border-purple-200">Service</Badge>
                                             </td>
                                           </tr>
-                                          <tr className="hover:bg-slate-50 transition-colors text-xs text-slate-500">
-                                            <td className="py-3 px-6">
-                                              <div className="flex items-center gap-3">
-                                                <div className="w-2 h-2 bg-slate-400"></div>
-                                                <span className="italic">Provider fee (included in above)</span>
-                                              </div>
-                                            </td>
-                                            <td className="py-3 px-6 text-right font-medium">
-                                              {formatMoney(billRateComposition.providerFeeMonthly, acidTestCostData?.currency || 'EUR')}
-                                            </td>
-                                            {acidTestCostData?.currency !== 'USD' && (
-                                              <td className="py-3 px-6 text-right font-medium text-slate-600">
-                                                {billRateComposition.providerFeeMonthlyUSD
-                                                  ? formatMoney(billRateComposition.providerFeeMonthlyUSD, 'USD')
-                                                  : '—'
-                                                }
-                                              </td>
-                                            )}
-                                            <td className="py-3 px-6 text-center">
-                                              <Badge className="bg-slate-100 text-slate-600 border-slate-200 text-xs">Included</Badge>
-                                            </td>
-                                          </tr>
                                         </tbody>
-                                        <tfoot className="bg-slate-800 text-white">
-                                          <tr>
-                                            <td className="py-4 px-6 font-bold text-lg">Minimum Bill Rate</td>
-                                            <td className="py-4 px-6 text-right font-bold text-xl">
-                                              {formatMoney(billRateComposition.expectedBillRate, acidTestCostData?.currency || 'EUR')}
-                                            </td>
-                                            {acidTestCostData?.currency !== 'USD' && (
-                                              <td className="py-4 px-6 text-right font-bold text-xl text-green-200">
-                                                {billRateComposition.expectedBillRateUSD
-                                                  ? formatMoney(billRateComposition.expectedBillRateUSD, 'USD')
-                                                  : '—'
-                                                }
-                                              </td>
-                                            )}
-                                            <td className="py-4 px-6 text-center">
-                                              <Badge className="bg-white text-slate-800 border-slate-200">Total</Badge>
-                                            </td>
-                                          </tr>
-                                        </tfoot>
                                       </table>
                                     </div>
                                   </div>
-
-                                  {/* Bill Rate Calculator Section */}
-                                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-lg">
-                                    <div className="bg-blue-600 text-white p-4">
-                                      <h5 className="text-lg font-bold flex items-center gap-2">
-                                        <Calculator className="h-5 w-5" />
-                                        Profitability Calculator
-                                      </h5>
-                                      <p className="text-blue-100 text-sm mt-1">Calculate total assignment profit based on your bill rate</p>
-                                    </div>
-
-                                    <div className="p-6">
-                                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        {/* Monthly Bill Rate Input */}
-                                        <div>
-                                          <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                            Monthly Bill Rate
-                                          </label>
-                                          <div className="space-y-2">
-                                            <div className="relative">
-                                              <input
-                                                type="number"
-                                                min={0}
-                                                step={100}
-                                                value={billRateInput > 0 ? billRateInput : ''}
-                                                onChange={(e) => setBillRateInput(parseFloat(e.target.value) || 0)}
-                                                className="w-full pl-20 pr-4 py-3 text-lg font-semibold border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-right rounded-md"
-                                                placeholder="Enter rate..."
-                                              />
-                                              <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                                                <select
-                                                  value={billRateCurrency}
-                                                  onChange={(e) => setBillRateCurrency(e.target.value as 'local' | 'USD')}
-                                                  className="text-slate-700 font-medium bg-transparent border-none focus:outline-none focus:ring-0 text-sm pr-1"
-                                                >
-                                                  <option value="local">{acidTestCostData?.currency || 'EUR'}</option>
-                                                  <option value="USD">USD</option>
-                                                </select>
-                                              </div>
-                                            </div>
-                                            {billRateInput > 0 && (
-                                              <div className="text-xs text-slate-500">
-                                                {billRateCurrency === 'local' ? (
-                                                  <span>≈ [USD equivalent will be calculated]</span>
-                                                ) : (
-                                                  <span>≈ [{acidTestCostData?.currency || '€'} equivalent will be calculated]</span>
-                                                )}
-                                              </div>
-                                            )}
-                                          </div>
-                                        </div>
-
-                                        {/* Project Duration Input */}
-                                        <div>
-                                          <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                            Project Duration
-                                          </label>
-                                          <div className="space-y-2">
-                                            <input
-                                              type="number"
-                                              min={1}
-                                              max={120}
-                                              value={durationInput > 0 ? durationInput : ''}
-                                              onChange={(e) => setDurationInput(parseInt(e.target.value) || 0)}
-                                              className="w-full px-4 py-3 text-lg font-semibold border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-center rounded-md"
-                                              placeholder="Months"
-                                            />
-                                            <div className="text-xs text-slate-500 text-center">months</div>
-                                          </div>
-                                        </div>
-
-                                        {/* Calculate Button */}
-                                        <div>
-                                          <label className="block text-sm font-semibold text-slate-700 mb-2 opacity-0">
-                                            Action
-                                          </label>
-                                          <div className="space-y-2">
-                                            <Button
-                                              onClick={() => calculateProfitability(billRateInput, durationInput)}
-                                              disabled={billRateInput <= 0 || durationInput <= 0 || isCalculatingProfitability}
-                                              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 text-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-md h-[54px] flex items-center justify-center"
-                                            >
-                                              {isCalculatingProfitability ? (
-                                                <>
-                                                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
-                                                  Calculating...
-                                                </>
-                                              ) : (
-                                                <>
-                                                  <Calculator className="h-5 w-5 mr-2" />
-                                                  Calculate Profit
-                                                </>
-                                              )}
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* Profitability Results Display */}
-                                  {(isCalculatingProfitability || profitabilityResults) && (
-                                    <div id="acid-test-profitability-results" className={`border-2 shadow-lg ${
-                                      isCalculatingProfitability
-                                        ? 'bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200'
-                                        : profitabilityResults?.isProfit
-                                          ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200'
-                                          : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200'
-                                    }`}>
-                                      {isCalculatingProfitability ? (
-                                        <div className="bg-slate-600 text-white p-4">
-                                          <h5 className="text-lg font-bold flex items-center gap-2">
-                                            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                                            Calculating Profitability...
-                                          </h5>
-                                          <p className="text-slate-200 text-sm mt-1">
-                                            Analyzing revenue, costs, and profit margins
-                                          </p>
-                                        </div>
-                                      ) : (
-                                        <div className={`text-white p-4 ${
-                                          profitabilityResults?.isProfit ? 'bg-green-600' : 'bg-red-600'
-                                        }`}>
-                                          <h5 className="text-lg font-bold flex items-center gap-2">
-                                            {profitabilityResults?.isProfit ? (
-                                              <CheckCircle className="h-5 w-5" />
-                                            ) : (
-                                              <XCircle className="h-5 w-5" />
-                                            )}
-                                            Assignment Profitability Analysis
-                                          </h5>
-                                          <p className={`text-sm mt-1 ${
-                                            profitabilityResults?.isProfit ? 'text-green-100' : 'text-red-100'
-                                          }`}>
-                                            {profitabilityResults?.isProfit
-                                              ? 'This assignment is profitable'
-                                              : 'This assignment will result in a loss'
-                                            }
-                                          </p>
-                                        </div>
-                                      )}
-
-                                      <div className="p-6">
-                                        {isCalculatingProfitability ? (
-                                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                            {/* Shimmer Cards */}
-                                            {[1, 2, 3].map((index) => (
-                                              <div key={index} className="bg-white border border-slate-200 p-4 text-center shadow-sm">
-                                                <div className="animate-pulse">
-                                                  <div className="h-4 bg-slate-200 rounded mb-3 w-3/4 mx-auto"></div>
-                                                  <div className="h-8 bg-slate-300 rounded mb-2 w-1/2 mx-auto"></div>
-                                                  <div className="h-3 bg-slate-200 rounded mb-2 w-2/3 mx-auto"></div>
-                                                  <div className="h-3 bg-slate-200 rounded w-1/3 mx-auto"></div>
-                                                </div>
-                                              </div>
-                                            ))}
-                                          </div>
-                                        ) : (
-                                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                            {/* Total Revenue */}
-                                            <div className="bg-white border border-slate-200 p-4 text-center shadow-sm">
-                                              <div className="text-sm font-medium text-slate-600 mb-2">Total Assignment Revenue</div>
-                                              <div className="text-2xl font-bold text-slate-900">
-                                                {profitabilityResults && formatMoney(profitabilityResults.totalRevenue, profitabilityResults.currency)}
-                                              </div>
-                                              {profitabilityResults?.totalRevenueOther && profitabilityResults?.otherCurrency && (
-                                                <div className="text-sm text-slate-600 mt-1">
-                                                  ≈ {formatMoney(profitabilityResults.totalRevenueOther, profitabilityResults.otherCurrency)}
-                                                </div>
-                                              )}
-                                              <div className="text-xs text-slate-500 mt-1">What client pays us</div>
-                                            </div>
-
-                                            {/* Total Costs */}
-                                            <div className="bg-white border border-slate-200 p-4 text-center shadow-sm">
-                                              <div className="text-sm font-medium text-slate-600 mb-2">Total Assignment Costs</div>
-                                              <div className="text-2xl font-bold text-slate-900">
-                                                {profitabilityResults && formatMoney(profitabilityResults.totalCosts, profitabilityResults.currency)}
-                                              </div>
-                                              {profitabilityResults?.totalCostsOther && profitabilityResults?.otherCurrency && (
-                                                <div className="text-sm text-slate-600 mt-1">
-                                                  ≈ {formatMoney(profitabilityResults.totalCostsOther, profitabilityResults.otherCurrency)}
-                                                </div>
-                                              )}
-                                              <div className="text-xs text-slate-500 mt-1">What we pay provider</div>
-                                            </div>
-
-                                            {/* Profit/Loss */}
-                                            <div className={`border-2 p-4 text-center shadow-sm ${
-                                              profitabilityResults?.isProfit
-                                                ? 'bg-green-50 border-green-200'
-                                                : 'bg-red-50 border-red-200'
-                                            }`}>
-                                              <div className="text-sm font-medium text-slate-600 mb-2">
-                                                {profitabilityResults?.isProfit ? 'Total Profit' : 'Total Loss'}
-                                              </div>
-                                              <div className={`text-2xl font-bold ${
-                                                profitabilityResults?.isProfit ? 'text-green-700' : 'text-red-700'
-                                              }`}>
-                                                {profitabilityResults && formatMoney(Math.abs(profitabilityResults.profit), profitabilityResults.currency)}
-                                              </div>
-                                              {profitabilityResults?.otherCurrency && (
-                                                <div className="text-sm text-slate-600 mt-1">
-                                                  {profitabilityResults.currency === 'USD' && profitabilityResults.totalCostsOther && profitabilityResults.totalRevenueOther ? (
-                                                    <span>≈ {formatMoney(Math.abs(profitabilityResults.totalRevenueOther - profitabilityResults.totalCostsOther), profitabilityResults.otherCurrency)}</span>
-                                                  ) : profitabilityResults.profitUSD ? (
-                                                    <span>≈ {formatMoney(Math.abs(profitabilityResults.profitUSD), 'USD')}</span>
-                                                  ) : null}
-                                                </div>
-                                              )}
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        {/* Minimum Threshold Check */}
-                                        <div className="mt-6 p-4 border border-slate-200 bg-slate-50 rounded-lg">
-                                          {isCalculatingProfitability ? (
-                                            <div className="animate-pulse">
-                                              <div className="flex items-center justify-between mb-3">
-                                                <div className="flex items-center gap-2">
-                                                  <Target className="h-5 w-5 text-slate-400" />
-                                                  <div className="h-4 bg-slate-300 rounded w-40"></div>
-                                                </div>
-                                                <div className="h-6 bg-slate-300 rounded w-32"></div>
-                                              </div>
-                                              <div className="space-y-2">
-                                                <div className="flex justify-between items-center">
-                                                  <div className="h-3 bg-slate-200 rounded w-24"></div>
-                                                  <div className="h-3 bg-slate-200 rounded w-20"></div>
-                                                </div>
-                                                <div className="flex justify-between items-center">
-                                                  <div className="h-3 bg-slate-200 rounded w-32"></div>
-                                                  <div className="h-3 bg-slate-200 rounded w-24"></div>
-                                                </div>
-                                              </div>
-                                            </div>
-                                          ) : (
-                                            <>
-                                              <div className="flex items-center justify-between mb-3">
-                                                <div className="flex items-center gap-2">
-                                                  <Target className="h-5 w-5 text-slate-600" />
-                                                  <span className="font-medium text-slate-700">Minimum Profit Threshold</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                  {profitabilityResults?.profitUSD === undefined ? (
-                                                    <Badge className="bg-amber-100 text-amber-800 border-amber-200">
-                                                      ⚠ USD conversion unavailable
-                                                    </Badge>
-                                                  ) : profitabilityResults?.meetsMinimum ? (
-                                                    <Badge className="bg-green-100 text-green-800 border-green-200">
-                                                      ✓ Meets $1,000 USD minimum
-                                                    </Badge>
-                                                  ) : profitabilityResults?.isProfit ? (
-                                                    <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-                                                      ⚠ Below $1,000 USD minimum
-                                                    </Badge>
-                                                  ) : (
-                                                    <Badge className="bg-red-100 text-red-800 border-red-200">
-                                                      ✗ Assignment unprofitable
-                                                    </Badge>
-                                                  )}
-                                                </div>
-                                              </div>
-
-                                              <div className="text-sm text-slate-600">
-                                                <div className="flex justify-between items-center mb-2">
-                                                  <span>Required minimum:</span>
-                                                  <span className="font-medium text-slate-700">
-                                                    {formatMoney(MIN_PROFIT_THRESHOLD_USD, 'USD')}
-                                                  </span>
-                                                </div>
-
-                                                {profitabilityResults?.profitUSD !== undefined ? (
-                                                  <>
-                                                    <div className="flex justify-between items-center mb-2">
-                                                      <span>Current profit (USD):</span>
-                                                      <span className={`font-medium ${profitabilityResults?.isProfit ? 'text-green-700' : 'text-red-700'}`}>
-                                                        {profitabilityResults?.isProfit ? '+' : ''}{profitabilityResults?.profitUSD && formatMoney(profitabilityResults.profitUSD, 'USD')}
-                                                      </span>
-                                                    </div>
-
-                                                    {!profitabilityResults?.meetsMinimum && profitabilityResults?.isProfit && profitabilityResults?.profitUSD && (
-                                                      <div className="pt-2 mt-2 border-t border-slate-300">
-                                                        <span className="text-yellow-700 font-medium">
-                                                          Need {formatMoney(MIN_PROFIT_THRESHOLD_USD - profitabilityResults.profitUSD, 'USD')} more profit to meet threshold
-                                                        </span>
-                                                      </div>
-                                                    )}
-                                                    {!profitabilityResults?.isProfit && (
-                                                      <div className="pt-2 mt-2 border-t border-slate-300">
-                                                        <span className="text-red-700 font-medium">
-                                                          Assignment must be profitable to meet minimum threshold
-                                                        </span>
-                                                      </div>
-                                                    )}
-                                                  </>
-                                                ) : (
-                                                  <div className="pt-2 mt-2 border-t border-slate-300">
-                                                    <div className="p-2 bg-amber-50 border border-amber-200 rounded text-amber-800 text-sm">
-                                                      <span className="font-medium">⚠ USD conversion unavailable</span>
-                                                      <br />
-                                                      <span className="text-xs">Cannot verify $1,000 minimum threshold for {profitabilityResults?.currency} currency.</span>
-                                                    </div>
-                                                  </div>
-                                                )}
-                                              </div>
-                                            </>
-                                          )}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
 
                                   {/* Rate Comparison Section */}
                                   {/* <div className="grid gap-6 lg:grid-cols-2">
@@ -4351,7 +4248,28 @@ const QuotePageContent = memo(() => {
             const sourceValue = (value && typeof value === 'object' && 'monthly_amount' in (value as Record<string, unknown>))
               ? (value as any).monthly_amount
               : value
-            addCostEntry(key, key.replace(/_/g, ' '), sourceValue)
+
+            // Map local office items to proper labels
+            const lowerKey = key.toLowerCase()
+            let label: string
+
+            if (lowerKey.includes('local_meal_voucher')) {
+              label = 'Meal Voucher (Local Office)'
+            } else if (lowerKey.includes('local_transportation')) {
+              label = 'Transportation (Local Office)'
+            } else if (lowerKey.includes('local_wfh')) {
+              label = 'WFH (Local Office)'
+            } else if (lowerKey.includes('local_health_insurance')) {
+              label = 'Health Insurance (Local Office)'
+            } else if (lowerKey.includes('local_office_monthly_payments')) {
+              label = 'Local Office Monthly Payments'
+            } else if (lowerKey.includes('local_office_vat')) {
+              label = 'VAT on Local Office Payments'
+            } else {
+              label = key.replace(/_/g, ' ')
+            }
+
+            addCostEntry(key, label, sourceValue)
           })
         }
 
@@ -4729,49 +4647,61 @@ const QuotePageContent = memo(() => {
       return;
     }
 
-    // Reset any previous state and show the form
-    setAcidTestError(null);
-    setAcidTestResults(null);
-    setAcidTestCostData(null);
-    setIsCategorizingCosts(true);
-    setIsComputingAcidTest(false);
-    setAcidTestValidation({});
-    setShowAcidTestForm(true);
+    // Batch all initial state updates to prevent flickering
+    startTransition(() => {
+      // Reset any previous state and show the form
+      setAcidTestError(null);
+      setAcidTestResults(null);
+      setAcidTestCostData(null);
+      setIsCategorizingCosts(true);
+      setIsComputingAcidTest(false);
+      setAcidTestValidation({});
+      setShowAcidTestForm(true);
 
-    const configuredDuration = Number((quoteData?.formData as EORFormData)?.contractDuration) || 6;
-    setProjectDuration(configuredDuration);
+      const configuredDuration = Number((quoteData?.formData as EORFormData)?.contractDuration) || 6;
+      setProjectDuration(configuredDuration);
+    });
 
     void extractSelectedQuoteData(finalChoice)
       .then(result => {
         if (!result) {
-          setAcidTestError('Unable to categorize cost items for the acid test.');
-          setAcidTestCostData(null);
+          startTransition(() => {
+            setAcidTestError('Unable to categorize cost items for the acid test.');
+            setAcidTestCostData(null);
+          });
           return;
         }
 
         const { aggregates, categories } = result;
-
-        setAcidTestCostData({
-          provider: finalChoice.provider,
-          currency: finalChoice.currency,
-          categories,
-          ...aggregates,
-        });
 
         // Calculate default bill rate from actual categorized components
         const recurringMonthly = aggregates.baseSalaryMonthly + aggregates.statutoryMonthly +
                                  aggregates.allowancesMonthly +
                                  (isAllInclusiveQuote ? aggregates.terminationMonthly : 0);
         const defaultBillRate = recurringMonthly * (1 + GRACEMARK_FEE_PERCENTAGE);
-        setMonthlyBillRate(Number(defaultBillRate.toFixed(2)));
+
+        // Batch state updates after async operation completes
+        startTransition(() => {
+          setAcidTestCostData({
+            provider: finalChoice.provider,
+            currency: finalChoice.currency,
+            categories,
+            ...aggregates,
+          });
+          setMonthlyBillRate(Number(defaultBillRate.toFixed(2)));
+        });
       })
       .catch(err => {
         console.error('Failed to categorize cost items with Cerebras:', err);
-        setAcidTestError('Unable to categorize cost items. Please try again later.');
-        setAcidTestCostData(null);
+        startTransition(() => {
+          setAcidTestError('Unable to categorize cost items. Please try again later.');
+          setAcidTestCostData(null);
+        });
       })
       .finally(() => {
-        setIsCategorizingCosts(false);
+        startTransition(() => {
+          setIsCategorizingCosts(false);
+        });
       })
   };
 
