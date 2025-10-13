@@ -35,7 +35,7 @@ export const LOCAL_OFFICE_DATA: LocalOfficeData = {
   },
   BR: { // Brazil - USD fields will be converted to BRL
     mealVoucher: '880', // Local currency (BRL)
-    transportation: '1178', // Local currency (BRL)
+    transportation: '880', // Local currency (BRL)
     wfh: 'N/A',
     healthInsurance: '970', // Local currency (BRL)
     monthlyPaymentsToLocalOffice: '120.00', // USD - will be converted to BRL

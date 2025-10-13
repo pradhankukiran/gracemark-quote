@@ -182,26 +182,36 @@ export class CerebrasService {
             (parsed.baseSalary !== undefined || parsed.statutoryMandatory !== undefined ||
              parsed.allowancesBenefits !== undefined || parsed.terminationCosts !== undefined ||
              parsed.oneTimeFees !== undefined)) {
-          const result = {
-            baseSalary: parsed.baseSalary || {},
-            statutoryMandatory: parsed.statutoryMandatory || {},
-            allowancesBenefits: parsed.allowancesBenefits || {},
-            terminationCosts: parsed.terminationCosts || {},
-            oneTimeFees: parsed.oneTimeFees || {}
+          const costItemMap = new Map<string, number>()
+          for (const item of costItems) {
+            const amount = Number(item.monthly_amount)
+            costItemMap.set(item.key, Number.isFinite(amount) ? amount : 0)
           }
 
-          // Validate that all input items are accounted for in the categorization
-          const categorizedKeys = new Set<string>([
-            ...Object.keys(result.baseSalary),
-            ...Object.keys(result.statutoryMandatory),
-            ...Object.keys(result.allowancesBenefits),
-            ...Object.keys(result.terminationCosts),
-            ...Object.keys(result.oneTimeFees)
-          ])
+          const seenKeys = new Set<string>()
+          const normalizeBucket = (bucket: unknown): Record<string, number> => {
+            const normalized: Record<string, number> = {}
+            if (!bucket || typeof bucket !== 'object') return normalized
+            Object.entries(bucket as Record<string, unknown>).forEach(([key, _value]) => {
+              if (!costItemMap.has(key)) return
+              const originalAmount = costItemMap.get(key) ?? 0
+              normalized[key] = originalAmount
+              seenKeys.add(key)
+            })
+            return normalized
+          }
+
+          const result = {
+            baseSalary: normalizeBucket(parsed.baseSalary),
+            statutoryMandatory: normalizeBucket(parsed.statutoryMandatory),
+            allowancesBenefits: normalizeBucket(parsed.allowancesBenefits),
+            terminationCosts: normalizeBucket(parsed.terminationCosts),
+            oneTimeFees: normalizeBucket(parsed.oneTimeFees)
+          }
 
           const missingItems: Array<{key: string, name: string, monthly_amount: number}> = []
           for (const item of costItems) {
-            if (!categorizedKeys.has(item.key)) {
+            if (!seenKeys.has(item.key)) {
               missingItems.push(item)
             }
           }
@@ -216,7 +226,9 @@ export class CerebrasService {
             })
 
             for (const item of missingItems) {
-              result.allowancesBenefits[item.key] = item.monthly_amount
+              const originalAmount = Number(item.monthly_amount)
+              result.allowancesBenefits[item.key] = Number.isFinite(originalAmount) ? originalAmount : 0
+              seenKeys.add(item.key)
             }
           }
 

@@ -13,6 +13,7 @@ interface UseLocalOfficeConversionResult {
   isConvertingLocalOffice: boolean
   isLocalOfficeReady: boolean
   conversionKey: string
+  convertedForKey: string
 }
 
 interface UseLocalOfficeConversionProps {
@@ -32,6 +33,7 @@ export const useLocalOfficeConversion = ({
 }: UseLocalOfficeConversionProps): UseLocalOfficeConversionResult => {
   const [convertedLocalOffice, setConvertedLocalOffice] = useState<ConvertedLocalOfficeData>({})
   const [isConvertingLocalOffice, setIsConvertingLocalOffice] = useState(false)
+  const [convertedForKey, setConvertedForKey] = useState<string>('')
   const conversionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const lastConversionKeyRef = useRef<string>('')
 
@@ -55,9 +57,14 @@ export const useLocalOfficeConversion = ({
     const convertLocalOfficeData = async () => {
       if (!originalData || !countryCode) {
         setConvertedLocalOffice({})
+        setConvertedForKey('')
         setIsConvertingLocalOffice(false)
         return
       }
+
+      // Reset converted values so stale data isn't applied during a new conversion cycle
+      setConvertedLocalOffice({})
+      setConvertedForKey('')
 
       // If currency is manually set, convert from USD/local to the form currency
       // If not manually set, convert from original (USD or local) to the country's default currency (which should be formCurrency)
@@ -184,11 +191,13 @@ export const useLocalOfficeConversion = ({
         // Only update state if not aborted
         if (!abortController.signal.aborted) {
           setConvertedLocalOffice(conversions)
+          setConvertedForKey(conversionKey)
         }
       } catch (error) {
         if (!abortController.signal.aborted) {
           console.warn('Failed to convert local office data:', error)
           setConvertedLocalOffice({})
+          setConvertedForKey('')
         }
       } finally {
         if (conversionTimeoutRef.current) {
@@ -218,6 +227,7 @@ export const useLocalOfficeConversion = ({
     isConvertingLocalOffice,
     isLocalOfficeReady,
     conversionKey,
+    convertedForKey,
   }
 }
 

@@ -38,6 +38,7 @@ export const LocalOfficeInformation = memo(({
     convertedLocalOffice,
     isConvertingLocalOffice,
     conversionKey,
+    convertedForKey,
   } = useLocalOfficeConversion({
     originalData,
     countryCode: countryCode || null,
@@ -68,6 +69,10 @@ export const LocalOfficeInformation = memo(({
       return
     }
 
+    if (convertedForKey !== conversionKey) {
+      return
+    }
+
     // Don't update if no converted values
     if (Object.keys(convertedLocalOffice).length === 0) {
       return
@@ -87,7 +92,7 @@ export const LocalOfficeInformation = memo(({
       onLocalOfficeUpdate(updates)
       lastAppliedConversionKeyRef.current = conversionKey
     }
-  }, [convertedLocalOffice, isConvertingLocalOffice, conversionKey, onLocalOfficeUpdate])
+  }, [convertedLocalOffice, convertedForKey, isConvertingLocalOffice, conversionKey, onLocalOfficeUpdate])
 
   const getDisplayCurrency = () => {
     return currency
