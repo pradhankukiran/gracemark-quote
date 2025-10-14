@@ -141,6 +141,8 @@ export default function ICCalculatorPage() {
                 <RateConfigurationForm
                   rateBasis={formData.rateBasis}
                   rateAmount={formData.rateAmount}
+                  totalMonthlyHours={formData.totalMonthlyHours}
+                  markupPercentage={formData.markupPercentage}
                   rateConversionMessage={rateConversionMessage}
                   currency={displayCurrency}
                   onFormUpdate={updateFormData}
@@ -153,7 +155,7 @@ export default function ICCalculatorPage() {
                   contractDurationUnit={formData.contractDurationUnit}
                   paymentFrequency={formData.paymentFrequency}
                   backgroundCheckRequired={formData.backgroundCheckRequired}
-                  mspFee={formData.mspFee}
+                  mspPercentage={formData.mspPercentage}
                   backgroundCheckMonthlyFee={formData.backgroundCheckMonthlyFee}
                   currency={displayCurrency}
                   paymentFrequencies={paymentFrequencies}

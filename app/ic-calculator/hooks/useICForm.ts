@@ -17,12 +17,14 @@ const initialFormData: ICFormData = {
   displayInUSD: false,
   rateBasis: "hourly",
   rateAmount: "",
+  totalMonthlyHours: "160",
+  markupPercentage: "40",
   paymentFrequency: "monthly",
   contractDuration: "12",
   contractDurationUnit: "months",
   complianceLevel: "standard",
   backgroundCheckRequired: false,
-  mspFee: "", // MSP fee (optional)
+  mspPercentage: "",
   backgroundCheckMonthlyFee: "",
   transactionCostPerTransaction: "",
   transactionCostMonthly: "",
@@ -448,7 +450,7 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
       transactionCostPerTransaction: "",
       transactionCostMonthly: "",
       rateAmount: "",
-      mspFee: "",
+      mspPercentage: "",
     }))
 
     setRateConversionMessage(null)
@@ -488,26 +490,10 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
         }
       }
 
-      // Convert mspFee if it exists
-      let convertedMspFee = formData.mspFee
-      if (formData.mspFee && parseFloat(formData.mspFee) > 0) {
-        const mspResult = await convertCurrency(
-          parseFloat(formData.mspFee),
-          sourceCurrency,
-          targetCurrency,
-          controller.signal
-        )
-        if (controller.signal.aborted) return
-        if (mspResult.success && mspResult.data) {
-          convertedMspFee = mspResult.data.target_amount.toFixed(2)
-        }
-      }
-
       setFormData((prev) => ({
         ...prev,
         displayInUSD: useUSD,
         rateAmount: convertedRateAmount,
-        mspFee: convertedMspFee,
       }))
     } catch (error) {
       console.error('Currency toggle conversion failed:', error)
@@ -521,7 +507,7 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
         currencyToggleAbortController.current = null
       }
     }
-  }, [currency, formData.rateAmount, formData.mspFee, setFormData])
+  }, [currency, formData.rateAmount, setFormData])
 
   const isFormValid = useCallback(() => {
     // Check that required fields have actual content (not just truthy)

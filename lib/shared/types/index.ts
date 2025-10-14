@@ -521,12 +521,14 @@ export interface ICFormData {
   displayInUSD: boolean // Toggle to display amounts in USD instead of local currency
   rateBasis: "hourly" | "monthly"
   rateAmount: string
+  totalMonthlyHours: string // Total hours worked per month (defaults to 160)
+  markupPercentage: string // Agency markup percentage applied to pay rate
   paymentFrequency: string
   contractDuration: string
   contractDurationUnit: "months" | "years"
   complianceLevel: string // Kept for backward compatibility with stored data
   backgroundCheckRequired: boolean
-  mspFee: string // MSP fee (optional, for some clients)
+  mspPercentage: string // MSP fee percentage applied to the bill rate
   backgroundCheckMonthlyFee: string // Amortized background check fee in local currency
   transactionCostPerTransaction: string // Local currency transaction cost per payment
   transactionCostMonthly: string // Local currency transaction cost per month
@@ -538,12 +540,15 @@ export interface ICQuoteResult {
   billRate: number // Hourly bill rate
   monthlyPayRate: number // Monthly pay amount (pay rate × hours)
   monthlyBillRate: number // Monthly bill amount (bill rate × hours)
+  agencyFee: number // Hourly agency/markup fee
+  monthlyAgencyFee: number // Monthly agency/markup fee
   transactionCost: number // $55 × number of transactions per month
-  mspFee: number // MSP fee (optional)
+  mspFee: number // Monthly MSP fee (derived from bill rate × MSP %)
   backgroundCheckMonthlyFee: number // Amortized background check fee in local currency
-  platformFee: number // Calculated to achieve $1,000 net margin
-  netMargin: number // Target: $1,000 USD
-  workedHours: number // Standard 160 hours/month
+  platformFee: number // Additional platform cost (if any)
+  monthlyMarkup: number // Bill rate minus total monthly costs
+  netMargin: number // Net margin expressed in USD
+  workedHours: number // Hours assumed per month (defaults to 160)
   transactionsPerMonth: number // Based on payment frequency
 }
 

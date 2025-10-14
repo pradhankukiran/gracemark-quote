@@ -120,10 +120,12 @@ export const useICQuoteCalculation = ({ formData, currency }: UseICQuoteCalculat
       formattedBillRate: `${currency} ${quote.billRate.toFixed(2)}`,
       formattedMonthlyPayRate: `${currency} ${quote.monthlyPayRate.toLocaleString()}`,
       formattedMonthlyBillRate: `${currency} ${quote.monthlyBillRate.toLocaleString()}`,
+      formattedAgencyFee: `${currency} ${quote.agencyFee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      formattedMonthlyAgencyFee: `${currency} ${quote.monthlyAgencyFee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       formattedTransactionCost: `${currency} ${quote.transactionCost.toLocaleString()}`,
       formattedMspFee: `${currency} ${quote.mspFee.toLocaleString()}`,
       formattedBackgroundCheckMonthlyFee: `${currency} ${quote.backgroundCheckMonthlyFee.toLocaleString()}`,
-      formattedPlatformFee: `${currency} ${quote.platformFee.toLocaleString()}`,
+      formattedMonthlyMarkup: `${currency} ${quote.monthlyMarkup.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       formattedNetMargin: `USD ${quote.netMargin.toLocaleString()}`,
     }
   }, [quote, currency])

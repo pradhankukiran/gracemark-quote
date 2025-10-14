@@ -3,9 +3,8 @@ import { ICFormData, ICQuoteResult, ICQuoteRequest, ICQuoteResponse } from "@/li
 import { convertCurrency } from "@/lib/currency-converter"
 
 // Constants for IC calculation
-const GMK_MARKUP = 0.40 // 40% markup on pay rate
+const DEFAULT_MARKUP = 0.40 // 40% markup fallback
 const TRANSACTION_COST_USD = 55 // $55 USD per transaction
-const TARGET_NET_MARGIN_USD = 1000 // $1,000 USD target net margin
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,7 +27,7 @@ export async function POST(request: NextRequest) {
       } as ICQuoteResponse, { status: 400 })
     }
 
-    // Calculate quote using simple 40% markup formula
+    // Calculate quote
     const quote = await calculateICQuote(formData, currency)
 
     return NextResponse.json({
@@ -47,49 +46,63 @@ export async function POST(request: NextRequest) {
 
 async function calculateICQuote(formData: ICFormData, currency?: string): Promise<ICQuoteResult> {
   const rateAmount = parseFloat(formData.rateAmount)
-  const workedHours = 160 // Standard 160 hours per month
   const rateBasis = formData.rateBasis === "monthly" ? "monthly" : "hourly"
+
+  const parsedMonthlyHours = parseFloat(formData.totalMonthlyHours ?? "")
+  const hasCustomHours = Number.isFinite(parsedMonthlyHours) && parsedMonthlyHours > 0
+  const workedHours = hasCustomHours
+    ? Math.round(Math.min(parsedMonthlyHours, 160) * 100) / 100
+    : 160
 
   const activeCurrency = determineCurrency(currency, formData.currency)
 
-  const parseAmount = (value?: string | null) => {
-    if (!value) return 0
-    const parsed = parseFloat(value)
-    return Number.isFinite(parsed) ? parsed : 0
-  }
-
-  const mspFeeValue = parseAmount(formData.mspFee)
   const backgroundCheckMonthlyFee = formData.backgroundCheckRequired
-    ? parseAmount(formData.backgroundCheckMonthlyFee)
+    ? parseNumeric(formData.backgroundCheckMonthlyFee)
     : 0
   const transactionsPerMonth = getTransactionsPerMonth(formData.paymentFrequency)
 
   const transactionCost = await resolveTransactionCost(activeCurrency, transactionsPerMonth, formData)
 
+  const markupPercentage = parseNumeric(formData.markupPercentage)
+  const markupRate = Number.isFinite(markupPercentage) && markupPercentage > 0
+    ? markupPercentage / 100
+    : DEFAULT_MARKUP
+
   const payRate = rateBasis === "monthly" ? rateAmount / workedHours : rateAmount
-  const billRate = payRate * (1 + GMK_MARKUP)
+  const agencyFee = payRate * markupRate
+  const billRate = payRate + agencyFee
 
   const monthlyPayRate = payRate * workedHours
   const monthlyBillRate = billRate * workedHours
+  const monthlyAgencyFee = agencyFee * workedHours
 
-  const targetNetMarginLocal = await resolveTargetNetMargin(activeCurrency)
-  // Platform Fee calculation: Bill Rate - Pay Rate - MSP Fee - Target Net Margin
-  // Background check and transaction costs are pass-through costs and don't affect the net margin
-  const platformFeeRaw = monthlyBillRate - monthlyPayRate - mspFeeValue - targetNetMarginLocal
-  const platformFee = Math.round(platformFeeRaw * 100) / 100
+  const mspPercentage = parseNumeric(formData.mspPercentage)
+  const mspRate = Number.isFinite(mspPercentage) && mspPercentage > 0
+    ? mspPercentage / 100
+    : 0
+  const mspFeeHourly = billRate * mspRate
+  const mspFee = mspFeeHourly * workedHours
 
-  const netMarginDisplayUsd = TARGET_NET_MARGIN_USD
+  const totalMonthlyCosts = monthlyPayRate + transactionCost + backgroundCheckMonthlyFee + mspFee
+  const monthlyMarkup = monthlyBillRate - totalMonthlyCosts
+
+  const netMarginUsd = await resolveMarginInUsd(monthlyMarkup, activeCurrency)
+
+  const roundedNetMarginUsd = Math.round(netMarginUsd * 100) / 100
 
   return {
     payRate: Math.round(payRate * 100) / 100,
     billRate: Math.round(billRate * 100) / 100,
     monthlyPayRate: Math.round(monthlyPayRate * 100) / 100,
     monthlyBillRate: Math.round(monthlyBillRate * 100) / 100,
+    agencyFee: Math.round(agencyFee * 100) / 100,
+    monthlyAgencyFee: Math.round(monthlyAgencyFee * 100) / 100,
     transactionCost: Math.round(transactionCost * 100) / 100,
-    mspFee: Math.round(mspFeeValue * 100) / 100,
+    mspFee: Math.round(mspFee * 100) / 100,
     backgroundCheckMonthlyFee: Math.round(backgroundCheckMonthlyFee * 100) / 100,
-    platformFee,
-    netMargin: Math.round(netMarginDisplayUsd * 100) / 100,
+    platformFee: 0,
+    monthlyMarkup: Math.round(monthlyMarkup * 100) / 100,
+    netMargin: roundedNetMarginUsd,
     workedHours,
     transactionsPerMonth,
   }
@@ -131,26 +144,6 @@ async function resolveTransactionCost(currency: string, transactionsPerMonth: nu
   return TRANSACTION_COST_USD * transactionsPerMonth
 }
 
-async function resolveTargetNetMargin(currency: string): Promise<number> {
-  if (!currency || currency.toUpperCase() === "USD") {
-    return TARGET_NET_MARGIN_USD
-  }
-
-  try {
-    const conversion = await convertCurrency(TARGET_NET_MARGIN_USD, "USD", currency)
-    if (conversion.success && conversion.data) {
-      const converted = Number(conversion.data.target_amount)
-      if (!Number.isNaN(converted) && converted > 0) {
-        return converted
-      }
-    }
-  } catch (error) {
-    console.error("Net margin conversion failed:", error)
-  }
-
-  return TARGET_NET_MARGIN_USD
-}
-
 function determineCurrency(primary?: string, fallback?: string): string {
   const cleanedPrimary = primary?.trim()
   if (cleanedPrimary) {
@@ -179,6 +172,42 @@ function getTransactionsPerMonth(paymentFrequency: string): number {
     default:
       return 1
   }
+}
+
+async function resolveMarginInUsd(amount: number, currency: string): Promise<number> {
+  if (!Number.isFinite(amount)) {
+    return 0
+  }
+
+  if (!currency || currency.toUpperCase() === "USD") {
+    return amount
+  }
+
+  if (amount === 0) {
+    return 0
+  }
+
+  try {
+    const conversion = await convertCurrency(amount, currency, "USD")
+    if (conversion.success && conversion.data) {
+      const converted = Number(conversion.data.target_amount)
+      if (!Number.isNaN(converted)) {
+        return converted
+      }
+    }
+  } catch (error) {
+    console.error("Net margin USD conversion failed:", error)
+  }
+
+  return 0
+}
+
+function parseNumeric(value?: string | null): number {
+  if (value === undefined || value === null) {
+    return 0
+  }
+  const parsed = parseFloat(String(value))
+  return Number.isFinite(parsed) ? parsed : 0
 }
 
 // Allow OPTIONS for CORS preflight

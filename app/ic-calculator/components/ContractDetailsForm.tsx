@@ -15,7 +15,7 @@ interface ContractDetailsFormProps {
   contractDurationUnit: "months" | "years"
   paymentFrequency: string
   backgroundCheckRequired: boolean
-  mspFee: string
+  mspPercentage: string
   backgroundCheckMonthlyFee: string
   currency: string
   paymentFrequencies: Array<{ value: string; label: string }>
@@ -27,7 +27,7 @@ export const ContractDetailsForm = memo(({
   contractDurationUnit,
   paymentFrequency,
   backgroundCheckRequired,
-  mspFee,
+  mspPercentage,
   backgroundCheckMonthlyFee,
   currency,
   paymentFrequencies,
@@ -76,8 +76,8 @@ export const ContractDetailsForm = memo(({
     onFormUpdate({ backgroundCheckRequired: checked })
   }, [onFormUpdate])
 
-  const handleMspFeeChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    onFormUpdate({ mspFee: e.target.value })
+  const handleMspPercentageChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    onFormUpdate({ mspPercentage: e.target.value })
   }, [onFormUpdate])
 
   return (
@@ -137,26 +137,28 @@ export const ContractDetailsForm = memo(({
       <div className="mt-6 grid gap-4 md:grid-cols-2 md:items-start">
         <div className="space-y-2">
           <Label
-            htmlFor="msp-fee"
+            htmlFor="msp-percentage"
             className="text-base font-semibold text-slate-700 uppercase tracking-wide"
           >
-            MSP Fee (Optional)
+            MSP Percentage (Optional)
           </Label>
           <div className="relative">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-sm font-semibold text-slate-500">
-              {currency}
+            <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-sm font-semibold text-slate-500">
+              %
             </span>
             <Input
-              id="msp-fee"
+              id="msp-percentage"
               type="number"
-              value={mspFee}
-              onChange={handleMspFeeChange}
-              placeholder="Enter MSP fee amount (if applicable)"
-              className="h-12 border-slate-200 text-slate-700 pl-16"
+              step="0.1"
+              min="0"
+              value={mspPercentage}
+              onChange={handleMspPercentageChange}
+              placeholder="Enter MSP percentage (if applicable)"
+              className="h-12 border-slate-200 text-slate-700 pr-16"
             />
           </div>
           <p className="text-sm text-slate-500">
-            Monthly Managed Service Provider fee for applicable clients
+            Example: NextSource 8%, Autodesk 2.5%. Leave blank if no MSP applies.
           </p>
         </div>
         <Label
