@@ -172,6 +172,8 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
   }, [formData.displayInUSD, currency, displayCurrency])
 
   useEffect(() => {
+    const targetCurrency = formData.displayInUSD ? "USD" : currency
+
     if (!formData.backgroundCheckRequired) {
       backgroundConversionAbortController.current?.abort()
       backgroundConversionAbortController.current = null
@@ -193,7 +195,7 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
       ? durationValue * 12
       : durationValue
 
-    if (!durationMonths || Number.isNaN(durationMonths) || durationMonths <= 0 || !currency) {
+    if (!durationMonths || Number.isNaN(durationMonths) || durationMonths <= 0 || !targetCurrency) {
       backgroundConversionAbortController.current?.abort()
       backgroundConversionAbortController.current = null
       setFormData((prev) => {
@@ -214,7 +216,7 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
 
     ;(async () => {
       try {
-        const result = await convertCurrency(BACKGROUND_CHECK_FEE_USD, "USD", currency, controller.signal)
+        const result = await convertCurrency(BACKGROUND_CHECK_FEE_USD, "USD", targetCurrency, controller.signal)
         if (controller.signal.aborted) {
           return
         }
@@ -262,10 +264,12 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
         }
       }
     })()
-  }, [formData.backgroundCheckRequired, formData.contractDuration, formData.contractDurationUnit, currency, setFormData])
+  }, [formData.backgroundCheckRequired, formData.contractDuration, formData.contractDurationUnit, currency, formData.displayInUSD, setFormData])
 
   useEffect(() => {
-    if (!currency) {
+    const targetCurrency = formData.displayInUSD ? "USD" : currency
+
+    if (!targetCurrency) {
       transactionConversionAbortController.current?.abort()
       transactionConversionAbortController.current = null
       setFormData((prev) => {
@@ -320,7 +324,7 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
       })
     }
 
-    if (currency.toUpperCase() === "USD") {
+    if (targetCurrency.toUpperCase() === "USD") {
       updateTransactionCosts(TRANSACTION_COST_PER_TRANSACTION_USD)
       transactionConversionAbortController.current = null
       return
@@ -331,7 +335,7 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
         const result = await convertCurrency(
           TRANSACTION_COST_PER_TRANSACTION_USD,
           "USD",
-          currency,
+          targetCurrency,
           controller.signal
         )
         if (controller.signal.aborted) {
@@ -372,7 +376,7 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
         }
       }
     })()
-  }, [currency, formData.paymentFrequency, setFormData])
+  }, [currency, formData.paymentFrequency, formData.displayInUSD, setFormData])
 
   const updateFormData = useCallback((updates: Partial<ICFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }))
