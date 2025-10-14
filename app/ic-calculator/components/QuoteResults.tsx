@@ -162,7 +162,7 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
                 )}
 
                 <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
-                  <span className="text-slate-600 font-medium">Transaction Cost</span>
+                  <span className="text-slate-600 font-medium">Agency Fee</span>
                   <div className="text-right">
                     <span className="font-bold text-lg text-slate-900 block">
                       {formatCurrency(quote.transactionCost)}

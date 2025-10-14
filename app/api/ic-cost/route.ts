@@ -55,13 +55,25 @@ async function calculateICQuote(formData: ICFormData, currency?: string): Promis
     : 160
 
   const activeCurrency = determineCurrency(currency, formData.currency)
+  const baseCurrency = determineCurrency(formData.currency, currency)
 
-  const backgroundCheckMonthlyFee = formData.backgroundCheckRequired
+  const backgroundCheckMonthlyFeeRaw = formData.backgroundCheckRequired
     ? parseNumeric(formData.backgroundCheckMonthlyFee)
     : 0
   const transactionsPerMonth = getTransactionsPerMonth(formData.paymentFrequency)
 
-  const transactionCost = await resolveTransactionCost(activeCurrency, transactionsPerMonth, formData)
+  const backgroundCheckMonthlyFee = await normalizeCurrencyAmount(
+    backgroundCheckMonthlyFeeRaw,
+    baseCurrency,
+    activeCurrency
+  )
+
+  const transactionCost = await resolveTransactionCost(
+    activeCurrency,
+    transactionsPerMonth,
+    formData,
+    baseCurrency
+  )
 
   const markupPercentage = parseNumeric(formData.markupPercentage)
   const markupRate = Number.isFinite(markupPercentage) && markupPercentage > 0
@@ -108,13 +120,18 @@ async function calculateICQuote(formData: ICFormData, currency?: string): Promis
   }
 }
 
-async function resolveTransactionCost(currency: string, transactionsPerMonth: number, formData: ICFormData): Promise<number> {
+async function resolveTransactionCost(
+  currency: string,
+  transactionsPerMonth: number,
+  formData: ICFormData,
+  baseCurrency: string
+): Promise<number> {
   const monthlyOverride = formData.transactionCostMonthly
     ? parseFloat(formData.transactionCostMonthly)
     : Number.NaN
 
   if (!Number.isNaN(monthlyOverride) && monthlyOverride > 0) {
-    return monthlyOverride
+    return await normalizeCurrencyAmount(monthlyOverride, baseCurrency, currency)
   }
 
   const perTransactionOverride = formData.transactionCostPerTransaction
@@ -122,7 +139,8 @@ async function resolveTransactionCost(currency: string, transactionsPerMonth: nu
     : Number.NaN
 
   if (!Number.isNaN(perTransactionOverride) && perTransactionOverride > 0) {
-    return perTransactionOverride * transactionsPerMonth
+    const convertedPerTransaction = await normalizeCurrencyAmount(perTransactionOverride, baseCurrency, currency)
+    return convertedPerTransaction * transactionsPerMonth
   }
 
   if (!currency || currency.toUpperCase() === "USD") {
@@ -208,6 +226,34 @@ function parseNumeric(value?: string | null): number {
   }
   const parsed = parseFloat(String(value))
   return Number.isFinite(parsed) ? parsed : 0
+}
+
+async function normalizeCurrencyAmount(
+  amount: number,
+  sourceCurrency: string,
+  targetCurrency: string
+): Promise<number> {
+  if (!Number.isFinite(amount) || amount === 0) {
+    return 0
+  }
+
+  if (!sourceCurrency || !targetCurrency || sourceCurrency.toUpperCase() === targetCurrency.toUpperCase()) {
+    return amount
+  }
+
+  try {
+    const conversion = await convertCurrency(amount, sourceCurrency, targetCurrency)
+    if (conversion.success && conversion.data) {
+      const converted = Number(conversion.data.target_amount)
+      if (Number.isFinite(converted)) {
+        return converted
+      }
+    }
+  } catch (error) {
+    console.error("Currency normalization failed:", error)
+  }
+
+  return amount
 }
 
 // Allow OPTIONS for CORS preflight
