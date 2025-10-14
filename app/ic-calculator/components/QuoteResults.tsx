@@ -59,15 +59,19 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
 
   const totalClientCost = quote.monthlyBillRate + quote.transactionCost + quote.backgroundCheckMonthlyFee + quote.mspFee
 
-  const marginFormulaParts: string[] = ["Pay Rate"]
+  const marginAdjustments: string[] = []
+  if (quote.transactionCost > 0) {
+    marginAdjustments.push("Platform Fee")
+  }
   if (quote.mspFee > 0) {
-    marginFormulaParts.push("MSP Fee")
+    marginAdjustments.push("MSP Fee")
   }
-  marginFormulaParts.push("Transaction Cost")
   if (quote.backgroundCheckMonthlyFee > 0) {
-    marginFormulaParts.push("Background Check")
+    marginAdjustments.push("Background Check")
   }
-  const marginFormula = marginFormulaParts.join(" + ")
+  const marginFormula = marginAdjustments.length > 0
+    ? `Agency Fee − (${marginAdjustments.join(" + ")})`
+    : "Agency Fee"
 
   const contractDurationDisplay = formData.contractDuration
     ? (() => {
@@ -144,43 +148,65 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
             <div className="space-y-3">
               <h3 className="text-lg font-semibold text-slate-900 mb-3">Monthly Cost Breakdown</h3>
 
-              <div className="space-y-2">
-                <div className="flex justify-between items-center py-3 px-4 bg-blue-50 rounded-md border border-blue-200">
-                  <span className="text-slate-700 font-semibold">Contractor Pay Rate</span>
-                  <span className="font-bold text-lg text-slate-900">
-                    {formatCurrency(quote.monthlyPayRate)}
-                  </span>
-                </div>
-
-                {quote.mspFee > 0 && (
-                  <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
-                    <span className="text-slate-600 font-medium">MSP Fee</span>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                    Included in Bill Rate
+                  </h4>
+                  <div className="flex justify-between items-center py-3 px-4 bg-blue-50 rounded-md border border-blue-200">
+                    <span className="text-slate-700 font-semibold">Contractor Pay Rate</span>
                     <span className="font-bold text-lg text-slate-900">
-                      {formatCurrency(quote.mspFee)}
+                      {formatCurrency(quote.monthlyPayRate)}
                     </span>
                   </div>
-                )}
+                  <div className="flex justify-between items-center py-3 px-4 bg-emerald-50 rounded-md border border-emerald-200">
+                    <div>
+                      <span className="text-emerald-700 font-semibold block">Agency Fee (Markup)</span>
+                      <span className="text-xs text-emerald-600">
+                        {formatCurrency(quote.monthlyPayRate)} × {resolvedMarkupPercentage.toFixed(2)}%
+                      </span>
+                    </div>
+                    <span className="font-bold text-lg text-emerald-700">
+                      {formatCurrency(quote.monthlyAgencyFee)}
+                    </span>
+                  </div>
+                </div>
 
-                <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
-                  <span className="text-slate-600 font-medium">Agency Fee</span>
-                  <div className="text-right">
-                    <span className="font-bold text-lg text-slate-900 block">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                    Pass-Through Costs
+                  </h4>
+
+                  <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
+                    <div>
+                      <span className="text-slate-600 font-medium block">Platform Fee (per payout)</span>
+                      <span className="text-xs text-slate-500">
+                        {quote.transactionsPerMonth} × $55 USD
+                      </span>
+                    </div>
+                    <span className="font-bold text-lg text-slate-900">
                       {formatCurrency(quote.transactionCost)}
                     </span>
-                    <span className="text-xs text-slate-500">
-                      {quote.transactionsPerMonth} × $55 USD
-                    </span>
                   </div>
-                </div>
 
-                {quote.backgroundCheckMonthlyFee > 0 && (
-                  <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
-                    <span className="text-slate-600 font-medium">Background Check Fee (amortized)</span>
-                    <span className="font-bold text-lg text-slate-900">
-                      {formatCurrency(quote.backgroundCheckMonthlyFee)}
-                    </span>
-                  </div>
-                )}
+                  {quote.mspFee > 0 && (
+                    <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
+                      <span className="text-slate-600 font-medium">MSP Fee</span>
+                      <span className="font-bold text-lg text-slate-900">
+                        {formatCurrency(quote.mspFee)}
+                      </span>
+                    </div>
+                  )}
+
+                  {quote.backgroundCheckMonthlyFee > 0 && (
+                    <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-md">
+                      <span className="text-slate-600 font-medium">Background Check Fee (amortized)</span>
+                      <span className="font-bold text-lg text-slate-900">
+                        {formatCurrency(quote.backgroundCheckMonthlyFee)}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex justify-between items-center py-3 px-4 bg-primary/10 rounded-md border-2 border-primary/30">
@@ -196,15 +222,20 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
                 <h4 className="text-sm font-semibold text-slate-700 mb-2">Monthly Markup Summary</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center py-3 px-4 bg-gradient-to-r from-emerald-500/10 to-emerald-400/10 border border-emerald-300 rounded-md">
-                    <span className="text-emerald-700 font-semibold">
-                      Monthly Markup (Bill − Total Costs)
-                    </span>
+                    <div>
+                      <span className="text-emerald-700 font-semibold block">
+                        Monthly Markup
+                      </span>
+                      <span className="text-xs text-emerald-600">
+                        Agency Fee − Pass-through Costs
+                      </span>
+                    </div>
                     <span className="font-bold text-lg text-emerald-700">
                       {formatCurrency(quote.monthlyMarkup)}
                     </span>
                   </div>
                   <p className="text-xs text-slate-600">
-                    Markup formula: Bill Rate − ({marginFormula})
+                    Markup formula: {marginFormula}
                   </p>
                   <p className="text-xs text-slate-600">
                     USD Equivalent: ${quote.netMargin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (target: $1,000 USD)
