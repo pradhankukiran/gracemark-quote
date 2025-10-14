@@ -128,6 +128,9 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
                 <div className="text-sm text-slate-500 mt-1">
                   {formatCurrency(agencySecondary)}{secondaryUnit}
                 </div>
+                <div className="text-xs text-slate-500 mt-2">
+                  {formatCurrency(payRatePrimary)} × {resolvedMarkupPercentage.toFixed(2)}% = {formatCurrency(agencyPrimary)}
+                </div>
               </div>
             </div>
 
