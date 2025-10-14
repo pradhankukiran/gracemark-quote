@@ -518,6 +518,7 @@ export interface ICFormData {
   country: string
   state: string
   currency: string
+  displayInUSD: boolean // Toggle to display amounts in USD instead of local currency
   rateBasis: "hourly" | "monthly"
   rateAmount: string
   paymentFrequency: string

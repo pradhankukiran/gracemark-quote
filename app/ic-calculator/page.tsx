@@ -20,6 +20,7 @@ export default function ICCalculatorPage() {
   const {
     formData,
     currency,
+    displayCurrency,
     validationErrors,
     countries,
     selectedCountryData,
@@ -34,6 +35,7 @@ export default function ICCalculatorPage() {
     isFormValid,
     rateConversionMessage,
     handleCountryChange,
+    handleCurrencyToggle,
   } = useICForm()
 
   const {
@@ -45,7 +47,7 @@ export default function ICCalculatorPage() {
     clearError,
   } = useICQuoteCalculation({
     formData,
-    currency,
+    currency: displayCurrency,
   })
 
   const resultsRef = useRef<HTMLDivElement | null>(null)
@@ -127,9 +129,11 @@ export default function ICCalculatorPage() {
                   contractorName={formData.contractorName}
                   country={formData.country}
                   currency={currency}
+                  displayInUSD={formData.displayInUSD}
                   countries={countries}
                   onFormUpdate={updateFormData}
                   onCountryChange={handleCountryChange}
+                  onCurrencyToggle={handleCurrencyToggle}
                 />
 
                 <Separator />
@@ -138,7 +142,7 @@ export default function ICCalculatorPage() {
                   rateBasis={formData.rateBasis}
                   rateAmount={formData.rateAmount}
                   rateConversionMessage={rateConversionMessage}
-                  currency={currency}
+                  currency={displayCurrency}
                   onFormUpdate={updateFormData}
                 />
 
@@ -151,7 +155,7 @@ export default function ICCalculatorPage() {
                   backgroundCheckRequired={formData.backgroundCheckRequired}
                   mspFee={formData.mspFee}
                   backgroundCheckMonthlyFee={formData.backgroundCheckMonthlyFee}
-                  currency={currency}
+                  currency={displayCurrency}
                   paymentFrequencies={paymentFrequencies}
                   onFormUpdate={updateFormData}
                 />
@@ -172,7 +176,7 @@ export default function ICCalculatorPage() {
             <QuoteResults
               quote={quote}
               formData={formData}
-              currency={currency}
+              currency={displayCurrency}
             />
           </div>
         </div>

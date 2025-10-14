@@ -4,23 +4,29 @@ import { ICFormData } from "@/lib/shared/types"
 import { FormSectionHeader } from "../../eor-calculator/components/shared/FormSectionHeader"
 import { FormField } from "../../eor-calculator/components/shared/FormField"
 import { FORM_STYLES } from "../../eor-calculator/styles/constants"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface ContractorInfoFormProps {
   contractorName: string
   country: string
   currency: string
+  displayInUSD: boolean
   countries: string[]
   onFormUpdate: (updates: Partial<ICFormData>) => void
   onCountryChange: (country: string) => void
+  onCurrencyToggle: (useUSD: boolean) => void
 }
 
 export const ContractorInfoForm = memo(({
   contractorName,
   country,
   currency,
+  displayInUSD,
   countries,
   onFormUpdate,
   onCountryChange,
+  onCurrencyToggle,
 }: ContractorInfoFormProps) => {
 
   const countryOptions = useMemo(() =>
@@ -35,6 +41,12 @@ export const ContractorInfoForm = memo(({
   const handleCountryChange = useCallback((value: string) => {
     onCountryChange(value)
   }, [onCountryChange])
+
+  const handleCurrencyToggle = useCallback((checked: boolean) => {
+    onCurrencyToggle(checked)
+  }, [onCurrencyToggle])
+
+  const displayCurrency = displayInUSD ? "USD" : currency
 
   return (
     <div>
@@ -51,7 +63,6 @@ export const ContractorInfoForm = memo(({
           value={contractorName}
           onChange={handleContractorNameChange}
           placeholder="Enter contractor name"
-          required
         />
         <FormField
           type="select"
@@ -67,11 +78,35 @@ export const ContractorInfoForm = memo(({
           type="input"
           label="Currency"
           htmlFor="currency"
-          value={currency}
+          value={displayCurrency}
           onChange={() => {}} // Currency is auto-updated based on country
           readOnly
         />
       </div>
+
+      {currency !== "USD" && country && (
+        <div className="mt-4">
+          <Label
+            htmlFor="currency-toggle"
+            className="flex items-center gap-3 p-3 border-2 rounded-md cursor-pointer transition-all duration-200 hover:border-primary/50"
+          >
+            <Checkbox
+              id="currency-toggle"
+              checked={displayInUSD}
+              onCheckedChange={handleCurrencyToggle}
+              className="h-5 w-5"
+            />
+            <div className="space-y-1">
+              <span className="block text-base font-medium text-slate-800">
+                Display amounts in USD
+              </span>
+              <p className="text-sm text-slate-600">
+                Toggle to view and input all monetary values in USD instead of {currency}
+              </p>
+            </div>
+          </Label>
+        </div>
+      )}
     </div>
   )
 })

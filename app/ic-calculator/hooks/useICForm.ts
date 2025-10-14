@@ -14,6 +14,7 @@ const initialFormData: ICFormData = {
   country: "",
   state: "",
   currency: "USD",
+  displayInUSD: false,
   rateBasis: "hourly",
   rateAmount: "",
   paymentFrequency: "monthly",
@@ -95,8 +96,10 @@ export const useICForm = () => {
 
   const [validationErrors, setValidationErrors] = useState<ICValidationErrors>(initialValidationErrors)
   const [currency, setCurrency] = useState(formData.currency || "USD")
+  const [displayCurrency, setDisplayCurrency] = useState(formData.displayInUSD ? "USD" : (formData.currency || "USD"))
   const [rateConversionMessage, setRateConversionMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const conversionAbortController = useRef<AbortController | null>(null)
+  const currencyToggleAbortController = useRef<AbortController | null>(null)
 const backgroundConversionAbortController = useRef<AbortController | null>(null)
 const transactionConversionAbortController = useRef<AbortController | null>(null)
 
@@ -128,6 +131,7 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
       conversionAbortController.current?.abort()
       backgroundConversionAbortController.current?.abort()
       transactionConversionAbortController.current?.abort()
+      currencyToggleAbortController.current?.abort()
     }
   }, [])
 
@@ -156,6 +160,14 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
       setCurrency(formData.currency)
     }
   }, [formData.currency, currency])
+
+  // Update display currency based on displayInUSD toggle
+  useEffect(() => {
+    const newDisplayCurrency = formData.displayInUSD ? "USD" : currency
+    if (newDisplayCurrency !== displayCurrency) {
+      setDisplayCurrency(newDisplayCurrency)
+    }
+  }, [formData.displayInUSD, currency, displayCurrency])
 
   useEffect(() => {
     if (!formData.backgroundCheckRequired) {
@@ -442,16 +454,84 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
     setRateConversionMessage(null)
   }, [currency, setFormData])
 
+  const handleCurrencyToggle = useCallback(async (useUSD: boolean) => {
+    currencyToggleAbortController.current?.abort()
+    const controller = new AbortController()
+    currencyToggleAbortController.current = controller
+
+    const sourceCurrency = useUSD ? currency : "USD"
+    const targetCurrency = useUSD ? "USD" : currency
+
+    // If currencies are the same (e.g., country is already USA), just toggle without conversion
+    if (sourceCurrency === targetCurrency) {
+      setFormData((prev) => ({
+        ...prev,
+        displayInUSD: useUSD,
+      }))
+      currencyToggleAbortController.current = null
+      return
+    }
+
+    try {
+      // Convert rateAmount if it exists
+      let convertedRateAmount = formData.rateAmount
+      if (formData.rateAmount && parseFloat(formData.rateAmount) > 0) {
+        const rateResult = await convertCurrency(
+          parseFloat(formData.rateAmount),
+          sourceCurrency,
+          targetCurrency,
+          controller.signal
+        )
+        if (controller.signal.aborted) return
+        if (rateResult.success && rateResult.data) {
+          convertedRateAmount = rateResult.data.target_amount.toFixed(2)
+        }
+      }
+
+      // Convert mspFee if it exists
+      let convertedMspFee = formData.mspFee
+      if (formData.mspFee && parseFloat(formData.mspFee) > 0) {
+        const mspResult = await convertCurrency(
+          parseFloat(formData.mspFee),
+          sourceCurrency,
+          targetCurrency,
+          controller.signal
+        )
+        if (controller.signal.aborted) return
+        if (mspResult.success && mspResult.data) {
+          convertedMspFee = mspResult.data.target_amount.toFixed(2)
+        }
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        displayInUSD: useUSD,
+        rateAmount: convertedRateAmount,
+        mspFee: convertedMspFee,
+      }))
+    } catch (error) {
+      console.error('Currency toggle conversion failed:', error)
+      // Still toggle but keep the values as-is
+      setFormData((prev) => ({
+        ...prev,
+        displayInUSD: useUSD,
+      }))
+    } finally {
+      if (currencyToggleAbortController.current === controller) {
+        currencyToggleAbortController.current = null
+      }
+    }
+  }, [currency, formData.rateAmount, formData.mspFee, setFormData])
+
   const isFormValid = useCallback(() => {
     // Check that required fields have actual content (not just truthy)
-    const hasValidContractorName = formData.contractorName && formData.contractorName.trim() !== ''
     const hasValidCountry = formData.country && formData.country.trim() !== ''
     const hasValidRateAmount = formData.rateAmount && formData.rateAmount.trim() !== '' && parseFloat(formData.rateAmount) > 0
     const hasValidCurrency = currency && currency.trim() !== ''
     const hasNoValidationErrors = !Object.values(validationErrors).some(error => error !== null)
 
-    return Boolean(hasValidContractorName && hasValidCountry && hasValidRateAmount && hasValidCurrency && hasNoValidationErrors)
-  }, [formData.contractorName, formData.country, formData.rateAmount, currency, validationErrors])
+    return Boolean(hasValidCountry && hasValidRateAmount && hasValidCurrency && hasNoValidationErrors)
+  }, [formData.country, formData.rateAmount, currency, validationErrors])
 
   // Service type options
   // Payment frequency options
@@ -470,6 +550,7 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
   return {
     formData,
     currency,
+    displayCurrency,
     validationErrors,
     countries,
     selectedCountryData,
@@ -485,5 +566,6 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
     isFormValid,
     rateConversionMessage,
     handleCountryChange,
+    handleCurrencyToggle,
   }
 }

@@ -195,7 +195,7 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
             <Separator className="my-6" />
 
             {/* Net Margin */}
-            <div className="bg-gradient-to-r from-green-50 to-green-100 p-6 border-2 border-green-200 rounded-lg">
+            {/* <div className="bg-gradient-to-r from-green-50 to-green-100 p-6 border-2 border-green-200 rounded-lg">
               <div className="flex justify-between items-center">
                 <span className="text-xl font-bold text-slate-900">Net Monthly Margin</span>
                 <span className="text-green-600 text-3xl font-bold">
@@ -216,10 +216,10 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
                   Note: Transaction costs and background check fees are pass-through costs and do not affect the target margin.
                 </p>
               </div>
-            </div>
+            </div> */}
 
             {/* Service Details */}
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            {/* <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <h4 className="font-semibold text-blue-900 mb-2">Contract Details</h4>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
@@ -245,7 +245,7 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
                   </span>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </CardContent>
       </Card>
