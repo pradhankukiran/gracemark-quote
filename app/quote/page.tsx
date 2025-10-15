@@ -1145,12 +1145,25 @@ const QuotePageContent = memo(() => {
       }
     })()
 
+    // Calculate monthly bill rate
+    const monthlyBillRateLocal = resolvedDuration > 0
+      ? roundToCents((billRateLocal - onboardingLocal) / resolvedDuration)
+      : roundToCents(billRateLocal - onboardingLocal)
+
+    const monthlyBillRateUSD =
+      billRateUSD !== null && onboardingUSD !== null
+        ? (resolvedDuration > 0
+            ? roundToCents((billRateUSD - onboardingUSD) / resolvedDuration)
+            : roundToCents(billRateUSD - onboardingUSD))
+        : (localCurrency === 'USD' ? monthlyBillRateLocal : null)
+
     return {
       localCurrency,
       duration: resolvedDuration,
       totals: {
         assignment: { local: totalAssignmentLocal, usd: totalAssignmentUSD },
         billRate: { local: billRateLocal, usd: billRateUSD },
+        monthlyBillRate: { local: monthlyBillRateLocal, usd: monthlyBillRateUSD },
         profit: { local: totalProfitLocal, usd: totalProfitUSD },
         markup: { local: monthlyMarkupLocal, usd: monthlyMarkupUSD }
       },
@@ -3262,7 +3275,8 @@ const QuotePageContent = memo(() => {
                                   {/* KPI Metrics Section - Moved Below Cost Breakdown */}
                                   {acidTestKpiMetrics && (
                                     <div className="space-y-4 mt-8">
-                                      <div className="grid gap-4 md:grid-cols-2">
+                                      {/* Row 1: Total Assignment Costs - Full Width Rectangular */}
+                                      <div className="w-full">
                                         <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6">
                                           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Assignment Costs</p>
                                           <div className="mt-2">
@@ -3283,7 +3297,10 @@ const QuotePageContent = memo(() => {
                                             Recurring costs excluding Gracemark fee & onboarding.
                                           </p>
                                         </div>
+                                      </div>
 
+                                      {/* Row 2: Bill Rate (All-In) and Monthly Bill Rate */}
+                                      <div className="grid gap-4 md:grid-cols-2">
                                         <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6">
                                           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Bill Rate (All-In)</p>
                                           <div className="mt-2">
@@ -3301,11 +3318,33 @@ const QuotePageContent = memo(() => {
                                               : '—'}
                                           </div>
                                           <p className="mt-3 text-xs text-slate-500">
-                                            All costs including Gracemark fee & onboarding.
+                                            Total revenue including all costs & onboarding.
+                                          </p>
+                                        </div>
+
+                                        <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6">
+                                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Monthly Bill Rate</p>
+                                          <div className="mt-2">
+                                            <div className="text-3xl font-bold text-slate-900">
+                                              {formatMoney(acidTestKpiMetrics.totals.monthlyBillRate.local, acidTestKpiMetrics.localCurrency)}
+                                            </div>
+                                            <p className="text-xs text-slate-500 mt-1">
+                                              Per month recurring revenue
+                                            </p>
+                                          </div>
+                                          <div className="mt-4 text-sm text-slate-600">
+                                            <span className="font-medium text-slate-700">USD:</span>{' '}
+                                            {acidTestKpiMetrics.totals.monthlyBillRate.usd !== null
+                                              ? formatMoney(acidTestKpiMetrics.totals.monthlyBillRate.usd, 'USD')
+                                              : '—'}
+                                          </div>
+                                          <p className="mt-3 text-xs text-slate-500">
+                                            Monthly rate excluding onboarding fees.
                                           </p>
                                         </div>
                                       </div>
 
+                                      {/* Row 3: Total Profit and Monthly Markup Fee */}
                                       <div className="grid gap-4 md:grid-cols-2">
                                         <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6">
                                           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Profit</p>
