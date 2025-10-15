@@ -134,7 +134,7 @@ export class CerebrasService {
     let response: any
     try {
       response = await client.chat.completions.create({
-        model: "llama-4-maverick-17b-128e-instruct",
+        model: "llama-4-scout-17b-16e-instruct",
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -153,7 +153,7 @@ export class CerebrasService {
 
       // Retry without response_format
       response = await client.chat.completions.create({
-        model: "llama-4-maverick-17b-128e-instruct",
+        model: "llama-4-scout-17b-16e-instruct",
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -338,7 +338,7 @@ export class CerebrasService {
     let response: any
     try {
       response = await client.chat.completions.create({
-        model: "llama-4-maverick-17b-128e-instruct",
+        model: "llama-4-scout-17b-16e-instruct",
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -360,7 +360,7 @@ export class CerebrasService {
 
       // Retry without response_format (some models may not support it)
       response = await client.chat.completions.create({
-        model: "llama-4-maverick-17b-128e-instruct",
+        model: "llama-4-scout-17b-16e-instruct",
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }

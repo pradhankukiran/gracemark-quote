@@ -24,6 +24,8 @@ import { identifyBenefitKey } from "@/lib/shared/utils/benefitNormalization"
 import { EORFormData, LocalOfficeInfo, RemoteAPIResponse, Quote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
 import { ProviderType, EnhancedQuote, TerminationComponentEnhancement } from "@/lib/types/enhancement"
 import { convertCurrency } from "@/lib/currency-converter"
+import { exportAcidTestCostBreakdownPdf } from "@/lib/pdf/exportAcidTestCostBreakdown"
+import type { AcidTestPdfCategory, AcidTestPdfItem } from "@/lib/pdf/AcidTestCostBreakdownDocument"
 import { getRawQuote } from "@/lib/shared/utils/rawQuoteStore"
 import {
   getDeelProviderPrice,
@@ -835,7 +837,7 @@ const QuotePageContent = memo(() => {
   const [isAllInclusiveQuote, setIsAllInclusiveQuote] = useState<boolean>(true)
   const [acidTestResults, setAcidTestResults] = useState<AcidTestCalculationResult | null>(null)
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
-  const [isExportingResults, setIsExportingResults] = useState(false)
+  const [isExportingPdf, setIsExportingPdf] = useState(false)
   const [cachedCostItems, setCachedCostItems] = useState<Partial<Record<ProviderType, Array<{ key: string; name: string; monthly_amount: number }>>>>({})
   const [providerTotals, setProviderTotals] = useState<Partial<Record<ProviderType, { amount: number | null; currency?: string; ready: boolean }>>>({})
 
@@ -1929,20 +1931,27 @@ const QuotePageContent = memo(() => {
     if ((quoteData.quotes as any).comparisonOmnipresent) autoConvertQuote((quoteData.quotes as any).comparisonOmnipresent as any, 'compareOmnipresent')
   }, [quoteData?.status, quoteData?.quotes, autoConvertQuote, autoConvertRemoteQuote])
 
-  const handleExportAcidTestResults = useCallback(async () => {
-    if (!acidTestResults || !acidTestCostData || !finalChoice) return
+  const handleExportAcidTestPdf = useCallback(async () => {
+    if (!acidTestResults || !acidTestCostData || !acidTestKpiMetrics || !finalChoice) return
 
-    setIsExportingResults(true)
+    setIsExportingPdf(true)
 
     try {
-      const { categories, currency } = acidTestCostData
-      const providerCurrency = currency || finalChoice.currency
+      const { categories } = acidTestCostData
+      const providerCurrency = acidTestCostData.currency || finalChoice.currency || 'USD'
 
-      let usdRate: number | null = 1
+      let usdRate: number | null = providerCurrency === 'USD' ? 1 : null
+
       if (providerCurrency !== 'USD') {
         const rateResult = await convertCurrency(1, providerCurrency, 'USD')
-        usdRate = rateResult.success && rateResult.data ? Number(rateResult.data.target_amount) : null
+        if (rateResult.success && rateResult.data) {
+          usdRate = Number(rateResult.data.target_amount)
+        } else {
+          usdRate = null
+        }
       }
+
+      const showUSD = providerCurrency !== 'USD' && usdRate !== null
 
       const toUSD = (amount: number | undefined): number | undefined => {
         if (!Number.isFinite(amount ?? NaN)) return undefined
@@ -1951,106 +1960,127 @@ const QuotePageContent = memo(() => {
         return Number(((amount ?? 0) * usdRate).toFixed(2))
       }
 
-      const formatLabel = (raw: string) => raw
-        .replace(/[_-]+/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim()
-        .replace(/\b\w/g, letter => letter.toUpperCase())
-
-      const exportRows: Array<{ label: string; local: number; usd?: number }> = []
-      const pushRow = (label: string, local?: number, usd?: number) => {
-        if (!Number.isFinite(local ?? NaN)) return
-        const localValue = Number((local ?? 0).toFixed(2))
-        const usdValue = usd !== undefined ? Number(usd.toFixed(2)) : undefined
-        exportRows.push({ label, local: localValue, usd: usdValue })
+      const formatAmount = (amount: number | undefined, currencyCode: string): string => {
+        if (!Number.isFinite(amount ?? NaN)) return '—'
+        const normalised = Number((amount ?? 0).toFixed(2))
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: currencyCode,
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(normalised)
       }
 
-      Object.values(categories).forEach(categoryRecord => {
-        Object.entries(categoryRecord || {}).forEach(([key, value]) => {
-          const localAmount = Number(value)
-          if (!Number.isFinite(localAmount)) return
-          pushRow(formatLabel(key), localAmount, toUSD(localAmount))
+      const formatLocal = (value: number | undefined) => formatAmount(value, providerCurrency)
+      const formatUSDValue = (value: number | undefined): string | undefined => {
+        if (!showUSD) return undefined
+        if (!Number.isFinite(value ?? NaN)) return '—'
+        return formatAmount(value, 'USD')
+      }
+
+      const excludedLabels = new Set(
+        [
+          'local office monthly payments',
+          'vat on local office payments',
+          'background check via deel',
+        ]
+      )
+
+      const shouldSkipLabel = (label: string) => {
+        const normalized = label.trim().toLowerCase()
+        if (normalized.includes('gracemark fee')) return true
+        return excludedLabels.has(normalized)
+      }
+
+      const categoriesData: AcidTestPdfCategory[] = []
+
+      const pushCategory = (title: string, bucket?: Record<string, number>) => {
+        if (!bucket) return
+
+        let localSum = 0
+        let usdSum = 0
+        let hasUsdSum = false
+        const items: AcidTestPdfItem[] = []
+
+        Object.entries(bucket).forEach(([key, rawValue]) => {
+          const amount = Number(rawValue)
+          if (!Number.isFinite(amount)) return
+          const label = formatKeyName(key)
+          if (shouldSkipLabel(label)) return
+
+          const usdAmount = toUSD(amount)
+
+          items.push({
+            label,
+            local: formatLocal(amount),
+            usd: formatUSDValue(usdAmount),
+          })
+
+          localSum += amount
+          if (showUSD && Number.isFinite(usdAmount ?? NaN)) {
+            usdSum += usdAmount as number
+            hasUsdSum = true
+          }
         })
-      })
 
-      const { billRateComposition } = acidTestResults
-      const baseMonthlyCost = billRateComposition.salaryMonthly + billRateComposition.statutoryMonthly + billRateComposition.allowancesMonthly + billRateComposition.terminationMonthly
-      const baseMonthlyUSDParts = [
-        billRateComposition.salaryMonthlyUSD,
-        billRateComposition.statutoryMonthlyUSD,
-        billRateComposition.allowancesMonthlyUSD,
-        billRateComposition.terminationMonthlyUSD,
-      ].filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
+        const hasData = items.length > 0 || Math.abs(localSum) > 0.0001
+        if (!hasData) {
+          return
+        }
 
-      const baseMonthlyUSD = baseMonthlyUSDParts.length === 4
-        ? Number(baseMonthlyUSDParts.reduce((sum, amount) => sum + amount, 0).toFixed(2))
-        : toUSD(baseMonthlyCost)
-
-      if (baseMonthlyCost > 0) {
-        pushRow('Total Monthly Cost (Before Gracemark Fee)', baseMonthlyCost, baseMonthlyUSD)
+        categoriesData.push({
+          title,
+          localTotal: formatLocal(localSum),
+          usdTotal: formatUSDValue(hasUsdSum ? usdSum : undefined),
+          items,
+        })
       }
 
-      const gracemarkUSD = typeof billRateComposition.gracemarkFeeMonthlyUSD === 'number'
-        ? Number(billRateComposition.gracemarkFeeMonthlyUSD.toFixed(2))
-        : toUSD(billRateComposition.gracemarkFeeMonthly)
-      const gracemarkPercentValue = Number.isFinite(billRateComposition.gracemarkFeePercentage)
-        ? billRateComposition.gracemarkFeePercentage
-        : billRateComposition.targetGracemarkFeePercentage
-      const gracemarkPercentLabel = `${(gracemarkPercentValue * 100).toFixed(1)}%`
-      pushRow(`Gracemark Fee (${gracemarkPercentLabel})`, billRateComposition.gracemarkFeeMonthly, gracemarkUSD)
+      pushCategory('Base Salary', categories.baseSalary)
+      pushCategory('Statutory & Mandatory Costs', categories.statutoryMandatory)
+      pushCategory('Allowances & Benefits', categories.allowancesBenefits)
+      pushCategory('Termination Provision', categories.terminationCosts)
+      pushCategory('Onboarding Fees (One Time)', categories.onboardingFees)
+      pushCategory('Additional One-Time Fees', categories.oneTimeFees)
 
-      if (billRateComposition.providerFeeMonthly > 0) {
-        const providerUSD = typeof billRateComposition.providerFeeMonthlyUSD === 'number'
-          ? Number(billRateComposition.providerFeeMonthlyUSD.toFixed(2))
-          : toUSD(billRateComposition.providerFeeMonthly)
-        pushRow('Provider Fee (Included)', billRateComposition.providerFeeMonthly, providerUSD)
-      }
-
-      const totalBillRateLocal = billRateComposition.actualBillRate
-      const totalBillRateUSD = typeof billRateComposition.actualBillRateUSD === 'number'
-        ? Number(billRateComposition.actualBillRateUSD.toFixed(2))
-        : toUSD(totalBillRateLocal)
-
-      pushRow('Total Monthly Bill Rate', totalBillRateLocal, totalBillRateUSD)
-
-      if (exportRows.length === 0) {
-        console.warn('No rows available for export')
+      if (categoriesData.length === 0) {
+        console.warn('No cost breakdown data available for export')
         return
       }
 
-      const XLSXModule = await import('xlsx')
-      const XLSX = XLSXModule.default || XLSXModule
-
-      const metadataRows: Array<[string, string | number | null, string | number | null]> = [
-        ['Provider', finalChoice.provider, ''],
-        ['Currency', providerCurrency, ''],
-        ['Generated', new Date().toLocaleString(), ''],
-        ['','',''],
-      ]
-
-      const headerRow: [string, string, string] = ['Cost / Benefit', 'Amount (USD)', `Amount (${providerCurrency})`]
-
-      const dataRows = exportRows.map(row => [
-        row.label,
-        row.usd !== undefined ? row.usd : null,
-        row.local,
-      ]) as Array<[string, number | null, number]>
-
-      const worksheetData = [...metadataRows, headerRow, ...dataRows]
-      const worksheet = XLSX.utils.aoa_to_sheet(worksheetData)
-
-      const workbook = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Cost Structure')
-
       const safeProvider = finalChoice.provider.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'provider'
-      const filename = `gracemark-cost-structure-${safeProvider}.xlsx`
-      XLSX.writeFile(workbook, filename)
+      const filename = `gracemark-cost-breakdown-${safeProvider}-expanded.pdf`
+
+      await exportAcidTestCostBreakdownPdf(
+        {
+          currency: providerCurrency,
+          showUSD,
+          categories: categoriesData,
+          logoSrc: '/GraceMarklogo.png',
+          monthlyCard: {
+            title: 'Monthly Bill Rate',
+            localValue: formatLocal(acidTestKpiMetrics.totals.monthlyBillRate.local ?? undefined),
+            usdValue: showUSD ? formatUSDValue(acidTestKpiMetrics.totals.monthlyBillRate.usd ?? undefined) : undefined,
+            duration: (() => {
+              const durationValue = acidTestKpiMetrics.duration
+              if (!Number.isFinite(durationValue ?? NaN) || (durationValue ?? 0) <= 0) {
+                return 'Contract duration: —'
+              }
+              const numeric = Number(durationValue)
+              const plural = numeric === 1 ? '' : 's'
+              return `Based on ${numeric} month${plural} contract`
+            })(),
+            description: 'Recurring revenue excluding onboarding fees.',
+          },
+        },
+        filename
+      )
     } catch (error) {
-      console.error('Failed to export acid test results:', error)
+      console.error('Failed to export acid test PDF:', error)
     } finally {
-      setIsExportingResults(false)
+      setIsExportingPdf(false)
     }
-  }, [acidTestCostData, acidTestResults, finalChoice, convertCurrency])
+  }, [acidTestCostData, acidTestResults, acidTestKpiMetrics, finalChoice, convertCurrency])
 
   // --- LOADING & ERROR STATES (Updated: show spinner until current provider base is ready) ---
   const showGlobalLoader = loading || providerLoading[currentProvider] || (quoteData?.status === 'calculating' && providerLoading[currentProvider])
@@ -3514,12 +3544,12 @@ const QuotePageContent = memo(() => {
                       </Button>
                       {acidTestResults && (
                         <Button
-                          onClick={handleExportAcidTestResults}
-                          className="bg-purple-600 px-6 text-white hover:bg-purple-700"
-                          disabled={isExportingResults}
+                          onClick={handleExportAcidTestPdf}
+                          className="bg-purple-600 px-8 py-3 text-base font-medium text-white hover:bg-purple-700"
+                          disabled={isExportingPdf}
                         >
                           <FileText className="h-4 w-4 mr-2" />
-                          {isExportingResults ? 'Saving...' : 'Save Results'}
+                          {isExportingPdf ? 'Exporting...' : 'Export PDF'}
                         </Button>
                       )}
                     </div>
@@ -4800,7 +4830,7 @@ const QuotePageContent = memo(() => {
     setIsCategorizingCosts(false);
     setIsComputingAcidTest(false);
     setExpandedCategories(new Set());
-    setIsExportingResults(false);
+    setIsExportingPdf(false);
   };
 
   const toggleCategoryExpansion = (category: string) => {
