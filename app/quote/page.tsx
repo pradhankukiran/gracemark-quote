@@ -3307,40 +3307,26 @@ const QuotePageContent = memo(() => {
                                       </div>
 
                                       <div className="grid gap-4 md:grid-cols-2">
-                                        {(() => {
-                                          const profitPositive = acidTestKpiMetrics.totals.profit.local >= 0
-                                          const valueClass = profitPositive ? 'text-emerald-600' : 'text-red-600'
-                                          const badgeClass = profitPositive
-                                            ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                                            : 'bg-red-100 text-red-800 border-red-200'
-                                          return (
-                                            <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6">
-                                              <div className="flex items-center justify-between">
-                                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Profit</p>
-                                                <span className={`px-2 py-0.5 text-xs font-semibold border ${badgeClass}`}>
-                                                  {profitPositive ? 'Positive' : 'Negative'}
-                                                </span>
-                                              </div>
-                                              <div className="mt-3">
-                                                <div className={`text-3xl font-bold ${valueClass}`}>
-                                                  {formatMoney(acidTestKpiMetrics.totals.profit.local, acidTestKpiMetrics.localCurrency)}
-                                                </div>
-                                                <p className="text-xs text-slate-500 mt-1">
-                                                  Over {acidTestKpiMetrics.duration} month{acidTestKpiMetrics.duration === 1 ? '' : 's'} contract
-                                                </p>
-                                              </div>
-                                              <div className="mt-4 text-sm text-slate-600">
-                                                <span className="font-medium text-slate-700">USD:</span>{' '}
-                                                {acidTestKpiMetrics.totals.profit.usd !== null
-                                                  ? formatMoney(acidTestKpiMetrics.totals.profit.usd, 'USD')
-                                                  : '—'}
-                                              </div>
-                                              <p className="mt-3 text-xs text-slate-500">
-                                                Bill rate minus assignment costs.
-                                              </p>
+                                        <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6">
+                                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Profit</p>
+                                          <div className="mt-2">
+                                            <div className="text-3xl font-bold text-slate-900">
+                                              {formatMoney(acidTestKpiMetrics.totals.profit.local, acidTestKpiMetrics.localCurrency)}
                                             </div>
-                                          )
-                                        })()}
+                                            <p className="text-xs text-slate-500 mt-1">
+                                              Over {acidTestKpiMetrics.duration} month{acidTestKpiMetrics.duration === 1 ? '' : 's'} contract
+                                            </p>
+                                          </div>
+                                          <div className="mt-4 text-sm text-slate-600">
+                                            <span className="font-medium text-slate-700">USD:</span>{' '}
+                                            {acidTestKpiMetrics.totals.profit.usd !== null
+                                              ? formatMoney(acidTestKpiMetrics.totals.profit.usd, 'USD')
+                                              : '—'}
+                                          </div>
+                                          <p className="mt-3 text-xs text-slate-500">
+                                            Bill rate minus assignment costs.
+                                          </p>
+                                        </div>
 
                                         <div
                                           className={`border shadow-sm rounded-lg p-6 ${acidTestKpiMetrics.markupStyle.container}`}
