@@ -2118,10 +2118,10 @@ const QuotePageContent = memo(() => {
       return s === 'active' || s === 'enhancement-failed' || s === 'failed' || s === 'inactive'
     }).length
 
-    // Only check cost items for providers that have data (active or enhancement-failed)
+    // Only check cost items for providers that are fully active (base + enhancement succeeded)
     const providersWithData = allProviders.filter(p => {
       const s = providerStates[p]?.status
-      return s === 'active' || s === 'enhancement-failed'
+      return s === 'active'
     })
     const costItemsReady = providersWithData.length > 0 && providersWithData.every(providerHasCostItems)
 
