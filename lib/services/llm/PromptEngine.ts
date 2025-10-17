@@ -61,8 +61,8 @@ STRICT RULES:
 - CRITICAL: Do NOT double-count items already included by the provider
 - CRITICAL: Mark already_included=true for benefits found in provider inclusions
 - TERMINATION: Break termination liability into severance and notice components where data is available.
-- Statutory-only: include ONLY items mandated by law; skip optional allowances
-- All-inclusive: include ONLY items explicitly present in the legal profile (Papaya-derived) — mandatory items and allowances with clear amounts/rates. Do NOT add anything not in the profile.
+- Statutory-only: include all mandatory salaries, allowances, and benefits. ONLY EXCLUDE termination costs (severance_cost and notice_period_cost).
+- All-inclusive: include ONLY items explicitly present in the legal profile (Papaya-derived) — mandatory items, allowances, termination costs with clear amounts/rates. Do NOT add anything not in the profile.
 - Missing benefits must have clear legal justification from the legal profile
 - SOURCE-OF-TRUTH: Use ONLY the provided legal profile (Papaya-derived). Do NOT invent or infer benefits from general knowledge or other countries.
 - Totals: TOTAL_ENHANCEMENTS = sum(missing items only); FINAL_MONTHLY_TOTAL = BASE_MONTHLY + TOTAL_ENHANCEMENTS
@@ -176,9 +176,9 @@ FOCUS: Your primary job is gap analysis - finding what's legally required but mi
       '- CRITICAL: Perform thorough gap analysis between LEGAL REQUIREMENTS and PROVIDER INCLUSIONS.',
       '- For items ALREADY INCLUDED in provider benefits (amount > 0): set already_included=true, enhancement amounts to 0.',
       '- For MISSING MANDATORY items: set already_included=false, compute proper enhancement amounts.',
-      '- In statutory-only mode: include ONLY items that are mandatory by law (set mandatory=true for legally required allowances).',
-      '- In all-inclusive mode: include mandatory + commonly required benefits.',
-      '- Populate severance_cost and notice_period_cost with individual monthly amounts (already_included=true when provider covers them).',
+      '- In statutory-only mode: include all items (mandatory salaries, allowances, benefits). ONLY EXCLUDE termination costs (severance_cost and notice_period_cost).',
+      '- In all-inclusive mode: include mandatory + commonly required benefits + termination costs.',
+      '- Populate severance_cost and notice_period_cost with individual monthly amounts only in all-inclusive mode (set to 0 or omit in statutory-only).',
       '- Provide clear explanations for why each missing benefit is required (reference legal profile).',
       '- Set final_monthly_total = base_monthly + total_monthly_enhancement (missing items only).',
       '- If NO benefits are missing, total_monthly_enhancement should be 0.',
@@ -404,12 +404,13 @@ CRITICAL: Detect implicit benefit inclusions by analyzing:
 CORE MISSION: Produce different enhancement results for different providers based on their actual coverage vs legal/common requirements.
 
 FORM DATA LOGIC (CRITICAL):
-- addBenefits = true (default) → Include mandatory items plus common allowances (transportation, meal vouchers, remote work, etc.)
-- addBenefits = false → Include ONLY legally mandatory items
+- addBenefits ≠ false (default) → Include mandatory items plus common allowances (transportation, meal vouchers, remote work, etc.)
+- addBenefits = false → Include ONLY legally mandatory items unless Papaya flags a specific allowance as legally required
 
 BENEFIT CATEGORIES:
-1. MANDATORY BENEFITS: Always include if missing (13th salary, severance/notice costs, authority payments)
-2. COMMON BENEFITS: Include only if addBenefits=true
+1. MANDATORY BENEFITS: Always include if missing (13th salary, 14th salary, authority payments, allowances)
+2. TERMINATION COSTS: Include severance/notice costs ONLY in all-inclusive mode (not in statutory-only)
+3. COMMON BENEFITS: Include Papaya-listed allowances in both modes
 
 PROVIDER-SPECIFIC GAP ANALYSIS:
 - If provider includes benefit (amount > 0) → already_included=true, enhancement=0
@@ -462,12 +463,18 @@ SUCCESS CRITERIA: Providers with different inclusions get different enhancement 
 
     // Form data logic for benefit inclusion
     const addBenefitsFlag = formData.addBenefits
-    const includeCommonBenefits = addBenefitsFlag !== false
+    const includeCommonBenefits = addBenefitsFlag !== false || quoteType === 'statutory-only'
+    const addBenefitsDisplay = addBenefitsFlag !== false
+      ? 'true'
+      : quoteType === 'statutory-only'
+        ? 'false (overridden for statutory-only requirements)'
+        : 'false'
     
     const formLogic = `
 FORM DATA ANALYSIS:
 - Quote Type: ${quoteType}
-- Add Benefits Checkbox: ${addBenefitsFlag !== false}
+- Add Benefits Checkbox: ${addBenefitsDisplay}
+- Effective Include Allowances: ${includeCommonBenefits}
 - Contract Duration: ${contractMonths} months
 
 INCLUSION LOGIC FOR THIS REQUEST:
@@ -506,12 +513,15 @@ ${includeCommonBenefits
         '• Transportation: Check common_benefits section', 
         '• Internet/Mobile: Check common_benefits section',
         '• Health Insurance: Check common_benefits section',
-        '• Other allowances with explicit amounts'
-      ].join('\n') : 'COMMON BENEFITS: SKIP (addBenefits set to false)',
+        '• Other allowances with explicit amounts',
+        ...(addBenefitsFlag === false && quoteType === 'statutory-only'
+          ? ['• NOTE: Even with addBenefits=false, statutory-only mode requires including Papaya-listed allowances.']
+          : [])
+      ].join('\n') : 'COMMON BENEFITS: SKIP (addBenefits set to false for this request)',
       '',
       '═══ STEP 4: GAP ANALYSIS PER BENEFIT ═══',
       '',
-      '⚠️ IMPORTANT: TERMINATION PROVISIONS (severance, notice) are handled in PHASE 1 (always calculated), NOT here.',
+      '⚠️ IMPORTANT: TERMINATION PROVISIONS (severance, notice) should ONLY be calculated in all-inclusive mode, NOT in statutory-only mode.',
       '',
       'For regular benefits (salary components, allowances):',
       '',
@@ -556,13 +566,14 @@ ${includeCommonBenefits
       '',
       'STEP-BY-STEP PARSING APPROACH:',
       '',
-      '🔴 PHASE 1: MANDATORY CALCULATIONS (ALWAYS CALCULATE - NO GAP ANALYSIS)',
+      '🔴 PHASE 1: QUOTE TYPE FILTERING',
       '',
-      '1. TERMINATION COSTS (ALWAYS CALCULATE IF TERMINATION SECTION EXISTS):',
-      '   • RULE: Providers never include termination costs → always calculate if legal data exists',
-      '   • SIMPLE FORMULA: termination_monthly = (BASE_SALARY × 3) ÷ CONTRACT_MONTHS',
+      '1. TERMINATION COSTS (CALCULATE ONLY IN ALL-INCLUSIVE MODE):',
+      '   • RULE: Termination costs are ONLY included in all-inclusive mode, NOT in statutory-only mode',
+      '   • If quoteType === "all-inclusive": Calculate termination costs using formula below',
+      '   • If quoteType === "statutory-only": Skip termination costs entirely',
+      '   • SIMPLE FORMULA (when applicable): termination_monthly = (BASE_SALARY × 3) ÷ CONTRACT_MONTHS',
       '   • EXPLANATION: Assumes ~2-3 months total termination liability spread over contract',
-      '   • NO provider checking - always include if Papaya has termination section',
       '',
       '🟡 PHASE 2: GAP ANALYSIS FOR REGULAR BENEFITS',
       '',
@@ -596,9 +607,10 @@ ${includeCommonBenefits
       'TYPE 2 - FIXED ALLOWANCES (meal, transport, internet, mobile, gym):',
       '{"monthly_amount": X, "explanation": "Papaya text quote", "already_included": boolean, "mandatory": boolean}',
       '',
-      'TYPE 3 - TERMINATION COMPONENTS (always calculate - no gap analysis):',
+      'TYPE 3 - TERMINATION COMPONENTS (calculate only in all-inclusive mode):',
       '{"monthly_amount": X, "total_amount": Y, "explanation": "Papaya termination requirement", "already_included": boolean}',
-      '  • Emit separate objects for "severance_cost" and "notice_period_cost"',
+      '  • Emit separate objects for "severance_cost" and "notice_period_cost" only in all-inclusive mode',
+      '  • In statutory-only mode: Do not include these at all',
       '',
       'TYPE 4 - RANGE-BASED BENEFITS (amounts like "5,000 to 7,000"):',
       '{"monthly_amount": midpoint, "min_amount": X, "max_amount": Y, "explanation": "Papaya text quote", "already_included": boolean}',
@@ -613,9 +625,10 @@ ${includeCommonBenefits
       '',
       'EXAMPLE DISCOVERY PROCESS:',
       '• Find "Gym Allowance – 5,000 to 7,000 ARS monthly" → Create "gym_allowance" object',
-      '• Find "Internet Allowance – 2,500 ARS monthly" → Create "internet_allowance" object',  
+      '• Find "Internet Allowance – 2,500 ARS monthly" → Create "internet_allowance" object',
       '• Find "Private Health Insurance – 10,000 to 12,000 ARS monthly" → Create "private_health_insurance" object',
-      '• Find termination section → ALWAYS create "severance_cost" and "notice_period_cost" objects using legal formulas (no gap analysis)',
+      '• Find termination section in all-inclusive mode → Create "severance_cost" and "notice_period_cost" objects',
+      '• Find termination section in statutory-only mode → Skip termination costs entirely',
       '',
       'JSON STRUCTURE:',
       `{
@@ -653,8 +666,8 @@ ${includeCommonBenefits
       '• Better to over-include than miss legitimate costs',
       '',
       'COMPREHENSIVE COVERAGE REQUIREMENTS:',
-      '• TERMINATION COSTS: ALWAYS calculate severance and notice components if termination section exists - NO exceptions, NO gap analysis',
-      '• MANDATORY BENEFITS: Always include regardless of form settings (13th salary, statutory bonuses, termination provisions)',
+      '• TERMINATION COSTS: Calculate severance and notice components ONLY in all-inclusive mode. Skip entirely in statutory-only mode.',
+      '• MANDATORY BENEFITS: Always include regardless of form settings (13th salary, statutory bonuses, allowances)',
       '• COMMON BENEFITS: Include ALL when includeCommonBenefits=true (be exhaustive)',
       '• RANGES: Use midpoint calculations for "X to Y" amounts',
       '',
@@ -691,7 +704,7 @@ ${includeCommonBenefits
       'SUCCESS CRITERIA:',
       '• All Papaya sections have been thoroughly parsed',
       '• Every benefit with a numeric value has a corresponding enhancement object',
-      '• Termination costs are calculated (not defaulted to 0)',
+      '• Termination costs are calculated ONLY in all-inclusive mode (omitted in statutory-only)',
       '• When includeCommonBenefits=true, all common_benefits are included',
       '• Different providers get different totals based on their coverage gaps',
       '',
@@ -715,7 +728,7 @@ ${includeCommonBenefits
       '• NEVER default to 0 - use the calculation rules above',
       '• NEVER make up exact numbers - follow the percentage formulas',
       '• ALWAYS include explanation of how amount was derived',
-      '• Termination costs: ALWAYS calculate even if formula unclear'
+      '• Termination costs: Calculate only in all-inclusive mode (skip in statutory-only mode)'
     ].filter(line => line !== '').join('\n')
   }
 
@@ -729,9 +742,9 @@ STRICT RULES:
 - Currency: ALWAYS output in the local country currency detected from Papaya (no conversion). Use that as the single output currency.
 - Base salary: The base salary provided is MONTHLY and must be used as-is.
 - Quote types:
-  - statutory-only: include ONLY legally mandated salary components, statutory allowances, and termination provisions (monthlyized when required).
-  - all-inclusive: include statutory baseline PLUS commonly provided allowances/benefits listed by Papaya with clear amounts.
-- Statutory-only EXCLUSIONS: Do NOT include enhanced/optional pension uplifts, private healthcare, meal/food allowances, remote/WFH allowances, car allowances, wellness/gym, or any other common benefits that are not explicitly mandated by law. Do NOT include leave entitlements (e.g., paternity/maternity) as monthly costs unless Papaya specifies a concrete monthly employer payment.
+  - statutory-only: include all legally mandated salary components, statutory allowances, and common benefits. ONLY EXCLUDE termination costs (severance_cost and notice_period_cost).
+  - all-inclusive: include statutory baseline PLUS commonly provided allowances/benefits PLUS termination costs listed by Papaya with clear amounts.
+- Statutory-only EXCLUSIONS: ONLY exclude termination costs (severance_cost and notice_period_cost). Include all other items: mandatory salaries (13th/14th), allowances (meal vouchers, transportation, remote work, etc.), and benefits.
 - Conditional items: If a statutory item is conditional (e.g., UK Apprenticeship Levy requires exceeding a paybill threshold) and the condition cannot be determined from inputs, set the amount to 0 and add a short warning.
 - De-duplication: EXCLUDE any item that matches BASE ITEMS (by meaning or close name). Normalize names (lowercase, remove punctuation/stop-words like 'contribution', 'fund', 'fee'). Prefer the base item and do not output a duplicate.
 - Monthly amounts only. If yearly → divide by 12. If daily → multiply by 22 working days. If ranges → midpoint. Round to 2 decimals (half-up).
@@ -770,10 +783,10 @@ RESPONSE JSON SHAPE (exact keys):
       `RULES:\n` +
       `- All amounts are already in the PROVIDER CURRENCY. Do NOT perform currency conversion.\n` +
       `- Compute deltas = max(0, baseline_monthly - provider_coverage_monthly).\n` +
-      `- Statutory-only: include ONLY mandatory items; skip non-mandatory allowances.\n` +
-      `- All-inclusive: include mandatory items and allowances present in baseline.\n` +
+      `- Statutory-only: include all items (mandatory salaries, allowances, benefits). ONLY EXCLUDE termination costs (severance_cost and notice_period_cost).\n` +
+      `- All-inclusive: include all items including termination costs.\n` +
       `- Avoid double counting (if provider coverage >= baseline, delta=0 with already_included=true).\n` +
-      `- Termination: compute separate deltas for severance and notice components.\n` +
+      `- Termination: compute separate deltas for severance and notice components only in all-inclusive mode.\n` +
       `- Output strictly valid JSON with the exact keys requested (no extra text).`
     )
   }
@@ -847,7 +860,12 @@ RESPONSE JSON SHAPE (exact keys):
 
     // Consider addBenefits opt-in; treat undefined as true for backward compatibility
     const addBenefitsFlag = formData.addBenefits
-    const includeCommonBenefits = addBenefitsFlag !== false
+    const includeCommonBenefits = addBenefitsFlag !== false || quoteType === 'statutory-only'
+    const addBenefitsDisplay = addBenefitsFlag !== false
+      ? 'true'
+      : quoteType === 'statutory-only'
+        ? 'false (overridden for statutory-only requirements)'
+        : 'false'
 
     // Smart truncation that preserves critical sections
     const limitedPapayaData = this.smartTruncatePapayaData(papayaData, 50000)
@@ -856,7 +874,8 @@ RESPONSE JSON SHAPE (exact keys):
     const formLogic = [
       'FORM DATA ANALYSIS:',
       `- Quote Type: ${quoteType || 'unknown'}`,
-      `- Add Benefits Checkbox: ${addBenefitsFlag !== false}`,
+      `- Add Benefits Checkbox: ${addBenefitsDisplay}`,
+      `- Effective Include Allowances: ${includeCommonBenefits}`,
       `- Contract Duration: ${contractMonths || 12} months`,
       '',
       'INCLUSION LOGIC FOR THIS REQUEST:',
@@ -880,13 +899,18 @@ RESPONSE JSON SHAPE (exact keys):
       '',
       includeCommonBenefits ? [
         'BENEFIT INCLUSION RULES:',
-        '• MANDATORY BENEFITS: Always include if missing (13th salary, termination costs, statutory allowances)',
-        '• COMMON BENEFITS: Include ALL when includeCommonBenefits=true (meal vouchers, transportation, allowances)',
+        '• MANDATORY BENEFITS: Always include if missing (13th salary, statutory allowances)',
+        '• TERMINATION COSTS: Include ONLY in all-inclusive mode (exclude in statutory-only mode)',
+        '• COMMON BENEFITS: Include ALL when includeCommonBenefits=true (meal vouchers, transportation, allowances, remote work stipends)',
         '• Use Papaya amounts and convert to monthly as needed',
+        ...(addBenefitsFlag === false && quoteType === 'statutory-only'
+          ? ['• NOTE: Add-benefits checkbox is false, but statutory-only mode still requires including Papaya-listed allowances.']
+          : []),
         ''
       ].join('\n') : [
         'BENEFIT INCLUSION RULES:',
-        '• MANDATORY ONLY: Include only legally required items (13th salary, termination costs, statutory allowances)',
+        '• MANDATORY ONLY: Include only legally required items (13th salary, statutory allowances)',
+        '• TERMINATION COSTS: Include ONLY in all-inclusive mode (exclude in statutory-only mode)',
         '• SKIP COMMON BENEFITS: Do not include meal vouchers, transportation allowances, or other optional benefits',
         ''
       ].join('\n'),
@@ -900,8 +924,12 @@ RESPONSE JSON SHAPE (exact keys):
       includeCommonBenefits
         ? '  * This request: Include mandatory items plus common allowances (transportation, meal vouchers, remote work, etc.)'
         : '  * This request: Include only legally mandated items',
+      ...(includeCommonBenefits && addBenefitsFlag === false && quoteType === 'statutory-only'
+        ? ['  * NOTE: Add-benefits checkbox is false, but statutory-only mode overrides it—include Papaya-listed allowances.']
+        : []),
       '  * If addBenefits=false in future requests: Include only mandatory items',
-      '- MANDATORY ALWAYS: authority payments, 13th/14th salary (if required), termination costs',
+      '- MANDATORY ALWAYS: authority payments, 13th/14th salary (if required)',
+      '- TERMINATION COSTS: Include severance/notice costs ONLY in all-inclusive mode (exclude in statutory-only mode)',
       includeCommonBenefits
         ? '- COMMON BENEFITS (INCLUDE): meal vouchers, transportation, internet/mobile allowances, WFH stipends from Papaya common_benefits section'
         : '- COMMON BENEFITS (EXCLUDE): meal vouchers, transportation, internet/mobile allowances, WFH stipends',

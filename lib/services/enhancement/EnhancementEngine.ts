@@ -1360,17 +1360,43 @@ export class EnhancementEngine {
       items.push({ key: 'fourteenth_salary', name: '14th Month Salary', category: 'bonuses', mandatory: true, formula: 'base/12', monthly_amount_local: m })
     }
 
-    // Allowances (only include in all-inclusive mode)
+    // Allowances (include whenever Papaya provides an amount)
     const allow = legalProfile?.requirements?.allowances || {}
-    const addAllowance = (key: string, name: string, amt?: number) => {
+    const addAllowance = (
+      key: string,
+      name: string,
+      amt?: number,
+      mandatoryFlag?: boolean
+    ) => {
       const n = Math.max(0, Number(amt || 0))
-      if (n > 0 && quoteType === 'all-inclusive') {
-        items.push({ key, name, category: 'allowances', mandatory: false, monthly_amount_local: Number(n.toFixed(2)) })
+      if (n > 0) {
+        items.push({
+          key,
+          name,
+          category: 'allowances',
+          mandatory: quoteType === 'statutory-only' ? true : Boolean(mandatoryFlag),
+          monthly_amount_local: Number(n.toFixed(2))
+        })
       }
     }
-    addAllowance('meal_vouchers', 'Meal Vouchers', (allow as any).mealVoucherAmount)
-    addAllowance('transportation_allowance', 'Transportation Allowance', (allow as any).transportationAmount)
-    addAllowance('remote_work_allowance', 'Remote Work Allowance', (allow as any).remoteWorkAmount)
+    addAllowance(
+      'meal_vouchers',
+      'Meal Vouchers',
+      (allow as any).mealVoucherAmount,
+      (allow as any).mealVoucherMandatory
+    )
+    addAllowance(
+      'transportation_allowance',
+      'Transportation Allowance',
+      (allow as any).transportationAmount,
+      (allow as any).transportationMandatory
+    )
+    addAllowance(
+      'remote_work_allowance',
+      'Remote Work Allowance',
+      (allow as any).remoteWorkAmount,
+      (allow as any).remoteWorkMandatory
+    )
 
     // Subtotals and totals
     const subtotals = items.reduce((acc, it) => {

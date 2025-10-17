@@ -134,7 +134,7 @@ export class CerebrasService {
     let response: any
     try {
       response = await client.chat.completions.create({
-        model: "llama-4-scout-17b-16e-instruct",
+        model: "llama-3.3-70b",
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -153,7 +153,7 @@ export class CerebrasService {
 
       // Retry without response_format
       response = await client.chat.completions.create({
-        model: "llama-4-scout-17b-16e-instruct",
+        model: "llama-3.3-70b",
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -338,7 +338,7 @@ export class CerebrasService {
     let response: any
     try {
       response = await client.chat.completions.create({
-        model: "llama-4-scout-17b-16e-instruct",
+        model: "llama-3.3-70b",
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -360,7 +360,7 @@ export class CerebrasService {
 
       // Retry without response_format (some models may not support it)
       response = await client.chat.completions.create({
-        model: "llama-4-scout-17b-16e-instruct",
+        model: "llama-3.3-70b",
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -536,6 +536,7 @@ export class CerebrasService {
       '- Convert formats: yearly→/12, daily→×22, ranges→midpoint; round to 2 decimals.',
       '',
       'TERMINATION:',
+      '- ONLY include termination costs in all-inclusive mode. Skip entirely for statutory-only mode.',
       '- Produce distinct termination items for SEVERANCE and PROBATION when data is available.',
       '- termination_severance monthly_amount_local = severance_months × meta.base_salary_monthly / meta.contract_months.',
       '- termination_notice monthly_amount_local = (notice_days / 30) × meta.base_salary_monthly / meta.contract_months (0 if unknown).',
@@ -545,8 +546,8 @@ export class CerebrasService {
       '',
       'SCOPE:',
       '- Exclude employee contributions and income tax; exclude aggregate roll-ups (e.g., "Total Employment Cost").',
-      '- Statutory-only: include ONLY mandatory items.',
-      '- All-inclusive: include statutory + common benefits. Use AVAILABILITY flags to determine which allowances are applicable for this country. For allowances without exact amounts, provide reasonable estimates based on typical ranges: meal vouchers (25-100), transportation (50-200), remote work allowance (25-100), wellness allowance (30-80), phone/internet allowance (20-60) monthly in local currency. Only include allowances that are common for the specific country.',
+      '- Statutory-only: include all mandatory salaries, allowances, and common benefits. ONLY EXCLUDE termination costs (severance and notice provisions).',
+      '- All-inclusive: include statutory + common benefits + termination costs. Use AVAILABILITY flags to determine which allowances are applicable for this country. For allowances without exact amounts, provide reasonable estimates based on typical ranges: meal vouchers (25-100), transportation (50-200), remote work allowance (25-100), wellness allowance (30-80), phone/internet allowance (20-60) monthly in local currency. Only include allowances that are common for the specific country.',
       '',
       'CATEGORY MAPPING (CRITICAL):',
       '- Use ONLY these exact category values: "contributions", "bonuses", "allowances", "termination"',

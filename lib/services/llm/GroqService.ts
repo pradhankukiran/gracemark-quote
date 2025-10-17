@@ -502,102 +502,88 @@ export class GroqService {
           // Check for transportation allowance
           if (PapayaAvailability.shouldIncludeAllowanceType(countryCode, 'transportation') &&
               (name.includes('transport') || name.includes('commut') || name.includes('car'))) {
-            if (!isStatutory || mandatory) {
-              enhancements.transportation_allowance = {
-                monthly_amount: monthlyAmount,
-                explanation: item.notes || 'Transportation allowance',
-                confidence: 0.65,
-                already_included: false,
-                mandatory: mandatory
-              }
-              totalEnhancement += monthlyAmount
+            enhancements.transportation_allowance = {
+              monthly_amount: monthlyAmount,
+              explanation: item.notes || 'Transportation allowance',
+              confidence: 0.65,
+              already_included: false,
+              mandatory: mandatory
             }
+            totalEnhancement += monthlyAmount
           }
           // Check for remote work allowance
           else if (PapayaAvailability.shouldIncludeAllowanceType(countryCode, 'remote_work') &&
                    ((name.includes('remote') && name.includes('work')) || name.includes('home') || name.includes('office'))) {
-            if (!isStatutory || mandatory) {
-              enhancements.remote_work_allowance = {
-                monthly_amount: monthlyAmount,
-                explanation: item.notes || 'Remote work allowance',
-                confidence: 0.6,
-                already_included: false,
-                mandatory: mandatory
-              }
-              totalEnhancement += monthlyAmount
+            enhancements.remote_work_allowance = {
+              monthly_amount: monthlyAmount,
+              explanation: item.notes || 'Remote work allowance',
+              confidence: 0.6,
+              already_included: false,
+              mandatory: mandatory
             }
+            totalEnhancement += monthlyAmount
           }
           // Check for meal allowance
           else if (PapayaAvailability.shouldIncludeAllowanceType(countryCode, 'meal') &&
                    (name.includes('meal') || name.includes('food') || name.includes('lunch') || name.includes('voucher'))) {
-            if (!isStatutory || mandatory) {
-              enhancements.meal_vouchers = {
-                monthly_amount: monthlyAmount,
-                explanation: item.notes || 'Meal voucher allowance',
-                confidence: 0.6,
-                already_included: false
-              }
-              totalEnhancement += monthlyAmount
+            enhancements.meal_vouchers = {
+              monthly_amount: monthlyAmount,
+              explanation: item.notes || 'Meal voucher allowance',
+              confidence: 0.6,
+              already_included: false
             }
+            totalEnhancement += monthlyAmount
           }
           // Check for wellness/health allowance
           else if (PapayaAvailability.shouldIncludeAllowanceType(countryCode, 'wellness') &&
                    (name.includes('wellness') || name.includes('health') || name.includes('gym') || name.includes('fitness'))) {
-            if (!isStatutory || mandatory) {
-              enhancements.wellness_allowance = {
-                monthly_amount: monthlyAmount,
-                explanation: item.notes || 'Wellness allowance',
-                confidence: 0.55,
-                already_included: false,
-                mandatory: mandatory
-              }
-              totalEnhancement += monthlyAmount
+            enhancements.wellness_allowance = {
+              monthly_amount: monthlyAmount,
+              explanation: item.notes || 'Wellness allowance',
+              confidence: 0.55,
+              already_included: false,
+              mandatory: mandatory
             }
+            totalEnhancement += monthlyAmount
           }
           // Check for phone/internet allowance
           else if (PapayaAvailability.shouldIncludeAllowanceType(countryCode, 'phone') &&
                    (name.includes('phone') || name.includes('internet') || name.includes('mobile') || name.includes('communication'))) {
-            if (!isStatutory || mandatory) {
-              enhancements.phone_allowance = {
-                monthly_amount: monthlyAmount,
-                explanation: item.notes || 'Phone and internet allowance',
-                confidence: 0.55,
-                already_included: false,
-                mandatory: mandatory
-              }
-              totalEnhancement += monthlyAmount
+            enhancements.phone_allowance = {
+              monthly_amount: monthlyAmount,
+              explanation: item.notes || 'Phone and internet allowance',
+              confidence: 0.55,
+              already_included: false,
+              mandatory: mandatory
             }
+            totalEnhancement += monthlyAmount
           }
           else if (
             PapayaAvailability.shouldIncludeAllowanceType(countryCode, 'health_insurance') &&
             (name.includes('insurance') || name.includes('healthcare') || name.includes('medical'))
           ) {
-            if (!isStatutory || mandatory) {
-              enhancements.health_insurance_allowance = {
-                monthly_amount: monthlyAmount,
-                explanation: item.notes || 'Private health insurance allowance',
-                confidence: 0.55,
-                already_included: false,
-                mandatory: mandatory
-              }
-              totalEnhancement += monthlyAmount
+            enhancements.health_insurance_allowance = {
+              monthly_amount: monthlyAmount,
+              explanation: item.notes || 'Private health insurance allowance',
+              confidence: 0.55,
+              already_included: false,
+              mandatory: mandatory
             }
+            totalEnhancement += monthlyAmount
           }
           // Check for other common benefits dynamically
           else if (PapayaAvailability.getFlags(countryCode).common_benefits &&
                    (name.includes('allowance') || name.includes('benefit') || name.includes('voucher') || name.includes('insurance'))) {
-            if (!isStatutory || mandatory) {
-              enhancements.other_allowances = enhancements.other_allowances || []
-              enhancements.other_allowances.push({
-                name: item.name || 'Other allowance',
-                monthly_amount: monthlyAmount,
-                explanation: item.notes || 'Additional allowance',
-                confidence: 0.5,
-                already_included: false,
-                mandatory: mandatory
-              })
-              totalEnhancement += monthlyAmount
-            }
+            enhancements.other_allowances = enhancements.other_allowances || []
+            enhancements.other_allowances.push({
+              name: item.name || 'Other allowance',
+              monthly_amount: monthlyAmount,
+              explanation: item.notes || 'Additional allowance',
+              confidence: 0.5,
+              already_included: false,
+              mandatory: mandatory
+            })
+            totalEnhancement += monthlyAmount
           }
         }
       }
@@ -636,7 +622,8 @@ export class GroqService {
         pushUnique(analysis.missing_requirements, key)
       }
 
-      if (terminationComponents.totalMonthly > 0) {
+      // Only include termination costs in all-inclusive mode, not in statutory mode
+      if (!isStatutory && terminationComponents.totalMonthly > 0) {
         const confidence = terminationComponents.warnings.length ? 0.5 : 0.7
         const severanceExplanation = `Statutory severance cost required in ${countryName}`
         const noticeExplanation = `Notice period cost required in ${countryName}`
@@ -651,7 +638,7 @@ export class GroqService {
         registerTerminationComponent('notice_period_cost', noticeMonthly, noticeTotal, noticeExplanation, confidence)
 
         terminationComponents.warnings.forEach(warning => warnings.push(warning))
-      } else if (terminationLLM.length > 0) {
+      } else if (!isStatutory && terminationLLM.length > 0) {
         const combinedMonthly = terminationLLM.reduce((sum, entry) => sum + entry.monthlyAmount, 0)
         if (combinedMonthly > 0) {
           const combinedMonthlyRounded = Number(combinedMonthly.toFixed(2))
@@ -811,82 +798,69 @@ export class GroqService {
         const baseMonthlyFromQuote = Math.max(0, Number(input.baseQuote.baseCost || 0))
         const baseMonthly = baseMonthlyFromPrepass || baseMonthlyFromQuote
 
-        // Statutory-only: keep only mandatory salaries
-        if (input.quoteType === 'statutory-only') {
-          if (!legal.mandatorySalaries.has13thSalary) {
-            baselineProviderCurrency['thirteenth_salary'] = 0
-            baselineMandatoryFlags['thirteenth_salary'] = false
-          }
-          if (!legal.mandatorySalaries.has14thSalary) {
-            baselineProviderCurrency['fourteenth_salary'] = 0
-            baselineMandatoryFlags['fourteenth_salary'] = false
-          }
-        } else if (isAllInclusive) {
-          // All-inclusive: include if legally mandatory OR presence flag true
-          if (presence.payroll_13th_salary && !baselineProviderCurrency['thirteenth_salary']) {
-            baselineProviderCurrency['thirteenth_salary'] = Number(baseMonthly.toFixed(2))
-            baselineMandatoryFlags['thirteenth_salary'] = !!legal.mandatorySalaries.has13thSalary // mark true only if mandatory
-          }
-          if (legal.mandatorySalaries.has13thSalary && !baselineProviderCurrency['thirteenth_salary']) {
-            baselineProviderCurrency['thirteenth_salary'] = Number(baseMonthly.toFixed(2))
-            baselineMandatoryFlags['thirteenth_salary'] = true
-          }
-          if (presence.payroll_14th_salary && !baselineProviderCurrency['fourteenth_salary']) {
-            baselineProviderCurrency['fourteenth_salary'] = Number(baseMonthly.toFixed(2))
-            baselineMandatoryFlags['fourteenth_salary'] = !!legal.mandatorySalaries.has14thSalary
-          }
-          if (legal.mandatorySalaries.has14thSalary && !baselineProviderCurrency['fourteenth_salary']) {
-            baselineProviderCurrency['fourteenth_salary'] = Number(baseMonthly.toFixed(2))
-            baselineMandatoryFlags['fourteenth_salary'] = true
-          }
+        // Include 13th/14th salary if legally mandatory OR presence flag true (both modes)
+        if (presence.payroll_13th_salary && !baselineProviderCurrency['thirteenth_salary']) {
+          baselineProviderCurrency['thirteenth_salary'] = Number(baseMonthly.toFixed(2))
+          baselineMandatoryFlags['thirteenth_salary'] = !!legal.mandatorySalaries.has13thSalary // mark true only if mandatory
+        }
+        if (legal.mandatorySalaries.has13thSalary && !baselineProviderCurrency['thirteenth_salary']) {
+          baselineProviderCurrency['thirteenth_salary'] = Number(baseMonthly.toFixed(2))
+          baselineMandatoryFlags['thirteenth_salary'] = true
+        }
+        if (presence.payroll_14th_salary && !baselineProviderCurrency['fourteenth_salary']) {
+          baselineProviderCurrency['fourteenth_salary'] = Number(baseMonthly.toFixed(2))
+          baselineMandatoryFlags['fourteenth_salary'] = !!legal.mandatorySalaries.has14thSalary
+        }
+        if (legal.mandatorySalaries.has14thSalary && !baselineProviderCurrency['fourteenth_salary']) {
+          baselineProviderCurrency['fourteenth_salary'] = Number(baseMonthly.toFixed(2))
+          baselineMandatoryFlags['fourteenth_salary'] = true
         }
 
         // Termination fallback: if baseline lacks termination monthly, derive from legal hints
-        try {
-          const terminationHints = this.computeTerminationComponents({
-            countryCode: resolvedCountryCode,
-            countryName: input.baseQuote.country,
-            baseSalaryMonthly: baseMonthly,
-            contractMonths: input.contractDurationMonths || 12
-          })
-          if (!baselineProviderCurrency['severance_cost'] && terminationHints.severanceMonthly > 0) {
-            baselineProviderCurrency['severance_cost'] = terminationHints.severanceMonthly
-            baselineMandatoryFlags['severance_cost'] = true
-          }
-          if (!baselineProviderCurrency['notice_period_cost'] && terminationHints.noticeMonthly > 0) {
-            baselineProviderCurrency['notice_period_cost'] = terminationHints.noticeMonthly
-            baselineMandatoryFlags['notice_period_cost'] = true
-          }
-        } catch { /* noop */ }
+        // Only include termination costs in all-inclusive mode, not in statutory mode
+        if (isAllInclusive) {
+          try {
+            const terminationHints = this.computeTerminationComponents({
+              countryCode: resolvedCountryCode,
+              countryName: input.baseQuote.country,
+              baseSalaryMonthly: baseMonthly,
+              contractMonths: input.contractDurationMonths || 12
+            })
+            if (!baselineProviderCurrency['severance_cost'] && terminationHints.severanceMonthly > 0) {
+              baselineProviderCurrency['severance_cost'] = terminationHints.severanceMonthly
+              baselineMandatoryFlags['severance_cost'] = true
+            }
+            if (!baselineProviderCurrency['notice_period_cost'] && terminationHints.noticeMonthly > 0) {
+              baselineProviderCurrency['notice_period_cost'] = terminationHints.noticeMonthly
+              baselineMandatoryFlags['notice_period_cost'] = true
+            }
+          } catch { /* noop */ }
+        }
       }
     } catch {/* noop */}
 
-    const baselineTermination = this.computeTerminationComponents({
-      countryCode: resolvedCountryCode,
-      countryName: input.baseQuote.country,
-      baseSalaryMonthly: Math.max(0, Number(input.baseQuote.baseCost || 0)),
-      contractMonths: input.contractDurationMonths || 12
-    })
+    // Only include termination costs in all-inclusive mode, not in statutory mode
+    if (input.quoteType === 'all-inclusive') {
+      const baselineTermination = this.computeTerminationComponents({
+        countryCode: resolvedCountryCode,
+        countryName: input.baseQuote.country,
+        baseSalaryMonthly: Math.max(0, Number(input.baseQuote.baseCost || 0)),
+        contractMonths: input.contractDurationMonths || 12
+      })
 
-    if (!baselineProviderCurrency['severance_cost'] && baselineTermination.severanceMonthly > 0) {
-      baselineProviderCurrency['severance_cost'] = baselineTermination.severanceMonthly
-      baselineMandatoryFlags['severance_cost'] = true
-    }
-    if (!baselineProviderCurrency['notice_period_cost'] && baselineTermination.noticeMonthly > 0) {
-      baselineProviderCurrency['notice_period_cost'] = baselineTermination.noticeMonthly
-      baselineMandatoryFlags['notice_period_cost'] = true
+      if (!baselineProviderCurrency['severance_cost'] && baselineTermination.severanceMonthly > 0) {
+        baselineProviderCurrency['severance_cost'] = baselineTermination.severanceMonthly
+        baselineMandatoryFlags['severance_cost'] = true
+      }
+      if (!baselineProviderCurrency['notice_period_cost'] && baselineTermination.noticeMonthly > 0) {
+        baselineProviderCurrency['notice_period_cost'] = baselineTermination.noticeMonthly
+        baselineMandatoryFlags['notice_period_cost'] = true
+      }
     }
 
     const terminationKeys = ['severance_cost', 'notice_period_cost'] as const
     const terminationSum = Number(terminationKeys.reduce((sum, key) => sum + (baselineProviderCurrency[key] || 0), 0).toFixed(2))
 
-    // In statutory-only mode, zero-out non-mandatory allowances from baseline
-    if (isStatutory) {
-      const optionalAllowanceKeys = ['transportation_allowance', 'remote_work_allowance', 'meal_vouchers']
-      for (const k of optionalAllowanceKeys) {
-        if (!baselineMandatoryFlags[k]) baselineProviderCurrency[k] = 0
-      }
-    }
 
     // Build prompts
     let systemPrompt = PromptEngine.buildPrepassSystemPrompt()
@@ -1102,25 +1076,23 @@ export class GroqService {
 
     // Delta helpers
     const topUp = (baselineAmt: number, providerAmt: number) => Math.max(0, baselineAmt - providerAmt)
-    const includeIf = (include: boolean, amt: number) => (include ? amt : 0)
 
-    // Compute deltas
+    // Compute deltas - include allowances in both modes
     const delta_th13 = topUp(base_th13, providerCoverage.thirteenth_salary)
     const delta_th14 = topUp(base_th14, providerCoverage.fourteenth_salary)
     const delta_vac = topUp(base_vac, providerCoverage.vacation_bonus)
-    const allow_trans = isStatutory ? base_trans_mand : true
-    const allow_remote = isStatutory ? base_remote_mand : true
-    const delta_trans = topUp(includeIf(allow_trans, base_trans), providerCoverage.transportation_allowance)
-    const delta_remote = topUp(includeIf(allow_remote, base_remote), providerCoverage.remote_work_allowance)
-    const delta_meal = topUp(isStatutory ? 0 : base_meal, providerCoverage.meal_vouchers)
+    const delta_trans = topUp(base_trans, providerCoverage.transportation_allowance)
+    const delta_remote = topUp(base_remote, providerCoverage.remote_work_allowance)
+    const delta_meal = topUp(base_meal, providerCoverage.meal_vouchers)
     const delta_term_severance = topUp(base_term_severance, providerCoverage.severance_cost)
     const delta_term_notice = topUp(base_term_notice, providerCoverage.notice_period_cost)
     const delta_term_monthly = delta_term_severance + delta_term_notice
 
     // Build enhancements block (deltas as monthly amounts; termination as total for later monthlyization)
+    // Only include termination costs in all-inclusive mode, not in statutory mode
     const enhancements: GroqEnhancementResponse['enhancements'] = {}
     const terminationConfidence = terminationBaseline.warnings.length > 0 ? 0.5 : 0.7
-    if (delta_term_severance > 0) {
+    if (!isStatutory && delta_term_severance > 0) {
       enhancements.severance_cost = {
         monthly_amount: Number(delta_term_severance.toFixed(2)),
         total_amount: Number((delta_term_severance * contractMonths).toFixed(2)),
@@ -1129,7 +1101,7 @@ export class GroqService {
         already_included: false
       }
     }
-    if (delta_term_notice > 0) {
+    if (!isStatutory && delta_term_notice > 0) {
       enhancements.notice_period_cost = {
         monthly_amount: Number(delta_term_notice.toFixed(2)),
         total_amount: Number((delta_term_notice * contractMonths).toFixed(2)),
@@ -1164,7 +1136,7 @@ export class GroqService {
         already_included: delta_vac === 0
       }
     }
-    if (includeIf(allow_trans, base_trans) > 0) {
+    if (base_trans > 0) {
       enhancements.transportation_allowance = {
         monthly_amount: delta_trans,
         explanation: 'Papaya baseline vs provider coverage',
@@ -1173,7 +1145,7 @@ export class GroqService {
         mandatory: !!base_trans_mand
       }
     }
-    if (includeIf(allow_remote, base_remote) > 0) {
+    if (base_remote > 0) {
       enhancements.remote_work_allowance = {
         monthly_amount: delta_remote,
         explanation: 'Papaya baseline vs provider coverage',
@@ -1182,7 +1154,7 @@ export class GroqService {
         mandatory: !!base_remote_mand
       }
     }
-    if (!isStatutory && base_meal > 0) {
+    if (base_meal > 0) {
       enhancements.meal_vouchers = {
         monthly_amount: delta_meal,
         explanation: 'Papaya baseline vs provider coverage',
@@ -1203,10 +1175,11 @@ export class GroqService {
     if (delta_trans > 0) missingReq.push('transportation_allowance')
     if (delta_remote > 0) missingReq.push('remote_work_allowance')
     if (delta_meal > 0) missingReq.push('meal_vouchers')
-    if (delta_term_severance > 0) missingReq.push('severance_cost')
-    if (delta_term_notice > 0) missingReq.push('notice_period_cost')
+    if (!isStatutory && delta_term_severance > 0) missingReq.push('severance_cost')
+    if (!isStatutory && delta_term_notice > 0) missingReq.push('notice_period_cost')
 
     const doubleCountingRisks: string[] = []
+    // Only include termination costs in total for all-inclusive mode
     const totalMonthlyEnhancement = [
       delta_th13,
       delta_th14,
@@ -1214,8 +1187,8 @@ export class GroqService {
       delta_trans,
       delta_remote,
       delta_meal,
-      delta_term_severance,
-      delta_term_notice
+      isStatutory ? 0 : delta_term_severance,
+      isStatutory ? 0 : delta_term_notice
     ].reduce((s, n) => s + (isFinite(n) ? n : 0), 0)
 
     const response: GroqEnhancementResponse = {
