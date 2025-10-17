@@ -153,6 +153,36 @@ const resolveMonthlyAmount = (value: unknown): number => {
   return 0
 }
 
+const normalizeAllowanceLabel = (value: string): string =>
+  String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+
+const TRANSPORT_ALLOWANCE_KEYWORDS = ['transportation', 'transport', 'commuting', 'travel allowance', 'bus', 'mobility']
+const REMOTE_ALLOWANCE_KEYWORDS = ['remote work', 'work from home', 'wfh', 'home office', 'telework']
+
+const filterAllowancesByContractType = <T extends { name: string | null | undefined }>(
+  items: T[],
+  contractType?: EORFormData['contractType']
+): T[] => {
+  if (!contractType || contractType === 'hybrid' || !Array.isArray(items) || items.length === 0) {
+    return items
+  }
+
+  const keywords =
+    contractType === 'remote'
+      ? TRANSPORT_ALLOWANCE_KEYWORDS
+      : REMOTE_ALLOWANCE_KEYWORDS
+
+  const shouldExclude = (name?: string | null): boolean => {
+    if (!name) return false
+    const normalized = normalizeAllowanceLabel(name)
+    if (!normalized) return false
+    return keywords.some(keyword => normalized.includes(keyword))
+  }
+
+  const filtered = items.filter(item => !shouldExclude(item?.name ?? ''))
+  return filtered.length === items.length ? items : filtered
+}
+
 const formatKeyName = (raw: string) => raw
   .replace(/([A-Z])/g, ' $1')
   .replace(/_/g, ' ')
@@ -384,7 +414,8 @@ const findLocalOfficeCountryCodeInObject = (value: unknown, depth = 0): string |
 const buildDisplayedItems = (
   enhancement: EnhancedQuote | undefined,
   baseQuote: Quote | undefined,
-  localOfficeInfo?: LocalOfficeInfo | null
+  localOfficeInfo?: LocalOfficeInfo | null,
+  contractType?: EORFormData['contractType']
 ): Array<{ key: string; name: string; monthly_amount: number }> => {
   if (!baseQuote) return []
 
@@ -527,7 +558,7 @@ const buildDisplayedItems = (
     })
   }
 
-  return items
+  return filterAllowancesByContractType(items, contractType)
 }
 
 type QuoteExtra = { name: string; amount: number; guards?: string[]; replaceBaseGuards?: string[] }
@@ -952,7 +983,7 @@ const QuotePageContent = memo(() => {
       }
 
       // Build items exactly as displayed in UI: base costs + filtered enhancement extras
-      const builtItems = buildDisplayedItems(enhancedQuote, baseQuote, localOfficeInfo)
+      const builtItems = buildDisplayedItems(enhancedQuote, baseQuote, localOfficeInfo, formData?.contractType)
 
       if (builtItems.length > 0) {
         // Sum the items - this matches what's displayed in UI
@@ -5045,11 +5076,11 @@ const QuotePageContent = memo(() => {
 
     // Build additional extras (deduped) from deterministic/LLM enhancements
     const extras: Array<{ name: string; amount: number; guards?: string[]; replaceBaseGuards?: string[] }> = []
+    const formDataForLocalOffice = quoteData?.formData as EORFormData | undefined
     try {
       const enh = (enhancements as any)?.[currentProvider as string]
       const costs = Array.isArray(mergedQuote?.costs) ? mergedQuote.costs : []
       const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
-      const formDataForLocalOffice = quoteData?.formData as EORFormData | undefined
       const hasLocalOfficeItemLike = buildLocalOfficeDuplicateChecker(formDataForLocalOffice?.localOfficeInfo, norm)
       const hasItemLike = (needle: string) => costs.some((c: any) => norm(c?.name).includes(norm(needle)))
       const addExtra = (
@@ -5160,14 +5191,17 @@ const QuotePageContent = memo(() => {
     // Do not inject extras here to avoid double-counting.
     // Extras are passed to GenericQuoteCard via mergedExtras for inline injection.
 
+    const contractTypeForExtras = formDataForLocalOffice?.contractType
+    const filteredExtras = filterAllowancesByContractType(extras, contractTypeForExtras)
+
     const isDualMode = Boolean(dualCurrencyQuotes?.isDualCurrencyMode)
     const mergedForSingle = !isDualMode
-      ? mergeExtrasIntoQuote(mergedQuote, extras, extendedConversions)
+      ? mergeExtrasIntoQuote(mergedQuote, filteredExtras, extendedConversions)
       : { quote: mergedQuote, usdConversions: extendedConversions }
 
     const quoteForCard = mergedForSingle.quote
     const usdForCard = mergedForSingle.usdConversions
-    const extrasForCard = isDualMode ? extras : []
+    const extrasForCard = isDualMode ? filteredExtras : []
     const resolvedTotalValue = !isDualMode && quoteForCard
       ? (() => {
         const parsed = parseFloat(String((quoteForCard as Quote).total_costs ?? 0))
