@@ -18,6 +18,7 @@ interface EmployeeInfoFormProps {
   baseSalary: string
   contractDuration: string
   contractDurationUnit: 'months' | 'years'
+  contractType: 'remote' | 'hybrid' | 'on-site'
   showOptionalEmployeeData: boolean
   hoursPerDay: string
   daysPerWeek: string
@@ -50,7 +51,7 @@ const arePropsEqual = (
   // Compare primitive values
   const primitiveKeys: (keyof EmployeeInfoFormProps)[] = [
     'country', 'currency', 'isCurrencyManuallySet', 'originalCurrency',
-    'workVisaRequired', 'baseSalary', 'contractDuration', 'contractDurationUnit',
+    'workVisaRequired', 'baseSalary', 'contractDuration', 'contractDurationUnit', 'contractType',
     'showOptionalEmployeeData', 'hoursPerDay', 'daysPerWeek', 'holidayDays', 'probationPeriod',
     'salaryConversionMessage', 'isLoadingValidations', 'isConvertingValidation',
     'isValidationReady'
@@ -115,6 +116,7 @@ export const EmployeeInfoForm = memo(({
   baseSalary,
   contractDuration,
   contractDurationUnit,
+  contractType,
   showOptionalEmployeeData,
   hoursPerDay,
   daysPerWeek,
@@ -167,6 +169,7 @@ export const EmployeeInfoForm = memo(({
       <EmployeeContractDuration
         contractDuration={contractDuration}
         contractDurationUnit={contractDurationUnit}
+        contractType={contractType}
         onFormUpdate={onFormUpdate}
       />
       <OptionalEmployeeDataSection

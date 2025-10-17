@@ -8,12 +8,14 @@ import { FORM_STYLES } from "../../styles/constants"
 interface EmployeeContractDurationProps {
   contractDuration: string
   contractDurationUnit: 'months' | 'years'
+  contractType: 'remote' | 'hybrid' | 'on-site'
   onFormUpdate: (updates: Partial<EORFormData>) => void
 }
 
 export const EmployeeContractDuration = memo(({
   contractDuration,
   contractDurationUnit,
+  contractType,
   onFormUpdate
 }: EmployeeContractDurationProps) => {
 
@@ -46,13 +48,17 @@ export const EmployeeContractDuration = memo(({
     })
   }
 
+  const handleContractTypeChange = (value: 'remote' | 'hybrid' | 'on-site') => {
+    onFormUpdate({ contractType: value })
+  }
+
   const displayText = contractDurationUnit === 'years'
     ? `${contractDuration} year${parseInt(contractDuration) !== 1 ? 's' : ''} (${parseInt(contractDuration) * 12} months)`
     : `${contractDuration} month${parseInt(contractDuration) !== 1 ? 's' : ''}`
 
   return (
     <div className="mb-6">
-      <div className={FORM_STYLES.GRID_2_COL}>
+      <div className={FORM_STYLES.GRID_3_COL}>
         <div className="space-y-2">
           <Label htmlFor="contractDuration" className={FORM_STYLES.LABEL_BASE}>
             Contract Duration
@@ -82,6 +88,24 @@ export const EmployeeContractDuration = memo(({
             <SelectContent>
               <SelectItem value="months">Months</SelectItem>
               <SelectItem value="years">Years</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="contractType" className={FORM_STYLES.LABEL_BASE}>
+            Contract Type
+          </Label>
+          <Select
+            value={contractType}
+            onValueChange={handleContractTypeChange}
+          >
+            <SelectTrigger id="contractType" className={FORM_STYLES.SELECT_TRIGGER}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="remote">Remote</SelectItem>
+              <SelectItem value="hybrid">Hybrid</SelectItem>
+              <SelectItem value="on-site">On-site</SelectItem>
             </SelectContent>
           </Select>
         </div>

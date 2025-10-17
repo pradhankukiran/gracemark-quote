@@ -46,6 +46,7 @@ export interface EORFormData {
   daysPerWeek: string
   startDate: string
   employmentType: string
+  contractType: 'remote' | 'hybrid' | 'on-site'
   quoteType: "all-inclusive" | "statutory-only"
   contractDuration: string
   contractDurationUnit: 'months' | 'years'

@@ -1114,18 +1114,15 @@ export class EnhancementEngine {
       addIf(monthly)
     }
 
-    // Allowances (monthly) — in statutory-only mode, include only if mandatory
+    // Allowances (monthly)
     if (enhancementData.transportationAllowance && !enhancementData.transportationAllowance.isAlreadyIncluded) {
-      const ok = input.quoteType !== 'statutory-only' || enhancementData.transportationAllowance.isMandatory
-      if (ok) addIf(enhancementData.transportationAllowance.monthlyAmount)
+      addIf(enhancementData.transportationAllowance.monthlyAmount)
     }
     if (enhancementData.remoteWorkAllowance && !enhancementData.remoteWorkAllowance.isAlreadyIncluded) {
-      const ok = input.quoteType !== 'statutory-only' || enhancementData.remoteWorkAllowance.isMandatory
-      if (ok) addIf(enhancementData.remoteWorkAllowance.monthlyAmount)
+      addIf(enhancementData.remoteWorkAllowance.monthlyAmount)
     }
     if (enhancementData.mealVouchers && !enhancementData.mealVouchers.isAlreadyIncluded) {
-      const ok = input.quoteType !== 'statutory-only' || enhancementData.mealVouchers.isMandatory
-      if (ok) addIf(enhancementData.mealVouchers.monthlyAmount)
+      addIf(enhancementData.mealVouchers.monthlyAmount)
     }
 
     // Additional contributions (assume monthly values)
@@ -1468,8 +1465,6 @@ export class EnhancementEngine {
 
     // Iterate pre-pass items and compute per-item delta
     const tasks = baseline.items.map(async item => {
-      // Skip optional allowances in statutory-only
-      if (isStatutory && !item.mandatory && item.category === 'allowances') return
       const localMonthly = getNum(item.monthly_amount_local)
       const providerMonthly = await convertAmount(localMonthly)
       const key = item.key
@@ -1517,33 +1512,27 @@ export class EnhancementEngine {
           already_included: delta === 0
         }
       } else if (mapKey === 'transportation_allowance') {
-        if (!isStatutory || item.mandatory) {
-          enhancements.transportation_allowance = {
-            monthly_amount: delta,
-            explanation: 'Transportation allowance baseline vs provider coverage',
-            confidence: 0.6,
-            already_included: delta === 0,
-            mandatory: !!item.mandatory
-          }
+        enhancements.transportation_allowance = {
+          monthly_amount: delta,
+          explanation: 'Transportation allowance baseline vs provider coverage',
+          confidence: 0.6,
+          already_included: delta === 0,
+          mandatory: !!item.mandatory
         }
       } else if (mapKey === 'remote_work_allowance') {
-        if (!isStatutory || item.mandatory) {
-          enhancements.remote_work_allowance = {
-            monthly_amount: delta,
-            explanation: 'Remote work allowance baseline vs provider coverage',
-            confidence: 0.6,
-            already_included: delta === 0,
-            mandatory: !!item.mandatory
-          }
+        enhancements.remote_work_allowance = {
+          monthly_amount: delta,
+          explanation: 'Remote work allowance baseline vs provider coverage',
+          confidence: 0.6,
+          already_included: delta === 0,
+          mandatory: !!item.mandatory
         }
       } else if (mapKey === 'meal_vouchers') {
-        if (!isStatutory || item.mandatory) {
-          enhancements.meal_vouchers = {
-            monthly_amount: delta,
-            explanation: 'Meal vouchers baseline vs provider coverage',
-            confidence: 0.6,
-            already_included: delta === 0
-          }
+        enhancements.meal_vouchers = {
+          monthly_amount: delta,
+          explanation: 'Meal vouchers baseline vs provider coverage',
+          confidence: 0.6,
+          already_included: delta === 0
         }
       }
       if (delta > 0) missing.push(mapKey)
@@ -1837,25 +1826,23 @@ export class EnhancementEngine {
       const providerAmount = providerInclusions.includedBenefits.transportationAllowance?.amount || 0
       const hasProvider = providerAmount > 0
       const isMandatory = legalRequirements.allowances.transportationMandatory || false
-      const shouldInclude = quoteType === 'all-inclusive' || isMandatory
-      
-      if (shouldInclude) {
-        analysis.push({
-          benefit: 'Transportation Allowance',
-          required: shouldInclude,
-          mandatory: isMandatory,
-          providerHas: hasProvider,
-          providerAmount,
-          confidence: isMandatory ? 0.8 : 0.6,
-          reasoning: isMandatory 
-            ? `Legal requirement: ${legalRequirements.allowances.transportationAmount} ${currency} transportation allowance (mandatory)`
-            : `Common practice: ${legalRequirements.allowances.transportationAmount} ${currency} transportation allowance (commonly provided)`
-        })
-        if (hasProvider) {
-          included.push('Transportation Allowance')
-        } else {
-          missing.push('Transportation Allowance')
-        }
+      const required = quoteType !== 'statutory-only' || isMandatory
+
+      analysis.push({
+        benefit: 'Transportation Allowance',
+        required,
+        mandatory: isMandatory,
+        providerHas: hasProvider,
+        providerAmount,
+        confidence: isMandatory ? 0.8 : 0.6,
+        reasoning: isMandatory
+          ? `Legal requirement: ${legalRequirements.allowances.transportationAmount} ${currency} transportation allowance (mandatory)`
+          : `Common practice: ${legalRequirements.allowances.transportationAmount} ${currency} transportation allowance (commonly provided)`
+      })
+      if (hasProvider) {
+        included.push('Transportation Allowance')
+      } else if (required) {
+        missing.push('Transportation Allowance')
       }
     }
 
@@ -1864,25 +1851,23 @@ export class EnhancementEngine {
       const providerAmount = providerInclusions.includedBenefits.mealVouchers?.amount || 0
       const hasProvider = providerAmount > 0
       const isMandatory = legalRequirements.allowances.mealVoucherMandatory || false
-      const shouldInclude = quoteType === 'all-inclusive' || isMandatory
-      
-      if (shouldInclude) {
-        analysis.push({
-          benefit: 'Meal Vouchers',
-          required: shouldInclude,
-          mandatory: isMandatory,
-          providerHas: hasProvider,
-          providerAmount,
-          confidence: isMandatory ? 0.8 : 0.6,
-          reasoning: isMandatory 
-            ? `Legal requirement: ${legalRequirements.allowances.mealVoucherAmount} ${currency} meal vouchers (mandatory)`
-            : `Common practice: ${legalRequirements.allowances.mealVoucherAmount} ${currency} meal vouchers (commonly provided)`
-        })
-        if (hasProvider) {
-          included.push('Meal Vouchers')
-        } else {
-          missing.push('Meal Vouchers')
-        }
+      const required = quoteType !== 'statutory-only' || isMandatory
+
+      analysis.push({
+        benefit: 'Meal Vouchers',
+        required,
+        mandatory: isMandatory,
+        providerHas: hasProvider,
+        providerAmount,
+        confidence: isMandatory ? 0.8 : 0.6,
+        reasoning: isMandatory
+          ? `Legal requirement: ${legalRequirements.allowances.mealVoucherAmount} ${currency} meal vouchers (mandatory)`
+          : `Common practice: ${legalRequirements.allowances.mealVoucherAmount} ${currency} meal vouchers (commonly provided)`
+      })
+      if (hasProvider) {
+        included.push('Meal Vouchers')
+      } else if (required) {
+        missing.push('Meal Vouchers')
       }
     }
 
@@ -1891,25 +1876,23 @@ export class EnhancementEngine {
       const providerAmount = providerInclusions.includedBenefits.remoteWorkAllowance?.amount || 0
       const hasProvider = providerAmount > 0
       const isMandatory = legalRequirements.allowances.remoteWorkMandatory || false
-      const shouldInclude = quoteType === 'all-inclusive' || isMandatory
-      
-      if (shouldInclude) {
-        analysis.push({
-          benefit: 'Remote Work Allowance',
-          required: shouldInclude,
-          mandatory: isMandatory,
-          providerHas: hasProvider,
-          providerAmount,
-          confidence: isMandatory ? 0.8 : 0.5,
-          reasoning: isMandatory 
-            ? `Legal requirement: ${legalRequirements.allowances.remoteWorkAmount} ${currency} remote work allowance (mandatory)`
-            : `Common practice: ${legalRequirements.allowances.remoteWorkAmount} ${currency} remote work allowance (commonly provided)`
-        })
-        if (hasProvider) {
-          included.push('Remote Work Allowance')
-        } else {
-          missing.push('Remote Work Allowance')
-        }
+      const required = quoteType !== 'statutory-only' || isMandatory
+
+      analysis.push({
+        benefit: 'Remote Work Allowance',
+        required,
+        mandatory: isMandatory,
+        providerHas: hasProvider,
+        providerAmount,
+        confidence: isMandatory ? 0.8 : 0.5,
+        reasoning: isMandatory
+          ? `Legal requirement: ${legalRequirements.allowances.remoteWorkAmount} ${currency} remote work allowance (mandatory)`
+          : `Common practice: ${legalRequirements.allowances.remoteWorkAmount} ${currency} remote work allowance (commonly provided)`
+      })
+      if (hasProvider) {
+        included.push('Remote Work Allowance')
+      } else if (required) {
+        missing.push('Remote Work Allowance')
       }
     }
 

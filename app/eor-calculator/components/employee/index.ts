@@ -5,3 +5,4 @@ export * from './EmployeeSalaryInfo';
 export * from './EmployeeWorkSchedule';
 export * from './OptionalEmployeeDataSection';
 export * from './EmployeeContractDuration';
+export * from './EmployeeContractType';

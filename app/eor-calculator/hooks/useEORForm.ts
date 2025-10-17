@@ -32,6 +32,7 @@ const initialFormDataBase = {
   daysPerWeek: "",
   startDate: "",
   employmentType: "full-time" as const,
+  contractType: "remote" as const,
   quoteType: "all-inclusive" as const,
   contractDuration: "12",
   contractDurationUnit: "months" as const,
