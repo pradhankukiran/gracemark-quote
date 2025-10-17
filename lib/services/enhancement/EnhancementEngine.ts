@@ -1458,8 +1458,6 @@ export class EnhancementEngine {
     const deltas: number[] = []
     const addDelta = (n: number) => { if (isFinite(n) && n > 0) deltas.push(n) }
 
-    const isStatutory = params.quoteType === 'statutory-only'
-
     const addCoverageStr = (k: string, v: number) => { if (v > 0) coverageStrs.push(`${k}: ${v.toFixed(2)} ${providerCurrency}`) }
     Object.entries(providerCoverage).forEach(([k,v]) => addCoverageStr(k, v as number))
 
@@ -1826,7 +1824,7 @@ export class EnhancementEngine {
       const providerAmount = providerInclusions.includedBenefits.transportationAllowance?.amount || 0
       const hasProvider = providerAmount > 0
       const isMandatory = legalRequirements.allowances.transportationMandatory || false
-      const required = quoteType !== 'statutory-only' || isMandatory
+      const required = true
 
       analysis.push({
         benefit: 'Transportation Allowance',
@@ -1851,7 +1849,7 @@ export class EnhancementEngine {
       const providerAmount = providerInclusions.includedBenefits.mealVouchers?.amount || 0
       const hasProvider = providerAmount > 0
       const isMandatory = legalRequirements.allowances.mealVoucherMandatory || false
-      const required = quoteType !== 'statutory-only' || isMandatory
+      const required = true
 
       analysis.push({
         benefit: 'Meal Vouchers',
@@ -1876,7 +1874,7 @@ export class EnhancementEngine {
       const providerAmount = providerInclusions.includedBenefits.remoteWorkAllowance?.amount || 0
       const hasProvider = providerAmount > 0
       const isMandatory = legalRequirements.allowances.remoteWorkMandatory || false
-      const required = quoteType !== 'statutory-only' || isMandatory
+      const required = true
 
       analysis.push({
         benefit: 'Remote Work Allowance',

@@ -13,7 +13,7 @@ Always output valid JSON; amounts are monthly in the quote currency.`
   // Legacy enhancement user prompt
   static buildUserPrompt(input: EnhancementInput): string {
     const modeGuidance = input.quoteType === 'statutory-only'
-      ? `MODE: STATUTORY-ONLY\nInclude ONLY legally mandated items. Do NOT add optional/perk benefits.`
+      ? `MODE: STATUTORY-ONLY\nInclude all legally mandated items and any documented allowances with explicit amounts. Avoid speculative perks.`
       : `MODE: ALL-INCLUSIVE\nInclude statutory items and common mandated allowances; avoid double-counting.`
 
     return `ENHANCEMENT ANALYSIS REQUEST:\n\n` +
@@ -87,7 +87,7 @@ FOCUS: Your primary job is gap analysis - finding what's legally required but mi
       `GAP ANALYSIS REQUEST - MISSING BENEFITS DETECTION`,
       '',
       `PROVIDER: ${provider}`,
-      `QUOTE TYPE: ${quoteType} (${quoteType === 'statutory-only' ? 'MANDATORY ONLY' : 'ALL BENEFITS'})`,
+      `QUOTE TYPE: ${quoteType} (include mandatory items; allowances allowed when specified)`,
       `BASE MONTHLY: ${baseMonthly} ${currency}`,
       `BASE SALARY: ${baseSalary} ${currency}`,
       `CONTRACT MONTHS: ${contractMonths}`,
@@ -109,7 +109,7 @@ FOCUS: Your primary job is gap analysis - finding what's legally required but mi
       `3. For each benefit, check if provider already includes it (amount > 0)`,
       `4. If included: set already_included=true, enhancement amount=0`,
       `5. If missing: set already_included=false, compute enhancement amount`,
-      `6. Apply ${quoteType === 'statutory-only' ? 'ONLY mandatory/legally required benefits' : 'ONLY items explicitly present in the legal profile — mandatory items and allowances with specified amounts/rates'}`,
+      `6. Include all mandatory legal benefits plus any allowances explicitly present in the legal profile with specified amounts or rates`,
       `7. Do NOT include any benefit that is not present in the legal profile. Do NOT infer from training data.`,
       '',
       `OUTPUT JSON EXAMPLE (MATCH EXACT KEYS):`,
@@ -404,13 +404,12 @@ CRITICAL: Detect implicit benefit inclusions by analyzing:
 CORE MISSION: Produce different enhancement results for different providers based on their actual coverage vs legal/common requirements.
 
 FORM DATA LOGIC (CRITICAL):
-- quoteType = "statutory-only" → Include ONLY legally mandatory items
-- quoteType = "all-inclusive" + addBenefits = true → Include mandatory + common benefits  
-- quoteType = "all-inclusive" + addBenefits = false → Include ONLY mandatory items
+- addBenefits = true (default) → Include mandatory items plus common allowances (transportation, meal vouchers, remote work, etc.)
+- addBenefits = false → Include ONLY legally mandatory items
 
 BENEFIT CATEGORIES:
 1. MANDATORY BENEFITS: Always include if missing (13th salary, severance/notice costs, authority payments)
-2. COMMON BENEFITS: Include only if quoteType="all-inclusive" AND addBenefits=true
+2. COMMON BENEFITS: Include only if addBenefits=true
 
 PROVIDER-SPECIFIC GAP ANALYSIS:
 - If provider includes benefit (amount > 0) → already_included=true, enhancement=0
@@ -463,7 +462,7 @@ SUCCESS CRITERIA: Providers with different inclusions get different enhancement 
 
     // Form data logic for benefit inclusion
     const addBenefitsFlag = formData.addBenefits
-    const includeCommonBenefits = quoteType === 'all-inclusive' && addBenefitsFlag !== false
+    const includeCommonBenefits = addBenefitsFlag !== false
     
     const formLogic = `
 FORM DATA ANALYSIS:
@@ -472,12 +471,9 @@ FORM DATA ANALYSIS:
 - Contract Duration: ${contractMonths} months
 
 INCLUSION LOGIC FOR THIS REQUEST:
-${quoteType === 'statutory-only'
-  ? '→ MANDATORY ONLY: Include only legally required items'
-  : includeCommonBenefits
-    ? '→ FULL INCLUSIVE: Include mandatory + common benefits'
-    : '→ MANDATORY ONLY: Include only legally required items'
-}`
+${includeCommonBenefits
+  ? '→ INCLUDE mandatory legal items plus common allowances (transportation, meal vouchers, remote work, etc.)'
+  : '→ MANDATORY ONLY: Include only legally required items'}`
 
     // Smart truncation that preserves critical sections
     const limitedPapayaData = this.smartTruncatePapayaData(papayaData, 50000)
@@ -511,7 +507,7 @@ ${quoteType === 'statutory-only'
         '• Internet/Mobile: Check common_benefits section',
         '• Health Insurance: Check common_benefits section',
         '• Other allowances with explicit amounts'
-      ].join('\n') : 'COMMON BENEFITS: SKIP (not requested for this quote type)',
+      ].join('\n') : 'COMMON BENEFITS: SKIP (addBenefits set to false)',
       '',
       '═══ STEP 4: GAP ANALYSIS PER BENEFIT ═══',
       '',
@@ -533,7 +529,7 @@ ${quoteType === 'statutory-only'
       '• Reasoning: "Provider missing 14th salary. Papaya requires..."',
       '',
       includeCommonBenefits ? [
-        'EXAMPLE 3 - Common benefit (addBenefits=true path):',
+        'EXAMPLE 3 - Common benefit (includeCommonBenefits=true path):',
         '• Provider coverage: meal_vouchers = 0 (missing)',
         '• Papaya shows: "Meal Vouchers – 6,000 ARS monthly"',
         '• Result: already_included=false, monthly_amount=6000',
@@ -576,7 +572,7 @@ ${quoteType === 'statutory-only'
       '   • Search for vacation bonus, vacation pay percentages → Calculate accordingly',
       '   • Look for payment cycle requirements and additional salary components',
       '',
-      '3. COMMON_BENEFITS SECTION PARSING (when addBenefits=true):',
+      '3. COMMON_BENEFITS SECTION PARSING (when includeCommonBenefits=true):',
       '   • Parse EVERY line containing benefit amounts',
       '   • Extract amounts in format "X to Y currency" → use midpoint: (X+Y)÷2',
       '   • Convert daily amounts to monthly: daily_amount × 22 working days',
@@ -626,7 +622,7 @@ ${quoteType === 'statutory-only'
         "analysis": {
           "provider_coverage": ["List what ${provider} actually includes"],
           "missing_requirements": ["List what ${provider} is missing"],
-          "benefit_mode": "${quoteType === 'statutory-only' ? 'statutory-only' : (includeCommonBenefits ? 'inclusive+benefits' : 'inclusive-only-mandatory')}",
+          "benefit_mode": "${includeCommonBenefits ? 'mandatory+allowances' : 'mandatory-only'}",
           "papaya_sections_parsed": ["payroll", "termination", "common_benefits"],
           "total_benefits_found": 0
         },
@@ -659,7 +655,7 @@ ${quoteType === 'statutory-only'
       'COMPREHENSIVE COVERAGE REQUIREMENTS:',
       '• TERMINATION COSTS: ALWAYS calculate severance and notice components if termination section exists - NO exceptions, NO gap analysis',
       '• MANDATORY BENEFITS: Always include regardless of form settings (13th salary, statutory bonuses, termination provisions)',
-      '• COMMON BENEFITS: Include ALL when addBenefits=true (be exhaustive)',
+      '• COMMON BENEFITS: Include ALL when includeCommonBenefits=true (be exhaustive)',
       '• RANGES: Use midpoint calculations for "X to Y" amounts',
       '',
       'ROBUST COST CALCULATION RULES:',
@@ -696,7 +692,7 @@ ${quoteType === 'statutory-only'
       '• All Papaya sections have been thoroughly parsed',
       '• Every benefit with a numeric value has a corresponding enhancement object',
       '• Termination costs are calculated (not defaulted to 0)',
-      '• When addBenefits=true, all common_benefits are included',
+      '• When includeCommonBenefits=true, all common_benefits are included',
       '• Different providers get different totals based on their coverage gaps',
       '',
       'CONFIDENCE SCORING FOR ESTIMATES:',
@@ -851,7 +847,7 @@ RESPONSE JSON SHAPE (exact keys):
 
     // Consider addBenefits opt-in; treat undefined as true for backward compatibility
     const addBenefitsFlag = formData.addBenefits
-    const includeCommonBenefits = quoteType === 'all-inclusive' && addBenefitsFlag !== false
+    const includeCommonBenefits = addBenefitsFlag !== false
 
     // Smart truncation that preserves critical sections
     const limitedPapayaData = this.smartTruncatePapayaData(papayaData, 50000)
@@ -864,11 +860,9 @@ RESPONSE JSON SHAPE (exact keys):
       `- Contract Duration: ${contractMonths || 12} months`,
       '',
       'INCLUSION LOGIC FOR THIS REQUEST:',
-      (quoteType === 'statutory-only')
-        ? '→ MANDATORY ONLY: Include only legally required items'
-        : includeCommonBenefits
-          ? '→ FULL INCLUSIVE: Include mandatory + common benefits'
-          : '→ MANDATORY ONLY: Include only legally required items'
+      includeCommonBenefits
+        ? '→ INCLUDE mandatory legal items plus common allowances (transportation, meal vouchers, remote work, etc.)'
+        : '→ MANDATORY ONLY: Include only legally required items'
     ].join('\n')
 
     return [
@@ -887,7 +881,7 @@ RESPONSE JSON SHAPE (exact keys):
       includeCommonBenefits ? [
         'BENEFIT INCLUSION RULES:',
         '• MANDATORY BENEFITS: Always include if missing (13th salary, termination costs, statutory allowances)',
-        '• COMMON BENEFITS: Include ALL when addBenefits=true (meal vouchers, transportation, allowances)',
+        '• COMMON BENEFITS: Include ALL when includeCommonBenefits=true (meal vouchers, transportation, allowances)',
         '• Use Papaya amounts and convert to monthly as needed',
         ''
       ].join('\n') : [
@@ -903,15 +897,10 @@ RESPONSE JSON SHAPE (exact keys):
       '- Always use LOCAL currency (Papaya) as the quote.currency.',
       '- Use the provided base salary as MONTHLY base_salary_monthly.',
       '- CRITICAL BENEFIT LOGIC:',
-      (quoteType === 'statutory-only'
-        ? '  * Statutory-only (THIS REQUEST): Include only legally mandated items'
-        : '  * Statutory-only (not this request): Include only legally mandated items'),
-      (includeCommonBenefits
-        ? '  * All-inclusive + addBenefits=true (THIS REQUEST): Include mandatory + common benefits'
-        : '  * All-inclusive + addBenefits=true (not this request): Include mandatory + common benefits'),
-      (quoteType === 'all-inclusive' && addBenefitsFlag === false
-        ? '  * All-inclusive + addBenefits=false (THIS REQUEST): Include only mandatory items'
-        : '  * All-inclusive + addBenefits=false (not this request): Include only mandatory items'),
+      includeCommonBenefits
+        ? '  * This request: Include mandatory items plus common allowances (transportation, meal vouchers, remote work, etc.)'
+        : '  * This request: Include only legally mandated items',
+      '  * If addBenefits=false in future requests: Include only mandatory items',
       '- MANDATORY ALWAYS: authority payments, 13th/14th salary (if required), termination costs',
       includeCommonBenefits
         ? '- COMMON BENEFITS (INCLUDE): meal vouchers, transportation, internet/mobile allowances, WFH stipends from Papaya common_benefits section'
