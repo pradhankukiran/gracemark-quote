@@ -1119,6 +1119,7 @@ const QuotePageContent = memo(() => {
     const onboardingUSD = readOptionalNumericValue(breakdown.onboardingTotalUSD)
     const gracemarkUSD = readOptionalNumericValue(billRateComposition.gracemarkFeeMonthlyUSD)
 
+    let monthlyAssignmentUSD: number | null = null
     let totalAssignmentUSD: number | null = null
     if (
       baseUSD !== null &&
@@ -1126,13 +1127,14 @@ const QuotePageContent = memo(() => {
       allowancesUSD !== null &&
       terminationUSD !== null
     ) {
-      const monthlyAssignmentUSD = roundToCents(
+      monthlyAssignmentUSD = roundToCents(
         baseUSD + statutoryUSD + allowancesUSD + terminationUSD
       )
       totalAssignmentUSD = resolvedDuration > 0
         ? roundToCents(monthlyAssignmentUSD * resolvedDuration)
         : monthlyAssignmentUSD
     } else if (localCurrency === 'USD') {
+      monthlyAssignmentUSD = monthlyAssignmentCost
       totalAssignmentUSD = totalAssignmentLocal
     }
 
@@ -1225,6 +1227,7 @@ const QuotePageContent = memo(() => {
       duration: resolvedDuration,
       totals: {
         assignment: { local: totalAssignmentLocal, usd: totalAssignmentUSD },
+        monthlyCost: { local: monthlyAssignmentCost, usd: monthlyAssignmentUSD },
         billRate: { local: billRateLocal, usd: billRateUSD },
         monthlyBillRate: { local: monthlyBillRateLocal, usd: monthlyBillRateUSD },
         profit: { local: totalProfitLocal, usd: totalProfitUSD },
@@ -3366,8 +3369,8 @@ const QuotePageContent = memo(() => {
                                   {/* KPI Metrics Section - Moved Below Cost Breakdown */}
                                   {acidTestKpiMetrics && (
                                     <div className="space-y-4 mt-8">
-                                      {/* Row 1: Total Assignment Costs - Full Width Rectangular */}
-                                      <div className="w-full">
+                                      {/* Row 1: Total Assignment Costs & Total Monthly Cost */}
+                                      <div className="grid gap-4 md:grid-cols-2">
                                         <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6">
                                           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Assignment Costs</p>
                                           <div className="mt-2">
@@ -3386,6 +3389,27 @@ const QuotePageContent = memo(() => {
                                           </div>
                                           <p className="mt-3 text-xs text-slate-500">
                                             Recurring costs excluding Gracemark fee & onboarding.
+                                          </p>
+                                        </div>
+
+                                        <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6">
+                                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Monthly Cost</p>
+                                          <div className="mt-2">
+                                            <div className="text-3xl font-bold text-slate-900">
+                                              {formatMoney(acidTestKpiMetrics.totals.monthlyCost.local, acidTestKpiMetrics.localCurrency)}
+                                            </div>
+                                            <p className="text-xs text-slate-500 mt-1">
+                                              Monthly recurring spend (salary, statutory, allowances{billRateComposition.terminationMonthly > 0 ? ', termination' : ''}).
+                                            </p>
+                                          </div>
+                                          <div className="mt-4 text-sm text-slate-600">
+                                            <span className="font-medium text-slate-700">USD:</span>{' '}
+                                            {acidTestKpiMetrics.totals.monthlyCost.usd !== null
+                                              ? formatMoney(acidTestKpiMetrics.totals.monthlyCost.usd, 'USD')
+                                              : '—'}
+                                          </div>
+                                          <p className="mt-3 text-xs text-slate-500">
+                                            Matches the locked cost in the header.
                                           </p>
                                         </div>
                                       </div>

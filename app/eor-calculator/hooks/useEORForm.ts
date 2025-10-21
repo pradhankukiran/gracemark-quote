@@ -15,13 +15,7 @@ const createInitialLocalOfficeCustomCosts = (): LocalOfficeCustomCost[] => []
 
 const formatCustomCostLabel = (label: string): string => {
   if (!label) return ''
-  return label
-    .replace(/\s+/g, ' ')
-    .trim()
-    .split(' ')
-    .filter(Boolean)
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ')
+  return label.replace(/\s+/g, ' ').trim().toUpperCase()
 }
 
 const generateCustomCostId = (): string => {
