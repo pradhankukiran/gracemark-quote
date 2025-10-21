@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react"
-import { EORFormData, ValidationErrors, LocalOfficeInfo, SelectedBenefit } from "@/lib/shared/types"
+import { EORFormData, ValidationErrors, LocalOfficeInfo, SelectedBenefit, LocalOfficeCustomCost } from "@/lib/shared/types"
 import { 
   getCountryByName, 
   getCurrencyForCountry,
@@ -11,6 +11,38 @@ import { convertCurrency } from "@/lib/currency-converter"
 import { getDefaultLocalOfficeInfo, getLocalOfficeData, hasLocalOfficeData } from "@/lib/shared/utils/localOfficeData"
 
 const createInitialLocalOfficeInfo = (): LocalOfficeInfo => getDefaultLocalOfficeInfo()
+const createInitialLocalOfficeCustomCosts = (): LocalOfficeCustomCost[] => []
+
+const formatCustomCostLabel = (label: string): string => {
+  if (!label) return ''
+  return label
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .filter(Boolean)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ')
+}
+
+const generateCustomCostId = (): string => {
+  const globalCrypto = typeof globalThis !== 'undefined' ? (globalThis as any)?.crypto : undefined
+  if (globalCrypto && typeof globalCrypto.randomUUID === 'function') {
+    return globalCrypto.randomUUID()
+  }
+  return `loc-${Math.random().toString(36).slice(2, 11)}-${Date.now().toString(36)}`
+}
+
+const normalizeCustomCosts = (costs?: LocalOfficeCustomCost[] | null): LocalOfficeCustomCost[] => {
+  if (!Array.isArray(costs)) {
+    return []
+  }
+
+  return costs.map((cost) => ({
+    id: typeof cost?.id === 'string' && cost.id.trim() ? cost.id : generateCustomCostId(),
+    label: typeof cost?.label === 'string' ? formatCustomCostLabel(cost.label) : '',
+    amount: typeof cost?.amount === 'string' ? cost.amount : '',
+  }))
+}
 
 const initialFormDataBase = {
   employeeName: "",
@@ -56,6 +88,8 @@ const initialFormData: EORFormData = {
   ...initialFormDataBase,
   localOfficeInfo: createInitialLocalOfficeInfo(),
   compareLocalOfficeInfo: createInitialLocalOfficeInfo(),
+  localOfficeCustomCosts: createInitialLocalOfficeCustomCosts(),
+  compareLocalOfficeCustomCosts: createInitialLocalOfficeCustomCosts(),
 }
 
 const normalizeLocalOfficeInfo = (info?: LocalOfficeInfo | null): LocalOfficeInfo => {
@@ -73,6 +107,8 @@ const normalizeFormData = (data: Partial<EORFormData> | null | undefined): EORFo
       ...initialFormData,
       localOfficeInfo: createInitialLocalOfficeInfo(),
       compareLocalOfficeInfo: createInitialLocalOfficeInfo(),
+      localOfficeCustomCosts: createInitialLocalOfficeCustomCosts(),
+      compareLocalOfficeCustomCosts: createInitialLocalOfficeCustomCosts(),
     }
   }
 
@@ -81,6 +117,8 @@ const normalizeFormData = (data: Partial<EORFormData> | null | undefined): EORFo
     ...data,
     localOfficeInfo: normalizeLocalOfficeInfo(data.localOfficeInfo as LocalOfficeInfo | undefined),
     compareLocalOfficeInfo: normalizeLocalOfficeInfo((data as EORFormData).compareLocalOfficeInfo),
+    localOfficeCustomCosts: normalizeCustomCosts((data as EORFormData).localOfficeCustomCosts),
+    compareLocalOfficeCustomCosts: normalizeCustomCosts((data as EORFormData).compareLocalOfficeCustomCosts),
   }
 }
 
@@ -306,10 +344,63 @@ export const useEORForm = () => {
     }))
   }, [])
 
+  const addPrimaryLocalOfficeCustomCost = useCallback(() => {
+    setFormData((prev) => ({
+      ...prev,
+      localOfficeCustomCosts: [
+        ...prev.localOfficeCustomCosts,
+        { id: generateCustomCostId(), label: '', amount: '' },
+      ],
+    }))
+  }, [])
+
+  const updatePrimaryLocalOfficeCustomCost = useCallback((id: string, updates: Partial<LocalOfficeCustomCost>) => {
+    setFormData((prev) => ({
+      ...prev,
+      localOfficeCustomCosts: prev.localOfficeCustomCosts.map((cost) =>
+        cost.id === id ? { ...cost, ...updates, label: updates.label !== undefined ? formatCustomCostLabel(updates.label) : cost.label } : cost
+      ),
+    }))
+  }, [])
+
+  const removePrimaryLocalOfficeCustomCost = useCallback((id: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      localOfficeCustomCosts: prev.localOfficeCustomCosts.filter((cost) => cost.id !== id),
+    }))
+  }, [])
+
+  const addComparisonLocalOfficeCustomCost = useCallback(() => {
+    setFormData((prev) => ({
+      ...prev,
+      compareLocalOfficeCustomCosts: [
+        ...prev.compareLocalOfficeCustomCosts,
+        { id: generateCustomCostId(), label: '', amount: '' },
+      ],
+    }))
+  }, [])
+
+  const updateComparisonLocalOfficeCustomCost = useCallback((id: string, updates: Partial<LocalOfficeCustomCost>) => {
+    setFormData((prev) => ({
+      ...prev,
+      compareLocalOfficeCustomCosts: prev.compareLocalOfficeCustomCosts.map((cost) =>
+        cost.id === id ? { ...cost, ...updates, label: updates.label !== undefined ? formatCustomCostLabel(updates.label) : cost.label } : cost
+      ),
+    }))
+  }, [])
+
+  const removeComparisonLocalOfficeCustomCost = useCallback((id: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      compareLocalOfficeCustomCosts: prev.compareLocalOfficeCustomCosts.filter((cost) => cost.id !== id),
+    }))
+  }, [])
+
   const clearComparisonLocalOfficeInfo = useCallback(() => {
     setFormData((prev) => ({
       ...prev,
       compareLocalOfficeInfo: getDefaultLocalOfficeInfo(),
+      compareLocalOfficeCustomCosts: createInitialLocalOfficeCustomCosts(),
       compareCurrency: '',
       compareSalary: '',
     }))
@@ -329,6 +420,7 @@ export const useEORForm = () => {
       compareCurrency: defaultCurrency,
       compareSalary: '',
       compareLocalOfficeInfo: localOfficeDefaults ? { ...localOfficeDefaults } : getDefaultLocalOfficeInfo(),
+      compareLocalOfficeCustomCosts: createInitialLocalOfficeCustomCosts(),
     }))
     setCompareCurrency(defaultCurrency)
   }, [])
@@ -343,6 +435,7 @@ export const useEORForm = () => {
       country,
       state: '',
       localOfficeInfo: { ...localOfficeDefaults },
+      localOfficeCustomCosts: createInitialLocalOfficeCustomCosts(),
     }))
     setSalaryConversionMessage(null) // Clear message on country change
   }, []);
@@ -526,6 +619,12 @@ export const useEORForm = () => {
     clearBenefitsSelection,
     updatePrimaryLocalOfficeInfo,
     updateComparisonLocalOfficeInfo,
+    addPrimaryLocalOfficeCustomCost,
+    updatePrimaryLocalOfficeCustomCost,
+    removePrimaryLocalOfficeCustomCost,
+    addComparisonLocalOfficeCustomCost,
+    updateComparisonLocalOfficeCustomCost,
+    removeComparisonLocalOfficeCustomCost,
     clearComparisonLocalOfficeInfo,
     overrideCurrency,
     resetToDefaultCurrency,

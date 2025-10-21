@@ -25,6 +25,12 @@ export interface LocalOfficeInfo {
   backgroundCheckViaDeel: string
 }
 
+export interface LocalOfficeCustomCost {
+  id: string
+  label: string
+  amount: string
+}
+
 // Form Data Interfaces
 export interface EORFormData {
   employeeName: string
@@ -64,6 +70,8 @@ export interface EORFormData {
   }
   localOfficeInfo: LocalOfficeInfo
   compareLocalOfficeInfo: LocalOfficeInfo
+  localOfficeCustomCosts: LocalOfficeCustomCost[]
+  compareLocalOfficeCustomCosts: LocalOfficeCustomCost[]
 }
 
 // Quote Cost Interface

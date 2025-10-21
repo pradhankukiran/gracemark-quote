@@ -50,6 +50,12 @@ export default function EORCalculatorPage() {
     clearBenefitsSelection,
     updatePrimaryLocalOfficeInfo,
     updateComparisonLocalOfficeInfo,
+    addPrimaryLocalOfficeCustomCost,
+    updatePrimaryLocalOfficeCustomCost,
+    removePrimaryLocalOfficeCustomCost,
+    addComparisonLocalOfficeCustomCost,
+    updateComparisonLocalOfficeCustomCost,
+    removeComparisonLocalOfficeCustomCost,
     clearComparisonLocalOfficeInfo,
     overrideCurrency,
     resetToDefaultCurrency,
@@ -412,6 +418,10 @@ export default function EORCalculatorPage() {
                       onConversionStatusChange={handlePrimaryLocalOfficeConversionStatus}
                       countryCode={selectedCountryData?.code}
                       scopeId="primary"
+                      customCosts={formData.localOfficeCustomCosts}
+                      onAddCustomCost={addPrimaryLocalOfficeCustomCost}
+                      onCustomCostChange={updatePrimaryLocalOfficeCustomCost}
+                      onRemoveCustomCost={removePrimaryLocalOfficeCustomCost}
                     />
                   </>
                 )}
@@ -448,6 +458,10 @@ export default function EORCalculatorPage() {
                       countryCode={compareCountryData?.code}
                       title={`Local Office Information (${formData.compareCountry || 'Comparison'})`}
                       scopeId="comparison"
+                      customCosts={formData.compareLocalOfficeCustomCosts}
+                      onAddCustomCost={addComparisonLocalOfficeCustomCost}
+                      onCustomCostChange={updateComparisonLocalOfficeCustomCost}
+                      onRemoveCustomCost={removeComparisonLocalOfficeCustomCost}
                     />
                   </>
                 )}

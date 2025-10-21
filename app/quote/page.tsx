@@ -21,7 +21,7 @@ import { VarianceChart } from "./components/VarianceChart"
 import { EnhancementProvider, useEnhancementContext } from "@/hooks/enhancement/EnhancementContext"
 import { transformRemoteResponseToQuote, transformRivermateQuoteToDisplayQuote, transformToRemoteQuote, transformOysterQuoteToDisplayQuote } from "@/lib/shared/utils/apiUtils"
 import { identifyBenefitKey } from "@/lib/shared/utils/benefitNormalization"
-import { EORFormData, LocalOfficeInfo, RemoteAPIResponse, Quote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
+import { EORFormData, LocalOfficeInfo, LocalOfficeCustomCost, RemoteAPIResponse, Quote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
 import { ProviderType, EnhancedQuote, TerminationComponentEnhancement } from "@/lib/types/enhancement"
 import { convertCurrency } from "@/lib/currency-converter"
 import { exportAcidTestCostBreakdownPdf } from "@/lib/pdf/exportAcidTestCostBreakdown"
@@ -332,28 +332,40 @@ const LOCAL_OFFICE_DUPLICATE_LABELS: Record<keyof LocalOfficeInfo, string[]> = {
 
 const buildLocalOfficeDuplicateChecker = (
   localOfficeInfo: LocalOfficeInfo | undefined | null,
+  customCosts: LocalOfficeCustomCost[] | undefined | null,
   normalize: (value: string) => string
 ): ((needle: string) => boolean) => {
-  if (!localOfficeInfo) return () => false
-
   const normalizedLabels: string[] = []
 
-  for (const fieldKey of Object.keys(LOCAL_OFFICE_DUPLICATE_LABELS) as (keyof LocalOfficeInfo)[]) {
-    const amount = sanitizeLocalOfficeAmount(localOfficeInfo[fieldKey])
-    if (amount <= 0) continue
+  if (localOfficeInfo) {
+    for (const fieldKey of Object.keys(LOCAL_OFFICE_DUPLICATE_LABELS) as (keyof LocalOfficeInfo)[]) {
+      const amount = sanitizeLocalOfficeAmount(localOfficeInfo[fieldKey])
+      if (amount <= 0) continue
 
-    const labels = LOCAL_OFFICE_DUPLICATE_LABELS[fieldKey]
-    if (!labels || labels.length === 0) continue
+      const labels = LOCAL_OFFICE_DUPLICATE_LABELS[fieldKey]
+      if (!labels || labels.length === 0) continue
 
-    for (const label of labels) {
+      for (const label of labels) {
+        const normalized = normalize(label)
+        if (!normalized) continue
+        normalizedLabels.push(normalized)
+
+        const trimmed = normalized.replace(/\blocal office\b/g, '').trim()
+        if (trimmed && trimmed !== normalized) {
+          normalizedLabels.push(trimmed)
+        }
+      }
+    }
+  }
+
+  if (Array.isArray(customCosts)) {
+    for (const cost of customCosts) {
+      const amount = sanitizeLocalOfficeAmount(cost?.amount)
+      const label = typeof cost?.label === 'string' ? cost.label : ''
+      if (amount <= 0 || !label.trim()) continue
       const normalized = normalize(label)
       if (!normalized) continue
       normalizedLabels.push(normalized)
-
-      const trimmed = normalized.replace(/\blocal office\b/g, '').trim()
-      if (trimmed && trimmed !== normalized) {
-        normalizedLabels.push(trimmed)
-      }
     }
   }
 
@@ -415,6 +427,7 @@ const buildDisplayedItems = (
   enhancement: EnhancedQuote | undefined,
   baseQuote: Quote | undefined,
   localOfficeInfo?: LocalOfficeInfo | null,
+  localOfficeCustomCosts?: LocalOfficeCustomCost[] | null,
   contractType?: EORFormData['contractType']
 ): Array<{ key: string; name: string; monthly_amount: number }> => {
   if (!baseQuote) return []
@@ -422,7 +435,7 @@ const buildDisplayedItems = (
   const items: Array<{ key: string; name: string; monthly_amount: number }> = []
 
   const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
-  const hasLocalOfficeItemLike = buildLocalOfficeDuplicateChecker(localOfficeInfo, norm)
+  const hasLocalOfficeItemLike = buildLocalOfficeDuplicateChecker(localOfficeInfo, localOfficeCustomCosts, norm)
 
   // Check if an item with similar name already exists in base costs
   const hasItemLike = (needle: string) => {
@@ -555,6 +568,16 @@ const buildDisplayedItems = (
         const label = String(k).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
         addExtra(label, n)
       }
+    })
+  }
+
+  if (Array.isArray(localOfficeCustomCosts) && localOfficeCustomCosts.length > 0) {
+    localOfficeCustomCosts.forEach((cost) => {
+      const amount = sanitizeLocalOfficeAmount(cost?.amount)
+      const label = typeof cost?.label === 'string' ? cost.label.trim() : ''
+      if (amount <= 0 || !label) return
+      const key = cost.id ? `custom_${cost.id}` : `custom_${norm(label).replace(/\s+/g, '_')}`
+      items.push({ key, name: label, monthly_amount: amount })
     })
   }
 
@@ -947,6 +970,7 @@ const QuotePageContent = memo(() => {
     const formData = quoteData.formData as EORFormData | undefined
     const defaultCurrency = formData?.currency || 'USD'
     const localOfficeInfo = formData?.localOfficeInfo
+    const localOfficeCustomCosts = formData?.localOfficeCustomCosts
 
     const totalsByProvider = new Map<ProviderType, { amount: number; currency?: string }>()
     const itemsByProvider = new Map<ProviderType, Array<{ key: string; name: string; monthly_amount: number }>>()
@@ -983,7 +1007,13 @@ const QuotePageContent = memo(() => {
       }
 
       // Build items exactly as displayed in UI: base costs + filtered enhancement extras
-      const builtItems = buildDisplayedItems(enhancedQuote, baseQuote, localOfficeInfo, formData?.contractType)
+      const builtItems = buildDisplayedItems(
+        enhancedQuote,
+        baseQuote,
+        localOfficeInfo,
+        localOfficeCustomCosts,
+        formData?.contractType
+      )
 
       if (builtItems.length > 0) {
         // Sum the items - this matches what's displayed in UI
@@ -5081,7 +5111,11 @@ const QuotePageContent = memo(() => {
       const enh = (enhancements as any)?.[currentProvider as string]
       const costs = Array.isArray(mergedQuote?.costs) ? mergedQuote.costs : []
       const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
-      const hasLocalOfficeItemLike = buildLocalOfficeDuplicateChecker(formDataForLocalOffice?.localOfficeInfo, norm)
+      const hasLocalOfficeItemLike = buildLocalOfficeDuplicateChecker(
+        formDataForLocalOffice?.localOfficeInfo,
+        formDataForLocalOffice?.localOfficeCustomCosts,
+        norm
+      )
       const hasItemLike = (needle: string) => costs.some((c: any) => norm(c?.name).includes(norm(needle)))
       const addExtra = (
         name: string,
@@ -5185,6 +5219,14 @@ const QuotePageContent = memo(() => {
         localExtras.forEach(le =>
           addExtra(le.name, le.amount, le.guards || [], { skipLocalOfficeCheck: true, preferLocalOffice: true })
         )
+
+        const customCosts = formDataForLocalOffice?.localOfficeCustomCosts || []
+        customCosts.forEach((cost) => {
+          const amount = sanitizeLocalOfficeAmount(cost?.amount)
+          const label = typeof cost?.label === 'string' ? cost.label.trim() : ''
+          if (amount <= 0 || !label) return
+          addExtra(label, amount, [label], { skipLocalOfficeCheck: true, preferLocalOffice: true })
+        })
       }
     } catch { /* noop */ }
 

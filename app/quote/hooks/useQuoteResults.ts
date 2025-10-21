@@ -1609,6 +1609,7 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           state: form.compareState || form.state,
           currency: form.compareCurrency || form.currency,
           localOfficeInfo: (form as EORFormData).compareLocalOfficeInfo || form.localOfficeInfo,
+          localOfficeCustomCosts: (form as EORFormData).compareLocalOfficeCustomCosts || form.localOfficeCustomCosts,
         } as EORFormData;
         void enhanceQuote(provider as any, compareQuote, compareForm, (form.quoteType as any) || 'all-inclusive', { key: compareKey });
       } catch { /* noop */ }

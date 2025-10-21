@@ -1,8 +1,9 @@
 import { memo, useMemo, useEffect, useRef } from "react"
-import { Building2 } from "lucide-react"
+import { Building2, Plus, Trash2 } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { LocalOfficeInfo } from "@/lib/shared/types"
+import { Button } from "@/components/ui/button"
+import { LocalOfficeInfo, LocalOfficeCustomCost } from "@/lib/shared/types"
 import { FormSectionHeader } from "./shared/FormSectionHeader"
 import { FORM_STYLES } from "../styles/constants"
 import { getOriginalLocalOfficeData } from "@/lib/shared/utils/localOfficeData"
@@ -19,6 +20,10 @@ interface LocalOfficeInformationProps {
   countryCode?: string
   title?: string
   scopeId?: string
+  customCosts?: LocalOfficeCustomCost[]
+  onAddCustomCost?: () => void
+  onCustomCostChange?: (id: string, updates: Partial<LocalOfficeCustomCost>) => void
+  onRemoveCustomCost?: (id: string) => void
 }
 
 export const LocalOfficeInformation = memo(({
@@ -31,6 +36,10 @@ export const LocalOfficeInformation = memo(({
   countryCode,
   title,
   scopeId = 'primary',
+  customCosts = [],
+  onAddCustomCost,
+  onCustomCostChange,
+  onRemoveCustomCost,
 }: LocalOfficeInformationProps) => {
   // Memoize originalData to prevent recreating the object on every render
   const originalData = useMemo(() =>
@@ -104,27 +113,43 @@ export const LocalOfficeInformation = memo(({
   }
 
   const domId = (field: keyof LocalOfficeInfo) => `${scopeId}-${field}`
+  const customDomId = (id: string, field: 'label' | 'amount') => `${scopeId}-custom-${field}-${id}`
+
+  const isNAValue = (value?: string | null) => {
+    if (!value) return false
+    return value.trim().toUpperCase() === 'N/A'
+  }
 
   const getDisplayValue = (field: keyof LocalOfficeInfo) => {
     // Show form state value (which includes converted values after update)
     const formValue = localOfficeInfo[field]
-    if (formValue && formValue !== 'N/A' && formValue !== '') {
+    if (formValue && !isNAValue(formValue) && formValue !== '') {
       return formValue
     }
 
     // Fall back to original data while converting or if no form value
-    return originalData?.[field] || ''
+    const originalValue = originalData?.[field]
+    if (originalValue && !isNAValue(originalValue) && originalValue !== '') {
+      return originalValue
+    }
+
+    return ''
   }
 
   const getPlaceholder = (field: keyof LocalOfficeInfo) => {
-    const value = getDisplayValue(field)
     if (isConvertingLocalOffice) return 'Converting...'
-    return value === 'N/A' ? 'N/A' : (value || 'Enter amount')
+    const formValue = localOfficeInfo[field]
+    const originalValue = originalData?.[field]
+    if (isNAValue(formValue) || isNAValue(originalValue)) {
+      return 'N/A'
+    }
+
+    const value = getDisplayValue(field)
+    return value || 'Enter amount'
   }
 
-  const isFieldDisabled = (field: keyof LocalOfficeInfo) => {
-    const value = getDisplayValue(field)
-    return value === 'N/A' || isConvertingLocalOffice
+  const isFieldDisabled = (_field: keyof LocalOfficeInfo) => {
+    return isConvertingLocalOffice
   }
 
   const handleFieldUpdate = (field: keyof LocalOfficeInfo, value: string) => {
@@ -132,9 +157,90 @@ export const LocalOfficeInformation = memo(({
     onLocalOfficeUpdate({ [field]: value })
   }
 
+  const handleCustomCostFieldUpdate = (id: string, updates: Partial<LocalOfficeCustomCost>) => {
+    if (!onCustomCostChange) return
+    onCustomCostChange(id, updates)
+  }
+
+  const renderCustomCosts = () => {
+    if (!customCosts || customCosts.length === 0) {
+      return null
+    }
+
+    return (
+      <div className="mt-6 space-y-4">
+        <h3 className="text-base font-semibold text-slate-700 uppercase tracking-wide">Additional Local Office Costs</h3>
+        {customCosts.map((cost) => (
+          <div
+            key={cost.id}
+            className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,220px)_auto]"
+          >
+            <div className="space-y-2">
+              <Label htmlFor={customDomId(cost.id, 'label')} className="text-sm font-medium text-slate-600">
+                Cost Name
+              </Label>
+              <Input
+                id={customDomId(cost.id, 'label')}
+                value={cost.label}
+                onChange={(e) => handleCustomCostFieldUpdate(cost.id, { label: formatCostLabel(e.target.value) })}
+                placeholder="Enter cost name"
+                disabled={isConvertingLocalOffice}
+                className="h-11 border-slate-200 text-slate-700"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor={customDomId(cost.id, 'amount')} className="text-sm font-medium text-slate-600">
+                Amount ({getDisplayCurrency()})
+              </Label>
+              <Input
+                id={customDomId(cost.id, 'amount')}
+                value={cost.amount}
+                onChange={(e) => handleCustomCostFieldUpdate(cost.id, { amount: e.target.value })}
+                placeholder="Enter amount"
+                disabled={isConvertingLocalOffice}
+                className="h-11 border-slate-200 text-slate-700"
+              />
+            </div>
+            <div className="flex items-end">
+              {onRemoveCustomCost && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onRemoveCustomCost(cost.id)}
+                  disabled={isConvertingLocalOffice}
+                  className="text-slate-500 hover:text-slate-700"
+                  aria-label="Remove cost"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div>
-      <FormSectionHeader icon={Building2} title={title || "Local Office Information"} />
+      <FormSectionHeader
+        icon={Building2}
+        title={title || "Local Office Information"}
+        action={onAddCustomCost ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={onAddCustomCost}
+            disabled={isConvertingLocalOffice}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Add Costs
+          </Button>
+        ) : undefined}
+      />
       <div className={FORM_STYLES.GRID_3_COL}>
         <div className="space-y-2">
           <Label
@@ -329,8 +435,20 @@ export const LocalOfficeInformation = memo(({
           />
         </div>
       </div>
+
+      {renderCustomCosts()}
     </div>
   )
 });
 
 LocalOfficeInformation.displayName = 'LocalOfficeInformation';
+  const formatCostLabel = (value: string) => {
+    if (!value) return ''
+    return value
+      .replace(/\s+/g, ' ')
+      .trim()
+      .split(' ')
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ')
+  }
