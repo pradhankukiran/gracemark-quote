@@ -809,6 +809,15 @@ type AcidTestCalculationResult = {
 
 const GRACEMARK_FEE_PERCENTAGE = 0.45
 const PROVIDER_FEE_RATIO = 0.30
+
+const formatPercentageInput = (value: number): string => {
+  if (!Number.isFinite(value)) return ''
+  const percent = value * 100
+  const fixed = percent % 1 === 0 ? percent.toString() : percent.toFixed(2)
+  // Only remove trailing zeros after decimal point, not in whole numbers
+  return fixed.includes('.') ? fixed.replace(/\.?0+$/, '') : fixed
+}
+
 type ConversionPayload = Awaited<ReturnType<typeof convertCurrency>>
 
 const extractConvertedAmount = (conversion: ConversionPayload): number | undefined => {
@@ -1067,10 +1076,31 @@ const QuotePageContent = memo(() => {
   const [acidTestValidation, setAcidTestValidation] = useState<{
     billRateError?: string;
     durationError?: string;
+    gracemarkFeeTarget?: number;
+    gracemarkFeeInput?: string;
   }>({})
   const [acidTestCostData, setAcidTestCostData] = useState<AcidTestCostData | null>(null)
   const [isCategorizingCosts, setIsCategorizingCosts] = useState(false)
   const [isComputingAcidTest, setIsComputingAcidTest] = useState(false)
+
+  const gracemarkFeePercentage = acidTestValidation.gracemarkFeeTarget ?? GRACEMARK_FEE_PERCENTAGE
+  const gracemarkFeeInput = acidTestValidation.gracemarkFeeInput ?? formatPercentageInput(gracemarkFeePercentage)
+  const parsedGracemarkFeeInput = Number.parseFloat(gracemarkFeeInput)
+  const gracemarkFeeInputError = (() => {
+    if (gracemarkFeeInput.trim() === '') return 'Required'
+    if (!Number.isFinite(parsedGracemarkFeeInput)) return 'Enter a number between 0 and 100'
+    if (parsedGracemarkFeeInput < 0 || parsedGracemarkFeeInput > 100) return 'Must be between 0 and 100'
+    return null
+  })()
+  const isGracemarkFeeInputValid = gracemarkFeeInputError === null
+  const hasGracemarkFeeChanged = isGracemarkFeeInputValid
+    ? Math.abs(parsedGracemarkFeeInput / 100 - gracemarkFeePercentage) > 0.0001
+    : false
+  const isSaveGracemarkFeeDisabled =
+    isComputingAcidTest ||
+    isCategorizingCosts ||
+    !isGracemarkFeeInputValid ||
+    !hasGracemarkFeeChanged
 
   const MIN_PROFIT_THRESHOLD_USD = 1000
 
@@ -1324,7 +1354,8 @@ const QuotePageContent = memo(() => {
     costData: AcidTestCostData,
     billRate: number,
     duration: number,
-    isAllInclusive: boolean
+    isAllInclusive: boolean,
+    feePercentage = GRACEMARK_FEE_PERCENTAGE
   ): Promise<AcidTestCalculationResult> => {
     // Calculate component totals for full assignment (for breakdown display)
     const salaryTotal = costData.baseSalaryMonthly * duration
@@ -1347,12 +1378,13 @@ const QuotePageContent = memo(() => {
                             (isAllInclusive ? costData.terminationMonthly : 0)
 
     // Target Gracemark fee (_policy_) and expected bill rate
-    const targetGracemarkFeeMonthly = recurringMonthly * GRACEMARK_FEE_PERCENTAGE
+    const appliedFeePercentage = Number.isFinite(feePercentage) ? feePercentage : GRACEMARK_FEE_PERCENTAGE
+    const targetGracemarkFeeMonthly = recurringMonthly * appliedFeePercentage
     const expectedBillRateMonthly = recurringMonthly + targetGracemarkFeeMonthly
 
     // Actual Gracemark fee based on current bill rate
     const actualGracemarkFeeMonthly = billRate - recurringMonthly
-    const gracemarkFeePercentage = recurringMonthly !== 0 ? actualGracemarkFeeMonthly / recurringMonthly : 0
+    const actualGracemarkFeePercentage = recurringMonthly !== 0 ? actualGracemarkFeeMonthly / recurringMonthly : 0
 
     // Provider fee share from the actual Gracemark fee (never negative)
     const providerFeeMonthly = Math.max(actualGracemarkFeeMonthly, 0) * PROVIDER_FEE_RATIO
@@ -1564,9 +1596,9 @@ const QuotePageContent = memo(() => {
         expectedBillRate: expectedBillRateMonthly,
         actualBillRate: billRate,
         rateDiscrepancy: rateDiscrepancy,
-        gracemarkFeePercentage: gracemarkFeePercentage,
+        gracemarkFeePercentage: actualGracemarkFeePercentage,
         targetGracemarkFeeMonthly,
-        targetGracemarkFeePercentage: GRACEMARK_FEE_PERCENTAGE,
+        targetGracemarkFeePercentage: appliedFeePercentage,
         // USD versions
         salaryMonthlyUSD,
         statutoryMonthlyUSD,
@@ -1583,7 +1615,7 @@ const QuotePageContent = memo(() => {
       },
       conversionError,
     }
-  }, [finalChoice])
+  }, [finalChoice, convertCurrency])
 
   const calculateProfitability = useCallback(async (
     billRate: number,
@@ -1730,7 +1762,7 @@ const QuotePageContent = memo(() => {
     let cancelled = false
     setIsComputingAcidTest(true)
 
-    buildAcidTestCalculation(acidTestCostData, resolvedBillRate, resolvedDuration, isAllInclusiveQuote)
+    buildAcidTestCalculation(acidTestCostData, resolvedBillRate, resolvedDuration, isAllInclusiveQuote, gracemarkFeePercentage)
       .then(result => {
         if (!cancelled) {
           setAcidTestError(null)
@@ -1758,7 +1790,8 @@ const QuotePageContent = memo(() => {
     monthlyBillRate,
     projectDuration,
     isAllInclusiveQuote,
-    buildAcidTestCalculation
+    buildAcidTestCalculation,
+    gracemarkFeePercentage
   ])
 
   // Auto-populate profitability calculator when acid test results are ready
@@ -3043,9 +3076,55 @@ const QuotePageContent = memo(() => {
                                   </div>
 
                                   {/* Main Comparison Table */}
-                                  <div className="bg-slate-50 border border-slate-200 shadow-sm overflow-hidden mb-6">
-                                    <div className="bg-slate-800 text-white p-4">
-                                      <h5 className="text-lg font-bold">Cost Structure Breakdown</h5>
+                                  <div className="bg-white border border-slate-200 shadow-sm overflow-hidden mb-6">
+                                    <div className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200 px-6 py-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                      <div>
+                                        <h5 className="text-lg font-bold text-slate-900">Cost Structure Breakdown</h5>
+                                        <p className="text-xs text-slate-600 mt-1">
+                                          Detailed breakdown showing all cost components and target margins
+                                        </p>
+                                      </div>
+                                      <div className="flex flex-col gap-2 lg:items-end">
+                                        <div className="flex items-center gap-2 bg-white border border-slate-300 rounded-lg px-4 py-2 shadow-sm">
+                                          <label
+                                            htmlFor="gracemark-fee-input"
+                                            className="text-xs font-semibold text-slate-700 whitespace-nowrap"
+                                          >
+                                            Target Markup:
+                                          </label>
+                                          <div className="flex items-center gap-1.5">
+                                            <Input
+                                              id="gracemark-fee-input"
+                                              type="number"
+                                              inputMode="decimal"
+                                              step="0.1"
+                                              min="0"
+                                              max="100"
+                                              value={gracemarkFeeInput}
+                                              onChange={(event) => handleGracemarkFeeInputChange(event.target.value)}
+                                              disabled={isComputingAcidTest || isCategorizingCosts}
+                                              className="h-8 w-20 text-center text-sm font-semibold border-slate-300 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            />
+                                            <span className="text-sm font-semibold text-slate-700">%</span>
+                                            <Button
+                                              type="button"
+                                              size="sm"
+                                              disabled={isSaveGracemarkFeeDisabled}
+                                              onClick={handleSaveGracemarkFee}
+                                              className="h-8 ml-1 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+                                            >
+                                              Apply
+                                            </Button>
+                                          </div>
+                                        </div>
+                                        {gracemarkFeeInputError ? (
+                                          <p className="text-xs text-red-600 font-medium">{gracemarkFeeInputError}</p>
+                                        ) : (
+                                          <p className="text-xs text-slate-500">
+                                            Currently applying <span className="font-semibold text-slate-700">{formatPercentageInput(gracemarkFeePercentage)}%</span> target markup
+                                          </p>
+                                        )}
+                                      </div>
                                     </div>
 
                                     <div className="overflow-x-auto">
@@ -4815,7 +4894,12 @@ const QuotePageContent = memo(() => {
       setAcidTestCostData(null);
       setIsCategorizingCosts(true);
       setIsComputingAcidTest(false);
-      setAcidTestValidation({});
+      setAcidTestValidation(prev => ({
+        ...prev,
+        billRateError: undefined,
+        durationError: undefined,
+        gracemarkFeeInput: formatPercentageInput(prev.gracemarkFeeTarget ?? GRACEMARK_FEE_PERCENTAGE)
+      }));
       setShowAcidTestForm(true);
 
       const configuredDuration = Number((quoteData?.formData as EORFormData)?.contractDuration) || 6;
@@ -4838,7 +4922,7 @@ const QuotePageContent = memo(() => {
         const recurringMonthly = aggregates.baseSalaryMonthly + aggregates.statutoryMonthly +
                                  aggregates.allowancesMonthly +
                                  (isAllInclusiveQuote ? aggregates.terminationMonthly : 0);
-        const defaultBillRate = recurringMonthly * (1 + GRACEMARK_FEE_PERCENTAGE);
+        const defaultBillRate = recurringMonthly * (1 + gracemarkFeePercentage);
 
         // Batch state updates after async operation completes
         startTransition(() => {
@@ -4900,9 +4984,45 @@ const QuotePageContent = memo(() => {
     }
     setAcidTestValidation(validation);
     if (duration <= 0) {
-      setAcidTestResults(null);
+    setAcidTestResults(null);
     }
   };
+
+  const handleGracemarkFeeInputChange = (value: string) => {
+    setAcidTestValidation(prev => ({
+      ...prev,
+      gracemarkFeeInput: value
+    }))
+  }
+
+  const handleSaveGracemarkFee = () => {
+    const parsedValue = Number.parseFloat(gracemarkFeeInput)
+    if (!Number.isFinite(parsedValue) || parsedValue < 0 || parsedValue > 100) {
+      return
+    }
+
+    const nextPercentage = parsedValue / 100
+    if (Math.abs(nextPercentage - gracemarkFeePercentage) <= 0.0001) {
+      return
+    }
+
+    setAcidTestValidation(prev => ({
+      ...prev,
+      gracemarkFeeTarget: nextPercentage,
+      gracemarkFeeInput: formatPercentageInput(nextPercentage)
+    }))
+
+    // Update the bill rate to match the new expected rate
+    if (acidTestCostData) {
+      const recurringMonthly = acidTestCostData.baseSalaryMonthly +
+                               acidTestCostData.statutoryMonthly +
+                               acidTestCostData.allowancesMonthly +
+                               (isAllInclusiveQuote ? acidTestCostData.terminationMonthly : 0)
+      const newTargetFee = recurringMonthly * nextPercentage
+      const newExpectedBillRate = recurringMonthly + newTargetFee
+      setMonthlyBillRate(newExpectedBillRate)
+    }
+  }
 
   const handleCloseAcidTest = () => {
     setShowAcidTestForm(false);
@@ -4911,7 +5031,10 @@ const QuotePageContent = memo(() => {
     setMonthlyBillRate(0);
     setProjectDuration(6);
     setAcidTestError(null);
-    setAcidTestValidation({});
+    setAcidTestValidation({
+      gracemarkFeeTarget: GRACEMARK_FEE_PERCENTAGE,
+      gracemarkFeeInput: formatPercentageInput(GRACEMARK_FEE_PERCENTAGE),
+    });
     setIsCategorizingCosts(false);
     setIsComputingAcidTest(false);
     setExpandedCategories(new Set());
