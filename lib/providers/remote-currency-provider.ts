@@ -83,6 +83,14 @@ export class RemoteCurrencyProvider implements CurrencyProvider {
         }
       }
 
+      const apiToken = process.env.REMOTE_API_TOKEN
+      if (!apiToken || !apiToken.trim()) {
+        return {
+          success: false,
+          error: "Remote API token is not configured",
+        }
+      }
+
       const requestPayload = {
         amount: roundedAmount,
         source_currency: sourceCurrency,
@@ -94,12 +102,15 @@ export class RemoteCurrencyProvider implements CurrencyProvider {
         headers: {
           accept: "application/json",
           "content-type": "application/json",
-          authorization: `Bearer ${process.env.REMOTE_API_TOKEN}`,
+          authorization: `Bearer ${apiToken}`,
         },
         body: JSON.stringify(requestPayload),
       }
 
-      const response = await fetch("https://gateway.remote.com/v1/currency-converter", options)
+      const response = await fetch("https://gateway.remote.com/v1/currency-converter", {
+        ...options,
+        signal: AbortSignal.timeout(8000),
+      })
 
       if (!response.ok) {
         const errorText = await response.text()

@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { PapayaCurrencyProvider } from "@/lib/providers/papaya-currency-provider"
+import { ExchangerateApiCurrencyProvider } from "@/lib/providers/exchangerate-api-currency-provider"
 import { RemoteCurrencyProvider } from "@/lib/providers/remote-currency-provider"
 import { ExchangerateCurrencyProvider } from "@/lib/providers/exchangerate-currency-provider"
 
@@ -38,33 +39,60 @@ export async function POST(request: NextRequest) {
 
     // Initialize providers
     const papayaProvider = new PapayaCurrencyProvider()
+    const exchangerateApiProvider = new ExchangerateApiCurrencyProvider()
     const remoteProvider = new RemoteCurrencyProvider()
     const exchangerateProvider = new ExchangerateCurrencyProvider()
 
-    // Always try Papaya Global first (primary provider)
-    // console.log("Trying Papaya Global provider...")
-    let result = await papayaProvider.convertCurrency(amount, source_currency, target_currency)
+    // Kick off Papaya and Exchangerate-API in parallel so we don't block unnecessarily
+    const primaryPromises = [
+      papayaProvider.convertCurrency(amount, source_currency, target_currency),
+      exchangerateApiProvider.convertCurrency(amount, source_currency, target_currency),
+    ]
 
-    // If Papaya Global fails, fallback to Remote.com
-    if (!result.success) {
-      // console.log("Papaya Global failed, falling back to Remote.com provider...")
-      // console.log("Papaya error:", result.error)
-      result = await remoteProvider.convertCurrency(amount, source_currency, target_currency)
-      
-      if (result.success) {
-        // console.log("Remote.com fallback successful")
+    const primaryResults = await Promise.allSettled(primaryPromises)
+
+    let result: Awaited<typeof primaryPromises[number]> | null = null
+    const primaryErrors: string[] = []
+
+    for (const settled of primaryResults) {
+      if (settled.status === "fulfilled") {
+        if (settled.value.success && settled.value.data) {
+          result = settled.value
+          break
+        }
+        if (settled.value.error) {
+          primaryErrors.push(settled.value.error)
+        }
+      } else if (settled.reason) {
+        primaryErrors.push(settled.reason instanceof Error ? settled.reason.message : String(settled.reason))
+      }
+    }
+
+    // If neither Papaya nor Exchangerate-API produced a usable rate, fall back
+    if (!result) {
+      let fallbackErrors = primaryErrors.slice()
+
+      const remoteResult = await remoteProvider.convertCurrency(amount, source_currency, target_currency)
+      if (remoteResult.success && remoteResult.data) {
+        result = remoteResult
       } else {
-        // console.log("Remote.com fallback also failed:", result.error)
-        // console.log("Trying Exchangerate.host as last-resort provider...")
-        result = await exchangerateProvider.convertCurrency(amount, source_currency, target_currency)
-        if (result.success) {
-          // console.log("Exchangerate.host fallback successful")
-        } else {
-          // console.log("Exchangerate.host also failed:", result.error)
+        if (remoteResult.error) {
+          fallbackErrors.push(remoteResult.error)
+        }
+        const exchangerateResult = await exchangerateProvider.convertCurrency(amount, source_currency, target_currency)
+        result = exchangerateResult
+        if (!exchangerateResult.success && exchangerateResult.error) {
+          fallbackErrors.push(exchangerateResult.error)
+        }
+
+        if (!exchangerateResult.success) {
+          // include all accumulated errors for context
+          result = {
+            success: false,
+            error: fallbackErrors.join(" | ") || "All currency conversion providers failed",
+          }
         }
       }
-    } else {
-      // console.log("Papaya Global conversion successful")
     }
 
     // Return result or error

@@ -23,6 +23,9 @@ export const useCurrencyConversion = ({
   const [conversionInfo, setConversionInfo] = useState<string | null>(null)
   const [isComparisonManuallyEdited, setIsComparisonManuallyEdited] = useState(false)
   const conversionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const conversionRequestTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const conversionAbortRef = useRef<AbortController | null>(null)
+  const latestRequestIdRef = useRef<symbol | null>(null)
 
   const handleCurrencyConversion = useCallback(async (
     amount: number, 
@@ -31,11 +34,37 @@ export const useCurrencyConversion = ({
   ) => {
     if (!amount || sourceCurrency === targetCurrency) return
 
+    // Cancel any in-flight conversion before starting a new one
+    if (conversionAbortRef.current) {
+      conversionAbortRef.current.abort()
+      conversionAbortRef.current = null
+    }
+    if (conversionRequestTimeoutRef.current) {
+      clearTimeout(conversionRequestTimeoutRef.current)
+      conversionRequestTimeoutRef.current = null
+    }
+
     setIsConverting(true)
     setConversionInfo(null)
 
+    const requestId = Symbol('currency-conversion')
+    latestRequestIdRef.current = requestId
+    const abortController = new AbortController()
+    conversionAbortRef.current = abortController
+
+    conversionRequestTimeoutRef.current = setTimeout(() => {
+      if (!abortController.signal.aborted) {
+        abortController.abort()
+        setConversionInfo("Conversion timed out - please enter amount manually")
+      }
+    }, 10000)
+
     try {
-      const result = await convertCurrency(amount, sourceCurrency, targetCurrency)
+      const result = await convertCurrency(amount, sourceCurrency, targetCurrency, abortController.signal)
+
+      if (abortController.signal.aborted) {
+        return
+      }
 
       if (result.success && result.data) {
         onFormUpdate({
@@ -46,9 +75,21 @@ export const useCurrencyConversion = ({
         setConversionInfo("Conversion failed - please enter amount manually")
       }
     } catch {
-      setConversionInfo("Conversion failed - please enter amount manually")
+      if (!abortController.signal.aborted) {
+        setConversionInfo("Conversion failed - please enter amount manually")
+      }
     } finally {
-      setIsConverting(false)
+      if (conversionRequestTimeoutRef.current) {
+        clearTimeout(conversionRequestTimeoutRef.current)
+        conversionRequestTimeoutRef.current = null
+      }
+      if (conversionAbortRef.current === abortController) {
+        conversionAbortRef.current = null
+      }
+      if (latestRequestIdRef.current === requestId) {
+        latestRequestIdRef.current = null
+        setIsConverting(false)
+      }
     }
   }, [onFormUpdate])
 
@@ -117,6 +158,12 @@ export const useCurrencyConversion = ({
     return () => {
       if (conversionTimeoutRef.current) {
         clearTimeout(conversionTimeoutRef.current)
+      }
+      if (conversionRequestTimeoutRef.current) {
+        clearTimeout(conversionRequestTimeoutRef.current)
+      }
+      if (conversionAbortRef.current) {
+        conversionAbortRef.current.abort()
       }
     }
   }, [])
