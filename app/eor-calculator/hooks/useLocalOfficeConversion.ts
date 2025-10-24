@@ -38,6 +38,7 @@ export const useLocalOfficeConversion = ({
   const [convertedForKey, setConvertedForKey] = useState<string>('')
   const conversionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const lastConversionKeyRef = useRef<string>('')
+  const conversionRateCacheRef = useRef<Map<string, number>>(new Map())
 
   // Create stable conversion key from primitive values only
   const conversionKey = useMemo(() => {
@@ -118,7 +119,86 @@ export const useLocalOfficeConversion = ({
         })()
         const normalizedTargetCurrency = targetCurrency.trim().toUpperCase()
 
-        const conversionPromises: Promise<void>[] = []
+        const conversionRateCache = conversionRateCacheRef.current
+        const ratePromiseCache = new Map<string, Promise<number | null>>()
+
+        const getConversionRate = async (sourceCurrency: string, targetCurrency: string): Promise<number | null> => {
+          const normalizedSource = sourceCurrency.trim().toUpperCase()
+          const normalizedTarget = targetCurrency.trim().toUpperCase()
+
+          if (!normalizedSource || !normalizedTarget) {
+            return null
+          }
+
+          if (normalizedSource === normalizedTarget) {
+            return 1
+          }
+
+          const cacheKey = `${normalizedSource}->${normalizedTarget}`
+          if (conversionRateCache.has(cacheKey)) {
+            return conversionRateCache.get(cacheKey) as number
+          }
+
+          if (ratePromiseCache.has(cacheKey)) {
+            return ratePromiseCache.get(cacheKey) as Promise<number | null>
+          }
+
+          const promise = (async () => {
+            try {
+              const result = await convertCurrency(1, normalizedSource, normalizedTarget, abortController.signal)
+              if (abortController.signal.aborted) {
+                return null
+              }
+
+              if (result.success && result.data && typeof result.data.target_amount === 'number') {
+                const rate = result.data.target_amount
+                if (Number.isFinite(rate) && rate > 0) {
+                  conversionRateCache.set(cacheKey, rate)
+                  return rate
+                }
+                console.warn(`Invalid conversion rate received for ${cacheKey}:`, rate)
+                return null
+              }
+
+              console.warn(`Failed to convert rate ${cacheKey}:`, result.error)
+              return null
+            } catch (error) {
+              if (!abortController.signal.aborted) {
+                console.warn(`Error fetching conversion rate for ${cacheKey}:`, error)
+              }
+              return null
+            } finally {
+              ratePromiseCache.delete(cacheKey)
+            }
+          })()
+
+          ratePromiseCache.set(cacheKey, promise)
+          return promise
+        }
+
+        let usdToTargetRate: number | null = null
+        let localToTargetRate: number | null = null
+
+        const hasUsdFields = convertibleFields.some((field) => getFieldCurrency(field, countryCode) === 'usd')
+        const hasLocalFields = convertibleFields.some((field) => getFieldCurrency(field, countryCode) === 'local')
+
+        if (hasUsdFields && normalizedTargetCurrency !== 'USD') {
+          usdToTargetRate = await getConversionRate('USD', normalizedTargetCurrency)
+        } else if (normalizedTargetCurrency === 'USD') {
+          usdToTargetRate = 1
+        }
+
+        if (hasLocalFields && baseLocalCurrency) {
+          if (baseLocalCurrency === normalizedTargetCurrency) {
+            localToTargetRate = 1
+          } else {
+            localToTargetRate = await getConversionRate(baseLocalCurrency, normalizedTargetCurrency)
+          }
+        }
+
+        const assignValue = (field: keyof LocalOfficeInfo, value: number) => {
+          conversions[field] = value.toFixed(2)
+        }
 
         convertibleFields.forEach((field) => {
           const rawValue = originalData[field]
@@ -133,31 +213,12 @@ export const useLocalOfficeConversion = ({
 
           const fieldCurrency = getFieldCurrency(field, countryCode)
 
-          const assignValue = (value: number) => {
-            conversions[field] = value.toFixed(2)
-          }
-
           if (fieldCurrency === 'usd') {
             if (normalizedTargetCurrency === 'USD') {
-              assignValue(numericValue)
-              return
+              assignValue(field, numericValue)
+            } else if (usdToTargetRate && usdToTargetRate > 0) {
+              assignValue(field, numericValue * usdToTargetRate)
             }
-
-            conversionPromises.push((async () => {
-              try {
-                const result = await convertCurrency(numericValue, 'USD', normalizedTargetCurrency, abortController.signal)
-                if (!abortController.signal.aborted && result.success && result.data) {
-                  assignValue(result.data.target_amount)
-                } else if (!abortController.signal.aborted) {
-                  console.warn(`Failed to convert ${field}:`, result.error)
-                }
-              } catch (error) {
-                if (!abortController.signal.aborted) {
-                  console.warn(`Error converting ${field}:`, error)
-                }
-              }
-            })())
-
             return
           }
 
@@ -167,28 +228,12 @@ export const useLocalOfficeConversion = ({
             }
 
             if (baseLocalCurrency === normalizedTargetCurrency) {
-              assignValue(numericValue)
-              return
+              assignValue(field, numericValue)
+            } else if (localToTargetRate && localToTargetRate > 0) {
+              assignValue(field, numericValue * localToTargetRate)
             }
-
-            conversionPromises.push((async () => {
-              try {
-                const result = await convertCurrency(numericValue, baseLocalCurrency, normalizedTargetCurrency, abortController.signal)
-                if (!abortController.signal.aborted && result.success && result.data) {
-                  assignValue(result.data.target_amount)
-                } else if (!abortController.signal.aborted) {
-                  console.warn(`Failed to convert ${field}:`, result.error)
-                }
-              } catch (error) {
-                if (!abortController.signal.aborted) {
-                  console.warn(`Error converting ${field}:`, error)
-                }
-              }
-            })())
           }
         })
-
-        await Promise.all(conversionPromises)
 
         // Only update state if not aborted
         if (!abortController.signal.aborted) {
