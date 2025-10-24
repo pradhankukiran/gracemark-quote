@@ -250,9 +250,8 @@ export const useLocalOfficeConversion = ({
         if (conversionTimeoutRef.current) {
           clearTimeout(conversionTimeoutRef.current)
         }
-        if (!abortController.signal.aborted) {
-          setIsConvertingLocalOffice(false)
-        }
+        // Always reset converting state, even if aborted, to prevent stalling
+        setIsConvertingLocalOffice(false)
       }
     }
 

@@ -53,35 +53,51 @@ export async function POST(request: NextRequest) {
 
     let result: Awaited<typeof primaryPromises[number]> | null = null
     const primaryErrors: string[] = []
+    let usedProvider: string | null = null
 
-    for (const settled of primaryResults) {
+    for (let i = 0; i < primaryResults.length; i++) {
+      const settled = primaryResults[i]
+      const providerName = i === 0 ? 'Papaya' : 'Exchangerate-API'
+
       if (settled.status === "fulfilled") {
         if (settled.value.success && settled.value.data) {
           result = settled.value
+          usedProvider = providerName
+          console.log(`✓ Using ${providerName} for ${source_currency} → ${target_currency}`)
           break
         }
         if (settled.value.error) {
+          console.warn(`✗ ${providerName} failed: ${settled.value.error}`)
           primaryErrors.push(settled.value.error)
         }
       } else if (settled.reason) {
+        console.warn(`✗ ${providerName} rejected: ${settled.reason instanceof Error ? settled.reason.message : String(settled.reason)}`)
         primaryErrors.push(settled.reason instanceof Error ? settled.reason.message : String(settled.reason))
       }
     }
 
     // If neither Papaya nor Exchangerate-API produced a usable rate, fall back
     if (!result) {
+      console.warn('Primary providers failed, trying fallbacks...')
       let fallbackErrors = primaryErrors.slice()
 
       const remoteResult = await remoteProvider.convertCurrency(amount, source_currency, target_currency)
       if (remoteResult.success && remoteResult.data) {
         result = remoteResult
+        usedProvider = 'Remote'
+        console.log(`✓ Using Remote (fallback) for ${source_currency} → ${target_currency}`)
       } else {
         if (remoteResult.error) {
+          console.warn(`✗ Remote failed: ${remoteResult.error}`)
           fallbackErrors.push(remoteResult.error)
         }
         const exchangerateResult = await exchangerateProvider.convertCurrency(amount, source_currency, target_currency)
         result = exchangerateResult
-        if (!exchangerateResult.success && exchangerateResult.error) {
+        if (exchangerateResult.success) {
+          usedProvider = 'Exchangerate'
+          console.log(`✓ Using Exchangerate (fallback) for ${source_currency} → ${target_currency}`)
+        } else if (exchangerateResult.error) {
+          console.warn(`✗ Exchangerate failed: ${exchangerateResult.error}`)
           fallbackErrors.push(exchangerateResult.error)
         }
 
