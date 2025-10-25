@@ -6,7 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MapPin, Loader2, RefreshCw } from "lucide-react"
 import { EORFormData } from "@/lib/shared/types"
 import { FormSectionHeader } from "./shared/FormSectionHeader"
-import { SmoothReveal } from "./shared/OptimizedReveal"
 import { FORM_STYLES } from "../styles/constants"
 
 interface CountryComparisonFormProps {
@@ -94,7 +93,7 @@ export const CountryComparisonForm = memo(({
           </span>
         </Label>
 
-        <SmoothReveal isVisible={enableComparison}>
+        {enableComparison && (
           <div className="p-4 bg-slate-50 border-2 border-slate-200 rounded-md">
             <div className={FORM_STYLES.GRID_3_COL}>
               {/* Comparison Country */}
@@ -168,7 +167,7 @@ export const CountryComparisonForm = memo(({
               </div>
             </div>
           </div>
-        </SmoothReveal>
+        )}
       </div>
     </div>
   )

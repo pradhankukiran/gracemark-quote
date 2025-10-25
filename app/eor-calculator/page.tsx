@@ -25,7 +25,6 @@ import { FormActions } from "./components/FormActions"
 import { BenefitsSelection } from "./components/BenefitsSelection"
 import { LocalOfficeInformation } from "./components/LocalOfficeInformation"
 import { FormSectionHeader } from "./components/shared/FormSectionHeader"
-import { SmoothReveal } from "./components/shared/OptimizedReveal"
 
 
 export default function EORCalculatorPage() {
@@ -395,7 +394,7 @@ export default function EORCalculatorPage() {
                 )}
 
                 {/* Show Benefits Selection only after benefits have been fetched */}
-                <SmoothReveal isVisible={formData.showBenefits && benefitsFetched}>
+                {formData.showBenefits && benefitsFetched && (
                   <BenefitsSelection
                     benefitsData={benefitsData}
                     isLoadingBenefits={isLoadingBenefits}
@@ -403,7 +402,7 @@ export default function EORCalculatorPage() {
                     selectedBenefits={formData.selectedBenefits}
                     onBenefitChange={updateBenefitSelection}
                   />
-                </SmoothReveal>
+                )}
 
                 {/* Show Local Office Information for all countries */}
                 {selectedCountryData && (

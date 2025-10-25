@@ -4,7 +4,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Settings } from "lucide-react"
 import { EORFormData, ValidationAPIResponse, ValidationErrors } from "@/lib/shared/types"
 import { FormSectionHeader } from "../shared/FormSectionHeader"
-import { SmoothReveal } from "../shared/OptimizedReveal"
 import { EmployeeWorkSchedule } from "./EmployeeWorkSchedule"
 import { EmployeeHolidays } from "./EmployeeHolidays"
 import { EmployeeProbation } from "./EmployeeProbation"
@@ -121,7 +120,7 @@ export const OptionalEmployeeDataSection = memo(({
           </span>
         </Label>
 
-        <SmoothReveal isVisible={showOptionalEmployeeData}>
+        {showOptionalEmployeeData && (
           <div className="p-4 bg-slate-50 border-2 border-slate-200 rounded-md space-y-6">
             <EmployeeWorkSchedule
               hoursPerDay={hoursPerDay}
@@ -151,7 +150,7 @@ export const OptionalEmployeeDataSection = memo(({
               onValidationError={onValidationError}
             />
           </div>
-        </SmoothReveal>
+        )}
       </div>
     </div>
   )

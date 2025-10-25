@@ -1,4 +1,4 @@
-import { ReactNode, memo, useMemo, useState, useEffect } from "react"
+import { ReactNode, memo, useState, useEffect } from "react"
 
 interface OptimizedRevealProps {
   isVisible: boolean
@@ -9,11 +9,11 @@ interface OptimizedRevealProps {
 
 /**
  * Optimized reveal component that minimizes re-renders and uses efficient CSS transitions
- * Replaces BounceReveal for better performance
+ * Uses CSS Grid for smooth height animations
  */
-export const OptimizedReveal = memo(({ 
-  isVisible, 
-  children, 
+export const OptimizedReveal = memo(({
+  isVisible,
+  children,
   className = "",
   animation = 'smooth'
 }: OptimizedRevealProps) => {
@@ -23,26 +23,10 @@ export const OptimizedReveal = memo(({
     if (isVisible) {
       setShouldRender(true)
     } else {
-      const timer = setTimeout(() => setShouldRender(false), 300) // Match animation duration
+      const timer = setTimeout(() => setShouldRender(false), 400) // Match animation duration
       return () => clearTimeout(timer)
     }
   }, [isVisible])
-  
-  // Memoize animation classes to prevent recalculation
-  const animationClasses = useMemo(() => {
-    const baseClasses = "overflow-hidden transition-all ease-in-out"
-    
-    switch (animation) {
-      case 'fade':
-        return `${baseClasses} duration-300 ${isVisible ? 'opacity-100 max-h-screen' : 'opacity-0 pointer-events-none max-h-0'}`
-      case 'smooth':
-        return `${baseClasses} duration-300 ${isVisible ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`
-      case 'none':
-        return isVisible ? '' : 'hidden'
-      default:
-        return `${baseClasses} duration-300 ${isVisible ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`
-    }
-  }, [isVisible, animation])
 
   if (!shouldRender) return null
 
@@ -51,9 +35,24 @@ export const OptimizedReveal = memo(({
     return isVisible ? <div className={className}>{children}</div> : null
   }
 
+  // Use CSS Grid for smooth height transitions
+  // Bouncy when opening, smooth when closing
   return (
-    <div className={`${animationClasses} ${className}`}>
-      {children}
+    <div
+      style={{
+        transition: isVisible
+          ? 'grid-template-rows 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out'
+          : 'grid-template-rows 0.3s ease-out, opacity 0.25s ease-in'
+      }}
+      className={`grid ${
+        isVisible
+          ? 'grid-rows-[1fr] opacity-100'
+          : 'grid-rows-[0fr] opacity-0'
+      } ${className}`}
+    >
+      <div className="overflow-hidden">
+        {children}
+      </div>
     </div>
   )
 })

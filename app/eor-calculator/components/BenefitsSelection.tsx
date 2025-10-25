@@ -7,7 +7,6 @@ import { Info, Gift, Loader2, ChevronUp } from "lucide-react"
 import { BenefitsAPIResponse, Benefit, SelectedBenefit } from "@/lib/shared/types"
 // import { LoadingSpinner } from "./shared/LoadingSpinner" // Unused
 import { ErrorDisplay } from "./shared/ErrorDisplay"
-import { SmoothReveal } from "./shared/OptimizedReveal"
 import { FormSectionHeader } from "./shared/FormSectionHeader"
 
 interface BenefitsSelectionProps {
@@ -86,62 +85,66 @@ export const BenefitsSelection = React.memo(({
     const selectedPlanDetails = allPlans.find(p => p.id === selectedPlanId)
 
     return (
-      <div key={benefit.name} className="space-y-3">
-        <div className="flex items-center gap-3">
-          <Label htmlFor={benefitKey} className="text-base font-semibold text-slate-700 uppercase tracking-wide">
-            {benefit.name}
-          </Label>
-          <span className={`inline-block px-3 py-1 text-sm font-semibold rounded-full ${
-            benefit.is_mandatory 
-              ? "bg-red-100 text-red-800" 
-              : "bg-slate-100 text-slate-800"
-          }`}>
-            {benefit.is_mandatory ? "Mandatory" : "Optional"}
-          </span>
-        </div>
-        <p className="text-sm text-slate-600">{benefit.description}</p>
-        
-        <Select
-          value={selectedPlanId || "none"}
-          onValueChange={(value) => {
-            if (value === "none") {
-              onBenefitChange(benefitKey, undefined)
-            } else {
-              const selectedPlan = allPlans.find(p => p.id === value)
-              if (selectedPlan) {
-                const benefitData: SelectedBenefit = {
-                  planId: selectedPlan.id,
-                  planName: selectedPlan.name,
-                  providerId: selectedPlan.provider.id,
-                  providerName: selectedPlan.provider.name,
-                  price: selectedPlan.price,
-                  currency: selectedPlan.provider.currency,
-                  isMandatory: benefit.is_mandatory,
-                  benefitName: benefit.name
-                }
-                onBenefitChange(benefitKey, benefitData)
-              }
-            }
-          }}
-          disabled={benefit.is_mandatory && allPlans.length === 1}
-        >
-          <SelectTrigger className="!h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
-            <SelectValue placeholder="Select a plan" />
-          </SelectTrigger>
-          <SelectContent>
-            {!benefit.is_mandatory && (
-              <SelectItem value="none">No Plan</SelectItem>
-            )}
-            {allPlans.map(plan => (
-              <SelectItem key={plan.id} value={plan.id}>
-                {plan.name} ({plan.provider.name}) - {plan.price > 0 ? `${plan.provider.currency} ${plan.price.toFixed(2)}` : 'Included'}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div key={benefit.name} className="flex flex-col md:flex-row gap-4">
+        {/* Left side - Benefit selection */}
+        <div className="flex-1 space-y-3">
+          <div className="flex items-center gap-3">
+            <Label htmlFor={benefitKey} className="text-base font-semibold text-slate-700 uppercase tracking-wide">
+              {benefit.name}
+            </Label>
+            <span className={`inline-block px-3 py-1 text-sm font-semibold rounded-full ${
+              benefit.is_mandatory
+                ? "bg-red-100 text-red-800"
+                : "bg-slate-100 text-slate-800"
+            }`}>
+              {benefit.is_mandatory ? "Mandatory" : "Optional"}
+            </span>
+          </div>
+          <p className="text-sm text-slate-600">{benefit.description}</p>
 
+          <Select
+            value={selectedPlanId || "none"}
+            onValueChange={(value) => {
+              if (value === "none") {
+                onBenefitChange(benefitKey, undefined)
+              } else {
+                const selectedPlan = allPlans.find(p => p.id === value)
+                if (selectedPlan) {
+                  const benefitData: SelectedBenefit = {
+                    planId: selectedPlan.id,
+                    planName: selectedPlan.name,
+                    providerId: selectedPlan.provider.id,
+                    providerName: selectedPlan.provider.name,
+                    price: selectedPlan.price,
+                    currency: selectedPlan.provider.currency,
+                    isMandatory: benefit.is_mandatory,
+                    benefitName: benefit.name
+                  }
+                  onBenefitChange(benefitKey, benefitData)
+                }
+              }
+            }}
+            disabled={benefit.is_mandatory && allPlans.length === 1}
+          >
+            <SelectTrigger className="!h-12 border-2 border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+              <SelectValue placeholder="Select a plan" />
+            </SelectTrigger>
+            <SelectContent>
+              {!benefit.is_mandatory && (
+                <SelectItem value="none">No Plan</SelectItem>
+              )}
+              {allPlans.map(plan => (
+                <SelectItem key={plan.id} value={plan.id}>
+                  {plan.name} ({plan.provider.name}) - {plan.price > 0 ? `${plan.provider.currency} ${plan.price.toFixed(2)}` : 'Included'}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Right side - Plan details */}
         {selectedPlanDetails && (
-          <div className="bg-slate-50 border-2 border-slate-200 rounded-md p-3 mt-2 space-y-3">
+          <div className="flex-1 bg-slate-50 border-2 border-slate-200 rounded-md p-4 space-y-3">
             {selectedPlanDetails.attachments.length > 0 && (
               <div>
                 {selectedPlanDetails.attachments.map(attachment => {
@@ -153,8 +156,8 @@ export const BenefitsSelection = React.memo(({
                       type="button"
                       disabled={isLoading}
                       className={`text-sm block transition-colors ${
-                        isLoading 
-                          ? 'text-slate-400 cursor-not-allowed' 
+                        isLoading
+                          ? 'text-slate-400 cursor-not-allowed'
                           : 'text-primary hover:underline cursor-pointer'
                       }`}
                       onClick={() => !isLoading && openPDFInNewTab(attachment.url, attachment.label)}
@@ -185,9 +188,9 @@ export const BenefitsSelection = React.memo(({
 
             {selectedPlanDetails.provider.home_page_url && (
               <div className="text-sm text-slate-500">
-                Provider: <a 
-                  href={selectedPlanDetails.provider.home_page_url} 
-                  target="_blank" 
+                Provider: <a
+                  href={selectedPlanDetails.provider.home_page_url}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
                 >
@@ -219,19 +222,19 @@ export const BenefitsSelection = React.memo(({
         </div>
       </div>
 
-      <SmoothReveal isVisible={showContent}>
+      {showContent && (
         <div className="mt-4 p-4 bg-slate-50 border-2 border-slate-200 rounded-md">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-6">
             {benefitsData?.data.map(renderBenefit)}
           </div>
         </div>
-      </SmoothReveal>
+      )}
 
-      <SmoothReveal isVisible={showError}>
+      {showError && (
         <div className="mt-4">
           <ErrorDisplay title="Benefits data unavailable" message={benefitsError!} />
         </div>
-      </SmoothReveal>
+      )}
     </div>
   )
 })
