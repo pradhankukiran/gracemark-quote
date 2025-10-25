@@ -18,6 +18,62 @@ const formatCustomCostLabel = (label: string): string => {
   return label.replace(/\s+/g, ' ').trim().toUpperCase()
 }
 
+const parseCurrencyAmount = (amount?: string | null): number | null => {
+  if (typeof amount !== 'string') {
+    return null
+  }
+  const normalized = amount.replace(/[^0-9.-]/g, '').trim()
+  if (!normalized || normalized === '.' || normalized === '-' || normalized === '-.') {
+    return null
+  }
+  const numeric = Number(normalized)
+  return Number.isFinite(numeric) ? numeric : null
+}
+
+const convertCustomCostsWithRate = (costs: LocalOfficeCustomCost[], rate: number): LocalOfficeCustomCost[] => {
+  if (!Array.isArray(costs) || costs.length === 0) {
+    return costs
+  }
+
+  let hasChanges = false
+  const next = costs.map((cost) => {
+    const numeric = parseCurrencyAmount(cost.amount)
+    if (numeric === null) {
+      return cost
+    }
+    hasChanges = true
+    return {
+      ...cost,
+      amount: (numeric * rate).toFixed(2),
+    }
+  })
+
+  return hasChanges ? next : costs
+}
+
+const convertManualLocalOfficeFieldsWithRate = (
+  info: LocalOfficeInfo,
+  manualFields: Set<keyof LocalOfficeInfo>,
+  rate: number
+): LocalOfficeInfo => {
+  if (!info || manualFields.size === 0) {
+    return info
+  }
+
+  let hasChanges = false
+  const updates: Partial<LocalOfficeInfo> = {}
+
+  manualFields.forEach((field) => {
+    const numeric = parseCurrencyAmount(info[field])
+    if (numeric !== null) {
+      updates[field] = (numeric * rate).toFixed(2)
+      hasChanges = true
+    }
+  })
+
+  return hasChanges ? { ...info, ...updates } : info
+}
+
 const generateCustomCostId = (): string => {
   const globalCrypto = typeof globalThis !== 'undefined' ? (globalThis as any)?.crypto : undefined
   if (globalCrypto && typeof globalCrypto.randomUUID === 'function') {
@@ -178,6 +234,7 @@ export const useEORForm = () => {
   }, [])
   
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(initialValidationErrors)
+  const [localOfficeManualFields, setLocalOfficeManualFields] = useState<Set<keyof LocalOfficeInfo>>(new Set())
   const [currency, setCurrency] = useState("")
   const [clientCurrency, setClientCurrency] = useState("")
   const [compareCurrency, setCompareCurrency] = useState("")
@@ -269,6 +326,21 @@ export const useEORForm = () => {
     setFormData((prev) => ({ ...prev, ...updates }))
   }, [])
 
+  const markLocalOfficeFieldAsManual = useCallback((field: keyof LocalOfficeInfo) => {
+    setLocalOfficeManualFields((prev) => {
+      if (prev.has(field)) {
+        return prev
+      }
+      const next = new Set(prev)
+      next.add(field)
+      return next
+    })
+  }, [])
+
+  const clearLocalOfficeManualFields = useCallback(() => {
+    setLocalOfficeManualFields(new Set())
+  }, [])
+
   
 
   const updateValidationError = useCallback((field: keyof ValidationErrors, error: string | null) => {
@@ -299,7 +371,8 @@ export const useEORForm = () => {
     setClientCurrency("")
     setCompareCurrency("")
     clearStoredData()
-  }, [clearStoredData])
+    clearLocalOfficeManualFields()
+  }, [clearStoredData, clearLocalOfficeManualFields])
 
   const updateBenefitSelection = useCallback((benefitType: string, benefitData: SelectedBenefit | undefined) => {
     setFormData((prev) => ({
@@ -432,7 +505,8 @@ export const useEORForm = () => {
       localOfficeCustomCosts: createInitialLocalOfficeCustomCosts(),
     }))
     setSalaryConversionMessage(null) // Clear message on country change
-  }, []);
+    clearLocalOfficeManualFields()
+  }, [clearLocalOfficeManualFields]);
 
   useEffect(() => {
     if (!formData.country) return
@@ -477,6 +551,13 @@ export const useEORForm = () => {
   const overrideCurrency = useCallback(async (newCurrency: string) => {
     const currentCurrency = currency
     const currentSalary = formData.baseSalary
+    const manualFieldsArray = Array.from(localOfficeManualFields)
+    const hasCustomCostsToConvert = Array.isArray(formData.localOfficeCustomCosts)
+      ? formData.localOfficeCustomCosts.some((cost) => parseCurrencyAmount(cost.amount) !== null)
+      : false
+    const hasManualLocalOfficeValuesToConvert = manualFieldsArray.some((field) =>
+      parseCurrencyAmount(formData.localOfficeInfo?.[field]) !== null
+    )
     
     setSalaryConversionMessage(null)
 
@@ -513,13 +594,41 @@ export const useEORForm = () => {
         }
       }
     }
-  }, [currency, formData.baseSalary])
+
+    // Convert custom local office costs when present
+    if ((hasCustomCostsToConvert || hasManualLocalOfficeValuesToConvert) && currentCurrency && currentCurrency !== newCurrency) {
+      try {
+        const rateResult = await convertCurrency(1, currentCurrency, newCurrency)
+        const rate = rateResult.success && rateResult.data ? rateResult.data.target_amount : null
+        if (rate && Number.isFinite(rate) && rate > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            localOfficeInfo: hasManualLocalOfficeValuesToConvert
+              ? convertManualLocalOfficeFieldsWithRate(prev.localOfficeInfo, localOfficeManualFields, rate)
+              : prev.localOfficeInfo,
+            localOfficeCustomCosts: hasCustomCostsToConvert
+              ? convertCustomCostsWithRate(prev.localOfficeCustomCosts, rate)
+              : prev.localOfficeCustomCosts,
+          }))
+        }
+      } catch (error) {
+        console.warn('Local office custom cost conversion failed:', error)
+      }
+    }
+  }, [currency, formData.baseSalary, formData.localOfficeCustomCosts, formData.localOfficeInfo, localOfficeManualFields])
 
   const resetToDefaultCurrency = useCallback(async () => {
     if (formData.originalCurrency) {
       const currentCurrency = currency
       const currentSalary = formData.baseSalary
       const targetCurrency = formData.originalCurrency
+      const manualFieldsArray = Array.from(localOfficeManualFields)
+      const hasCustomCostsToConvert = Array.isArray(formData.localOfficeCustomCosts)
+        ? formData.localOfficeCustomCosts.some((cost) => parseCurrencyAmount(cost.amount) !== null)
+        : false
+      const hasManualLocalOfficeValuesToConvert = manualFieldsArray.some((field) =>
+        parseCurrencyAmount(formData.localOfficeInfo?.[field]) !== null
+      )
       
       setSalaryConversionMessage(null)
 
@@ -555,8 +664,35 @@ export const useEORForm = () => {
           }
         }
       }
+
+      if ((hasCustomCostsToConvert || hasManualLocalOfficeValuesToConvert) && currentCurrency && currentCurrency !== targetCurrency) {
+        try {
+          const rateResult = await convertCurrency(1, currentCurrency, targetCurrency)
+          const rate = rateResult.success && rateResult.data ? rateResult.data.target_amount : null
+          if (rate && Number.isFinite(rate) && rate > 0) {
+            setFormData((prev) => ({
+              ...prev,
+              localOfficeInfo: hasManualLocalOfficeValuesToConvert
+                ? convertManualLocalOfficeFieldsWithRate(prev.localOfficeInfo, localOfficeManualFields, rate)
+                : prev.localOfficeInfo,
+              localOfficeCustomCosts: hasCustomCostsToConvert
+                ? convertCustomCostsWithRate(prev.localOfficeCustomCosts, rate)
+                : prev.localOfficeCustomCosts,
+            }))
+          }
+        } catch (error) {
+          console.warn('Local office custom cost conversion failed during reset:', error)
+        }
+      }
     }
-  }, [formData.originalCurrency, currency, formData.baseSalary])
+  }, [
+    formData.originalCurrency,
+    currency,
+    formData.baseSalary,
+    formData.localOfficeCustomCosts,
+    formData.localOfficeInfo,
+    localOfficeManualFields,
+  ])
 
   const isFormValid = useCallback(() => {
     // console.log('🔍 isFormValid - Checking form validity')
@@ -612,6 +748,7 @@ export const useEORForm = () => {
     updateBenefitSelection,
     clearBenefitsSelection,
     updatePrimaryLocalOfficeInfo,
+    markLocalOfficeFieldAsManual,
     updateComparisonLocalOfficeInfo,
     addPrimaryLocalOfficeCustomCost,
     updatePrimaryLocalOfficeCustomCost,

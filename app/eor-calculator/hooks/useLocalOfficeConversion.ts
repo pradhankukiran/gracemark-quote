@@ -41,10 +41,16 @@ export const useLocalOfficeConversion = ({
   const conversionRateCacheRef = useRef<Map<string, number>>(new Map())
 
   // Create stable conversion key from primitive values only
+  // Include original currency in the key so conversions rerun when it becomes available (first manual overrides)
   const conversionKey = useMemo(() => {
     if (!countryCode || !formCurrency) return ''
-    return `${scopeId}:${countryCode}-${formCurrency}-${isCurrencyManuallySet}`
-  }, [countryCode, formCurrency, isCurrencyManuallySet, scopeId])
+
+    const normalizedFormCurrency = formCurrency.trim().toUpperCase()
+    const normalizedOriginalCurrency = originalCurrency?.trim().toUpperCase() || 'UNKNOWN'
+    const manualFlag = isCurrencyManuallySet ? 'manual' : 'auto'
+
+    return `${scopeId}:${countryCode}-${normalizedFormCurrency}-${manualFlag}-${normalizedOriginalCurrency}`
+  }, [countryCode, formCurrency, isCurrencyManuallySet, originalCurrency, scopeId])
 
   // Convert local office data when currency is overridden or when country changes
   useEffect(() => {

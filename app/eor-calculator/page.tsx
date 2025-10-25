@@ -48,6 +48,7 @@ export default function EORCalculatorPage() {
     updateBenefitSelection,
     clearBenefitsSelection,
     updatePrimaryLocalOfficeInfo,
+    markLocalOfficeFieldAsManual,
     updateComparisonLocalOfficeInfo,
     addPrimaryLocalOfficeCustomCost,
     updatePrimaryLocalOfficeCustomCost,
@@ -414,6 +415,7 @@ export default function EORCalculatorPage() {
                       originalCurrency={formData.originalCurrency}
                       currency={currency}
                       onLocalOfficeUpdate={updatePrimaryLocalOfficeInfo}
+                      onManualFieldEdit={markLocalOfficeFieldAsManual}
                       onConversionStatusChange={handlePrimaryLocalOfficeConversionStatus}
                       countryCode={selectedCountryData?.code}
                       scopeId="primary"

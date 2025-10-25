@@ -17,6 +17,7 @@ interface LocalOfficeInformationProps {
   currency: string
   onLocalOfficeUpdate: (updates: Partial<LocalOfficeInfo>) => void
   onConversionStatusChange?: (isConverting: boolean) => void
+  onManualFieldEdit?: (field: keyof LocalOfficeInfo) => void
   countryCode?: string
   title?: string
   scopeId?: string
@@ -32,6 +33,7 @@ export const LocalOfficeInformation = memo(({
   originalCurrency,
   currency,
   onLocalOfficeUpdate,
+  onManualFieldEdit,
   onConversionStatusChange,
   countryCode,
   title,
@@ -153,7 +155,10 @@ export const LocalOfficeInformation = memo(({
   }
 
   const handleFieldUpdate = (field: keyof LocalOfficeInfo, value: string) => {
-    // When user manually edits, update form state
+    // When user manually edits, record override and update form state
+    if (onManualFieldEdit) {
+      onManualFieldEdit(field)
+    }
     onLocalOfficeUpdate({ [field]: value })
   }
 
