@@ -1,6 +1,7 @@
-import { memo, useRef, useCallback } from "react"
+import { memo, useRef, useCallback, useState, useEffect } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 import { EORFormData, ValidationAPIResponse, ValidationErrors } from "@/lib/shared/types"
 import { FORM_STYLES } from "../../styles/constants"
 import { useDebouncedInput } from "../../hooks/useDebouncedInput"
@@ -42,6 +43,7 @@ export const EmployeeSalaryInfo = memo(({
 }: EmployeeSalaryInfoProps) => {
   const baseSalaryInputRef = useRef<HTMLInputElement>(null)
   const { validateField, isValidationReady: isValidationUtilsReady } = useValidationUtils()
+  const [validationsEnabled, setValidationsEnabled] = useState(false)
 
   const isLoading = isLoadingValidations || isConvertingValidation;
   const loadingText = isConvertingValidation ? "Converting..." : "Loading...";
@@ -58,8 +60,14 @@ export const EmployeeSalaryInfo = memo(({
       handleSalaryValidation(value)
     }
   })
+  const salaryValue = salaryInput.value
 
   const handleSalaryValidation = useCallback((value: string) => {
+    if (!validationsEnabled) {
+      onValidationError('salary', null)
+      return
+    }
+
     if (!value || !isValidationUtilsReady()) {
       onValidationError('salary', null)
       return
@@ -97,7 +105,8 @@ export const EmployeeSalaryInfo = memo(({
     convertedValidation,
     validationData,
     validateField,
-    onValidationError
+    onValidationError,
+    validationsEnabled
   ])
 
 
@@ -106,8 +115,19 @@ export const EmployeeSalaryInfo = memo(({
   }, [salaryInput])
 
   const handleSalaryBlur = useCallback(() => {
-    handleSalaryValidation(salaryInput.value)
-  }, [handleSalaryValidation, salaryInput.value])
+    handleSalaryValidation(salaryValue)
+  }, [handleSalaryValidation, salaryValue])
+
+  useEffect(() => {
+    if (!validationsEnabled) {
+      onValidationError('salary', null)
+      return
+    }
+
+    if (salaryValue) {
+      handleSalaryValidation(salaryValue)
+    }
+  }, [validationsEnabled, handleSalaryValidation, salaryValue, onValidationError])
 
   return (
     <div className="mb-6">
@@ -161,12 +181,23 @@ export const EmployeeSalaryInfo = memo(({
           {validationErrors.salary && (
             <p className="text-red-500 text-sm mt-1">{validationErrors.salary}</p>
           )}
-          {!isValidationReady && isCurrencyManuallySet && (
+          {validationsEnabled && !isValidationReady && isCurrencyManuallySet && (
             <p className="text-blue-600 text-sm mt-1 flex items-center">
               <span className="mr-1">⏳</span>
               Validation pending currency conversion...
             </p>
           )}
+          <div className="flex items-center space-x-2 pt-2">
+            <Checkbox
+              id="salary-validations"
+              checked={validationsEnabled}
+              onCheckedChange={(checked) => setValidationsEnabled(checked === true)}
+              className="h-4 w-4"
+            />
+            <Label htmlFor="salary-validations" className="text-sm font-medium text-slate-700">
+              Validations
+            </Label>
+          </div>
         </div>
         <div className="space-y-2">
           <Label className={FORM_STYLES.LABEL_BASE}>
