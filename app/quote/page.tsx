@@ -3792,6 +3792,14 @@ const QuotePageContent = memo(() => {
         return null
       }
 
+      const displayLabelMap = new Map<string, string>()
+      selectedItems.forEach((item) => {
+        if (!item || typeof item.key !== 'string') return
+        const trimmedName = typeof item.name === 'string' ? item.name.trim() : ''
+        const label = trimmedName.length > 0 ? trimmedName : formatKeyName(item.key)
+        displayLabelMap.set(item.key, label)
+      })
+
       const normalizeCategories = (input: Partial<AcidTestCategoryBuckets>): AcidTestCategoryBuckets => ({
         baseSalary: input.baseSalary || {},
         statutoryMandatory: input.statutoryMandatory || {},
@@ -3800,6 +3808,36 @@ const QuotePageContent = memo(() => {
         oneTimeFees: input.oneTimeFees || {},
         onboardingFees: input.onboardingFees || {},
       })
+
+      const applyDisplayLabels = (categories: AcidTestCategoryBuckets): AcidTestCategoryBuckets => {
+        const remapBucket = (bucket: Record<string, number> | undefined): Record<string, number> => {
+          const result: Record<string, number> = {}
+          if (!bucket) return result
+
+          Object.entries(bucket).forEach(([key, rawAmount]) => {
+            const amount = Number(rawAmount)
+            if (!Number.isFinite(amount)) return
+
+            const mapped = displayLabelMap.get(key)
+            const label = mapped && mapped.trim().length > 0 ? mapped.trim() : formatKeyName(key)
+            const displayKey = label.length > 0 ? label : formatKeyName(key)
+            const existing = result[displayKey] ?? 0
+            const roundedAmount = roundToCents(amount)
+            result[displayKey] = roundToCents(existing + roundedAmount)
+          })
+
+          return result
+        }
+
+        return {
+          baseSalary: remapBucket(categories.baseSalary),
+          statutoryMandatory: remapBucket(categories.statutoryMandatory),
+          allowancesBenefits: remapBucket(categories.allowancesBenefits),
+          terminationCosts: remapBucket(categories.terminationCosts),
+          oneTimeFees: remapBucket(categories.oneTimeFees),
+          onboardingFees: remapBucket(categories.onboardingFees),
+        }
+      }
 
       const addOnboardingFees = async (categories: AcidTestCategoryBuckets): Promise<AcidTestCategoryBuckets> => {
         const formData = quoteData?.formData as EORFormData | undefined
@@ -3960,8 +3998,9 @@ const QuotePageContent = memo(() => {
 
         const categorizedData = normalizeCategories(await response.json() as Partial<AcidTestCategoryBuckets>)
         const enriched = await addOnboardingFees(categorizedData)
-        const aggregates = buildAggregates(enriched)
-        return { categories: enriched, aggregates }
+        const labeled = applyDisplayLabels(enriched)
+        const aggregates = buildAggregates(labeled)
+        return { categories: labeled, aggregates }
       } catch (error) {
         console.error('LLM categorization failed, falling back to simple categorization:', error)
 
@@ -4015,10 +4054,11 @@ const QuotePageContent = memo(() => {
         })
 
         const enrichedFallback = await addOnboardingFees(fallbackCategories)
+        const labeledFallback = applyDisplayLabels(enrichedFallback)
 
         return {
-          categories: enrichedFallback,
-          aggregates: buildAggregates(enrichedFallback),
+          categories: labeledFallback,
+          aggregates: buildAggregates(labeledFallback),
         }
       }
     }
