@@ -3984,6 +3984,7 @@ const QuotePageContent = memo(() => {
       }
 
       try {
+        console.log('[CLIENT] Calling categorize-costs API')
         const response = await fetch('/api/categorize-costs', {
           method: 'POST',
           headers: {
@@ -3992,17 +3993,40 @@ const QuotePageContent = memo(() => {
           body: JSON.stringify(requestPayload)
         })
 
+        console.log('[CLIENT] Got response, status:', response.status, 'ok:', response.ok)
+
         if (!response.ok) {
+          const errorText = await response.text()
+          console.error('[CLIENT] API error response:', errorText)
           throw new Error(`API error: ${response.status}`)
         }
 
-        const categorizedData = normalizeCategories(await response.json() as Partial<AcidTestCategoryBuckets>)
+        console.log('[CLIENT] Parsing JSON response')
+        const jsonData = await response.json()
+        console.log('[CLIENT] JSON parsed:', jsonData)
+
+        console.log('[CLIENT] Normalizing categories')
+        const categorizedData = normalizeCategories(jsonData as Partial<AcidTestCategoryBuckets>)
+        console.log('[CLIENT] Categories normalized')
+
+        console.log('[CLIENT] Adding onboarding fees')
         const enriched = await addOnboardingFees(categorizedData)
+        console.log('[CLIENT] Onboarding fees added')
+
+        console.log('[CLIENT] Applying display labels')
         const labeled = applyDisplayLabels(enriched)
+        console.log('[CLIENT] Display labels applied')
+
+        console.log('[CLIENT] Building aggregates')
         const aggregates = buildAggregates(labeled)
+        console.log('[CLIENT] Aggregates built, returning data')
+
         return { categories: labeled, aggregates }
       } catch (error) {
-        console.error('LLM categorization failed, falling back to simple categorization:', error)
+        console.error('[CLIENT] LLM categorization failed, falling back to simple categorization:', error)
+        console.error('[CLIENT] Error type:', error?.constructor?.name)
+        console.error('[CLIENT] Error message:', error instanceof Error ? error.message : String(error))
+        console.error('[CLIENT] Error stack:', error instanceof Error ? error.stack : 'No stack')
 
         const baseSalary: Record<string, number> = {}
         const statutoryMandatory: Record<string, number> = {}
