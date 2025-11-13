@@ -1,16 +1,19 @@
 import { memo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Calculator } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Calculator, FileDown } from "lucide-react"
 import { ICQuoteResult, ICFormData } from "@/lib/shared/types"
 
 interface QuoteResultsProps {
   quote: ICQuoteResult | null
   formData: ICFormData
   currency: string
+  onExportPdf?: () => void
+  isExportingPdf?: boolean
 }
 
-export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsProps) => {
+export const QuoteResults = memo(({ quote, formData, currency, onExportPdf, isExportingPdf }: QuoteResultsProps) => {
   const formatCurrency = (amount: number, currencyOverride?: string) => {
     const displayCurrency = currencyOverride ?? currency
     return `${displayCurrency} ${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -93,6 +96,19 @@ export const QuoteResults = memo(({ quote, formData, currency }: QuoteResultsPro
         <p className="text-lg text-slate-600">
           Your comprehensive IC contract cost breakdown
         </p>
+        {onExportPdf && (
+          <div className="flex justify-center mt-4">
+            <Button
+              onClick={onExportPdf}
+              disabled={isExportingPdf}
+              className="gap-2"
+              size="lg"
+            >
+              <FileDown className="h-4 w-4" />
+              {isExportingPdf ? 'Exporting...' : 'Export PDF'}
+            </Button>
+          </div>
+        )}
       </div>
 
       <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">

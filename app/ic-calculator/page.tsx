@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { ArrowLeft } from "lucide-react"
@@ -14,6 +14,9 @@ import { RateConfigurationForm } from "./components/RateConfigurationForm"
 import { ContractDetailsForm } from "./components/ContractDetailsForm"
 import { FormActions } from "./components/FormActions"
 import { QuoteResults } from "./components/QuoteResults"
+import { exportICCostBreakdownPdf } from "@/lib/pdf/exportICCostBreakdown"
+import type { ICPdfData, ICPdfCostItem } from "@/lib/pdf/ICCostBreakdownDocument"
+import { imageToBase64 } from "@/lib/pdf/logoUtils"
 
 export default function ICCalculatorPage() {
   // Initialize hooks
@@ -49,6 +52,8 @@ export default function ICCalculatorPage() {
     formData,
     currency: displayCurrency,
   })
+
+  const [isExportingPdf, setIsExportingPdf] = useState(false)
 
   const resultsRef = useRef<HTMLDivElement | null>(null)
   const shouldAutoScrollRef = useRef(false)
@@ -90,6 +95,111 @@ export default function ICCalculatorPage() {
       clearError()
     }
   }, [formData, quote, error, clearQuote, clearError])
+
+  const handleExportPdf = useCallback(async () => {
+    if (!quote) return
+
+    setIsExportingPdf(true)
+
+    try {
+      // Format currency
+      const formatCurrency = (amount: number) => {
+        return `${displayCurrency} ${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      }
+
+      // Determine rate display info
+      const isHourlyBasis = formData.rateBasis === "hourly"
+      const markupPercentageValue = Number(formData.markupPercentage)
+      const resolvedMarkupPercentage = Number.isFinite(markupPercentageValue) ? markupPercentageValue : 40
+
+      // Build cost breakdown items
+      const costItems: ICPdfCostItem[] = [
+        {
+          label: "Contractor Pay Rate",
+          value: formatCurrency(quote.monthlyPayRate),
+        },
+        {
+          label: "Agency Fee (Markup)",
+          value: formatCurrency(quote.monthlyAgencyFee),
+          description: `${formatCurrency(quote.monthlyPayRate)} × ${resolvedMarkupPercentage.toFixed(2)}%`,
+        },
+        {
+          label: "Platform Fee (per payout)",
+          value: formatCurrency(quote.transactionCost),
+          description: `${quote.transactionsPerMonth} × $55 USD`,
+        },
+      ]
+
+      if (quote.mspFee > 0) {
+        costItems.push({
+          label: "MSP Fee",
+          value: formatCurrency(quote.mspFee),
+        })
+      }
+
+      if (quote.backgroundCheckMonthlyFee > 0) {
+        costItems.push({
+          label: "Background Check Fee (amortized)",
+          value: formatCurrency(quote.backgroundCheckMonthlyFee),
+        })
+      }
+
+      // Contract duration display
+      const contractDurationDisplay = formData.contractDuration
+        ? (() => {
+            const numericValue = Number(formData.contractDuration)
+            const isSingular = Math.abs(numericValue) === 1
+            if (formData.contractDurationUnit === "years") {
+              return `${formData.contractDuration} ${isSingular ? "year" : "years"}`
+            }
+            return `${formData.contractDuration} ${isSingular ? "month" : "months"}`
+          })()
+        : "Not specified"
+
+      // Total client cost
+      const totalClientCost = quote.monthlyBillRate + quote.transactionCost + quote.backgroundCheckMonthlyFee + quote.mspFee
+
+      // Load logo
+      const logoBase64 = await imageToBase64("/GraceMarklogo.png")
+
+      const pdfData: ICPdfData = {
+        contractorName: formData.contractorName || "Contractor",
+        country: formData.country,
+        currency: displayCurrency,
+        showUSD: formData.displayInUSD,
+        rateInfo: {
+          payRateHourly: formatCurrency(quote.payRate),
+          payRateMonthly: formatCurrency(quote.monthlyPayRate),
+          billRateHourly: formatCurrency(quote.billRate),
+          billRateMonthly: formatCurrency(quote.monthlyBillRate),
+          agencyFeeHourly: formatCurrency(quote.agencyFee),
+          agencyFeeMonthly: formatCurrency(quote.monthlyAgencyFee),
+          markupPercentage: resolvedMarkupPercentage.toFixed(2),
+          workedHours: quote.workedHours,
+        },
+        costBreakdown: costItems,
+        totalClientCost: formatCurrency(totalClientCost),
+        monthlyMarkup: formatCurrency(quote.monthlyMarkup),
+        contractDuration: contractDurationDisplay,
+        paymentFrequency: formData.paymentFrequency.charAt(0).toUpperCase() + formData.paymentFrequency.slice(1),
+        logoSrc: logoBase64 || "/GraceMarklogo.png",
+      }
+
+      const safeContractorName = (formData.contractorName || "contractor")
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "")
+
+      const filename = `gracemark-ic-breakdown-${safeContractorName}.pdf`
+
+      await exportICCostBreakdownPdf(pdfData, filename)
+    } catch (error) {
+      console.error("Failed to export IC PDF:", error)
+    } finally {
+      setIsExportingPdf(false)
+    }
+  }, [quote, formData, displayCurrency])
 
   const handleClearAll = () => {
     clearAllData()
@@ -179,6 +289,8 @@ export default function ICCalculatorPage() {
               quote={quote}
               formData={formData}
               currency={displayCurrency}
+              onExportPdf={handleExportPdf}
+              isExportingPdf={isExportingPdf}
             />
           </div>
         </div>
