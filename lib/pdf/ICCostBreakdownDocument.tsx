@@ -34,75 +34,75 @@ export interface ICPdfData {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 32,
+    padding: 24,
     fontFamily: 'Helvetica',
-    fontSize: 10,
+    fontSize: 9,
     color: '#111827',
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 12,
   },
   logo: {
-    width: 200,
-    height: 82,
+    width: 150,
+    height: 62,
     objectFit: 'contain',
   },
   header: {
-    marginBottom: 20,
+    marginBottom: 12,
     textAlign: 'center',
   },
   title: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#0f172a',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#64748b',
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 12,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
     color: '#0f172a',
-    marginBottom: 12,
-    borderBottomWidth: 2,
+    marginBottom: 8,
+    borderBottomWidth: 1.5,
     borderBottomColor: '#e5e7eb',
-    paddingBottom: 4,
+    paddingBottom: 3,
   },
   infoGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
-    marginBottom: 16,
+    gap: 8,
+    marginBottom: 8,
   },
   infoItem: {
     width: '48%',
   },
   infoLabel: {
-    fontSize: 9,
+    fontSize: 8,
     color: '#64748b',
     marginBottom: 2,
   },
   infoValue: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: 'bold',
     color: '#0f172a',
   },
   rateCards: {
     flexDirection: 'row',
-    gap: 8,
-    marginBottom: 16,
+    gap: 6,
+    marginBottom: 10,
   },
   rateCard: {
     flex: 1,
-    padding: 12,
-    borderRadius: 6,
-    borderWidth: 2,
+    padding: 8,
+    borderRadius: 4,
+    borderWidth: 1.5,
   },
   rateCardPrimary: {
     backgroundColor: '#f0f9ff',
@@ -113,14 +113,14 @@ const styles = StyleSheet.create({
     borderColor: '#10b981',
   },
   rateCardLabel: {
-    fontSize: 8,
+    fontSize: 7,
     color: '#64748b',
-    marginBottom: 4,
+    marginBottom: 3,
     textTransform: 'uppercase',
     fontWeight: 'bold',
   },
   rateCardValue: {
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: 'bold',
     marginBottom: 2,
   },
@@ -131,32 +131,32 @@ const styles = StyleSheet.create({
     color: '#065f46',
   },
   rateCardSecondaryValue: {
-    fontSize: 9,
+    fontSize: 8,
     color: '#64748b',
   },
   formulaBox: {
     backgroundColor: '#f8fafc',
-    padding: 8,
-    borderRadius: 4,
-    marginBottom: 12,
+    padding: 6,
+    borderRadius: 3,
+    marginBottom: 8,
   },
   formulaText: {
-    fontSize: 9,
+    fontSize: 8,
     color: '#475569',
     textAlign: 'center',
   },
   costTable: {
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 6,
+    borderRadius: 4,
     overflow: 'hidden',
   },
   costRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
   },
   costRowLast: {
     borderBottomWidth: 0,
@@ -169,32 +169,32 @@ const styles = StyleSheet.create({
   },
   costLabel: {
     flex: 2,
-    fontSize: 10,
+    fontSize: 9,
   },
   costLabelWhite: {
     color: '#ffffff',
   },
   costDescription: {
-    fontSize: 8,
+    fontSize: 7,
     color: '#94a3b8',
-    marginTop: 2,
+    marginTop: 1,
   },
   costValue: {
     flex: 1,
-    fontSize: 11,
+    fontSize: 9,
     fontWeight: 'bold',
     textAlign: 'right',
   },
   costValueWhite: {
     color: '#ffffff',
-    fontSize: 13,
+    fontSize: 10,
   },
   summaryBox: {
-    marginTop: 16,
-    padding: 12,
+    marginTop: 8,
+    padding: 8,
     backgroundColor: '#ecfdf5',
-    borderRadius: 6,
-    borderWidth: 2,
+    borderRadius: 4,
+    borderWidth: 1.5,
     borderColor: '#10b981',
   },
   summaryRow: {
@@ -203,26 +203,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   summaryLabel: {
-    fontSize: 11,
+    fontSize: 9,
     color: '#065f46',
     fontWeight: 'bold',
   },
   summaryValue: {
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: 'bold',
     color: '#047857',
   },
   footer: {
     position: 'absolute',
-    bottom: 24,
-    left: 32,
-    right: 32,
+    bottom: 16,
+    left: 24,
+    right: 24,
     textAlign: 'center',
-    fontSize: 8,
+    fontSize: 7,
     color: '#94a3b8',
     borderTopWidth: 1,
     borderTopColor: '#e5e7eb',
-    paddingTop: 8,
+    paddingTop: 6,
   },
 })
 
@@ -312,7 +312,7 @@ export const ICCostBreakdownDocument: React.FC<{ data: ICPdfData }> = ({ data })
             ))}
           </View>
 
-          <View style={[styles.costTable, { marginTop: 12 }]}>
+          <View style={[styles.costTable, { marginTop: 8 }]}>
             <View style={[styles.costRow, styles.costRowTotal, styles.costRowLast]}>
               <Text style={[styles.costLabel, styles.costLabelWhite]}>
                 Total Client Cost per Month
