@@ -4142,13 +4142,6 @@ const QuotePageContent = memo(() => {
         .filter(Boolean) as Array<{ key: string; name: string; monthly_amount: number }>
     }
 
-    const formatKeyName = (raw: string) => raw
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/_/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .replace(/\b\w/g, letter => letter.toUpperCase())
-
     const canonicalizeKey = (normalizedKeyInput: string, name: string): string => {
       const normalizedKey = normalizedKeyInput.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')
       const lowerName = name.toLowerCase()
