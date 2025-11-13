@@ -24,6 +24,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Use CerebrasService to categorize costs
+    console.log('[categorize-costs API] Starting categorization', {
+      provider,
+      country,
+      currency,
+      itemCount: costItems.length
+    })
+
     const categorizedData = await CerebrasService.getInstance().categorizeCostItems({
       provider,
       country,
@@ -31,11 +38,17 @@ export async function POST(request: NextRequest) {
       costItems
     })
 
+    console.log('[categorize-costs API] Categorization complete')
     return NextResponse.json(categorizedData)
   } catch (error) {
-    console.error('Cost categorization API error:', error)
+    console.error('[categorize-costs API] Error:', error)
+    console.error('[categorize-costs API] Error stack:', error instanceof Error ? error.stack : 'No stack')
     return NextResponse.json(
-      { error: 'Failed to categorize costs', details: error instanceof Error ? error.message : String(error) },
+      {
+        error: 'Failed to categorize costs',
+        details: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      },
       { status: 500 }
     )
   }
