@@ -123,8 +123,8 @@ importers:
         specifier: ^1.3.1
         version: 1.3.1(next@15.2.8(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
       groq-sdk:
-        specifier: ^0.8.0
-        version: 0.8.0
+        specifier: ^1.1.2
+        version: 1.1.2
       html2canvas:
         specifier: ^1.4.1
         version: 1.4.1
@@ -2445,8 +2445,9 @@ packages:
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
 
-  groq-sdk@0.8.0:
-    resolution: {integrity: sha512-hSgCjZCkoM4CY/TWfsaNlh512svWRR2td4HGpmEV8MbVEVrxZARJq5BHt8gbEF9Gex092/X7VJvaQpha0dIC8g==}
+  groq-sdk@1.1.2:
+    resolution: {integrity: sha512-CZO0XUQQDhn43ri1+lZHxZKpb+bGutgTvFmCJtooexiitGmPqhm1hntOT3nCoaq07e+OpeokVnfUs0i/oQuUaQ==}
+    hasBin: true
 
   has-bigints@1.1.0:
     resolution: {integrity: sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg==}
@@ -5897,17 +5898,7 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  groq-sdk@0.8.0:
-    dependencies:
-      '@types/node': 18.19.123
-      '@types/node-fetch': 2.6.13
-      abort-controller: 3.0.0
-      agentkeepalive: 4.6.0
-      form-data-encoder: 1.7.2
-      formdata-node: 4.4.1
-      node-fetch: 2.7.0
-    transitivePeerDependencies:
-      - encoding
+  groq-sdk@1.1.2: {}
 
   has-bigints@1.1.0: {}
 

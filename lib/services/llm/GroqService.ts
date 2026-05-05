@@ -1,5 +1,4 @@
 // GroqService - High-speed LLM service for quote enhancement analysis
-import 'groq-sdk/shims/node'
 import { Groq } from "groq-sdk"
 import type { ChatCompletion } from "groq-sdk/resources/chat/completions"
 import { z } from "zod"
@@ -57,25 +56,55 @@ export class GroqService {
       this.multiKeyEnabled = flag === 'true' || flag === '1' || flag === 'yes'
     }
 
-    // Load per-pass keys (with fallback to default key)
+    // Load per-pass / per-provider keys (with fallback to default key)
     const defaultKey = this.config.apiKey
-    const key1 = (process.env.GROQ_API_KEY_1 || '').trim()
-    const key2 = (process.env.GROQ_API_KEY_2 || '').trim()
-    const key3 = (process.env.GROQ_API_KEY_3 || '').trim()
+    const readSlotKey = (slot: number): string =>
+      (process.env[`GROQ_API_KEY_${slot}`] || '').toString().trim()
+    const key1 = readSlotKey(1)
+    const key2 = readSlotKey(2)
+    const key3 = readSlotKey(3)
+    const key4 = readSlotKey(4)
+    const key5 = readSlotKey(5)
+    const key6 = readSlotKey(6)
+    const key7 = readSlotKey(7)
+    const key8 = readSlotKey(8)
+    const key9 = readSlotKey(9)
+    const allSlotKeys = [key1, key2, key3, key4, key5, key6, key7, key8, key9]
 
     if (this.multiKeyEnabled) {
       const pass1Key = key1 || defaultKey
       const pass2Key = key2 || defaultKey
       const pass3Key = key3 || defaultKey
 
-      if (!pass1Key && !pass2Key && !pass3Key) {
-        throw new Error('Groq API key(s) required: set GROQ_API_KEY or GROQ_API_KEY_1..3')
+      if (!pass1Key && !pass2Key && !pass3Key && !allSlotKeys.some(k => !!k) && !defaultKey) {
+        throw new Error('Groq API key(s) required: set GROQ_API_KEY or GROQ_API_KEY_1..9')
       }
 
       if (pass1Key) this.clients.pass1 = new Groq({ apiKey: pass1Key, defaultHeaders: { "Groq-Model-Version": "latest" } })
       if (pass2Key) this.clients.pass2 = new Groq({ apiKey: pass2Key, defaultHeaders: { "Groq-Model-Version": "latest" } })
       if (pass3Key) this.clients.pass3 = new Groq({ apiKey: pass3Key, defaultHeaders: { "Groq-Model-Version": "latest" } })
       if (defaultKey) this.clients.default = new Groq({ apiKey: defaultKey, defaultHeaders: { "Groq-Model-Version": "latest" } })
+
+      // Build per-provider clients eagerly. Each slot falls back to defaultKey.
+      // Mapping (slot -> provider):
+      //   1: deel, 2: remote, 3: oyster, 4: rivermate, 5: rippling,
+      //   6: skuad, 7: velocity, 8: playroll, 9: omnipresent
+      const providerSlotMap: Array<[ProviderType, string]> = [
+        ['deel', key1 || defaultKey],
+        ['remote', key2 || defaultKey],
+        ['oyster', key3 || defaultKey],
+        ['rivermate', key4 || defaultKey],
+        ['rippling', key5 || defaultKey],
+        ['skuad', key6 || defaultKey],
+        ['velocity', key7 || defaultKey],
+        ['playroll', key8 || defaultKey],
+        ['omnipresent', key9 || defaultKey],
+      ]
+      for (const [provider, apiKey] of providerSlotMap) {
+        if (apiKey) {
+          this.providerClients[provider] = new Groq({ apiKey, defaultHeaders: { "Groq-Model-Version": "latest" } })
+        }
+      }
 
       this.client = null
     } else {
@@ -166,10 +195,10 @@ export class GroqService {
         tools: [],
         tool_choice: 'none',
         temperature: this.config.temperature,
-        max_tokens: this.config.maxTokens,
+        max_completion_tokens: this.config.maxTokens,
         top_p: 1,
         stream: false,
-        response_format: { type: "json_object" }
+        response_format: { type: "json_object" },
       }, { signal: opts?.signal }))
 
       // Update rate limiter
@@ -331,10 +360,10 @@ export class GroqService {
         tools: [],
         tool_choice: 'none',
         temperature: this.config.temperature,
-        max_tokens: this.config.maxTokens,
+        max_completion_tokens: this.config.maxTokens,
         top_p: 1,
         stream: false,
-        response_format: { type: "json_object" }
+        response_format: { type: "json_object" },
       }, { signal: opts?.signal }))
 
       // Update rate limiter usage
@@ -893,10 +922,10 @@ export class GroqService {
         tools: [],
         tool_choice: 'none',
         temperature: this.config.temperature,
-        max_tokens: this.config.maxTokens,
+        max_completion_tokens: this.config.maxTokens,
         top_p: 1,
         stream: false,
-        response_format: { type: 'json_object' }
+        response_format: { type: 'json_object' },
       }, { signal: opts?.signal }))
 
       this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
@@ -1765,10 +1794,10 @@ export class GroqService {
         tools: [],
         tool_choice: 'none',
         temperature: this.config.temperature,
-        max_tokens: this.config.maxTokens,
+        max_completion_tokens: this.config.maxTokens,
         top_p: 1,
         stream: false,
-        response_format: { type: 'json_object' }
+        response_format: { type: 'json_object' },
       }, { signal: opts?.signal }))
 
       this.updateRateLimiter((response as ChatCompletion).usage?.total_tokens || 0)
@@ -1815,47 +1844,79 @@ export class GroqService {
   }
 
   /**
-   * Resolve Groq client for arithmetic compute (per provider -> key slot)
-   * Mapping:
-   *  1: deel, 2: remote, 3: rivermate, 4: oyster, 5: rippling, 6: skuad, 7: velocity, 8: playroll, 9: omnipresent
+   * Resolve Groq client for a given provider (round-robin per-provider key routing).
+   *
+   * Stable provider -> env-var slot mapping:
+   *   deel        -> GROQ_API_KEY_1
+   *   remote      -> GROQ_API_KEY_2
+   *   oyster      -> GROQ_API_KEY_3
+   *   rivermate   -> GROQ_API_KEY_4
+   *   rippling    -> GROQ_API_KEY_5
+   *   skuad       -> GROQ_API_KEY_6
+   *   velocity    -> GROQ_API_KEY_7
+   *   playroll    -> GROQ_API_KEY_8
+   *   omnipresent -> GROQ_API_KEY_9
+   *
+   * When GROQ_MULTI_KEY_ENABLED is false, this returns the single-key default
+   * client (preserving the original single-key behavior). When the flag is on
+   * but a slot's env var is missing, the per-provider client falls back to
+   * GROQ_API_KEY (single-key fallback so the system still works without 9
+   * separate accounts), then to the pass2 client, then to any available client.
    */
-  private getProviderClient(provider: ProviderType): Groq {
-    if (!this.multiKeyEnabled) return this.clients.default || (this.client as Groq)
+  getClientForProvider(provider: ProviderType): Groq {
+    // Single-key mode: identical to the legacy behavior.
+    if (!this.multiKeyEnabled) {
+      const single = this.clients.default || this.client
+      if (single) return single
+      throw new Error('Groq client not initialized')
+    }
 
-    if (this.providerClients[provider]) return this.providerClients[provider] as Groq
+    // Prefer the eagerly-built per-provider client.
+    const eager = this.providerClients[provider]
+    if (eager) return eager
 
+    // Lazy build (e.g., env changed after construction).
     const slot = this.mapProviderToSlot(provider)
     const envKeyName = `GROQ_API_KEY_${slot}`
     const slotKey = (process.env[envKeyName] || '').toString().trim()
     const defaultKey = (process.env.GROQ_API_KEY || '').toString().trim()
 
-    if (!slotKey) {
-      // If multi-key is enabled, warn loudly about fallback
-      if (this.multiKeyEnabled && typeof window === 'undefined') {
-        console.warn(`[GroqService] Missing ${envKeyName} for provider=${provider}. Using default GROQ_API_KEY fallback. This may collapse routing to a single org.`)
-      }
-      const fallbackKey = defaultKey
-      if (!fallbackKey) {
-        const fallback = this.clients.default || this.clients.pass2 || this.clients.pass3 || this.client
-        if (!fallback) throw new Error(`Groq API key missing for ${provider} (expected ${envKeyName} or GROQ_API_KEY)`)
-        return fallback
-      }
-      const client = new Groq({ apiKey: fallbackKey, defaultHeaders: { "Groq-Model-Version": "latest" } })
+    if (slotKey) {
+      const client = new Groq({ apiKey: slotKey, defaultHeaders: { "Groq-Model-Version": "latest" } })
       this.providerClients[provider] = client
       return client
     }
 
-    const client = new Groq({ apiKey: slotKey, defaultHeaders: { "Groq-Model-Version": "latest" } })
-    this.providerClients[provider] = client
-    return client
+    if (this.multiKeyEnabled && typeof window === 'undefined') {
+      console.warn(`[GroqService] Missing ${envKeyName} for provider=${provider}. Using GROQ_API_KEY fallback (single-key collapse).`)
+    }
+
+    if (defaultKey) {
+      const client = new Groq({ apiKey: defaultKey, defaultHeaders: { "Groq-Model-Version": "latest" } })
+      this.providerClients[provider] = client
+      return client
+    }
+
+    // Last-resort fallbacks: prefer the enhancement-pass client (pass2), then any other available client.
+    const fallback = this.clients.default || this.clients.pass2 || this.clients.pass1 || this.clients.pass3 || this.client
+    if (fallback) return fallback
+    throw new Error(`Groq API key missing for ${provider} (expected ${envKeyName} or GROQ_API_KEY)`)
+  }
+
+  /**
+   * Backwards-compatible alias used by internal pass2-equivalent call sites.
+   * @internal
+   */
+  private getProviderClient(provider: ProviderType): Groq {
+    return this.getClientForProvider(provider)
   }
 
   private mapProviderToSlot(provider: ProviderType): 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 {
     switch (provider) {
       case 'deel': return 1
       case 'remote': return 2
-      case 'rivermate': return 3
-      case 'oyster': return 4
+      case 'oyster': return 3
+      case 'rivermate': return 4
       case 'rippling': return 5
       case 'skuad': return 6
       case 'velocity': return 7

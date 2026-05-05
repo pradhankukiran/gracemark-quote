@@ -36,6 +36,13 @@ export async function convertCurrency(
   targetCurrency: string,
   signal?: AbortSignal
 ): Promise<CurrencyConversionResult> {
+  // Honor pre-aborted signals up front. This makes the parameter useful even
+  // if the underlying request mechanism (e.g., a Server Action) does not
+  // accept an AbortSignal natively.
+  if (signal?.aborted) {
+    return { success: false, error: "Aborted" }
+  }
+
   try {
     const response = await fetch("/api/currency-converter", {
       method: "POST",
@@ -49,6 +56,12 @@ export async function convertCurrency(
       }),
       signal,
     })
+
+    // Final post-response abort check so callers can short-circuit even if
+    // the network race resolved before the abort propagated.
+    if (signal?.aborted) {
+      return { success: false, error: "Aborted" }
+    }
 
     if (!response.ok) {
       const errorData: ConversionError = await response.json()
@@ -64,6 +77,9 @@ export async function convertCurrency(
       data: result.data.conversion_data,
     }
   } catch (error) {
+    if (signal?.aborted) {
+      return { success: false, error: "Aborted" }
+    }
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",

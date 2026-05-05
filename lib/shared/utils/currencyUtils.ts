@@ -20,7 +20,35 @@ export const formatNumberWithCommas = (value: string): string => {
 
 
 /**
- * Converts a Deel quote to USD with dedicated implementation
+ * Fetches a single FX rate for `sourceCurrency -> USD` so all amounts in a
+ * single quote conversion can be multiplied by the same rate. This avoids
+ * per-line drift caused by fallback providers picking different rates across
+ * concurrent `convertCurrency` calls.
+ */
+const fetchUsdRate = async (
+  sourceCurrency: string,
+  signal?: AbortSignal
+): Promise<number> => {
+  const result = await convertCurrency(1, sourceCurrency, "USD", signal)
+  if (!result.success || !result.data) {
+    throw new Error(result.error || `Failed to fetch USD rate for ${sourceCurrency}`)
+  }
+  const { source_amount, target_amount } = result.data
+  // Prefer the exact ratio over the (rounded/string) `exchange_rate` field for
+  // arithmetic precision.
+  const rate = source_amount > 0 ? target_amount / source_amount : target_amount
+  if (!Number.isFinite(rate) || rate <= 0) {
+    throw new Error(`Invalid USD rate for ${sourceCurrency}: ${rate}`)
+  }
+  return rate
+}
+
+/**
+ * Converts a Deel quote to USD with dedicated implementation.
+ *
+ * Rate-locked: a single FX rate is fetched once per quote and applied to
+ * every line item, fee, and total. This guarantees the displayed total
+ * equals the sum of the displayed line items (no per-line drift).
  */
 export const convertDeelQuoteToUsd = async (
   quote: DeelQuote,
@@ -43,45 +71,31 @@ export const convertDeelQuoteToUsd = async (
 
   try {
     const clean = (v: string) => v?.toString().replace(/[\,\s]/g, '') || '0'
-    
-    // Prepare amounts for conversion, including severance accrual so we can exclude it from totals later
-    const amountsToConvert = [
-      Number.parseFloat(clean(quote.salary)),
-      Number.parseFloat(clean(quote.deel_fee)),
-      Number.parseFloat(clean(quote.severance_accural || '0')),
-      ...quote.costs.map((cost) => Number.parseFloat(clean(cost.amount))),
-      Number.parseFloat(clean(quote.total_costs)),
-    ]
 
-    // Convert all amounts to USD
-    const conversionPromises = amountsToConvert.map((amount) => 
-      convertCurrency(amount, sourceCurrency, "USD", signal)
-    )
-
-    const conversionResults = await Promise.all(conversionPromises)
+    // Single FX call: locks the rate for this quote conversion.
+    const rate = await fetchUsdRate(sourceCurrency, signal)
 
     if (signal?.aborted) {
       return { success: false, error: "Deel conversion aborted" };
     }
 
-    const failedConversion = conversionResults.find((r) => !r.success)
-    if (failedConversion) {
-      throw new Error(failedConversion.error || "A Deel currency conversion failed")
+    // Pure-local multiplications for every amount.
+    const toUsd = (raw: string | number) => {
+      const n = typeof raw === 'number' ? raw : Number.parseFloat(clean(raw))
+      return Number.isFinite(n) ? n * rate : 0
     }
 
-    const convertedAmounts = conversionResults.map((r) => r.data!.target_amount)
-
-    // Exclude platform fee from totals (but keep individual conversion values)
-    const convertedSalary = convertedAmounts[0]
-    const convertedFee = convertedAmounts[1]
-    const convertedSeverance = convertedAmounts[2]
-    const convertedCosts = convertedAmounts.slice(3, -1)
-    const convertedTotal = convertedAmounts[convertedAmounts.length - 1]
+    const convertedSalary = toUsd(quote.salary)
+    const convertedFee = toUsd(quote.deel_fee)
+    const convertedSeverance = toUsd(quote.severance_accural || '0')
+    const convertedCosts = quote.costs.map((cost) => toUsd(cost.amount))
+    const convertedTotal = toUsd(quote.total_costs)
 
     const result = {
       salary: convertedSalary,
       deelFee: convertedFee,
       costs: convertedCosts,
+      // Exclude platform fee and severance from totals (preserve original semantics).
       totalCosts: convertedTotal - convertedFee - convertedSeverance,
     }
 
@@ -100,7 +114,10 @@ export const convertDeelQuoteToUsd = async (
 }
 
 /**
- * Converts a Rivermate quote to USD with dedicated implementation
+ * Converts a Rivermate quote to USD with dedicated implementation.
+ *
+ * Rate-locked: see {@link fetchUsdRate}. One FX call, all amounts multiplied
+ * locally so the converted total equals the sum of the converted line items.
  */
 export const convertRivermateQuoteToUsd = async (
   quote: RivermateQuote,
@@ -122,31 +139,16 @@ export const convertRivermateQuoteToUsd = async (
   }
 
   try {
-    // Prepare amounts for conversion EXCLUDING management fee and accruals
-    const amountsToConvert = [
-      quote.salary,
-      ...quote.taxItems.map((item) => item.amount),
-    ]
-
-    // Convert all amounts to USD
-    const conversionPromises = amountsToConvert.map((amount) =>
-      convertCurrency(amount, sourceCurrency, "USD", signal)
-    )
-
-    const conversionResults = await Promise.all(conversionPromises)
+    // Single FX call: locks the rate for this quote conversion.
+    const rate = await fetchUsdRate(sourceCurrency, signal)
 
     if (signal?.aborted) {
       return { success: false, error: "Rivermate conversion aborted" };
     }
 
-    const failedConversion = conversionResults.find((r) => !r.success)
-    if (failedConversion) {
-      throw new Error(failedConversion.error || "A Rivermate currency conversion failed")
-    }
-
-    const convertedAmounts = conversionResults.map((r) => r.data!.target_amount)
-    const convertedSalary = convertedAmounts[0]
-    const convertedTaxItems = convertedAmounts.slice(1)
+    // Local multiplication EXCLUDING management fee and accruals (preserved semantics).
+    const convertedSalary = quote.salary * rate
+    const convertedTaxItems = quote.taxItems.map((item) => item.amount * rate)
     const convertedTotal = convertedSalary + convertedTaxItems.reduce((sum, v) => sum + v, 0)
 
     const result = {
@@ -171,7 +173,10 @@ export const convertRivermateQuoteToUsd = async (
 }
 
 /**
- * Converts a Remote quote to USD
+ * Converts a Remote quote to USD.
+ *
+ * Rate-locked: see {@link fetchUsdRate}. One FX call, all amounts multiplied
+ * locally so the converted total equals the sum of the converted line items.
  */
 export const convertRemoteQuoteToUsd = async (
   quote: RemoteQuote,
@@ -193,36 +198,19 @@ export const convertRemoteQuoteToUsd = async (
   }
 
   try {
-    // Prepare amounts for conversion using Remote's optimized structure
-    const amountsToConvert = [
-      quote.salary,
-      quote.contributions,
-      quote.total,
-      quote.tce,
-    ]
-
-    const conversionPromises = amountsToConvert.map((amount) =>
-      convertCurrency(amount, sourceCurrency, "USD", signal)
-    )
-
-    const conversionResults = await Promise.all(conversionPromises)
+    // Single FX call: locks the rate for this quote conversion.
+    const rate = await fetchUsdRate(sourceCurrency, signal)
 
     if (signal?.aborted) {
       return { success: false, error: "Remote conversion aborted" };
     }
 
-    const failedConversion = conversionResults.find((r) => !r.success)
-    if (failedConversion) {
-      throw new Error(failedConversion.error || "A Remote currency conversion failed")
-    }
-
-    const convertedAmounts = conversionResults.map((r) => r.data!.target_amount)
-
+    // Local multiplication using Remote's optimized structure.
     const result = {
-      monthlySalary: convertedAmounts[0],
-      monthlyContributions: convertedAmounts[1],
-      monthlyTotal: convertedAmounts[2],
-      monthlyTce: convertedAmounts[3],
+      monthlySalary: quote.salary * rate,
+      monthlyContributions: quote.contributions * rate,
+      monthlyTotal: quote.total * rate,
+      monthlyTce: quote.tce * rate,
     }
 
     // console.log("✅ Remote USD conversion successful")
@@ -240,7 +228,10 @@ export const convertRemoteQuoteToUsd = async (
 }
 
 /**
- * Converts an Oyster quote to USD (salary + employer contributions only)
+ * Converts an Oyster quote to USD (salary + employer contributions only).
+ *
+ * Rate-locked: see {@link fetchUsdRate}. One FX call, all amounts multiplied
+ * locally so the converted total equals the sum of the converted line items.
  */
 export const convertOysterQuoteToUsd = async (
   quote: OysterQuote,
@@ -254,23 +245,13 @@ export const convertOysterQuoteToUsd = async (
   }
 
   try {
-    const amountsToConvert = [
-      quote.salary,
-      ...quote.contributions.map(c => c.amount),
-    ]
-
-    const results = await Promise.all(
-      amountsToConvert.map(a => convertCurrency(a, sourceCurrency, "USD", signal))
-    )
+    // Single FX call: locks the rate for this quote conversion.
+    const rate = await fetchUsdRate(sourceCurrency, signal)
 
     if (signal?.aborted) return { success: false, error: "Oyster conversion aborted" }
 
-    const failed = results.find(r => !r.success)
-    if (failed) throw new Error(failed.error || "A Oyster currency conversion failed")
-
-    const conv = results.map(r => r.data!.target_amount)
-    const salary = conv[0]
-    const costs = conv.slice(1)
+    const salary = quote.salary * rate
+    const costs = quote.contributions.map(c => c.amount * rate)
     const totalCosts = salary + costs.reduce((s, v) => s + v, 0)
 
     return { success: true, data: { salary, costs, totalCosts } }

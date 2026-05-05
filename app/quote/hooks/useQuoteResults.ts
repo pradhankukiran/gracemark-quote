@@ -498,29 +498,35 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
   }, [enhanceQuote, sleep])
 
   // Direct enhancement scheduler: start as soon as base quote is available, capped by semaphore
+  // Bug 6 fix: do NOT set enhancementEnqueuedRef BEFORE the try/catch. If normalization
+  // (or any synchronous step) throws, the ref would stay set forever, permanently blocking
+  // future retries via the early-return at the top of this function. We now commit the ref
+  // only after we are sure we will dispatch enhancement, and reset both refs in catch so the
+  // user can retry recoverable failures.
   const scheduleEnhancement = useCallback(async (provider: Provider, quote: unknown, formData: EORFormData): Promise<void> => {
     if (enhancementEnqueuedRef.current[provider] || enhancementInFlightRef.current[provider]) return
-    enhancementEnqueuedRef.current[provider] = true
 
-    // NORMALIZATION CHECK: Test if quote can be normalized for enhancement
-    const normalizedQuote = normalizeQuoteForEnhancement(provider as any, quote);
-    if (!normalizedQuote || !isValidNormalizedQuote(normalizedQuote)) {
-      console.warn(`🚫 ${provider} normalization failed - skipping enhancement but keeping base active`);
-      updateProviderState(provider, {
-        status: 'enhancement-failed',
-        hasData: true,
-        enhancementError: 'Base quote available, enhancement skipped (normalization failed)'
-      });
-      normalizationFailedRef.current[provider] = true;
-      return;
-    }
-    
     try {
+      // NORMALIZATION CHECK: Test if quote can be normalized for enhancement
+      const normalizedQuote = normalizeQuoteForEnhancement(provider as any, quote);
+      if (!normalizedQuote || !isValidNormalizedQuote(normalizedQuote)) {
+        console.warn(`🚫 ${provider} normalization failed - skipping enhancement but keeping base active`);
+        updateProviderState(provider, {
+          status: 'enhancement-failed',
+          hasData: true,
+          enhancementError: 'Base quote available, enhancement skipped (normalization failed)'
+        });
+        normalizationFailedRef.current[provider] = true;
+        return;
+      }
+
+      // Commit to dispatching now: only mark enqueued AFTER synchronous validation succeeds
+      enhancementEnqueuedRef.current[provider] = true
       if (enhancementInFlightRef.current[provider]) return
       enhancementInFlightRef.current[provider] = true
       updateProviderState(provider, { status: 'loading-enhanced', hasData: true })
       // console.log(`🚀 Starting enhancement for ${provider} with validated quote`);
-      
+
       const providerQuoteForEnhancement = (provider === 'remote' && isRemoteAPIResponse(quote))
         ? transformRemoteResponseToQuote(quote)
         : quote
@@ -533,13 +539,17 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       }
     } catch (err) {
       console.error(`❌ Enhancement failed for ${provider}:`, err)
-      // Since normalization is checked upfront, any errors here are LLM service issues
-      updateProviderState(provider, { 
-        status: 'enhancement-failed', 
-        hasData: true, 
-        enhancementError: err instanceof Error ? err.message : 'Enhanced quote failed' 
+      // Recoverable failure: reset enqueue/in-flight refs so a future call can retry.
+      enhancementEnqueuedRef.current[provider] = false
+      enhancementInFlightRef.current[provider] = false
+      // Surface as enhancement-failed (base remains usable)
+      updateProviderState(provider, {
+        status: 'enhancement-failed',
+        hasData: true,
+        enhancementError: err instanceof Error ? err.message : 'Enhanced quote failed'
       })
       enhancementFailedRef.current[provider] = true
+      return
     } finally {
       enhancementInFlightRef.current[provider] = false
     }
@@ -1302,16 +1312,28 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
           const hasEnh = !!enhancements[provider];
           const hadEnhancementError = enhancementFailedRef.current[provider] || !!errors?.[provider];
           const isEnhancing = !!enhancing[provider];
+          const enqueued = enhancementEnqueuedRef.current[provider];
+          const inFlight = enhancementInFlightRef.current[provider];
+          // Bug 12 fix: only synthesize 'loading-enhanced' when an enhancement is
+          // actually in-flight, or a scheduler call is about to fire this tick (the
+          // PARALLEL_MODE block immediately below schedules iff !enqueued && !inFlight
+          // && !hasEnh && !failed). Without this, we'd lock providers into
+          // 'loading-enhanced' even when no scheduler ran, which (combined with the
+          // Bug 6 enqueue-ref leak) caused enhancementBatchInfo.isProcessing to stay
+          // true forever.
+          const willSchedule = PARALLEL_MODE && !hasEnh && !hadEnhancementError && !enqueued && !inFlight;
 
           let nextStatus: ProviderState;
           if (hasEnh) {
             nextStatus = 'active';
           } else if (hadEnhancementError) {
             nextStatus = 'enhancement-failed';
-          } else if (isEnhancing) {
+          } else if (isEnhancing || willSchedule) {
             nextStatus = 'loading-enhanced';
           } else {
-            nextStatus = 'loading-enhanced';
+            // No enhancement attempted/in-flight and none about to fire: leave the
+            // provider as 'active' (base data is here, enhancement not needed/possible).
+            nextStatus = 'active';
           }
 
           updateProviderState(provider, { status: nextStatus, hasData: true });
@@ -1516,6 +1538,27 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
         updateProviderState(provider, { status: 'loading-enhanced', hasData: true, error: undefined });
       } else if (hasEnh) {
         updateProviderState(provider, { status: 'active', hasData: true, error: undefined });
+      } else if (hadEnhancementError) {
+        // Recent Bug 3 fix: explicit terminal state when an enhancement attempt failed
+        updateProviderState(provider, {
+          status: 'enhancement-failed',
+          hasData: true,
+          enhancementError: errors?.[provider]?.message || 'Enhanced quote failed',
+        });
+      } else if (
+        !isEnhancing &&
+        !hasEnh &&
+        !hadEnhancementError &&
+        !enhancementInFlightRef.current[provider] &&
+        !enhancementEnqueuedRef.current[provider] &&
+        !compareInFlightRef.current[provider] &&
+        !baseInFlightRef.current[provider]
+      ) {
+        // Bug 5 fix: hasBase is true but ONLY via comparison fallback (or settled flow)
+        // and no enhancement was attempted/triggered. Without this branch the provider
+        // would stay in whatever state was last set on comparison-base completion
+        // (typically 'loading-base'), leaving the UI stuck.
+        updateProviderState(provider, { status: 'active', hasData: true, error: undefined });
       }
     });
   }, [quoteData, enhancing, enhancements, errors, hasProviderData, updateProviderState]);
@@ -1551,6 +1594,9 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
       compareInFlightRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
       comparisonCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
       dualCurrencyCompleteRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
+      // Bug 11 fix: also reset compare-side enhancement refs on quote change/unmount
+      compareEnhancementEnqueuedRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
+      compareEnhancementInFlightRef.current = { deel: false, remote: false, rivermate: false, oyster: false, rippling: false, skuad: false, velocity: false, playroll: false, omnipresent: false }
       clearRawQuotes()
     };
   }, [quoteId]);
@@ -1582,7 +1628,92 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     });
   }, [quoteData, enhancements]);
 
-  // Schedule comparison enhancements after primary enhancement completes (to limit API spikes)
+  // Bug 11 fix: track compare-side enhancement enqueue/in-flight per provider so the
+  // compare branch can early-return on duplicate scheduling and reset on failure
+  // (mirrors the primary-side enhancementEnqueuedRef / enhancementInFlightRef pattern).
+  const compareEnhancementEnqueuedRef = useRef<Record<Provider, boolean>>({
+    deel: false, remote: false, rivermate: false, oyster: false, rippling: false,
+    skuad: false, velocity: false, playroll: false, omnipresent: false,
+  })
+  const compareEnhancementInFlightRef = useRef<Record<Provider, boolean>>({
+    deel: false, remote: false, rivermate: false, oyster: false, rippling: false,
+    skuad: false, velocity: false, playroll: false, omnipresent: false,
+  })
+
+  // Bug 11 fix: compare-side enhancement scheduler. Mirrors scheduleEnhancement's
+  // retry/backoff behavior, but routes through enhanceQuote with a `${provider}::compare`
+  // state key so primary and compare states don't collide. Crucially, this does NOT depend
+  // on primary enhancement having succeeded - even if primary fails, compare data should
+  // still be enhanced.
+  const scheduleCompareEnhancement = useCallback(async (
+    provider: Provider,
+    quote: unknown,
+    formData: EORFormData
+  ): Promise<void> => {
+    if (compareEnhancementEnqueuedRef.current[provider] || compareEnhancementInFlightRef.current[provider]) return
+
+    try {
+      const normalizedQuote = normalizeQuoteForEnhancement(provider as any, quote);
+      if (!normalizedQuote || !isValidNormalizedQuote(normalizedQuote)) {
+        console.warn(`🚫 ${provider} compare normalization failed - skipping compare enhancement`);
+        return;
+      }
+
+      compareEnhancementEnqueuedRef.current[provider] = true
+      compareEnhancementInFlightRef.current[provider] = true
+
+      const providerQuoteForEnhancement = (provider === 'remote' && isRemoteAPIResponse(quote))
+        ? transformRemoteResponseToQuote(quote)
+        : quote
+
+      const compareKey = `${provider}::compare`
+      const quoteMode: 'all-inclusive' | 'statutory-only' =
+        formData.quoteType === 'statutory-only' ? 'statutory-only' : 'all-inclusive'
+
+      // Inline retry-with-backoff using the shared sleep helper. Mirrors the logic in
+      // retryEnhancementWithBackoff but passes the compareKey via enhanceQuote options.
+      const maxRetries = 3
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          await enhanceQuote(provider as any, providerQuoteForEnhancement, formData, quoteMode, { key: compareKey })
+          return
+        } catch (error: any) {
+          const isLastAttempt = attempt === maxRetries
+          const isRetryable =
+            error?.status === 429 ||
+            error?.status === 503 ||
+            error?.status === 504 ||
+            error?.message?.toLowerCase?.().includes('rate limit') ||
+            error?.message?.toLowerCase?.().includes('timeout') ||
+            error?.message?.toLowerCase?.().includes('too many requests')
+
+          if (!isRetryable || isLastAttempt) {
+            throw error
+          }
+
+          const backoffDelay = Math.pow(2, attempt) * 1000
+          console.warn(`❌ Compare enhancement rate limited for ${provider}, retrying in ${backoffDelay}ms (attempt ${attempt + 1}/${maxRetries + 1})`)
+          if (!isMountedRef.current) {
+            throw new Error('Component unmounted during retry backoff')
+          }
+          await sleep(backoffDelay)
+        }
+      }
+    } catch (err) {
+      console.error(`❌ Compare enhancement failed for ${provider}:`, err)
+      // Recoverable failure: reset refs so a future call can retry.
+      compareEnhancementEnqueuedRef.current[provider] = false
+      compareEnhancementInFlightRef.current[provider] = false
+      return
+    } finally {
+      compareEnhancementInFlightRef.current[provider] = false
+    }
+  }, [enhanceQuote, sleep])
+
+  // Bug 11 fix: schedule compare enhancements as soon as the comparison base quote
+  // is available - independent of primary enhancement success. Previously this gated
+  // on `!!enhancements[provider]` (primary done), so a primary failure permanently
+  // blocked the compare enhancement.
   useEffect(() => {
     if (!quoteData || quoteData.status !== 'completed') return;
     const form = quoteData.formData as EORFormData;
@@ -1592,29 +1723,86 @@ export const useQuoteResults = (quoteId: string | null): UseQuoteResultsReturn =
     const providers: Provider[] = ['deel', 'remote', 'rivermate', 'oyster', 'rippling', 'skuad', 'velocity', 'playroll', 'omnipresent'];
     providers.forEach((provider) => {
       try {
-        const primaryDone = !!enhancements[provider];
-        if (!primaryDone) return;
-
         const compareKey = `${provider}::compare`;
         if (enhancements[compareKey] || enhancing[compareKey]) return;
+        if (compareEnhancementEnqueuedRef.current[provider] || compareEnhancementInFlightRef.current[provider]) return;
 
         const compareProp = `comparison${cap(provider)}`;
         const compareQuote = (quoteData.quotes as any)?.[compareProp];
         if (!compareQuote) return;
 
-        // Trigger comparison enhancement using comparison country
+        // Trigger comparison enhancement using comparison country.
+        // Bug 11 follow-up: include baseSalary (mapped from compareSalary) so downstream
+        // enhancement consumers see the compare-side salary, and use the compare-side
+        // local office data so per-cost-center fields are correct.
         const compareForm: EORFormData = {
           ...form,
           country: form.compareCountry || form.country,
           state: form.compareState || form.state,
           currency: form.compareCurrency || form.currency,
-          localOfficeInfo: (form as EORFormData).compareLocalOfficeInfo || form.localOfficeInfo,
-          localOfficeCustomCosts: (form as EORFormData).compareLocalOfficeCustomCosts || form.localOfficeCustomCosts,
-        } as EORFormData;
-        void enhanceQuote(provider as any, compareQuote, compareForm, (form.quoteType as any) || 'all-inclusive', { key: compareKey });
+          baseSalary: form.compareSalary || form.baseSalary,
+          localOfficeInfo: form.compareLocalOfficeInfo || form.localOfficeInfo,
+          localOfficeCustomCosts: form.compareLocalOfficeCustomCosts || form.localOfficeCustomCosts,
+        };
+
+        void scheduleCompareEnhancement(provider, compareQuote, compareForm);
       } catch { /* noop */ }
     });
-  }, [quoteData, enhancements, enhancing, enhanceQuote]);
+  }, [quoteData, enhancements, enhancing, scheduleCompareEnhancement]);
+
+  // Bug 14 fix: when enableComparison transitions from true to false, strip the
+  // stale comparison* keys from quoteData.quotes. The form layer's
+  // clearComparisonLocalOfficeInfo only resets form fields and leaves the
+  // already-fetched comparison quote data dangling on quoteData. Without this
+  // effect, downstream consumers (and isComparisonReady) keep observing stale
+  // comparison quotes after the user disables comparison mode.
+  const prevEnableComparisonRef = useRef<boolean | undefined>(undefined)
+  useEffect(() => {
+    if (!quoteData) return
+    const form = quoteData.formData as EORFormData | undefined
+    const currentEnableComparison = !!form?.enableComparison
+    const prev = prevEnableComparisonRef.current
+
+    // Initialize on first observation; only act on a true -> false transition.
+    if (prev === undefined) {
+      prevEnableComparisonRef.current = currentEnableComparison
+      return
+    }
+    if (prev === currentEnableComparison) return
+    prevEnableComparisonRef.current = currentEnableComparison
+
+    if (prev === true && currentEnableComparison === false) {
+      const providers: Provider[] = [
+        'deel', 'remote', 'rivermate', 'oyster', 'rippling',
+        'skuad', 'velocity', 'playroll', 'omnipresent',
+      ]
+      // Reset comparison-related refs
+      providers.forEach((p) => {
+        compareInFlightRef.current[p] = false
+        comparisonCompleteRef.current[p] = false
+        dualCurrencyCompleteRef.current[p] = false
+        compareEnhancementEnqueuedRef.current[p] = false
+        compareEnhancementInFlightRef.current[p] = false
+      })
+
+      setQuoteData((current) => {
+        if (!current) return current
+        const stripped = { ...current.quotes } as Record<string, unknown>
+        let mutated = false
+        // Strip comparison* keys (and the legacy 'comparison' field) from quotes.
+        for (const key of Object.keys(stripped)) {
+          if (key === 'comparison' || key.startsWith('comparison')) {
+            delete stripped[key]
+            mutated = true
+          }
+        }
+        if (!mutated) return current
+        const next: QuoteData = { ...current, quotes: stripped as QuoteData['quotes'] }
+        if (quoteId) setJsonInSessionStorage(quoteId, next)
+        return next
+      })
+    }
+  }, [quoteData, quoteId])
 
   // Calculate progress for reconciliation button (parallel mode): single batch view
   const enhancementBatchInfo = useMemo(() => {

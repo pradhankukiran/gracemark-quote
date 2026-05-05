@@ -91,14 +91,23 @@ export class CerebrasService {
     return CerebrasService.instance
   }
 
+  /**
+   * Pre-pass chat model. Despite the class name, this service now runs on
+   * Groq using the default GROQ_API_KEY (the spare 10th key — the 9 per-
+   * provider slots handle the parallel enhancement fan-out separately).
+   * Override via CEREBRAS_MODEL env var. Default matches GROQ_MODEL.
+   */
+  private static getModel(): string {
+    return (process.env.CEREBRAS_MODEL || process.env.GROQ_MODEL || '').trim() || 'openai/gpt-oss-20b'
+  }
+
   private async getClient(): Promise<CerebrasClient> {
     if (this.client) return this.client
-    // Lazy import to avoid bundling issues if SDK is absent during build
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const Cerebras = require('@cerebras/cerebras_cloud_sdk').default
-    const apiKey = (process.env.CEREBRAS_API_KEY || '').trim()
-    if (!apiKey) throw new Error('CEREBRAS_API_KEY is required for pre-pass')
-    this.client = new Cerebras({ apiKey })
+    const Groq = require('groq-sdk').default
+    const apiKey = (process.env.GROQ_API_KEY || '').trim()
+    if (!apiKey) throw new Error('GROQ_API_KEY is required for the pre-pass (CerebrasService now runs on Groq)')
+    this.client = new Groq({ apiKey, defaultHeaders: { 'Groq-Model-Version': 'latest' } })
     return this.client
   }
 
@@ -134,13 +143,13 @@ export class CerebrasService {
     let response: any
     try {
       response = await client.chat.completions.create({
-        model: "llama-3.3-70b",
+        model: CerebrasService.getModel(),
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
         stream: false,
-        max_completion_tokens: 8192,
+        max_tokens: 8192,
         temperature: 0.1,
         top_p: 1,
         response_format: { type: 'json_object' }
@@ -153,13 +162,13 @@ export class CerebrasService {
 
       // Retry without response_format
       response = await client.chat.completions.create({
-        model: "llama-3.3-70b",
+        model: CerebrasService.getModel(),
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
         stream: false,
-        max_completion_tokens: 8192,
+        max_tokens: 8192,
         temperature: 0.1,
         top_p: 1
       })
@@ -338,13 +347,13 @@ export class CerebrasService {
     let response: any
     try {
       response = await client.chat.completions.create({
-        model: "llama-3.3-70b",
+        model: CerebrasService.getModel(),
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
         stream: false,
-        max_completion_tokens: 8192,
+        max_tokens: 8192,
         temperature: 0.1,
         top_p: 1,
         // If supported by the SDK/model, this enforces JSON-only output
@@ -360,13 +369,13 @@ export class CerebrasService {
 
       // Retry without response_format (some models may not support it)
       response = await client.chat.completions.create({
-        model: "llama-3.3-70b",
+        model: CerebrasService.getModel(),
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
         stream: false,
-        max_completion_tokens: 8192,
+        max_tokens: 8192,
         temperature: 0.1,
         top_p: 1
       })

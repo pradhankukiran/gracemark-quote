@@ -902,7 +902,13 @@ const QuotePageContent = memo(() => {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
   const [isExportingPdf, setIsExportingPdf] = useState(false)
   const [cachedCostItems, setCachedCostItems] = useState<Partial<Record<ProviderType, Array<{ key: string; name: string; monthly_amount: number }>>>>({})
+  const [cachedCostItemsCompare, setCachedCostItemsCompare] = useState<Partial<Record<ProviderType, Array<{ key: string; name: string; monthly_amount: number }>>>>({})
   const [providerTotals, setProviderTotals] = useState<Partial<Record<ProviderType, { amount: number | null; currency?: string; ready: boolean }>>>({})
+
+  // Compare-side awareness: 'primary' (default) keeps prior behavior. When the
+  // user has comparison enabled, the UI toggle below lets them drive
+  // reconciliation / Acid Test / PDF export against the compare country.
+  const [selectedSide, setSelectedSide] = useState<'primary' | 'compare'>('primary')
 
   // New Bill Rate Calculator state
   const [billRateInput, setBillRateInput] = useState<number>(0)
@@ -972,6 +978,7 @@ const QuotePageContent = memo(() => {
 
   useEffect(() => {
     setCachedCostItems({})
+    setCachedCostItemsCompare({})
   }, [enhancements, quoteData])
 
   useEffect(() => {
@@ -1071,6 +1078,77 @@ const QuotePageContent = memo(() => {
         return changed ? next : prev
       })
     }
+  }, [allProviders, enhancements, quoteData?.formData, quoteData?.quotes, contractMonths, providerStates])
+
+  // Parallel compare-side prefill. Mirrors the primary effect above but
+  // sources base quotes from `comparison<Provider>`, enhancements from the
+  // `${provider}::compare` keys, and uses compareLocalOfficeInfo. The compare
+  // map is only populated when comparison is enabled.
+  useEffect(() => {
+    if (!quoteData?.quotes) return
+    const formData = quoteData.formData as EORFormData | undefined
+    if (!formData?.enableComparison) return
+
+    const defaultCurrency = formData.compareCurrency || formData.currency || 'USD'
+    const compareLocalOfficeInfo = formData.compareLocalOfficeInfo || formData.localOfficeInfo
+    const compareLocalOfficeCustomCosts = formData.compareLocalOfficeCustomCosts || formData.localOfficeCustomCosts
+    const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+
+    const itemsByProvider = new Map<ProviderType, Array<{ key: string; name: string; monthly_amount: number }>>()
+    const enhancementsByKey = enhancements as Record<string, EnhancedQuote | undefined>
+
+    allProviders.forEach(provider => {
+      const compareKey = `${provider}::compare`
+      const enhancedQuote = enhancementsByKey[compareKey]
+      const compareProp = `comparison${cap(provider)}`
+      const rawQuote = (quoteData.quotes as Record<string, unknown>)[compareProp]
+      if (!rawQuote) return
+
+      let baseQuote: Quote | undefined
+      if (provider === 'remote') {
+        baseQuote = transformRemoteResponseToQuote(rawQuote as RemoteAPIResponse)
+      } else if (provider === 'rivermate') {
+        baseQuote = transformRivermateQuoteToDisplayQuote(rawQuote as RivermateQuote)
+      } else if (provider === 'oyster') {
+        baseQuote = transformOysterQuoteToDisplayQuote(rawQuote as OysterQuote)
+      } else {
+        baseQuote = rawQuote as Quote
+      }
+
+      const builtItems = buildDisplayedItems(
+        enhancedQuote,
+        baseQuote,
+        compareLocalOfficeInfo,
+        compareLocalOfficeCustomCosts,
+        formData.contractType
+      )
+
+      if (builtItems.length > 0) {
+        itemsByProvider.set(provider, builtItems)
+      }
+    })
+
+    if (itemsByProvider.size > 0) {
+      setCachedCostItemsCompare(prev => {
+        let changed = false
+        const next = { ...prev }
+        itemsByProvider.forEach((items, provider) => {
+          const existing = prev[provider]
+          const sameLength = existing?.length === items.length
+          const isSame = sameLength && existing ? existing.every((entry, idx) => {
+            const target = items[idx]
+            return entry.key === target.key && entry.name === target.name && entry.monthly_amount === target.monthly_amount
+          }) : false
+          if (!isSame) {
+            next[provider] = items
+            changed = true
+          }
+        })
+        return changed ? next : prev
+      })
+    }
+    // Quiet a stray var warning when comparison disabled.
+    void defaultCurrency
   }, [allProviders, enhancements, quoteData?.formData, quoteData?.quotes, contractMonths, providerStates])
 
   const [acidTestValidation, setAcidTestValidation] = useState<{
@@ -1272,8 +1350,24 @@ const QuotePageContent = memo(() => {
     return Array.isArray(items) && items.length > 0
   }, [cachedCostItems])
 
+  const providerHasCostItemsForSide = useCallback((provider: ProviderType, side: 'primary' | 'compare') => {
+    const source = side === 'compare' ? cachedCostItemsCompare : cachedCostItems
+    const items = source[provider]
+    return Array.isArray(items) && items.length > 0
+  }, [cachedCostItems, cachedCostItemsCompare])
+
   const getProviderPrice = (provider: ProviderType): number | null => {
     const items = cachedCostItems[provider]
+    if (!Array.isArray(items) || items.length === 0) {
+      return null
+    }
+    const sum = items.reduce((acc, item) => acc + Number(item.monthly_amount || 0), 0)
+    return Number(sum.toFixed(2))
+  }
+
+  const getProviderPriceForSide = (provider: ProviderType, side: 'primary' | 'compare'): number | null => {
+    const source = side === 'compare' ? cachedCostItemsCompare : cachedCostItems
+    const items = source[provider]
     if (!Array.isArray(items) || items.length === 0) {
       return null
     }
@@ -1348,6 +1442,16 @@ const QuotePageContent = memo(() => {
       return changed ? next : prev
     })
   }, [allProviders, providerStates, quoteData, enhancements, contractMonths])
+
+  // Force selectedSide back to 'primary' whenever comparison is disabled or
+  // not configured. This guarantees pre-existing primary-only paths behave
+  // exactly as before when enableComparison === false.
+  useEffect(() => {
+    const eorForm = quoteData?.formData as EORFormData | undefined
+    if (!eorForm?.enableComparison && selectedSide !== 'primary') {
+      setSelectedSide('primary')
+    }
+  }, [quoteData?.formData, selectedSide])
 
 
   const buildAcidTestCalculation = useCallback(async (
@@ -2146,7 +2250,14 @@ const QuotePageContent = memo(() => {
       }
 
       const safeProvider = finalChoice.provider.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'provider'
-      const filename = `gracemark-cost-breakdown-${safeProvider}-expanded.pdf`
+      const eorFormForExport = quoteData?.formData as EORFormData | undefined
+      const exportCountry = selectedSide === 'compare'
+        ? (eorFormForExport?.compareCountry || eorFormForExport?.country || '')
+        : (eorFormForExport?.country || '')
+      const safeCountry = exportCountry.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+      const filename = safeCountry
+        ? `gracemark-cost-breakdown-${safeProvider}-${safeCountry}-expanded.pdf`
+        : `gracemark-cost-breakdown-${safeProvider}-expanded.pdf`
 
       await exportAcidTestCostBreakdownPdf(
         {
@@ -2177,7 +2288,7 @@ const QuotePageContent = memo(() => {
     } finally {
       setIsExportingPdf(false)
     }
-  }, [acidTestCostData, acidTestResults, acidTestKpiMetrics, finalChoice, convertCurrency])
+  }, [acidTestCostData, acidTestResults, acidTestKpiMetrics, finalChoice, convertCurrency, selectedSide, quoteData?.formData])
 
   // --- LOADING & ERROR STATES (Updated: show spinner until current provider base is ready) ---
   const showGlobalLoader = loading || providerLoading[currentProvider] || (quoteData?.status === 'calculating' && providerLoading[currentProvider])
@@ -2263,7 +2374,7 @@ const QuotePageContent = memo(() => {
       const s = providerStates[p]?.status
       return s === 'active'
     })
-    const costItemsReady = providersWithData.length > 0 && providersWithData.every(providerHasCostItems)
+    const costItemsReady = providersWithData.length > 0 && providersWithData.every(p => providerHasCostItemsForSide(p, selectedSide))
 
     const isReady = completed >= allProviders.length && !enhancementBatchInfo.isProcessing && costItemsReady
     const hasCompletedBefore = completedPhases.has('analyzing') || completedPhases.has('complete')
@@ -3728,18 +3839,43 @@ const QuotePageContent = memo(() => {
   }
 
   // Extract selected quote data after reconciliation
+  // `side` defaults to the current selectedSide so existing call sites
+  // (handleStartAcidTest) keep their semantics. Tests/callers that need to
+  // pin to a specific side may pass an explicit value.
   const extractSelectedQuoteData = async (finalChoice: {
     provider: string
     price: number
     currency: string
     enhancedQuote?: EnhancedQuote
-  }) => {
+  }, side: 'primary' | 'compare' = selectedSide) => {
     if (!finalChoice?.enhancedQuote) {
       return null
     }
 
     const { enhancedQuote } = finalChoice
     const providerKey = finalChoice.provider as ProviderType
+    const isCompareSide = side === 'compare'
+
+    const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+    const compareQuoteKey = `comparison${cap(providerKey)}`
+    // Resolve the side-appropriate form view, raw quote payload, and quote
+    // record. Compare reads fall back to primary fields whenever a compare
+    // override hasn't been set on EORFormData (mirrors the comparison
+    // enhancement pipeline in useQuoteResults.ts).
+    const baseForm = quoteData?.formData as EORFormData | undefined
+    const sideForm: EORFormData | undefined = baseForm
+      ? (isCompareSide
+        ? {
+          ...baseForm,
+          country: baseForm.compareCountry || baseForm.country,
+          state: baseForm.compareState || baseForm.state,
+          currency: baseForm.compareCurrency || baseForm.currency,
+          baseSalary: baseForm.compareSalary || baseForm.baseSalary,
+          localOfficeInfo: baseForm.compareLocalOfficeInfo || baseForm.localOfficeInfo,
+          localOfficeCustomCosts: baseForm.compareLocalOfficeCustomCosts || baseForm.localOfficeCustomCosts,
+        }
+        : baseForm)
+      : undefined
 
     const resolveMonthlyAmount = (value: unknown): number => {
       if (typeof value === 'number' && Number.isFinite(value)) return value
@@ -3840,7 +3976,9 @@ const QuotePageContent = memo(() => {
       }
 
       const addOnboardingFees = async (categories: AcidTestCategoryBuckets): Promise<AcidTestCategoryBuckets> => {
-        const formData = quoteData?.formData as EORFormData | undefined
+        // Use the side-resolved form view so compare-side onboarding fees come
+        // from compareLocalOfficeInfo / compareCountry / compareCurrency.
+        const formData = sideForm
 
         const resolveCountryCode = (): string | null => {
           const candidates: Array<string | null | undefined> = [
@@ -3858,8 +3996,9 @@ const QuotePageContent = memo(() => {
           }
 
           const providerQuotes = quoteData?.quotes as Record<string, unknown> | undefined
-          if (providerQuotes && providerKey && providerQuotes[providerKey]) {
-            const found = findLocalOfficeCountryCodeInObject(providerQuotes[providerKey])
+          const providerLookupKey = isCompareSide ? compareQuoteKey : providerKey
+          if (providerQuotes && providerKey && providerQuotes[providerLookupKey]) {
+            const found = findLocalOfficeCountryCodeInObject(providerQuotes[providerLookupKey])
             const normalized = normalizeCountryIdentifier(found)
             if (normalized) {
               return normalized
@@ -3974,7 +4113,7 @@ const QuotePageContent = memo(() => {
 
       const requestPayload = {
         provider: providerKey,
-        country: (quoteData?.formData as EORFormData)?.country || 'Unknown',
+        country: sideForm?.country || 'Unknown',
         currency: finalChoice.currency,
         costItems: selectedItems.map(item => ({
           key: item.key,
@@ -4087,9 +4226,11 @@ const QuotePageContent = memo(() => {
       }
     }
 
-    const cachedItems = cachedCostItems[providerKey]
-    if (cachedItems && cachedItems.length > 0) {
-      return categorizeSelectedItems(cachedItems)
+    const cachedItemsForSide = isCompareSide
+      ? cachedCostItemsCompare[providerKey]
+      : cachedCostItems[providerKey]
+    if (cachedItemsForSide && cachedItemsForSide.length > 0) {
+      return categorizeSelectedItems(cachedItemsForSide)
     }
 
     const normaliseItems = (source: any[]): Array<{ key: string; name: string; monthly_amount: number }> => {
@@ -4452,7 +4593,8 @@ const QuotePageContent = memo(() => {
       }
       const resolveDisplayQuote = (): Quote | undefined => {
         if (!quoteData?.quotes) return undefined
-        const raw = (quoteData.quotes as Record<string, unknown>)[providerKey]
+        const lookupKey = isCompareSide ? compareQuoteKey : providerKey
+        const raw = (quoteData.quotes as Record<string, unknown>)[lookupKey]
         if (!raw) return undefined
 
         const isDisplayQuote = (value: unknown): value is Quote => {
@@ -4498,8 +4640,9 @@ const QuotePageContent = memo(() => {
       }
 
       const rawEntry = getRawQuote(providerKey)
-      if (rawEntry?.primary) {
-        scanRawValue(rawEntry.primary, `${finalChoice.provider} Raw`)
+      const rawPayload = isCompareSide ? rawEntry?.comparison : rawEntry?.primary
+      if (rawPayload) {
+        scanRawValue(rawPayload, `${finalChoice.provider} Raw`)
       }
 
       const hasBaseSalaryFromItems = items.some(
@@ -4677,16 +4820,25 @@ const QuotePageContent = memo(() => {
       return null
     }
 
-    setCachedCostItems(prev => ({
-      ...prev,
-      [providerKey]: selectedItems.map(item => ({ ...item }))
-    }))
+    if (isCompareSide) {
+      setCachedCostItemsCompare(prev => ({
+        ...prev,
+        [providerKey]: selectedItems.map(item => ({ ...item }))
+      }))
+    } else {
+      setCachedCostItems(prev => ({
+        ...prev,
+        [providerKey]: selectedItems.map(item => ({ ...item }))
+      }))
 
-    updateProviderTotalsFromItems(
-      providerKey,
-      selectedItems,
-      displayQuoteCurrency || enhancedQuote.baseQuote?.currency || finalChoice.currency
-    )
+      // providerTotals only mirrors primary-side totals (used by primary-only
+      // tiles in the UI). Skip the update on compare to avoid clobbering them.
+      updateProviderTotalsFromItems(
+        providerKey,
+        selectedItems,
+        displayQuoteCurrency || enhancedQuote.baseQuote?.currency || finalChoice.currency
+      )
+    }
 
     return categorizeSelectedItems(selectedItems)
   }
@@ -4709,7 +4861,11 @@ const QuotePageContent = memo(() => {
       return
     }
 
-    const currency = (quoteData?.formData as EORFormData)?.currency || 'USD'
+    const eorForm = quoteData?.formData as EORFormData | undefined
+    const isCompareSide = selectedSide === 'compare'
+    const currency = (isCompareSide
+      ? eorForm?.compareCurrency || eorForm?.currency
+      : eorForm?.currency) || 'USD'
 
     try {
       // Phase 1: Gathering Data (0-25%)
@@ -4718,7 +4874,7 @@ const QuotePageContent = memo(() => {
 
       const prices: { provider: ProviderType; price: number }[] = allProviders
         .map(provider => {
-          const price = getProviderPrice(provider)
+          const price = getProviderPriceForSide(provider, selectedSide)
           return price ? { provider, price } : null
         })
         .filter((item): item is { provider: ProviderType; price: number } => item !== null)
@@ -4798,8 +4954,11 @@ const QuotePageContent = memo(() => {
       await smoothProgressUpdate(100)
       await sleep(200) // Reduced fade-in delay from 400ms to 200ms
 
-      // Get the enhanced quote data for the selected provider
-      const selectedEnhancement = enhancements[choice.provider as ProviderType]
+      // Get the enhanced quote data for the selected provider/side
+      const enhancementKey = isCompareSide
+        ? `${choice.provider}::compare`
+        : (choice.provider as ProviderType)
+      const selectedEnhancement = (enhancements as Record<string, EnhancedQuote | undefined>)[enhancementKey]
       const finalChoiceData = {
         ...choice,
         currency,
@@ -4825,7 +4984,11 @@ const QuotePageContent = memo(() => {
     setProgressPercent(0)
     setProviderData([])
 
-    const currency = (quoteData?.formData as EORFormData)?.currency || 'USD'
+    const eorForm = quoteData?.formData as EORFormData | undefined
+    const isCompareSide = selectedSide === 'compare'
+    const currency = (isCompareSide
+      ? eorForm?.compareCurrency || eorForm?.currency
+      : eorForm?.currency) || 'USD'
 
     try {
       // Phase 1: Gathering Data (0-25%)
@@ -4834,7 +4997,7 @@ const QuotePageContent = memo(() => {
 
       const prices: { provider: ProviderType; price: number }[] = allProviders
         .map(provider => {
-          const price = getProviderPrice(provider)
+          const price = getProviderPriceForSide(provider, selectedSide)
           return price ? { provider, price } : null
         })
         .filter((item): item is { provider: ProviderType; price: number } => item !== null)
@@ -4917,7 +5080,10 @@ const QuotePageContent = memo(() => {
       await sleep(500); // Reduced from 1000ms
 
       // Find enhanced quote if available
-      const selectedEnhancement = enhancements[winner.provider as ProviderType];
+      const enhancementKey = isCompareSide
+        ? `${winner.provider}::compare`
+        : (winner.provider as ProviderType);
+      const selectedEnhancement = (enhancements as Record<string, EnhancedQuote | undefined>)[enhancementKey];
       const finalChoiceData = {
         ...winner,
         currency,
@@ -5750,11 +5916,53 @@ const QuotePageContent = memo(() => {
     return null;
   };
 
+  const eorFormForToggle = quoteData.formData as EORFormData
+  const handleSelectSide = (next: 'primary' | 'compare') => {
+    if (next === selectedSide) return
+    setSelectedSide(next)
+    // Switching sides invalidates the existing reconciliation/Acid-Test
+    // outputs; reset so the user re-runs reconciliation against the new side.
+    setFinalChoice(null)
+    setCompletedPhases(new Set())
+    setActivePhase('gathering')
+    setProgressPercent(0)
+    setProviderData([])
+    setShowAcidTestForm(false)
+    setAcidTestResults(null)
+    setAcidTestCostData(null)
+  }
+
   // --- MAIN RENDER ---
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
       {/* Fixed Action: Start Reconciliation */}
-      <div className="fixed top-5 right-5 z-50">
+      <div className="fixed top-5 right-5 z-50 flex items-center gap-3">
+        {eorFormForToggle.enableComparison && (
+          <div className="flex gap-1 bg-white border border-slate-200 shadow-md p-1 rounded-none">
+            <button
+              type="button"
+              onClick={() => handleSelectSide('primary')}
+              className={
+                selectedSide === 'primary'
+                  ? 'px-3 py-1.5 text-sm font-semibold bg-slate-900 text-white transition-colors duration-150'
+                  : 'px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors duration-150'
+              }
+            >
+              {eorFormForToggle.country || 'Primary'}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSelectSide('compare')}
+              className={
+                selectedSide === 'compare'
+                  ? 'px-3 py-1.5 text-sm font-semibold bg-slate-900 text-white transition-colors duration-150'
+                  : 'px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors duration-150'
+              }
+            >
+              {eorFormForToggle.compareCountry || 'Compare'}
+            </button>
+          </div>
+        )}
         <Button
           onClick={startReconciliation}
           disabled={!reconStatus.ready}

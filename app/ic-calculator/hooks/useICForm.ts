@@ -105,6 +105,16 @@ export const useICForm = () => {
 const backgroundConversionAbortController = useRef<AbortController | null>(null)
 const transactionConversionAbortController = useRef<AbortController | null>(null)
 
+  // Round-trip prevention: stores the rate snapshot from before the most recent
+  // toggle. If the user toggles back to the previous displayInUSD state without
+  // editing the rate in between, we restore the saved value verbatim instead of
+  // re-converting via FX (which would round-trip-drift the value).
+  const previousRateSnapshot = useRef<{
+    rateAmount: string
+    displayInUSD: boolean
+    expectedCurrentRate: string
+  } | null>(null)
+
   const countries = useMemo(() => getAvailableCountries(), [])
   const selectedCountryData = useMemo(() =>
     formData.country ? getCountryByName(formData.country) : null,
@@ -264,7 +274,12 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
         }
       }
     })()
-  }, [formData.backgroundCheckRequired, formData.contractDuration, formData.contractDurationUnit, currency, formData.displayInUSD, setFormData])
+    // Note: formData.displayInUSD intentionally omitted — handleCurrencyToggle
+    // performs the bg-check conversion atomically alongside the toggle, so
+    // refiring this effect on displayInUSD changes would race with the toggle
+    // and recompute via FX twice. The effect still fires on currency/country
+    // changes and contract-duration changes, which it needs to handle.
+  }, [formData.backgroundCheckRequired, formData.contractDuration, formData.contractDurationUnit, currency, setFormData])
 
   useEffect(() => {
     const targetCurrency = formData.displayInUSD ? "USD" : currency
@@ -376,7 +391,10 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
         }
       }
     })()
-  }, [currency, formData.paymentFrequency, formData.displayInUSD, setFormData])
+    // Note: formData.displayInUSD intentionally omitted — handleCurrencyToggle
+    // performs the transaction-cost conversion atomically alongside the toggle.
+    // The effect still fires on currency (country change) and paymentFrequency.
+  }, [currency, formData.paymentFrequency, setFormData])
 
   const updateFormData = useCallback((updates: Partial<ICFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }))
@@ -461,15 +479,25 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
   }, [currency, setFormData])
 
   const handleCurrencyToggle = useCallback(async (useUSD: boolean) => {
+    // Abort any in-flight toggle, plus the fee-recompute effects' in-flight FX
+    // calls — those effects no longer re-fire on displayInUSD change, but a
+    // pending request from a prior currency/duration change could otherwise
+    // overwrite the atomic values we're about to set below.
     currencyToggleAbortController.current?.abort()
+    backgroundConversionAbortController.current?.abort()
+    backgroundConversionAbortController.current = null
+    transactionConversionAbortController.current?.abort()
+    transactionConversionAbortController.current = null
     const controller = new AbortController()
     currencyToggleAbortController.current = controller
 
     const sourceCurrency = useUSD ? currency : "USD"
     const targetCurrency = useUSD ? "USD" : currency
 
-    // If currencies are the same (e.g., country is already USA), just toggle without conversion
+    // No-op currency case (e.g. country is USA). No conversion needed; the
+    // toggle is purely a display-state flip.
     if (sourceCurrency === targetCurrency) {
+      previousRateSnapshot.current = null
       setFormData((prev) => ({
         ...prev,
         displayInUSD: useUSD,
@@ -478,30 +506,133 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
       return
     }
 
+    // Round-trip prevention: if the user is toggling back to the previous
+    // displayInUSD state and hasn't edited rateAmount in the interim, restore
+    // the saved rate verbatim instead of re-converting via FX (which would
+    // accumulate rounding drift on each round trip).
+    const snapshot = previousRateSnapshot.current
+    const isRoundTrip =
+      snapshot !== null &&
+      snapshot.displayInUSD === useUSD &&
+      snapshot.expectedCurrentRate === (formData.rateAmount || "")
+
+    // Determine bg-check duration (used for atomic recompute below).
+    const rawDuration = Number(formData.contractDuration || "")
+    const durationValue = Number.isFinite(rawDuration) ? rawDuration : 0
+    const durationMonths = formData.contractDurationUnit === "years"
+      ? durationValue * 12
+      : durationValue
+    const bgCheckActive =
+      formData.backgroundCheckRequired &&
+      durationMonths > 0 &&
+      !Number.isNaN(durationMonths)
+
+    const transactionsPerMonth = getTransactionsPerMonth(formData.paymentFrequency)
+    const txCostActive = transactionsPerMonth > 0
+
     try {
-      // Convert rateAmount if it exists
-      let convertedRateAmount = formData.rateAmount
-      if (formData.rateAmount && parseFloat(formData.rateAmount) > 0) {
-        const rateResult = await convertCurrency(
-          parseFloat(formData.rateAmount),
-          sourceCurrency,
-          targetCurrency,
-          controller.signal
-        )
-        if (controller.signal.aborted) return
-        if (rateResult.success && rateResult.data) {
-          convertedRateAmount = rateResult.data.target_amount.toFixed(2)
-        }
+      // Build the FX call set. We always need the bg-check + tx-cost
+      // recomputes (they derive from constants in USD), but rate conversion
+      // can be skipped if the user is doing a round trip OR has no rate yet.
+      const rateAmountNum = parseFloat(formData.rateAmount || "")
+      const needsRateConvert =
+        !isRoundTrip && !!formData.rateAmount && rateAmountNum > 0
+
+      const ratePromise = needsRateConvert
+        ? convertCurrency(rateAmountNum, sourceCurrency, targetCurrency, controller.signal)
+        : Promise.resolve(null)
+
+      const bgCheckPromise =
+        bgCheckActive && targetCurrency.toUpperCase() !== "USD"
+          ? convertCurrency(BACKGROUND_CHECK_FEE_USD, "USD", targetCurrency, controller.signal)
+          : Promise.resolve(null)
+
+      const txCostPromise =
+        txCostActive && targetCurrency.toUpperCase() !== "USD"
+          ? convertCurrency(TRANSACTION_COST_PER_TRANSACTION_USD, "USD", targetCurrency, controller.signal)
+          : Promise.resolve(null)
+
+      const [rateResult, bgCheckResult, txCostResult] = await Promise.all([
+        ratePromise,
+        bgCheckPromise,
+        txCostPromise,
+      ])
+
+      if (controller.signal.aborted) return
+
+      // Resolve the new rate value: round-trip restore wins over FX result.
+      let nextRateAmount = formData.rateAmount
+      if (isRoundTrip && snapshot) {
+        nextRateAmount = snapshot.rateAmount
+      } else if (rateResult && rateResult.success && rateResult.data) {
+        nextRateAmount = rateResult.data.target_amount.toFixed(2)
       }
 
+      // Resolve bg-check monthly fee.
+      let nextBackgroundCheckMonthlyFee = formData.backgroundCheckMonthlyFee
+      if (!bgCheckActive) {
+        nextBackgroundCheckMonthlyFee = ""
+      } else if (targetCurrency.toUpperCase() === "USD") {
+        nextBackgroundCheckMonthlyFee = (BACKGROUND_CHECK_FEE_USD / durationMonths).toFixed(2)
+      } else if (bgCheckResult && bgCheckResult.success && bgCheckResult.data) {
+        const convertedTotal = Number(bgCheckResult.data.target_amount)
+        nextBackgroundCheckMonthlyFee = (convertedTotal / durationMonths).toFixed(2)
+      } else if (bgCheckResult) {
+        // FX failed for bg-check — clear the field rather than leaving stale data.
+        nextBackgroundCheckMonthlyFee = ""
+      }
+
+      // Resolve transaction-cost fields.
+      let nextTransactionCostPerTransaction = formData.transactionCostPerTransaction
+      let nextTransactionCostMonthly = formData.transactionCostMonthly
+      if (!txCostActive) {
+        nextTransactionCostPerTransaction = ""
+        nextTransactionCostMonthly = ""
+      } else if (targetCurrency.toUpperCase() === "USD") {
+        const perTx = TRANSACTION_COST_PER_TRANSACTION_USD
+        nextTransactionCostPerTransaction = perTx.toFixed(2)
+        nextTransactionCostMonthly = (perTx * transactionsPerMonth).toFixed(2)
+      } else if (txCostResult && txCostResult.success && txCostResult.data) {
+        const perTx = Number(txCostResult.data.target_amount)
+        nextTransactionCostPerTransaction = perTx.toFixed(2)
+        nextTransactionCostMonthly = (perTx * transactionsPerMonth).toFixed(2)
+      } else if (txCostResult) {
+        nextTransactionCostPerTransaction = ""
+        nextTransactionCostMonthly = ""
+      }
+
+      // Update the round-trip snapshot. Saves the rate from BEFORE this toggle
+      // so that toggling back can restore it verbatim. After a successful
+      // round-trip restore, clear the snapshot so the next toggle starts a
+      // fresh chain.
+      if (!isRoundTrip) {
+        previousRateSnapshot.current = {
+          rateAmount: formData.rateAmount,
+          displayInUSD: !useUSD,
+          expectedCurrentRate: nextRateAmount,
+        }
+      } else {
+        previousRateSnapshot.current = null
+      }
+
+      // Apply ALL conversions in a single setFormData call. This is the
+      // "atomic" fix: rate, bg-check, and tx-cost all flip in one update so
+      // the calculator never reads a half-converted state. React 19 batches
+      // this naturally; the explicit single setFormData also ensures any
+      // synchronous selector sees a consistent snapshot.
       setFormData((prev) => ({
         ...prev,
         displayInUSD: useUSD,
-        rateAmount: convertedRateAmount,
+        rateAmount: nextRateAmount,
+        backgroundCheckMonthlyFee: nextBackgroundCheckMonthlyFee,
+        transactionCostPerTransaction: nextTransactionCostPerTransaction,
+        transactionCostMonthly: nextTransactionCostMonthly,
       }))
     } catch (error) {
+      if (controller.signal.aborted) return
       console.error('Currency toggle conversion failed:', error)
-      // Still toggle but keep the values as-is
+      // Conversion failed unexpectedly — flip the toggle anyway so the UI
+      // stays responsive, but leave dependent fields untouched.
       setFormData((prev) => ({
         ...prev,
         displayInUSD: useUSD,
@@ -511,7 +642,18 @@ const getTransactionsPerMonth = (paymentFrequency: string): number => {
         currencyToggleAbortController.current = null
       }
     }
-  }, [currency, formData.rateAmount, setFormData])
+  }, [
+    currency,
+    formData.rateAmount,
+    formData.backgroundCheckRequired,
+    formData.backgroundCheckMonthlyFee,
+    formData.contractDuration,
+    formData.contractDurationUnit,
+    formData.paymentFrequency,
+    formData.transactionCostPerTransaction,
+    formData.transactionCostMonthly,
+    setFormData,
+  ])
 
   const isFormValid = useCallback(() => {
     // Check that required fields have actual content (not just truthy)

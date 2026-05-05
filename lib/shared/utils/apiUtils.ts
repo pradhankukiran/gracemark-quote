@@ -1,6 +1,6 @@
 // lib/shared/utils/apiUtils.ts - Shared API utilities
 
-import { DeelAPIResponse, RemoteAPIResponse, ValidationAPIResponse, BenefitsAPIResponse, EORFormData, Quote, QuoteCost, DeelQuote, RemoteQuote, RivermateQuote, OysterQuote } from "@/lib/shared/types"
+import { DeelAPIResponse, RemoteAPIResponse, ValidationAPIResponse, BenefitsAPIResponse, EORFormData, Quote, QuoteCost, DeelQuote, RemoteQuote, RivermateQuote, OysterQuote, LocalOfficeInfo, LocalOfficeCustomCost } from "@/lib/shared/types"
 import { getCountryByName, getCountryByCode } from "@/lib/country-data"
 import { normalizeAndDeduplicateQuoteCosts } from "@/lib/shared/utils/benefitNormalization"
 
@@ -40,6 +40,13 @@ export interface QuoteRequestData {
   age: number
   state?: string
   salaryFrequency?: string
+  // Local-office costs entered by the user. Carried alongside the quote so
+  // downstream consumers (display, enhancement) can reconcile them with the
+  // active country (primary vs comparison). The cost API routes ignore these
+  // fields today; they are present on the request object so callers in
+  // comparison mode see the comparison values, matching primary mode behavior.
+  localOfficeInfo?: LocalOfficeInfo
+  localOfficeCustomCosts?: LocalOfficeCustomCost[]
 }
 
 // Benefits Request Parameters
@@ -86,6 +93,23 @@ export const createQuoteRequestData = (
   const state = useComparisonData ? formData.compareState : formData.state
   if (state) {
     baseData.state = state
+  }
+
+  // Propagate local-office fields. Pick comparison-mode values when in compare
+  // mode so compare-country quotes preserve any local-office costs the user
+  // entered for the comparison country (rather than silently dropping them).
+  const localOfficeInfo = useComparisonData
+    ? formData.compareLocalOfficeInfo
+    : formData.localOfficeInfo
+  if (localOfficeInfo) {
+    baseData.localOfficeInfo = localOfficeInfo
+  }
+
+  const localOfficeCustomCosts = useComparisonData
+    ? formData.compareLocalOfficeCustomCosts
+    : formData.localOfficeCustomCosts
+  if (Array.isArray(localOfficeCustomCosts) && localOfficeCustomCosts.length > 0) {
+    baseData.localOfficeCustomCosts = localOfficeCustomCosts
   }
 
   // console.log('📤 Final baseData being returned:', JSON.stringify(baseData, null, 2))

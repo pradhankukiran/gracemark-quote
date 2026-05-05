@@ -133,25 +133,17 @@ export const useCurrencyConversion = ({
     debouncedCurrencyConversion
   ])
 
-  // Clear conversion info and reset manual edit flag when comparison country changes
+  // Clear stale conversion display when comparison country changes.
+  // Note: We intentionally do NOT reset isComparisonManuallyEdited here — that
+  // flag captures explicit user intent and persists across country changes.
+  // It is reset by clearConversionData() (when comparison is toggled off/on)
+  // or by triggerManualConversion() (when the user clicks the refresh icon).
+  // Auto-conversion of compareSalary is handled by the debounced effect above;
+  // compareSalary clearing on country change is handled by the form action
+  // (handleCompareCountryChange in useEORForm).
   useEffect(() => {
-    if (compareCountry) {
-      setConversionInfo(null)
-      setIsComparisonManuallyEdited(false)
-      if (baseSalary && currency && compareCurrency) {
-        const amount = Number.parseFloat(baseSalary)
-        if (!isNaN(amount) && amount > 0 && currency !== compareCurrency) {
-          handleCurrencyConversion(amount, currency, compareCurrency)
-        } else {
-          onFormUpdate({ compareSalary: baseSalary })
-        }
-      } else {
-        onFormUpdate({ compareSalary: "" })
-      }
-    } else {
-      onFormUpdate({ compareSalary: "" })
-    }
-  }, [compareCountry, baseSalary, currency, compareCurrency, handleCurrencyConversion, onFormUpdate])
+    setConversionInfo(null)
+  }, [compareCountry])
 
   // Cleanup timeout on unmount
   useEffect(() => {
