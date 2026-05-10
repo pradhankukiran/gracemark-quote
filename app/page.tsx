@@ -7,25 +7,28 @@ import Image from "next/image"
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
-      <main className="container mx-auto px-6 py-6 max-w-4xl">
+      <main className="container mx-auto px-6 py-10 max-w-4xl">
         {/* Hero Section */}
-        <div className="text-center mb-15">
-          <div className="flex items-center justify-center mb-8">
-            <div className="flex-shrink-0">
-              <Image
-                src="/GraceMarklogo.png"
-                alt="GraceMark Logo"
-                width={150}
-                height={62}
-                priority
-                className="block"
-              />
-            </div>
-            <h1 className="font-serif font-bold text-slate-900 leading-tight text-3xl ml-4">
-              Quote Tool
-            </h1>
+        <div className="flex flex-col items-center text-center mb-12">
+          <div className="mb-3 flex flex-col items-center">
+            <Image
+              src="/GraceMarklogo.png"
+              alt="GraceMark Logo"
+              width={200}
+              height={82}
+              priority
+              className="block"
+            />
           </div>
-          {/* <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">Simple. Fast. Tailored to Your Needs.</p> */}
+          <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary uppercase tracking-widest mb-6">
+            Internal Tool
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight mb-3">
+            Quote Calculator
+          </h1>
+          <p className="text-lg text-slate-500 max-w-xl mx-auto leading-relaxed">
+            Select the type of engagement below to generate a tailored, accurate quote across our provider network.
+          </p>
         </div>
 
         {/* Service Selection */}
