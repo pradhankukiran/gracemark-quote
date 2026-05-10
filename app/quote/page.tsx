@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Brain, Target, Zap, BarChart3, TrendingUp, TrendingDown, Crown, Activity, FileText, Info, ChevronDown, ChevronUp } from "lucide-react"
+import { ArrowLeft, Calculator, Clock, CheckCircle, XCircle, Brain, Target, Zap, BarChart3, TrendingUp, TrendingDown, Crown, Activity, FileText, Info, ChevronDown, ChevronUp , Star } from "lucide-react"
 import Link from "next/link"
 import { useQuoteResults } from "./hooks/useQuoteResults"
 import { useUSDConversion } from "../eor-calculator/hooks/useUSDConversion"
@@ -882,6 +882,7 @@ const QuotePageContent = memo(() => {
     price: number;
     currency: string;
     enhancedQuote?: EnhancedQuote;
+    isOverride?: boolean;
   } | null>(null)
 
   // Timeline-style reconciliation state
@@ -2394,7 +2395,7 @@ const QuotePageContent = memo(() => {
 
   const renderReconciliationButtonContent = () => {
     if (reconStatus.ready) return <span>{reconStatus.message}</span>
-    return <><Brain className="h-4 w-4 animate-pulse text-purple-600" /><span>{reconStatus.message}</span></>
+    return <><Brain className="h-4 w-4 animate-pulse text-primary/80" /><span>{reconStatus.message}</span></>
   }
 
   const formatMoney = (value: number, currency: string) => {
@@ -2491,24 +2492,24 @@ const QuotePageContent = memo(() => {
           id="phase-gathering"
           className={`
             bg-white border shadow-sm p-6 transition-all duration-300 ease-in-out
-            ${isPhaseActive('gathering') ? 'border-slate-900 shadow-lg' :
-              isPhaseCompleted('gathering') ? 'border-green-500 shadow-md' :
-              'border-slate-200 opacity-60'}
+            ${isPhaseActive('gathering') ? 'border-primary shadow-sm ring-1 ring-primary' :
+              isPhaseCompleted('gathering') ? 'border-primary/50 shadow-sm' :
+              'border-border opacity-60'}
           `}
         >
           <div className="flex items-center gap-4 mb-6">
             <div className={`
               p-3
-              ${isPhaseActive('gathering') ? 'bg-slate-100' :
-                isPhaseCompleted('gathering') ? 'bg-green-100' :
-                'bg-slate-50'}
+              ${isPhaseActive('gathering') ? 'bg-primary/10' :
+                isPhaseCompleted('gathering') ? 'bg-primary/10' :
+                'bg-muted'}
             `}>
               {isPhaseCompleted('gathering') ? (
-                <CheckCircle className="h-6 w-6 text-green-600" />
+                <CheckCircle className="h-6 w-6 text-primary" />
               ) : isPhaseActive('gathering') ? (
-                <Activity className="h-6 w-6 text-slate-900 animate-pulse" />
+                <Activity className="h-6 w-6 text-primary animate-pulse" />
               ) : (
-                <Clock className="h-6 w-6 text-slate-400" />
+                <Clock className="h-6 w-6 text-muted-foreground" />
               )}
             </div>
             <div>
@@ -2553,7 +2554,7 @@ const QuotePageContent = memo(() => {
                               return (
                                 <div
                                   key={provider.provider}
-                                  className="w-48 sm:w-56 md:w-60 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 px-6 py-5 text-center transition-all duration-300 hover:shadow-lg hover:border-blue-400 hover:scale-105"
+                                  className="w-48 sm:w-56 md:w-60 bg-card border border-border px-6 py-5 text-center transition-all duration-300 hover:border-primary/30 hover:bg-primary/5 hover:shadow-sm transition-all"
                                 >
                                   <div className="w-28 h-8 mx-auto mb-3 border-2 border-slate-200 flex items-center justify-center bg-white">
                                     <ProviderLogo provider={provider.provider as ProviderType} maxWidth={140} maxHeight={28} />
@@ -2561,10 +2562,10 @@ const QuotePageContent = memo(() => {
                                   <div className="text-sm font-bold text-slate-800 capitalize mb-1 tracking-wide">
                                     {provider.provider}
                                   </div>
-                                  <div className="text-base font-bold text-blue-900">
+                                  <div className="text-base font-bold text-foreground">
                                     {formatMoney(provider.price, currency)}
                                   </div>
-                                  <Badge className="mt-2 bg-blue-100 text-blue-700 border-blue-200 text-[11px] px-3 py-1">
+                                  <Badge className="mt-2 bg-primary/10 text-primary border-primary/20 text-[11px] px-3 py-1">
                                     Collected
                                   </Badge>
                                 </div>
@@ -2597,24 +2598,24 @@ const QuotePageContent = memo(() => {
           id="phase-analyzing"
           className={`
             bg-white border shadow-sm p-6 transition-all duration-300 ease-in-out
-            ${isPhaseActive('analyzing') ? 'border-slate-900 shadow-lg' :
-              isPhaseCompleted('analyzing') ? 'border-green-500 shadow-md' :
-              'border-slate-200 opacity-60'}
+            ${isPhaseActive('analyzing') ? 'border-primary shadow-sm ring-1 ring-primary' :
+              isPhaseCompleted('analyzing') ? 'border-primary/50 shadow-sm' :
+              'border-border opacity-60'}
           `}
         >
           <div className="flex items-center gap-4 mb-6">
             <div className={`
               p-3
-              ${isPhaseActive('analyzing') ? 'bg-slate-100' :
-                isPhaseCompleted('analyzing') ? 'bg-green-100' :
-                'bg-slate-50'}
+              ${isPhaseActive('analyzing') ? 'bg-primary/10' :
+                isPhaseCompleted('analyzing') ? 'bg-primary/10' :
+                'bg-muted'}
             `}>
               {isPhaseCompleted('analyzing') ? (
-                <CheckCircle className="h-6 w-6 text-green-600" />
+                <CheckCircle className="h-6 w-6 text-primary" />
               ) : isPhaseActive('analyzing') ? (
-                <BarChart3 className="h-6 w-6 text-slate-900 animate-pulse" />
+                <BarChart3 className="h-6 w-6 text-primary animate-pulse" />
               ) : (
-                <Clock className="h-6 w-6 text-slate-400" />
+                <Clock className="h-6 w-6 text-muted-foreground" />
               )}
             </div>
             <div>
@@ -2628,12 +2629,12 @@ const QuotePageContent = memo(() => {
           </div>
 
           {isPhaseStarted('analyzing') && providerData.length > 0 && (
-            <div id="analyzing-results" className="bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 border border-slate-200 shadow-lg p-8">
+            <div id="analyzing-results" className="bg-card border border-border shadow-sm p-8">
               {/* Modern Header */}
               {/* <div className="text-center bg-white shadow-sm border border-slate-200 p-8 mb-8">
                 <div className="flex flex-col items-center gap-4">
                   <div className="flex h-16 w-16 items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg">
-                    <BarChart3 className="h-8 w-8 text-white" />
+                    <BarChart3 className="h-8 w-8 text-primary-foreground" />
                   </div>
                   <div>
                     <h4 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -2669,24 +2670,24 @@ const QuotePageContent = memo(() => {
           id="phase-selecting"
           className={`
             bg-white border shadow-sm p-6 transition-all duration-300 ease-in-out
-            ${isPhaseActive('selecting') ? 'border-slate-900 shadow-lg' :
-              isPhaseCompleted('selecting') ? 'border-green-500 shadow-md' :
-              'border-slate-200 opacity-60'}
+            ${isPhaseActive('selecting') ? 'border-primary shadow-sm ring-1 ring-primary' :
+              isPhaseCompleted('selecting') ? 'border-primary/50 shadow-sm' :
+              'border-border opacity-60'}
           `}
         >
           <div className="flex items-center gap-4 mb-6">
             <div className={`
               p-3
-              ${isPhaseActive('selecting') ? 'bg-slate-100' :
-                isPhaseCompleted('selecting') ? 'bg-green-100' :
-                'bg-slate-50'}
+              ${isPhaseActive('selecting') ? 'bg-primary/10' :
+                isPhaseCompleted('selecting') ? 'bg-primary/10' :
+                'bg-muted'}
             `}>
               {isPhaseCompleted('selecting') ? (
-                <CheckCircle className="h-6 w-6 text-green-600" />
+                <CheckCircle className="h-6 w-6 text-primary" />
               ) : isPhaseActive('selecting') ? (
-                <Target className="h-6 w-6 text-slate-900 animate-pulse" />
+                <Target className="h-6 w-6 text-primary animate-pulse" />
               ) : (
-                <Clock className="h-6 w-6 text-slate-400" />
+                <Clock className="h-6 w-6 text-muted-foreground" />
               )}
             </div>
             <div>
@@ -2719,14 +2720,14 @@ const QuotePageContent = memo(() => {
                             <div
                               key={provider.provider}
                               className={`
-                                w-48 sm:w-56 md:w-60 border-2 px-6 py-5 text-center transition-all duration-300
-                                ${provider.isWinner ? 'bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-400 shadow-lg scale-105' :
-                                  provider.inRange ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-300 shadow-sm hover:shadow-md hover:border-green-400' :
-                                  'bg-slate-50 border-slate-200 opacity-50'}
+                                w-48 sm:w-56 md:w-60 border px-6 py-5 text-center transition-all duration-300
+                                ${provider.isWinner ? 'bg-primary/5 border-primary shadow-sm scale-105' :
+                                  provider.inRange ? 'bg-card border-border shadow-sm hover:border-primary/30 hover:bg-primary/5' :
+                                  'bg-muted border-border opacity-50'}
                               `}
                             >
                               {provider.isWinner && (
-                                <Crown className="h-5 w-5 text-yellow-600 mx-auto mb-2" />
+                                <Crown className="h-5 w-5 text-primary mx-auto mb-2" />
                               )}
                               <div className="w-28 h-8 mx-auto mb-3 border-2 border-slate-200 flex items-center justify-center bg-white">
                                 <ProviderLogo provider={provider.provider as ProviderType} maxWidth={140} maxHeight={28} />
@@ -2735,18 +2736,18 @@ const QuotePageContent = memo(() => {
                                 {provider.provider}
                               </div>
                               <div className={`text-base font-bold ${
-                                provider.isWinner ? 'text-yellow-900' :
-                                provider.inRange ? 'text-green-700' : 'text-slate-600'
+                                provider.isWinner ? 'text-foreground' :
+                                provider.inRange ? 'text-foreground' : 'text-slate-600'
                               }`}>
                                 {formatMoney(provider.price, currency)}
                               </div>
                               {provider.isWinner && (
-                                <Badge className="mt-2 bg-yellow-400 text-yellow-900 border-yellow-500 text-[11px] font-bold px-3 py-1">
+                                <Badge className="mt-2 bg-yellow-400 text-foreground border-yellow-500 text-[11px] font-bold px-3 py-1">
                                   WINNER
                                 </Badge>
                               )}
                               {!provider.isWinner && provider.inRange && (
-                                <Badge className="mt-2 bg-green-100 text-green-700 border-green-200 text-[11px] px-3 py-1">
+                                <Badge className="mt-2 bg-green-100 text-foreground border-green-200 text-[11px] px-3 py-1">
                                   Qualified
                                 </Badge>
                               )}
@@ -2779,12 +2780,12 @@ const QuotePageContent = memo(() => {
           <div className="flex items-center gap-4 mb-6">
             <div className={`
               p-3
-              ${isPhaseStarted('complete') ? 'bg-green-100' : 'bg-slate-50'}
+              ${isPhaseStarted('complete') ? 'bg-primary/10' : 'bg-muted'}
             `}>
               {isPhaseStarted('complete') ? (
-                <Crown className="h-6 w-6 text-green-600" />
+                <Crown className="h-6 w-6 text-primary" />
               ) : (
-                <Clock className="h-6 w-6 text-slate-400" />
+                <Clock className="h-6 w-6 text-muted-foreground" />
               )}
             </div>
             <div>
@@ -2800,15 +2801,15 @@ const QuotePageContent = memo(() => {
               {!showAcidTestForm ? (
                 <div className="space-y-6">
                   {/* Winner Announcement Card */}
-                  <div className="bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 border-2 border-green-300 shadow-xl p-8 transition-all duration-300">
+                  <div className="bg-card border border-primary shadow-sm p-8 transition-all duration-300">
                     <div className="text-center">
-                      <h4 className="text-2xl font-bold text-slate-800 mb-2">Recommended Provider</h4>
+                      <h4 className="text-2xl font-bold text-slate-800 mb-2">{finalChoice.isOverride ? 'Selected Provider (Override)' : 'Recommended Provider'}</h4>
                       <div className="flex items-center justify-center gap-4 mb-4">
-                        <div className="w-32 h-16 flex items-center justify-center bg-white border-2 border-green-300 shadow-md p-3">
+                        <div className="w-32 h-16 flex items-center justify-center bg-white border border-border shadow-sm p-3">
                           <ProviderLogo provider={finalChoice.provider as ProviderType} />
                         </div>
                       </div>
-                      <div className="text-6xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-6 tracking-tight">
+                      <div className="text-6xl font-bold text-primary mb-6 tracking-tight">
                         {formatMoney(finalChoice.price, finalChoice.currency)}
                       </div>
                       <div className="text-center">
@@ -2816,13 +2817,56 @@ const QuotePageContent = memo(() => {
                         onClick={handleStartAcidTest}
                         disabled={!finalChoice || !providerData.length}
                         size="lg"
-                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-10 py-4 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm transition-all duration-200 px-10 py-4 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Zap className="h-6 w-6 mr-3" />
                         Start Acid Test
                       </Button>
                     </div>
                     </div>
+
+                    {/* Override Section */}
+                    {providerData.length > 1 && (
+                      <div className="mt-8 pt-8 border-t border-border">
+                        <h5 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 text-center">
+                          Or Proceed With Alternative Provider
+                        </h5>
+                        <div className="flex flex-wrap justify-center gap-3">
+                          {providerData
+                            .filter((p) => p.provider !== finalChoice.provider)
+                            .map((p) => (
+                              <Button
+                                key={p.provider}
+                                variant="outline"
+                                className="relative h-auto min-w-[140px] py-4 px-6 flex flex-col items-center justify-center gap-3 border-border hover:border-primary/30 hover:bg-primary/5 shadow-sm transition-all hover:shadow-md"
+                                onClick={() => {
+                                  const selectedEnhancement = enhancements[p.provider as ProviderType];
+                                  setFinalChoice({
+                                    provider: p.provider,
+                                    price: p.price,
+                                    currency: finalChoice.currency,
+                                    enhancedQuote: selectedEnhancement || undefined,
+                                    isOverride: !p.isWinner
+                                  });
+                                }}
+                              >
+                                {p.isWinner && (
+                                  <div className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-sm border border-slate-200" title="Original Recommendation">
+                                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                                  </div>
+                                )}
+                                <div className="h-8 flex items-center justify-center">
+                                  <ProviderLogo provider={p.provider as ProviderType} maxWidth={80} maxHeight={24} />
+                                </div>
+                                <span className="font-bold text-slate-800 text-lg">
+                                  {formatMoney(p.price, finalChoice.currency)}
+                                </span>
+                              </Button>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+
                   </div>
 
                   {/* CTA Button */}
@@ -2850,10 +2894,10 @@ const QuotePageContent = memo(() => {
                   </div>
                 </div>
               ) : (
-                <div className="bg-gradient-to-br from-white via-purple-50/30 to-blue-50/30 border border-slate-200 shadow-lg p-6 md:p-8">
+                <div className="bg-card border border-border shadow-sm p-6 md:p-8">
                   <div className="mx-auto flex max-w-5xl flex-col gap-8">
                     {/* Consolidated Acid Test Header */}
-                    <div className="bg-white shadow-sm border border-slate-200 p-6">
+                    <div className="bg-card shadow-sm border border-border p-6 rounded-xl">
                       <div className="flex items-center justify-between">
                         {/* Left: Acid Test Title */}
                         <div>
@@ -2938,17 +2982,17 @@ const QuotePageContent = memo(() => {
 
 
                     {(isCategorizingCosts || isComputingAcidTest) ? (
-                      <div id="acid-test-categorizing" className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 shadow-sm p-10">
+                      <div id="acid-test-categorizing" className="bg-primary/5 border border-primary/20 shadow-sm p-10">
                         <div className="flex flex-col items-center justify-center gap-4 text-center">
                           <div className="flex items-center justify-center gap-3">
                             <LoadingSpinner />
-                            <div className="text-xl font-bold text-purple-700">Categorizing Costs & Computing Acid Test...</div>
+                            <div className="text-xl font-bold text-primary">Categorizing Costs & Computing Acid Test...</div>
                           </div>
                           <div className="space-y-2">
-                            <p className="text-sm text-purple-600 max-w-lg">
+                            <p className="text-sm text-primary/80 max-w-lg">
                               Analyzing cost structure and running comprehensive profitability analysis.
                             </p>
-                            <div className="flex items-center gap-2 text-xs text-purple-500">
+                            <div className="flex items-center gap-2 text-xs text-primary/60">
                               <Target className="h-4 w-4" />
                               <span>This may take a few moments...</span>
                             </div>
@@ -2956,9 +3000,9 @@ const QuotePageContent = memo(() => {
                         </div>
                       </div>
                     ) : !acidTestCostData ? (
-                      <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 shadow-sm p-6">
+                      <div className="bg-amber-500/10 border border-amber-500/20 shadow-sm p-6 rounded-lg">
                         <div className="flex items-start gap-3">
-                          <div className="flex-shrink-0 w-10 h-10 bg-amber-100 border border-amber-200 flex items-center justify-center">
+                          <div className="flex-shrink-0 w-10 h-10 bg-amber-500/20 border border-amber-500/30 rounded-md flex items-center justify-center">
                             <XCircle className="h-5 w-5 text-amber-600" />
                           </div>
                           <div>
@@ -2979,7 +3023,7 @@ const QuotePageContent = memo(() => {
                         {(() => {
                             const { summary, breakdown, billRateComposition, conversionError } = acidTestResults
                             const profitClass = summary.profitLocal >= 0 ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
-                            const profitTextClass = summary.profitLocal >= 0 ? 'text-green-700' : 'text-red-700'
+                            const profitTextClass = summary.profitLocal >= 0 ? 'text-foreground' : 'text-red-700'
                             const statusBadgeClass = summary.meetsPositive && summary.meetsMinimum
                               ? 'bg-green-100 text-green-800 border-green-200'
                               : summary.meetsPositive
@@ -3086,11 +3130,11 @@ const QuotePageContent = memo(() => {
                                 </div> */}
 
                                 {/* Simplified Acid Test Summary */}
-                                {/* <div className="bg-white border border-slate-200 shadow-lg p-8 mb-6">
+                                {/* <div className="bg-card border border-border shadow-sm p-8 rounded-xl mb-6">
                                   <div className="text-center">
                                     <div className="flex items-center justify-center gap-3 mb-6">
-                                      <div className="p-3 bg-purple-100 rounded-lg">
-                                        <Zap className="h-8 w-8 text-purple-600" />
+                                      <div className="p-3 bg-primary/10 rounded-lg rounded-lg">
+                                        <Zap className="h-8 w-8 text-primary/80" />
                                       </div>
                                       <h3 className="text-2xl font-bold text-slate-800">Acid Test Result</h3>
                                     </div>
@@ -3108,7 +3152,7 @@ const QuotePageContent = memo(() => {
                                       </div>
                                       <div className="text-center">
                                         <p className="text-sm text-slate-500 mb-1">Total Revenue</p>
-                                        <p className="text-xl font-bold text-green-600">
+                                        <p className="text-xl font-bold text-primary">
                                           {formatMoney(summary.revenueTotal, summary.currency)}
                                         </p>
                                       </div>
@@ -3120,7 +3164,7 @@ const QuotePageContent = memo(() => {
                                       </div>
                                       <div className="text-center">
                                         <p className="text-sm text-slate-500 mb-1">Profit</p>
-                                        <p className={`text-xl font-bold ${summary.profitLocal >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                                        <p className={`text-xl font-bold ${summary.profitLocal >= 0 ? 'text-foreground' : 'text-red-700'}`}>
                                           {formatMoney(summary.profitLocal, summary.currency)}
                                         </p>
                                       </div>
@@ -3133,7 +3177,7 @@ const QuotePageContent = memo(() => {
                                           ? 'bg-amber-50 border-amber-200'
                                           : 'bg-red-50 border-red-200'
                                     }`}>
-                                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-white ${
+                                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-primary-foreground ${
                                         summary.meetsPositive && summary.meetsMinimum
                                           ? 'bg-green-600'
                                           : summary.meetsPositive
@@ -3175,11 +3219,11 @@ const QuotePageContent = memo(() => {
                                 </div> */}
 
                                 {/* Bill Rate Composition Breakdown */}
-                                <div className="bg-white border border-slate-200 shadow-lg p-8">
+                                <div className="bg-card border border-border shadow-sm p-8 rounded-xl">
                                   <div className="mb-8">
                                     <div className="flex items-center gap-3 mb-3">
-                                      <div className="p-2 bg-purple-100">
-                                        <Calculator className="h-6 w-6 text-purple-600" />
+                                      <div className="p-2 bg-primary/10 rounded-lg">
+                                        <Calculator className="h-6 w-6 text-primary/80" />
                                       </div>
                                       <h4 className="text-2xl font-bold text-slate-800">Bill Rate Composition Analysis</h4>
                                     </div>
@@ -3187,8 +3231,8 @@ const QuotePageContent = memo(() => {
                                   </div>
 
                                   {/* Main Comparison Table */}
-                                  <div className="bg-white border border-slate-200 shadow-sm overflow-hidden mb-6">
-                                    <div className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200 px-6 py-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                  <div className="bg-card border border-border shadow-sm overflow-hidden mb-6 rounded-xl">
+                                    <div className="bg-muted/50 border-b border-border px-6 py-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                       <div>
                                         <h5 className="text-lg font-bold text-slate-900">Cost Structure Breakdown</h5>
                                         <p className="text-xs text-slate-600 mt-1">
@@ -3196,7 +3240,7 @@ const QuotePageContent = memo(() => {
                                         </p>
                                       </div>
                                       <div className="flex flex-col gap-2 lg:items-end">
-                                        <div className="flex items-center gap-2 bg-white border border-slate-300 rounded-lg px-4 py-2 shadow-sm">
+                                        <div className="flex items-center gap-2 bg-card border border-input rounded-lg px-4 py-2 shadow-sm">
                                           <label
                                             htmlFor="gracemark-fee-input"
                                             className="text-xs font-semibold text-slate-700 whitespace-nowrap"
@@ -3222,7 +3266,7 @@ const QuotePageContent = memo(() => {
                                               size="sm"
                                               disabled={isSaveGracemarkFeeDisabled}
                                               onClick={handleSaveGracemarkFee}
-                                              className="h-8 ml-1 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+                                              className="h-8 ml-1 bg-blue-600 hover:bg-blue-700 text-primary-foreground disabled:opacity-50"
                                             >
                                               Apply
                                             </Button>
@@ -3366,9 +3410,9 @@ const QuotePageContent = memo(() => {
                                                     <div className="w-3 h-3 bg-green-500"></div>
                                                     <span className="font-medium text-slate-800">Allowances & Benefits</span>
                                                     {expandedCategories.has('allowancesBenefits') ? (
-                                                      <ChevronUp className="h-4 w-4 text-slate-500 group-hover:text-green-600 transition-colors" />
+                                                      <ChevronUp className="h-4 w-4 text-slate-500 group-hover:text-primary transition-colors" />
                                                     ) : (
-                                                      <ChevronDown className="h-4 w-4 text-slate-500 group-hover:text-green-600 transition-colors" />
+                                                      <ChevronDown className="h-4 w-4 text-slate-500 group-hover:text-primary transition-colors" />
                                                     )}
                                                   </div>
                                                 </td>
@@ -3405,7 +3449,7 @@ const QuotePageContent = memo(() => {
                                                     </td>
                                                   )}
                                                   <td className="py-3 px-6 text-center">
-                                                    <Badge className="bg-green-50 text-green-600 border-green-100 text-xs">Detail</Badge>
+                                                    <Badge className="bg-green-50 text-primary border-green-100 text-xs">Detail</Badge>
                                                   </td>
                                                 </tr>
                                               ))}
@@ -3477,9 +3521,9 @@ const QuotePageContent = memo(() => {
                                                     <div className="w-3 h-3 bg-yellow-500"></div>
                                                     <span className="font-medium text-slate-800">Termination Provision</span>
                                                     {expandedCategories.has('terminationCosts') ? (
-                                                      <ChevronUp className="h-4 w-4 text-slate-500 group-hover:text-yellow-600 transition-colors" />
+                                                      <ChevronUp className="h-4 w-4 text-slate-500 group-hover:text-primary transition-colors" />
                                                     ) : (
-                                                      <ChevronDown className="h-4 w-4 text-slate-500 group-hover:text-yellow-600 transition-colors" />
+                                                      <ChevronDown className="h-4 w-4 text-slate-500 group-hover:text-primary transition-colors" />
                                                     )}
                                                   </div>
                                                 </td>
@@ -3516,7 +3560,7 @@ const QuotePageContent = memo(() => {
                                                     </td>
                                                   )}
                                                   <td className="py-3 px-6 text-center">
-                                                    <Badge className="bg-yellow-50 text-yellow-600 border-yellow-100 text-xs">Detail</Badge>
+                                                    <Badge className="bg-yellow-50 text-primary border-yellow-100 text-xs">Detail</Badge>
                                                   </td>
                                                 </tr>
                                               ))}
@@ -3526,7 +3570,7 @@ const QuotePageContent = memo(() => {
                                             <td className="py-4 px-6">
                                               <div className="flex items-center gap-3">
                                                 <div className="w-3 h-3 bg-purple-600"></div>
-                                                <span className="font-bold text-purple-800">
+                                                <span className="font-bold text-primary">
                                                   {(() => {
                                                     const value = Number.isFinite(billRateComposition.gracemarkFeePercentage)
                                                       ? billRateComposition.gracemarkFeePercentage
@@ -3540,7 +3584,7 @@ const QuotePageContent = memo(() => {
                                               {formatMoney(billRateComposition.gracemarkFeeMonthly, acidTestCostData?.currency || 'EUR')}
                                             </td>
                                             {acidTestCostData?.currency !== 'USD' && (
-                                              <td className="py-4 px-6 text-right font-bold text-purple-700">
+                                              <td className="py-4 px-6 text-right font-bold text-primary">
                                                 {billRateComposition.gracemarkFeeMonthlyUSD
                                                   ? formatMoney(billRateComposition.gracemarkFeeMonthlyUSD, 'USD')
                                                   : '—'
@@ -3548,7 +3592,7 @@ const QuotePageContent = memo(() => {
                                               </td>
                                             )}
                                             <td className="py-4 px-6 text-center">
-                                              <Badge className="bg-purple-100 text-purple-800 border-purple-200">Service</Badge>
+                                              <Badge className="bg-primary/10 rounded-lg text-primary border-purple-200">Service</Badge>
                                             </td>
                                           </tr>
                                         </tbody>
@@ -3737,7 +3781,7 @@ const QuotePageContent = memo(() => {
                                         }`}>
                                           <span className="font-bold text-slate-800">Net Difference</span>
                                           <span className={`text-xl font-bold ${
-                                            billRateComposition.rateDiscrepancy >= 0 ? 'text-green-700' : 'text-red-700'
+                                            billRateComposition.rateDiscrepancy >= 0 ? 'text-foreground' : 'text-red-700'
                                           }`}>
                                             {renderDifferenceValue(billRateComposition.rateDiscrepancy, billRateComposition.rateDiscrepancyUSD)}
                                           </span>
@@ -3765,7 +3809,7 @@ const QuotePageContent = memo(() => {
                                               {billRateComposition.rateDiscrepancy >= 0 ? '✅ Above Expected Rate' : '⚠️ Below Expected Rate'}
                                             </div>
                                             <p className={`text-sm ${
-                                              billRateComposition.rateDiscrepancy >= 0 ? 'text-green-700' : 'text-red-700'
+                                              billRateComposition.rateDiscrepancy >= 0 ? 'text-foreground' : 'text-red-700'
                                             }`}>
                                               {billRateComposition.rateDiscrepancy >= 0 ? (
                                                 <>
@@ -3793,7 +3837,7 @@ const QuotePageContent = memo(() => {
                                           </div>
 
                                           <div className="bg-blue-100 border border-blue-200 p-3">
-                                            <div className="font-medium text-blue-900 mb-1">Recommended Action</div>
+                                            <div className="font-medium text-foreground mb-1">Recommended Action</div>
                                             <p className="text-sm text-blue-800">
                                               {billRateComposition.rateDiscrepancy >= 0
                                                 ? 'Your current rate structure provides healthy margins. Monitor for any significant cost changes in future periods.'
@@ -3820,7 +3864,7 @@ const QuotePageContent = memo(() => {
                       {acidTestResults && (
                         <Button
                           onClick={handleExportAcidTestPdf}
-                          className="bg-purple-600 px-8 py-3 text-base font-medium text-white hover:bg-purple-700"
+                          className="bg-purple-600 px-8 py-3 text-base font-medium text-primary-foreground hover:bg-purple-700"
                           disabled={isExportingPdf}
                         >
                           <FileText className="h-4 w-4 mr-2" />
@@ -5944,7 +5988,7 @@ const QuotePageContent = memo(() => {
               onClick={() => handleSelectSide('primary')}
               className={
                 selectedSide === 'primary'
-                  ? 'px-3 py-1.5 text-sm font-semibold bg-slate-900 text-white transition-colors duration-150'
+                  ? 'px-3 py-1.5 text-sm font-semibold bg-slate-900 text-primary-foreground transition-colors duration-150'
                   : 'px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors duration-150'
               }
             >
@@ -5955,7 +5999,7 @@ const QuotePageContent = memo(() => {
               onClick={() => handleSelectSide('compare')}
               className={
                 selectedSide === 'compare'
-                  ? 'px-3 py-1.5 text-sm font-semibold bg-slate-900 text-white transition-colors duration-150'
+                  ? 'px-3 py-1.5 text-sm font-semibold bg-slate-900 text-primary-foreground transition-colors duration-150'
                   : 'px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors duration-150'
               }
             >
@@ -6021,8 +6065,8 @@ const QuotePageContent = memo(() => {
             <div className="px-6 py-4 border-b border-slate-200 bg-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="p-2.5 bg-slate-900 shadow-sm">
-                    <Activity className="h-5 w-5 text-white" />
+                  <div className="p-2.5 bg-primary shadow-sm">
+                    <Activity className="h-5 w-5 text-primary-foreground" />
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-slate-900">
@@ -6051,7 +6095,7 @@ const QuotePageContent = memo(() => {
               {/* Progress Bar */}
               <div className="mt-4 bg-slate-200 h-2.5 overflow-hidden">
                 <div
-                  className="h-full bg-slate-900 transition-all duration-500 ease-out"
+                  className="h-full bg-primary transition-all duration-500 ease-out"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>

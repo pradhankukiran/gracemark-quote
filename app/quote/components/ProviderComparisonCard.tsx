@@ -37,17 +37,17 @@ export function ProviderComparisonCard({
 
   // Determine card styling
   const borderColor = isWinner
-    ? "border-yellow-400 shadow-yellow-200 shadow-lg"
+    ? "border-primary shadow-sm ring-1 ring-primary"
     : isDeelBaseline
-    ? "border-blue-300 shadow-blue-100"
+    ? "border-blue-300 shadow-sm"
     : isCompliant
-    ? "border-green-300 shadow-green-100"
-    : "border-red-300 shadow-red-100"
+    ? "border-green-300 shadow-sm"
+    : "border-red-300 shadow-sm"
 
   const bgColor = isWinner
-    ? "bg-gradient-to-br from-yellow-50 via-white to-yellow-50"
+    ? "bg-primary/5"
     : isDeelBaseline
-    ? "bg-gradient-to-br from-blue-50 via-white to-blue-50"
+    ? "bg-blue-50/30"
     : isCompliant
     ? "bg-white"
     : "bg-white"
@@ -60,7 +60,7 @@ export function ProviderComparisonCard({
 
   return (
     <div
-      className={`relative border-2 ${borderColor} ${bgColor} shadow-md hover:shadow-xl transition-all duration-300 p-5 group`}
+      className={`relative border ${borderColor} ${bgColor} transition-all duration-300 p-5 group`}
     >
       {/* Winner Badge */}
       {isWinner && (

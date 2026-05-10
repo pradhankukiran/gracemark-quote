@@ -13,7 +13,7 @@ import {
   Target,
   XCircle,
   Zap,
-} from "lucide-react"
+, Star } from "lucide-react"
 import type { EnhancedQuote, ProviderType } from "@/lib/types/enhancement"
 import {
   selectVarianceWinner,
@@ -29,6 +29,7 @@ export interface FinalChoiceData {
   price: number
   currency: string
   enhancedQuote?: EnhancedQuote
+  isOverride?: boolean
 }
 
 // Provider entry shown in the gathering / analyzing / selecting phases.
@@ -303,24 +304,24 @@ export default function ReconciliationModal({
           id="phase-gathering"
           className={`
             bg-white border shadow-sm p-6 transition-all duration-300 ease-in-out
-            ${isPhaseActive('gathering') ? 'border-slate-900 shadow-lg' :
-              isPhaseCompleted('gathering') ? 'border-green-500 shadow-md' :
-              'border-slate-200 opacity-60'}
+            ${isPhaseActive('gathering') ? 'border-primary shadow-sm ring-1 ring-primary' :
+              isPhaseCompleted('gathering') ? 'border-primary/50 shadow-sm' :
+              'border-border opacity-60'}
           `}
         >
           <div className="flex items-center gap-4 mb-6">
             <div className={`
               p-3
-              ${isPhaseActive('gathering') ? 'bg-slate-100' :
-                isPhaseCompleted('gathering') ? 'bg-green-100' :
-                'bg-slate-50'}
+              ${isPhaseActive('gathering') ? 'bg-primary/10' :
+                isPhaseCompleted('gathering') ? 'bg-primary/10' :
+                'bg-muted'}
             `}>
               {isPhaseCompleted('gathering') ? (
-                <CheckCircle className="h-6 w-6 text-green-600" />
+                <CheckCircle className="h-6 w-6 text-primary" />
               ) : isPhaseActive('gathering') ? (
-                <Activity className="h-6 w-6 text-slate-900 animate-pulse" />
+                <Activity className="h-6 w-6 text-primary animate-pulse" />
               ) : (
-                <Clock className="h-6 w-6 text-slate-400" />
+                <Clock className="h-6 w-6 text-muted-foreground" />
               )}
             </div>
             <div>
@@ -365,7 +366,7 @@ export default function ReconciliationModal({
                               return (
                                 <div
                                   key={provider.provider}
-                                  className="w-48 sm:w-56 md:w-60 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 px-6 py-5 text-center transition-all duration-300 hover:shadow-lg hover:border-blue-400 hover:scale-105"
+                                  className="w-48 sm:w-56 md:w-60 bg-card border border-border px-6 py-5 text-center transition-all duration-300 hover:border-primary/30 hover:bg-primary/5 hover:shadow-sm transition-all"
                                 >
                                   <div className="w-28 h-8 mx-auto mb-3 border-2 border-slate-200 flex items-center justify-center bg-white">
                                     <ProviderLogo provider={provider.provider as ProviderType} maxWidth={140} maxHeight={28} />
@@ -373,10 +374,10 @@ export default function ReconciliationModal({
                                   <div className="text-sm font-bold text-slate-800 capitalize mb-1 tracking-wide">
                                     {provider.provider}
                                   </div>
-                                  <div className="text-base font-bold text-blue-900">
+                                  <div className="text-base font-bold text-foreground">
                                     {formatMoney(provider.price, currency)}
                                   </div>
-                                  <Badge className="mt-2 bg-blue-100 text-blue-700 border-blue-200 text-[11px] px-3 py-1">
+                                  <Badge className="mt-2 bg-primary/10 text-primary border-primary/20 text-[11px] px-3 py-1">
                                     Collected
                                   </Badge>
                                 </div>
@@ -409,24 +410,24 @@ export default function ReconciliationModal({
           id="phase-analyzing"
           className={`
             bg-white border shadow-sm p-6 transition-all duration-300 ease-in-out
-            ${isPhaseActive('analyzing') ? 'border-slate-900 shadow-lg' :
-              isPhaseCompleted('analyzing') ? 'border-green-500 shadow-md' :
-              'border-slate-200 opacity-60'}
+            ${isPhaseActive('analyzing') ? 'border-primary shadow-sm ring-1 ring-primary' :
+              isPhaseCompleted('analyzing') ? 'border-primary/50 shadow-sm' :
+              'border-border opacity-60'}
           `}
         >
           <div className="flex items-center gap-4 mb-6">
             <div className={`
               p-3
-              ${isPhaseActive('analyzing') ? 'bg-slate-100' :
-                isPhaseCompleted('analyzing') ? 'bg-green-100' :
-                'bg-slate-50'}
+              ${isPhaseActive('analyzing') ? 'bg-primary/10' :
+                isPhaseCompleted('analyzing') ? 'bg-primary/10' :
+                'bg-muted'}
             `}>
               {isPhaseCompleted('analyzing') ? (
-                <CheckCircle className="h-6 w-6 text-green-600" />
+                <CheckCircle className="h-6 w-6 text-primary" />
               ) : isPhaseActive('analyzing') ? (
-                <BarChart3 className="h-6 w-6 text-slate-900 animate-pulse" />
+                <BarChart3 className="h-6 w-6 text-primary animate-pulse" />
               ) : (
-                <Clock className="h-6 w-6 text-slate-400" />
+                <Clock className="h-6 w-6 text-muted-foreground" />
               )}
             </div>
             <div>
@@ -440,7 +441,7 @@ export default function ReconciliationModal({
           </div>
 
           {isPhaseStarted('analyzing') && providerData.length > 0 && (
-            <div id="analyzing-results" className="bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 border border-slate-200 shadow-lg p-8">
+            <div id="analyzing-results" className="bg-card border border-border shadow-sm p-8">
               {/* Visual Chart */}
               {(() => {
                 const deelProvider = providerData.find(p => p.provider === 'deel')
@@ -464,24 +465,24 @@ export default function ReconciliationModal({
           id="phase-selecting"
           className={`
             bg-white border shadow-sm p-6 transition-all duration-300 ease-in-out
-            ${isPhaseActive('selecting') ? 'border-slate-900 shadow-lg' :
-              isPhaseCompleted('selecting') ? 'border-green-500 shadow-md' :
-              'border-slate-200 opacity-60'}
+            ${isPhaseActive('selecting') ? 'border-primary shadow-sm ring-1 ring-primary' :
+              isPhaseCompleted('selecting') ? 'border-primary/50 shadow-sm' :
+              'border-border opacity-60'}
           `}
         >
           <div className="flex items-center gap-4 mb-6">
             <div className={`
               p-3
-              ${isPhaseActive('selecting') ? 'bg-slate-100' :
-                isPhaseCompleted('selecting') ? 'bg-green-100' :
-                'bg-slate-50'}
+              ${isPhaseActive('selecting') ? 'bg-primary/10' :
+                isPhaseCompleted('selecting') ? 'bg-primary/10' :
+                'bg-muted'}
             `}>
               {isPhaseCompleted('selecting') ? (
-                <CheckCircle className="h-6 w-6 text-green-600" />
+                <CheckCircle className="h-6 w-6 text-primary" />
               ) : isPhaseActive('selecting') ? (
-                <Target className="h-6 w-6 text-slate-900 animate-pulse" />
+                <Target className="h-6 w-6 text-primary animate-pulse" />
               ) : (
-                <Clock className="h-6 w-6 text-slate-400" />
+                <Clock className="h-6 w-6 text-muted-foreground" />
               )}
             </div>
             <div>
@@ -513,14 +514,14 @@ export default function ReconciliationModal({
                             <div
                               key={provider.provider}
                               className={`
-                                w-48 sm:w-56 md:w-60 border-2 px-6 py-5 text-center transition-all duration-300
-                                ${provider.isWinner ? 'bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-400 shadow-lg scale-105' :
-                                  provider.inRange ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-300 shadow-sm hover:shadow-md hover:border-green-400' :
-                                  'bg-slate-50 border-slate-200 opacity-50'}
+                                w-48 sm:w-56 md:w-60 border px-6 py-5 text-center transition-all duration-300
+                                ${provider.isWinner ? 'bg-primary/5 border-primary shadow-sm scale-105' :
+                                  provider.inRange ? 'bg-card border-border shadow-sm hover:border-primary/30 hover:bg-primary/5' :
+                                  'bg-muted border-border opacity-50'}
                               `}
                             >
                               {provider.isWinner && (
-                                <Crown className="h-5 w-5 text-yellow-600 mx-auto mb-2" />
+                                <Crown className="h-5 w-5 text-primary mx-auto mb-2" />
                               )}
                               <div className="w-28 h-8 mx-auto mb-3 border-2 border-slate-200 flex items-center justify-center bg-white">
                                 <ProviderLogo provider={provider.provider as ProviderType} maxWidth={140} maxHeight={28} />
@@ -529,18 +530,18 @@ export default function ReconciliationModal({
                                 {provider.provider}
                               </div>
                               <div className={`text-base font-bold ${
-                                provider.isWinner ? 'text-yellow-900' :
-                                provider.inRange ? 'text-green-700' : 'text-slate-600'
+                                provider.isWinner ? 'text-foreground' :
+                                provider.inRange ? 'text-foreground' : 'text-slate-600'
                               }`}>
                                 {formatMoney(provider.price, currency)}
                               </div>
                               {provider.isWinner && (
-                                <Badge className="mt-2 bg-yellow-400 text-yellow-900 border-yellow-500 text-[11px] font-bold px-3 py-1">
+                                <Badge className="mt-2 bg-yellow-400 text-foreground border-yellow-500 text-[11px] font-bold px-3 py-1">
                                   WINNER
                                 </Badge>
                               )}
                               {!provider.isWinner && provider.inRange && (
-                                <Badge className="mt-2 bg-green-100 text-green-700 border-green-200 text-[11px] px-3 py-1">
+                                <Badge className="mt-2 bg-green-100 text-foreground border-green-200 text-[11px] px-3 py-1">
                                   Qualified
                                 </Badge>
                               )}
@@ -573,12 +574,12 @@ export default function ReconciliationModal({
           <div className="flex items-center gap-4 mb-6">
             <div className={`
               p-3
-              ${isPhaseStarted('complete') ? 'bg-green-100' : 'bg-slate-50'}
+              ${isPhaseStarted('complete') ? 'bg-primary/10' : 'bg-muted'}
             `}>
               {isPhaseStarted('complete') ? (
-                <Crown className="h-6 w-6 text-green-600" />
+                <Crown className="h-6 w-6 text-primary" />
               ) : (
-                <Clock className="h-6 w-6 text-slate-400" />
+                <Clock className="h-6 w-6 text-muted-foreground" />
               )}
             </div>
             <div>
@@ -594,15 +595,15 @@ export default function ReconciliationModal({
               {!showAcidTestForm ? (
                 <div className="space-y-6">
                   {/* Winner Announcement Card */}
-                  <div className="bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 border-2 border-green-300 shadow-xl p-8 transition-all duration-300">
+                  <div className="bg-card border border-primary shadow-sm p-8 transition-all duration-300">
                     <div className="text-center">
-                      <h4 className="text-2xl font-bold text-slate-800 mb-2">Recommended Provider</h4>
+                      <h4 className="text-2xl font-bold text-slate-800 mb-2">{finalChoice.isOverride ? 'Selected Provider (Override)' : 'Recommended Provider'}</h4>
                       <div className="flex items-center justify-center gap-4 mb-4">
-                        <div className="w-32 h-16 flex items-center justify-center bg-white border-2 border-green-300 shadow-md p-3">
+                        <div className="w-32 h-16 flex items-center justify-center bg-white border border-border shadow-sm p-3">
                           <ProviderLogo provider={finalChoice.provider as ProviderType} />
                         </div>
                       </div>
-                      <div className="text-6xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-6 tracking-tight">
+                      <div className="text-6xl font-bold text-primary mb-6 tracking-tight">
                         {formatMoney(finalChoice.price, finalChoice.currency)}
                       </div>
                       <div className="text-center">
@@ -610,13 +611,57 @@ export default function ReconciliationModal({
                         onClick={() => onStartAcidTest?.()}
                         disabled={!finalChoice || !providerData.length || !onStartAcidTest}
                         size="lg"
-                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-10 py-4 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm transition-all duration-200 px-10 py-4 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Zap className="h-6 w-6 mr-3" />
                         Start Acid Test
                       </Button>
                     </div>
                     </div>
+
+                    {/* Override Section */}
+                    {providerData.length > 1 && (
+                      <div className="mt-8 pt-8 border-t border-border">
+                        <h5 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 text-center">
+                          Or Proceed With Alternative Provider
+                        </h5>
+                        <div className="flex flex-wrap justify-center gap-3">
+                          {providerData
+                            .filter((p) => p.provider !== finalChoice.provider)
+                            .map((p) => (
+                              <Button
+                                key={p.provider}
+                                variant="outline"
+                                className="relative h-auto min-w-[140px] py-4 px-6 flex flex-col items-center justify-center gap-3 border-border hover:border-primary/30 hover:bg-primary/5 shadow-sm transition-all hover:shadow-md"
+                                onClick={() => {
+                                  const selectedEnhancement = enhancements[p.provider as ProviderType];
+                                  const choiceData = {
+                                    provider: p.provider,
+                                    price: p.price,
+                                    currency: finalChoice.currency,
+                                    enhancedQuote: selectedEnhancement || undefined,
+                                    isOverride: !p.isWinner
+                                  };
+                                  setFinalChoice(choiceData);
+                                }}
+                              >
+                                {p.isWinner && (
+                                  <div className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-sm border border-slate-200" title="Original Recommendation">
+                                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                                  </div>
+                                )}
+                                <div className="h-8 flex items-center justify-center">
+                                  <ProviderLogo provider={p.provider as ProviderType} maxWidth={80} maxHeight={24} />
+                                </div>
+                                <span className="font-bold text-slate-800 text-lg">
+                                  {formatMoney(p.price, finalChoice.currency)}
+                                </span>
+                              </Button>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+
                   </div>
 
                   {/* CTA Button */}
@@ -662,8 +707,8 @@ export default function ReconciliationModal({
         <div className="px-6 py-4 border-b border-slate-200 bg-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="p-2.5 bg-slate-900 shadow-sm">
-                <Activity className="h-5 w-5 text-white" />
+              <div className="p-2.5 bg-primary shadow-sm">
+                <Activity className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-slate-900">
@@ -692,7 +737,7 @@ export default function ReconciliationModal({
           {/* Progress Bar */}
           <div className="mt-4 bg-slate-200 h-2.5 overflow-hidden">
             <div
-              className="h-full bg-slate-900 transition-all duration-500 ease-out"
+              className="h-full bg-primary transition-all duration-500 ease-out"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
