@@ -263,7 +263,7 @@ export const EnhancementBreakdown: React.FC<EnhancementBreakdownProps> = ({
       </div>
 
       {/* Total Enhancement */}
-      <div className="bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-lg p-4">
+      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="font-medium text-green-800">Total Legal Enhancements</p>

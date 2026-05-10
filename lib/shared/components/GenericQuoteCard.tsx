@@ -423,7 +423,7 @@ export const GenericQuoteCard = memo(({
 
   if (!primaryQuote && !isDualCurrencyMode) {
     return (
-      <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+      <Card className="border border-border shadow-sm bg-card">
         <CardContent className="p-6">
           <div className="flex justify-center items-center h-40">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -489,7 +489,7 @@ export const GenericQuoteCard = memo(({
     isDualCurrencyMode && changedQuote ? computeRenderedTotal(changedQuote) : undefined
 
   return (
-    <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+    <Card className="border border-border shadow-sm bg-card">
       <CardContent className="p-6">
         <div className="grid grid-cols-3 items-center mb-6">
           <div className="flex justify-start">{theme.logo}</div>
@@ -644,7 +644,7 @@ export const GenericQuoteCard = memo(({
 
           <Separator className="my-4" />
 
-          <div className={`bg-gradient-to-r ${theme.gradientFrom} ${theme.gradientTo} p-4 border-2 border-primary/20 ${totalPending ? 'opacity-60' : ''}`}>
+          <div className={`bg-muted/50 p-4 border-t border-border rounded-b-xl ${totalPending ? 'opacity-60' : ''}`}>
             {showMultipleColumns ? (
               <div
                 className={`grid ${

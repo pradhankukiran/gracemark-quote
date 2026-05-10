@@ -166,7 +166,7 @@ export const EnhancedQuoteCard: React.FC<EnhancedQuoteCardProps> = ({
 
       <CardContent className="space-y-4">
         {/* Cost Summary */}
-        <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-4 rounded-lg">
+        <div className="bg-muted/50 border border-border p-4 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-600">Monthly Total</p>
